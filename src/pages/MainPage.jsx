@@ -6,8 +6,8 @@ export function MainPage({ shifts, loading }) {
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [detailDate, setDetailDate] = useState(null)
     const [isDetailOpen, setIsDetailOpen] = useState(false)
-    const [returnMode, setReturnMode] = useState('month') // запоминаем режим
-    const [calendarMode, setCalendarMode] = useState('month') // текущий режим календаря
+    const [returnMode, setReturnMode] = useState('month')
+    const [calendarMode, setCalendarMode] = useState('month')
 
     useEffect(() => {
         setSelectedDate(new Date())
@@ -19,20 +19,18 @@ export function MainPage({ shifts, loading }) {
 
     const handleDayClick = (date, mode) => {
         setDetailDate(date)
-        setReturnMode(mode) // запоминаем режим
+        setReturnMode(mode)
         setIsDetailOpen(true)
     }
 
     const handleCloseDetail = () => {
         setIsDetailOpen(false)
         setDetailDate(null)
-        // Возвращаемся в запомненный режим
         setCalendarMode(returnMode)
     }
 
     const handleModeChange = (mode) => {
         setCalendarMode(mode)
-        // Если детальный просмотр открыт — закрываем его
         if (isDetailOpen) {
             setIsDetailOpen(false)
             setDetailDate(null)
@@ -41,31 +39,47 @@ export function MainPage({ shifts, loading }) {
 
     return (
         <>
-            <Calendar
-                shifts={shifts}
-                selectedDate={selectedDate}
-                onDateSelect={setSelectedDate}
-                onDayClick={handleDayClick}
-                mode={calendarMode}
-                onModeChange={handleModeChange}
-            />
-            
             {isDetailOpen && detailDate ? (
-                // Детальный просмотр (заменяет обычный таймлайн)
-                <Timeline 
-                    shifts={shifts} 
-                    date={detailDate} 
-                    onClose={handleCloseDetail}
-                    isFullscreen={false}
-                />
+                // === ЭКРАН ДЕТАЛЬНОГО ПРОСМОТРА ===
+                <div className="detail-screen">
+                    <div className="detail-screen-header">
+                        <button className="detail-screen-back" onClick={handleCloseDetail}>
+                            ← Назад
+                        </button>
+                        <span className="detail-screen-title">
+                            📅 {detailDate.getDate()} {['Января','Февраля','Марта','Апреля','Мая','Июня','Июля','Августа','Сентября','Октября','Ноября','Декабря'][detailDate.getMonth()]} {detailDate.getFullYear()}
+                        </span>
+                        <button className="detail-screen-close" onClick={handleCloseDetail}>
+                            ✕
+                        </button>
+                    </div>
+                    <div className="detail-screen-content">
+                        <Timeline 
+                            shifts={shifts} 
+                            date={detailDate} 
+                            onClose={handleCloseDetail}
+                            isFullscreen={true}
+                        />
+                    </div>
+                </div>
             ) : (
-                // Обычный режим — таймлайн для выбранной даты
-                <Timeline 
-                    shifts={shifts} 
-                    date={selectedDate} 
-                    onClose={null}
-                    isFullscreen={false}
-                />
+                // === ОБЫЧНЫЙ РЕЖИМ ===
+                <>
+                    <Calendar
+                        shifts={shifts}
+                        selectedDate={selectedDate}
+                        onDateSelect={setSelectedDate}
+                        onDayClick={handleDayClick}
+                        mode={calendarMode}
+                        onModeChange={handleModeChange}
+                    />
+                    <Timeline 
+                        shifts={shifts} 
+                        date={selectedDate} 
+                        onClose={null}
+                        isFullscreen={false}
+                    />
+                </>
             )}
         </>
     )
