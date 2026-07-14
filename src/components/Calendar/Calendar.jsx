@@ -7,19 +7,22 @@ export function Calendar({ shifts, selectedDate, onDateSelect }) {
     const [mode, setMode] = useState('month')
     const [currentDate, setCurrentDate] = useState(new Date())
 
+    // При загрузке и при смене даты — всегда устанавливаем сегодня
     useEffect(() => {
-        if (selectedDate) {
-            setCurrentDate(new Date(selectedDate))
-        }
-    }, [selectedDate])
+        const today = new Date()
+        onDateSelect(today)
+        setCurrentDate(today)
+    }, [])
 
     const getDays = () => {
         const year = currentDate.getFullYear()
         const month = currentDate.getMonth()
         
         switch (mode) {
-            case 'day':
-                return [{ date: new Date(selectedDate), day: selectedDate.getDate(), empty: false }]
+            case 'today': {
+                const today = new Date()
+                return [{ date: today, day: today.getDate(), empty: false }]
+            }
             case 'week':
                 return getWeekDays(currentDate)
             case 'month':
@@ -35,8 +38,10 @@ export function Calendar({ shifts, selectedDate, onDateSelect }) {
         const month = currentDate.getMonth()
         
         switch (mode) {
-            case 'day':
-                return `${selectedDate.getDate()} ${MONTHS[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`
+            case 'today': {
+                const today = new Date()
+                return `${today.getDate()} ${MONTHS[today.getMonth()]} ${today.getFullYear()}`
+            }
             case 'week': {
                 const first = days[0]?.date
                 const last = days[days.length - 1]?.date
@@ -57,8 +62,9 @@ export function Calendar({ shifts, selectedDate, onDateSelect }) {
             newDate.setMonth(newDate.getMonth() - 1)
         } else if (mode === 'week') {
             newDate.setDate(newDate.getDate() - 7)
-        } else if (mode === 'day') {
-            newDate.setDate(newDate.getDate() - 1)
+        } else if (mode === 'today') {
+            // Для режима "Сегодня" стрелочки не меняют дату
+            return
         }
         setCurrentDate(newDate)
         
@@ -85,8 +91,8 @@ export function Calendar({ shifts, selectedDate, onDateSelect }) {
             newDate.setMonth(newDate.getMonth() + 1)
         } else if (mode === 'week') {
             newDate.setDate(newDate.getDate() + 7)
-        } else if (mode === 'day') {
-            newDate.setDate(newDate.getDate() + 1)
+        } else if (mode === 'today') {
+            return
         }
         setCurrentDate(newDate)
         
@@ -110,20 +116,16 @@ export function Calendar({ shifts, selectedDate, onDateSelect }) {
     const handleModeChange = (newMode) => {
         setMode(newMode)
         
+        // При переключении на любой режим — выбираем сегодня
+        const today = new Date()
+        onDateSelect(today)
+        
         if (newMode === 'week') {
-            const weekDays = getWeekDays(currentDate)
-            const isSelectedInWeek = weekDays.some(d => 
-                d.date.getDate() === selectedDate.getDate() &&
-                d.date.getMonth() === selectedDate.getMonth() &&
-                d.date.getFullYear() === selectedDate.getFullYear()
-            )
-            if (!isSelectedInWeek) {
-                onDateSelect(weekDays[0].date)
-            } else {
-                onDateSelect(new Date(selectedDate))
-            }
-        } else {
-            onDateSelect(new Date(selectedDate))
+            setCurrentDate(today)
+        } else if (newMode === 'month') {
+            setCurrentDate(today)
+        } else if (newMode === 'today') {
+            setCurrentDate(today)
         }
     }
 
@@ -147,6 +149,7 @@ export function Calendar({ shifts, selectedDate, onDateSelect }) {
                     }
                 }}
                 shifts={shifts}
+                mode={mode}
             />
         </div>
     )
