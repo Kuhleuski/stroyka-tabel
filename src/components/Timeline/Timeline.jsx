@@ -56,20 +56,20 @@ export function Timeline({ shifts, date, onClose, isFullscreen }) {
         ))
     }
 
-    // Полноэкранный режим
-    if (isFullscreen) {
+    // Если есть onClose — показываем с крестиком
+    if (onClose) {
         return (
-            <div className="timeline-fullscreen">
-                <div className="timeline-fullscreen-header">
-                    <div className="timeline-fullscreen-date">
-                        <span className="timeline-fullscreen-icon">📅</span>
+            <div className="timeline-detail">
+                <div className="timeline-detail-header">
+                    <div className="timeline-detail-date">
+                        <span className="timeline-detail-icon">📅</span>
                         <span>{formatDateTitle(date)}</span>
                     </div>
-                    <button className="timeline-fullscreen-close" onClick={onClose}>
+                    <button className="timeline-detail-close" onClick={onClose}>
                         ✕
                     </button>
                 </div>
-                <div className="timeline-fullscreen-content">
+                <div className="timeline-detail-content">
                     {renderContent()}
                 </div>
             </div>
