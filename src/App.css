@@ -1210,11 +1210,11 @@ body {
 }
 
 .calendar-slide-container.slide-left {
-    animation: slideLeft 0.3s ease forwards;
+    animation: slideLeft 0.3s ease;
 }
 
 .calendar-slide-container.slide-right {
-    animation: slideRight 0.3s ease forwards;
+    animation: slideRight 0.3s ease;
 }
 
 @keyframes slideLeft {
@@ -1222,13 +1222,9 @@ body {
         transform: translateX(0);
         opacity: 1;
     }
-    50% {
-        transform: translateX(-30px);
-        opacity: 0.7;
-    }
     100% {
-        transform: translateX(0);
-        opacity: 1;
+        transform: translateX(-20px);
+        opacity: 0.8;
     }
 }
 
@@ -1237,12 +1233,8 @@ body {
         transform: translateX(0);
         opacity: 1;
     }
-    50% {
-        transform: translateX(30px);
-        opacity: 0.7;
-    }
     100% {
-        transform: translateX(0);
-        opacity: 1;
+        transform: translateX(20px);
+        opacity: 0.8;
     }
 }
