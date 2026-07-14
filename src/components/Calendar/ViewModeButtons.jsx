@@ -1,8 +1,8 @@
 export function ViewModeButtons({ mode, onChange }) {
     const modes = [
-        { key: 'day', label: 'День' },
+        { key: 'month', label: 'Месяц' },
         { key: 'week', label: 'Неделя' },
-        { key: 'month', label: 'Месяц' }
+        { key: 'day', label: 'День' }
     ]
 
     return (
