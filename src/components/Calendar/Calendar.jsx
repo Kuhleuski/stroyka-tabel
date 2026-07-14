@@ -3,10 +3,24 @@ import { ViewModeButtons } from './ViewModeButtons'
 import { CalendarGrid } from './CalendarGrid'
 import { MONTHS, getMonthDays, getWeekDays } from '../../utils/dateHelpers'
 
-export function Calendar({ shifts, selectedDate, onDateSelect, onDayClick }) {
-    const [mode, setMode] = useState('month')
+export function Calendar({ 
+    shifts, 
+    selectedDate, 
+    onDateSelect, 
+    onDayClick,
+    mode: externalMode,
+    onModeChange 
+}) {
+    const [mode, setMode] = useState(externalMode || 'month')
     const [currentDate, setCurrentDate] = useState(new Date())
     const isFirstRender = useRef(true)
+
+    // Синхронизируем с внешним режимом
+    useEffect(() => {
+        if (externalMode && externalMode !== mode) {
+            setMode(externalMode)
+        }
+    }, [externalMode])
 
     useEffect(() => {
         if (isFirstRender.current) {
@@ -105,6 +119,9 @@ export function Calendar({ shifts, selectedDate, onDateSelect, onDayClick }) {
 
     const handleModeChange = (newMode) => {
         setMode(newMode)
+        if (onModeChange) {
+            onModeChange(newMode)
+        }
         const today = new Date()
         onDateSelect(today)
         setCurrentDate(today)
@@ -112,9 +129,8 @@ export function Calendar({ shifts, selectedDate, onDateSelect, onDayClick }) {
 
     const handleDayClick = (date) => {
         onDateSelect(date)
-        // Передаём текущий режим в onDayClick
         if (onDayClick) {
-            onDayClick(date, mode)
+            onDayClick(date, mode) // передаём текущий режим
         }
     }
 
