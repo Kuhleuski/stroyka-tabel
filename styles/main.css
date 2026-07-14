@@ -1,1 +1,516 @@
+/* ============================================================
+   ГЛОБАЛЬНЫЕ СТИЛИ
+   ============================================================ */
 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f7f6;
+    color: #1a1a1a;
+    padding-bottom: 80px;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ============================================================
+   ШАПКА
+   ============================================================ */
+
+.header {
+    background: white;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e8eaed;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-brand .logo {
+    font-size: 28px;
+}
+
+.header-brand .title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.header-brand .title span {
+    color: #2d7d46;
+}
+
+.header-version {
+    font-size: 12px;
+    color: #999;
+    background: #f0f0f0;
+    padding: 2px 10px;
+    border-radius: 12px;
+}
+
+/* ============================================================
+   КАЛЕНДАРЬ
+   ============================================================ */
+
+.calendar-wrapper {
+    background: white;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.calendar-header .month-title {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.calendar-nav-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    padding: 4px 12px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+.calendar-nav-btn:hover {
+    background: #f0f0f0;
+}
+
+.view-mode-buttons {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 12px;
+}
+
+.view-mode-btn {
+    flex: 1;
+    padding: 6px 0;
+    border: 1px solid #e0e0e0;
+    background: white;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #666;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.view-mode-btn.active {
+    background: #2d7d46;
+    color: white;
+    border-color: #2d7d46;
+}
+
+.view-mode-btn:hover:not(.active) {
+    background: #f5f7f6;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.day-label {
+    text-align: center;
+    font-size: 12px;
+    color: #999;
+    padding: 6px 0;
+    font-weight: 600;
+}
+
+.day-cell {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.15s;
+    position: relative;
+    padding: 4px;
+}
+
+.day-cell.empty {
+    cursor: default;
+}
+
+.day-cell .day-number {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+}
+
+.day-cell.today .day-number {
+    color: #2d7d46;
+    font-weight: 700;
+}
+
+.day-cell.selected {
+    background: #2d7d46;
+}
+
+.day-cell.selected .day-number {
+    color: white;
+}
+
+.day-cell.has-work {
+    background: #f0f7f2;
+}
+
+.day-cell.has-work.selected {
+    background: #2d7d46;
+}
+
+.day-cell .day-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #2d7d46;
+    margin-top: 2px;
+}
+
+.day-cell.selected .day-dot {
+    background: white;
+}
+
+.day-cell .day-count {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: 9px;
+    color: #2d7d46;
+    font-weight: 600;
+}
+
+.day-cell.selected .day-count {
+    color: white;
+}
+
+/* ============================================================
+   КАРТОЧКИ
+   ============================================================ */
+
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.card-icon {
+    font-size: 20px;
+}
+
+.card-title {
+    font-size: 16px;
+    font-weight: 600;
+    flex: 1;
+}
+
+.card-badge {
+    font-size: 13px;
+    color: #666;
+    background: #f0f0f0;
+    padding: 2px 10px;
+    border-radius: 12px;
+}
+
+.worker-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.worker-chip:last-child {
+    border-bottom: none;
+}
+
+.worker-chip-name {
+    flex: 1;
+    font-size: 14px;
+}
+
+.worker-chip-hours {
+    font-size: 13px;
+    color: #666;
+}
+
+/* ============================================================
+   БЭЙДЖИ
+   ============================================================ */
+
+.badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge.confirmed {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.badge.pending {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+/* ============================================================
+   СТРАНИЦА "ОБЪЕКТЫ"
+   ============================================================ */
+
+.site-card {
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.site-card:active {
+    transform: scale(0.98);
+}
+
+.site-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.site-card-icon {
+    font-size: 22px;
+}
+
+.site-card-name {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.site-card-stats {
+    display: flex;
+    gap: 16px;
+    font-size: 13px;
+    color: #666;
+}
+
+.site-card-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+    color: #ccc;
+}
+
+/* ============================================================
+   СТРАНИЦА "БРИГАДА"
+   ============================================================ */
+
+.worker-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.worker-card:active {
+    transform: scale(0.98);
+}
+
+.worker-card-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+}
+
+.worker-card-info {
+    flex: 1;
+}
+
+.worker-card-name {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.worker-card-stats {
+    display: flex;
+    gap: 12px;
+    font-size: 13px;
+    color: #666;
+    margin-top: 4px;
+}
+
+.worker-card-arrow {
+    color: #ccc;
+    font-size: 18px;
+}
+
+/* ============================================================
+   ПУСТЫЕ СОСТОЯНИЯ
+   ============================================================ */
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.empty-text {
+    color: #999;
+    font-size: 16px;
+}
+
+/* ============================================================
+   ОШИБКИ
+   ============================================================ */
+
+.error-state {
+    text-align: center;
+    padding: 30px 20px;
+    background: #ffebee;
+    border: 1px solid #ffcdd2;
+}
+
+.error-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.error-text {
+    color: #c62828;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.error-detail {
+    font-size: 13px;
+    color: #d32f2f;
+}
+
+/* ============================================================
+   НИЖНЯЯ НАВИГАЦИЯ
+   ============================================================ */
+
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid #e8eaed;
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0 12px;
+    z-index: 20;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.bottom-nav button {
+    background: none;
+    border: none;
+    padding: 8px 16px;
+    font-size: 11px;
+    color: #999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    transition: 0.2s;
+    font-weight: 500;
+    font-family: inherit;
+}
+
+.bottom-nav button .nav-icon {
+    font-size: 24px;
+}
+
+.bottom-nav button.active {
+    color: #2d7d46;
+}
+
+/* ============================================================
+   АНИМАЦИИ
+   ============================================================ */
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+    animation: fadeIn 0.3s ease;
+}
+
+/* ============================================================
+   МЕДИА-ЗАПРОСЫ
+   ============================================================ */
+
+@media (max-width: 400px) {
+    .container {
+        padding: 12px;
+    }
+    
+    .day-cell .day-number {
+        font-size: 14px;
+    }
+    
+    .calendar-wrapper {
+        padding: 12px;
+    }
+}
