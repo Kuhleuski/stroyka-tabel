@@ -1115,7 +1115,7 @@ body {
     color: white;
     cursor: pointer;
     padding: 4px 14px;
-    border-radius: 30px;
+    border-radius: 10px;
     transition: 0.2s;
     line-height: 1.4;
     min-width: 44px;
