@@ -1,12 +1,13 @@
 import { DAYS_SHORT, isToday, formatDate } from '../../utils/dateHelpers'
 
-export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
+export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode, isGhost }) {
     const getDayShifts = (date) => {
         const dateStr = formatDate(date)
         return shifts.filter(s => s.work_date === dateStr)
     }
 
     const isSelected = (date) => {
+        if (!selectedDate) return false
         return date.getDate() === selectedDate.getDate() &&
                date.getMonth() === selectedDate.getMonth() &&
                date.getFullYear() === selectedDate.getFullYear()
@@ -14,8 +15,9 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
 
     // Для недели — вертикальное отображение
     if (mode === 'week') {
+        const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
         return (
-            <div className="week-vertical">
+            <div className="week-vertical" style={{ opacity: isGhost ? 0.4 : 1 }}>
                 {days.map((day, index) => {
                     if (day.empty) return null
                     
@@ -23,16 +25,17 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
                     const hasWork = dayShifts.length > 0
                     const today = isToday(day.date)
                     const selected = isSelected(day.date)
-                    const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+                    const dayName = dayNames[day.date.getDay() === 0 ? 6 : day.date.getDay() - 1]
                     
                     return (
                         <div 
                             key={index} 
                             className={`week-day-row ${today ? 'today' : ''} ${selected ? 'selected' : ''}`}
-                            onClick={() => onDayClick(day.date)}
+                            onClick={() => !isGhost && onDayClick(day.date)}
+                            style={{ cursor: isGhost ? 'default' : 'pointer' }}
                         >
                             <div className="week-day-header">
-                                <span className="week-day-name">{dayNames[day.date.getDay() === 0 ? 6 : day.date.getDay() - 1]}</span>
+                                <span className="week-day-name">{dayName}</span>
                                 <span className="week-day-number">{day.day}</span>
                                 {hasWork && <span className="week-day-count">{dayShifts.length}</span>}
                             </div>
@@ -56,7 +59,7 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
 
     // Месяц — стандартная сетка
     return (
-        <div className="calendar-grid">
+        <div className="calendar-grid" style={{ opacity: isGhost ? 0.4 : 1 }}>
             {DAYS_SHORT.map(day => (
                 <div key={day} className="day-label">{day}</div>
             ))}
@@ -75,7 +78,8 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
                     <div
                         key={index}
                         className={`day-cell ${today ? 'today' : ''} ${selected ? 'selected' : ''} ${hasWork ? 'has-work' : ''}`}
-                        onClick={() => onDayClick(day.date)}
+                        onClick={() => !isGhost && onDayClick(day.date)}
+                        style={{ cursor: isGhost ? 'default' : 'pointer' }}
                     >
                         <div className="day-number">{day.day}</div>
                         {hasWork && <div className="day-dot"></div>}
