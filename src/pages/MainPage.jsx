@@ -4,8 +4,9 @@ import { Timeline } from '../components/Timeline/Timeline'
 
 export function MainPage({ shifts, loading }) {
     const [selectedDate, setSelectedDate] = useState(new Date())
+    const [detailDate, setDetailDate] = useState(null) // null = показываем обычный режим
+    const [isDetailOpen, setIsDetailOpen] = useState(false)
 
-    // При загрузке — сразу показываем сегодня
     useEffect(() => {
         setSelectedDate(new Date())
     }, [])
@@ -14,14 +15,39 @@ export function MainPage({ shifts, loading }) {
         return <div className="loading-text">⏳ Загрузка...</div>
     }
 
+    const handleDayClick = (date) => {
+        setDetailDate(date)
+        setIsDetailOpen(true)
+    }
+
+    const handleCloseDetail = () => {
+        setIsDetailOpen(false)
+        setDetailDate(null)
+    }
+
     return (
         <>
             <Calendar
                 shifts={shifts}
                 selectedDate={selectedDate}
                 onDateSelect={setSelectedDate}
+                onDayClick={handleDayClick}
             />
-            <Timeline shifts={shifts} date={selectedDate} />
+            
+            {isDetailOpen && detailDate ? (
+                <Timeline 
+                    shifts={shifts} 
+                    date={detailDate} 
+                    onClose={handleCloseDetail}
+                />
+            ) : (
+                // Обычный режим — показываем таймлайн для выбранной даты
+                <Timeline 
+                    shifts={shifts} 
+                    date={selectedDate} 
+                    onClose={null}
+                />
+            )}
         </>
     )
 }
