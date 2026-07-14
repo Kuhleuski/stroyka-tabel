@@ -43,9 +43,6 @@ export function MainPage({ shifts, loading }) {
                 // === ЭКРАН ДЕТАЛЬНОГО ПРОСМОТРА ===
                 <div className="detail-screen">
                     <div className="detail-screen-header">
-                        <button className="detail-screen-back" onClick={handleCloseDetail}>
-                            ← Назад
-                        </button>
                         <span className="detail-screen-title">
                             📅 {detailDate.getDate()} {['Января','Февраля','Марта','Апреля','Мая','Июня','Июля','Августа','Сентября','Октября','Ноября','Декабря'][detailDate.getMonth()]} {detailDate.getFullYear()}
                         </span>
