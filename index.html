@@ -1,1 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Стройка Табель</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
 
+    <!-- ===== ШАПКА ===== -->
+    <header class="header">
+        <div class="header-brand">
+            <span class="logo">🏗️</span>
+            <span class="title">Строй<span>ка</span></span>
+        </div>
+        <span class="header-version">v0.3</span>
+    </header>
+
+    <!-- ===== ОСНОВНОЙ КОНТЕЙНЕР ===== -->
+    <div class="container">
+
+        <!-- ===== СТРАНИЦА 1: ГЛАВНАЯ ===== -->
+        <div id="page-main" class="page">
+            <!-- Календарь -->
+            <div class="calendar-wrapper">
+                <div class="view-mode-buttons">
+                    <button class="view-mode-btn" data-mode="day">День</button>
+                    <button class="view-mode-btn" data-mode="week">Неделя</button>
+                    <button class="view-mode-btn active" data-mode="month">Месяц</button>
+                </div>
+                
+                <div class="calendar-header">
+                    <button class="calendar-nav-btn" id="prevMonth">‹</button>
+                    <span class="month-title" id="calendarTitle">Загрузка...</span>
+                    <button class="calendar-nav-btn" id="nextMonth">›
