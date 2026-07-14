@@ -1200,11 +1200,18 @@ body {
     gap: 12px;
 }
 /* ============================================================
-   DRAG-СВАЙП КАЛЕНДАРЯ
+   DRAG-СВАЙП С ПОДГЛЯДЫВАНИЕМ
    ============================================================ */
 
 .calendar-slide-container {
     overflow: hidden;
-    will-change: transform, opacity;
+    will-change: transform;
     touch-action: none;
+    position: relative;
+    min-height: 280px;
+}
+
+.calendar-wrapper {
+    overflow: hidden;
+    position: relative;
 }
