@@ -7,6 +7,7 @@ export function MainPage({ shifts, loading }) {
     const [detailDate, setDetailDate] = useState(null)
     const [isDetailOpen, setIsDetailOpen] = useState(false)
     const [returnMode, setReturnMode] = useState('month') // запоминаем режим
+    const [calendarMode, setCalendarMode] = useState('month') // текущий режим календаря
 
     useEffect(() => {
         setSelectedDate(new Date())
@@ -16,47 +17,55 @@ export function MainPage({ shifts, loading }) {
         return <div className="loading-text">⏳ Загрузка...</div>
     }
 
-    const handleDayClick = (date, currentMode) => {
+    const handleDayClick = (date, mode) => {
         setDetailDate(date)
-        setReturnMode(currentMode) // запоминаем режим
+        setReturnMode(mode) // запоминаем режим
         setIsDetailOpen(true)
     }
 
     const handleCloseDetail = () => {
         setIsDetailOpen(false)
         setDetailDate(null)
+        // Возвращаемся в запомненный режим
+        setCalendarMode(returnMode)
+    }
+
+    const handleModeChange = (mode) => {
+        setCalendarMode(mode)
+        // Если детальный просмотр открыт — закрываем его
+        if (isDetailOpen) {
+            setIsDetailOpen(false)
+            setDetailDate(null)
+        }
     }
 
     return (
         <>
+            <Calendar
+                shifts={shifts}
+                selectedDate={selectedDate}
+                onDateSelect={setSelectedDate}
+                onDayClick={handleDayClick}
+                mode={calendarMode}
+                onModeChange={handleModeChange}
+            />
+            
             {isDetailOpen && detailDate ? (
-                // ПОЛНОЭКРАННЫЙ ДЕТАЛЬНЫЙ ПРОСМОТР
-                <div className="detail-overlay">
-                    <div className="detail-container">
-                        <Timeline 
-                            shifts={shifts} 
-                            date={detailDate} 
-                            onClose={handleCloseDetail}
-                            isFullscreen={true}
-                        />
-                    </div>
-                </div>
+                // Детальный просмотр (заменяет обычный таймлайн)
+                <Timeline 
+                    shifts={shifts} 
+                    date={detailDate} 
+                    onClose={handleCloseDetail}
+                    isFullscreen={false}
+                />
             ) : (
-                // ОБЫЧНЫЙ РЕЖИМ — календарь + таймлайн
-                <>
-                    <Calendar
-                        shifts={shifts}
-                        selectedDate={selectedDate}
-                        onDateSelect={setSelectedDate}
-                        onDayClick={(date, mode) => handleDayClick(date, mode)}
-                    />
-                    <Timeline 
-                        shifts={shifts} 
-                        date={selectedDate} 
-                        onClose={null}
-                        isFullscreen={false}
-                    />
-                </>
+                // Обычный режим — таймлайн для выбранной даты
+                <Timeline 
+                    shifts={shifts} 
+                    date={selectedDate} 
+                    onClose={null}
+                    isFullscreen={false}
+                />
             )}
         </>
     )
