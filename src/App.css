@@ -1193,23 +1193,6 @@ body {
     color: #1a1a1a;
 }
 
-.detail-screen-close {
-    background: none;
-    border: none;
-    font-size: 32px;
-    font-weight: 300;
-    color: #999;
-    cursor: pointer;
-    padding: 4px 12px;
-    border-radius: 10px;
-    transition: 0.2s;
-    line-height: 1;
-}
-
-.detail-screen-close:hover {
-    background: #f0f0f0;
-    color: #333;
-}
 
 .detail-screen-content {
     display: flex;
