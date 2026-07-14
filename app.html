@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Стройка Табель</title>
+    <style>
+        /* ===== ОБЩИЕ СТИЛИ ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding-bottom: 80px;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+        .hidden { display: none !important; }
+
+        /* ===== ШАПКА ===== */
+        .header {
+            background: white;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            font-size: 20px;
+            color: #1a1a1a;
+        }
+        .header .logo {
+            font-size: 24px;
+        }
+
+        /* ===== НИЖНЯЯ НАВИГАЦИЯ ===== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 12px;
+            z-index: 20;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .bottom-nav button {
+            background: none;
+            border: none;
+            padding: 8px 16px;
+            font-size: 12px;
+            color: #999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .bottom-nav button .icon {
+            font-size: 24px;
+        }
+        .bottom-nav button.active {
+            color: #2d7d46;
+            font-weight: 600;
+        }
+
+        /* ===== КАРТОЧКИ ===== */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .card h3 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        .card .sub {
+            font-size: 14px;
+            color: #666;
+        }
+        .card .badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+        .badge.confirmed {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .badge.pending {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        /* ===== КАЛЕНДАРЬ (ЛЕНТА) ===== */
+        .week-scroll {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 12px 0 16px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .week-scroll::-webkit-scrollbar { display: none; }
+        .day-item {
+            flex-shrink: 0;
+            width: 60px;
+            padding: 10px 0;
+            border-radius: 12px;
+            background: white;
+            text-align: center;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .day-item .day-num {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        .day-item .day-name {
+            font-size: 11px;
+            color: #999;
+            margin-top: 2px;
+        }
+        .day-item.active {
+            border-color: #2d7d46;
+            background: #f0f7f2;
+        }
+        .day-item .dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-top: 4px;
+        }
+        .day-item .dot.has-work { background: #2d7d46; }
+        .day-item .dot.no-work { background: #ddd; }
+
+        /* ===== ЭКРАН ОБЪЕКТОВ ===== */
+        .site-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+        .site-item:last-child { border-bottom: none; }
+        .site-item .site-name { font-weight: 500; }
+        .site-item .site-address { font-size: 13px; color: #666; }
+        .site-item .arrow { color: #ccc; }
+
+        /* ===== ЭКРАН БРИГАДА ===== */
+        .worker-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+        .worker-item:last-child { border-bottom: none; }
+        .worker-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #2d7d46;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .worker-info { flex: 1; }
+        .worker-info .name { font-weight: 500; }
+        .worker-info .hours { font-size: 13px; color: #666; }
+
+        /* ===== КНОПКИ ===== */
+        .btn {
+            background: #2d7d46;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn-secondary {
+            background: #e8f5e9;
+            color: #2d7d46;
+        }
+
+        /* ===== ЗАГОЛОВКИ ЭКРАНОВ ===== */
+        .page-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 16px 0 12px;
+        }
+        .page-subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== ШАПКА ===== -->
+    <div class="header">
+        <div>
+            <span class="logo">🏗️</span>
+            <span style="font-weight:600;font-size:18px;margin-left:6px;">Стройка</span>
+        </div>
+        <span style="font-size:14px;color:#999;">v0.2</span>
+    </div>
+
+    <!-- ===== КОНТЕЙНЕР ДЛЯ СТРАНИЦ ===== -->
+    <div class="container">
+
+        <!-- ===== СТРАНИЦА 1: ГЛАВНАЯ ===== -->
+        <div id="page-main">
+            <div class="page-title">📅 Календарь</div>
+            <div class="page-subtitle">Выбери день, чтобы увидеть кто где работал</div>
+
+            <!-- Лента дней -->
+            <div class="week-scroll" id="weekScroll"></div>
+
+            <!-- Таймлайн за выбранный день -->
+            <div id="dayTimeline">
+                <div class="card" style="text-align:center;color:#999;padding:30px 0;">
+                    Загрузка...
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== СТРАНИЦА 2: ОБЪЕКТЫ ===== -->
+        <div id="page-sites" class="hidden">
+            <div class="page-title">🏢 Объекты</div>
+            <div class="page-subtitle">Все стройплощадки</div>
+            <div id="sitesList">
+                <div class="card" style="text-align:center;color:#999;padding:30px 0;">Загрузка...</div>
+            </div>
+        </div>
+
+        <!-- ===== СТРАНИЦА 3: БРИГАДА ===== -->
+        <div id="page-workers" class="hidden">
+            <div class="page-title">👷 Бригада</div>
+            <div class="page-subtitle">Все рабочие</div>
+            <div id="workersList">
+                <div class="card" style="text-align:center;color:#999;padding:30px 0;">Загрузка...</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== НИЖНЯЯ НАВИГАЦИЯ ===== -->
+    <div class="bottom-nav">
+        <button class="active" data-page="main">
+            <span class="icon">📅</span>
+            <span>Главная</span>
+        </button>
+        <button data-page="sites">
+            <span class="icon">🏢</span>
+            <span>Объекты</span>
+        </button>
+        <button data-page="workers">
+            <span class="icon">👷</span>
+            <span>Бригада</span>
+        </button>
+    </div>
+
+    <script>
+        // ============================================================
+        // 1. ПОДКЛЮЧЕНИЕ К SUPABASE
+        // ============================================================
+        const SUPABASE_URL = 'https://yrgvyklwdroklpwjdcov.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_0hMmVw7NmfaXuKg6jX8jLQ_maFdF0fT';
+
+        // ============================================================
+        // 2. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+        // ============================================================
+        function formatDate(date) {
+            const d = new Date(date);
+            return d.toISOString().split('T')[0];
+        }
+
+        function getWeekDays() {
+            const today = new Date();
+            const start = new Date(today);
+            start.setDate(today.getDate() - today.getDay()); // начало недели (воскресенье)
+            const days = [];
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(start);
+                d.setDate(start.getDate() + i);
+                days.push(d);
+            }
+            return days;
+        }
+
+        function formatDayName(date) {
+            const names = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+            return names[date.getDay()];
+        }
+
+        function isToday(date) {
+            const today = new Date();
+            return date.getDate() === today.getDate() &&
+                   date.getMonth() === today.getMonth() &&
+                   date.getFullYear() === today.getFullYear();
+        }
+
+        // ============================================================
+        // 3. ЗАГРУЗКА ДАННЫХ ИЗ SUPABASE
+        // ============================================================
+        async function fetchShifts() {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/shifts?select=*`, {
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                }
+            });
+            if (!res.ok) throw new Error('Ошибка загрузки');
+            return await res.json();
+        }
+
+        // ============================================================
+        // 4. ГЛАВНАЯ СТРАНИЦА — КАЛЕНДАРЬ
+        // ============================================================
+        function renderCalendar(shifts) {
+            const weekDays = getWeekDays();
+            const container = document.getElementById('weekScroll');
+            container.innerHTML = '';
+
+            weekDays.forEach((day, index) => {
+                const dateStr = formatDate(day);
+                const dayShifts = shifts.filter(s => s.work_date === dateStr);
+                const hasWork = dayShifts.length > 0;
+                const isActive = isToday(day);
+
+                const div = document.createElement('div');
+                div.className = `day-item${isActive ? ' active' : ''}`;
+                div.innerHTML = `
+                    <div class="day-num">${day.getDate()}</div>
+                    <div class="day-name">${formatDayName(day)}</div>
+                    <div class="dot ${hasWork ? 'has-work' : 'no-work'}"></div>
+                `;
+                div.dataset.date = dateStr;
+                div.addEventListener('click', () => {
+                    document.querySelectorAll('.day-item').forEach(el => el.classList.remove('active'));
+                    div.classList.add('active');
+                    renderTimeline(dateStr, shifts);
+                });
+                container.appendChild(div);
+            });
+
+            // Показываем сегодня
+            const todayStr = formatDate(new Date());
+            renderTimeline(todayStr, shifts);
+        }
+
+        function renderTimeline(dateStr, shifts) {
+            const container = document.getElementById('dayTimeline');
+            const dayShifts = shifts.filter(s => s.work_date === dateStr);
+
+            if (dayShifts.length === 0) {
+                container.innerHTML = `
+                    <div class="card" style="text-align:center;color:#999;padding:30px 0;">
+                        📭 В этот день никто не работал
+                    </div>
+                `;
+                return;
+            }
+
+            // Группируем по объектам
+            const sitesMap = {};
+            dayShifts.forEach(s => {
+                if (!sitesMap[s.site_name]) sitesMap[s.site_name] = [];
+                sitesMap[s.site_name].push(s);
+            });
+
+            let html = '';
+            for (const [siteName, workers] of Object.entries(sitesMap)) {
+                html += `
+                    <div class="card">
+                        <h3>📍 ${siteName}</h3>
+                        <div style="margin-top:6px;font-size:14px;color:#555;">
+                            ${workers.map(w => `👷 ${w.worker_name} (${w.hours} ч.)`).join('<br>')}
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        // ============================================================
+        // 5. СТРАНИЦА "ОБЪЕКТЫ"
+        // ============================================================
+        function renderSites(shifts) {
+            const container = document.getElementById('sitesList');
+            const sitesMap = {};
+            shifts.forEach(s => {
+                if (!sitesMap[s.site_name]) {
+                    sitesMap[s.site_name] = { address: s.site_name, totalHours: 0, shifts: [] };
+                }
+                sitesMap[s.site_name].totalHours += parseFloat(s.hours);
+                sitesMap[s.site_name].shifts.push(s);
+            });
+
+            let html = '';
+            for (const [name, data] of Object.entries(sitesMap)) {
+                html += `
+                    <div class="card site-item" onclick="alert('📋 ${name}\nВсего часов: ${data.totalHours}\nРабочих смен: ${data.shifts.length}')">
+                        <div>
+                            <div class="site-name">🏗️ ${name}</div>
+                            <div class="site-address">${data.shifts.length} смен • ${data.totalHours} ч.</div>
+                        </div>
+                        <span class="arrow">›</span>
+                    </div>
+                `;
+            }
+            container.innerHTML = html || `<div class="card" style="text-align:center;color:#999;">Нет объектов</div>`;
+        }
+
+        // ============================================================
+        // 6. СТРАНИЦА "БРИГАДА"
+        // ============================================================
+        function renderWorkers(shifts) {
+            const container = document.getElementById('workersList');
+            const workersMap = {};
+            shifts.forEach(s => {
+                if (!workersMap[s.worker_name]) {
+                    workersMap[s.worker_name] = { totalHours: 0, days: new Set() };
+                }
+                workersMap[s.worker_name].totalHours += parseFloat(s.hours);
+                workersMap[s.worker_name].days.add(s.work_date);
+            });
+
+            let html = '';
+            for (const [name, data] of Object.entries(workersMap)) {
+                const initials = name.split(' ').map(w => w[0]).join('');
+                html += `
+                    <div class="card worker-item" onclick="alert('👷 ${name}\nВсего часов: ${data.totalHours}\nДней работы: ${data.days.size}')">
+                        <div class="worker-avatar">${initials}</div>
+                        <div class="worker-info">
+                            <div class="name">${name}</div>
+                            <div class="hours">${data.totalHours} ч. • ${data.days.size} дней</div>
+                        </div>
+                        <span class="arrow">›</span>
+                    </div>
+                `;
+            }
+            container.innerHTML = html || `<div class="card" style="text-align:center;color:#999;">Нет рабочих</div>`;
+        }
+
+        // ============================================================
+        // 7. НАВИГАЦИЯ МЕЖДУ СТРАНИЦАМИ
+        // ============================================================
+        function navigateTo(page) {
+            // Скрываем все страницы
+            document.getElementById('page-main').classList.add('hidden');
+            document.getElementById('page-sites').classList.add('hidden');
+            document.getElementById('page-workers').classList.add('hidden');
+
+            // Показываем нужную
+            document.getElementById(`page-${page}`).classList.remove('hidden');
+
+            // Обновляем активную кнопку
+            document.querySelectorAll('.bottom-nav button').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.bottom-nav button[data-page="${page}"]`).classList.add('active');
+        }
+
+        // ============================================================
+        // 8. ГЛАВНАЯ ФУНКЦИЯ ЗАГРУЗКИ
+        // ============================================================
+        async function init() {
+            try {
+                const shifts = await fetchShifts();
+
+                renderCalendar(shifts);
+                renderSites(shifts);
+                renderWorkers(shifts);
+
+                // Навигация
+                document.querySelectorAll('.bottom-nav button').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        navigateTo(btn.dataset.page);
+                    });
+                });
+
+            } catch (error) {
+                console.error('Ошибка:', error);
+                document.getElementById('dayTimeline').innerHTML = `
+                    <div class="card" style="color:#c62828;text-align:center;padding:20px;">
+                        ❌ Ошибка загрузки данных<br>
+                        <small>${error.message}</small>
+                    </div>
+                `;
+            }
+        }
+
+        // Запуск
+        init();
+    </script>
+</body>
+</html>
