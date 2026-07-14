@@ -1155,3 +1155,49 @@ body {
     padding: 2px 12px;
     border-radius: 12px;
 }
+/* ============================================================
+   ЭКРАН ДЕТАЛЬНОГО ПРОСМОТРА
+   ============================================================ */
+
+.detail-screen {
+    animation: fadeIn 0.3s ease;
+}
+
+.detail-screen-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 4px 16px 4px;
+    border-bottom: 2px solid #e8eaed;
+    margin-bottom: 16px;
+}
+
+.detail-screen-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.detail-screen-close {
+    background: none;
+    border: none;
+    font-size: 32px;
+    font-weight: 300;
+    color: #999;
+    cursor: pointer;
+    padding: 4px 12px;
+    border-radius: 10px;
+    transition: 0.2s;
+    line-height: 1;
+}
+
+.detail-screen-close:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.detail-screen-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
