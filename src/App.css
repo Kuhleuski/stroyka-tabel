@@ -16,14 +16,54 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
-.container {
+.app {
     max-width: 500px;
     margin: 0 auto;
+}
+
+.container {
     padding: 16px;
 }
 
-.hidden {
-    display: none !important;
+/* ============================================================
+   ЗАГРУЗКА
+   ============================================================ */
+
+.loading-text {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+}
+
+/* ============================================================
+   ОШИБКИ
+   ============================================================ */
+
+.error-container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 20px;
+    text-align: center;
+    background: #ffebee;
+    border-radius: 12px;
+    border: 1px solid #ffcdd2;
+}
+
+.error-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.error-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: #c62828;
+    margin-bottom: 8px;
+}
+
+.error-detail {
+    font-size: 14px;
+    color: #d32f2f;
 }
 
 /* ============================================================
@@ -102,6 +142,7 @@ body {
     cursor: pointer;
     border-radius: 8px;
     transition: 0.2s;
+    font-family: inherit;
 }
 
 .calendar-nav-btn:hover {
@@ -125,6 +166,7 @@ body {
     color: #666;
     cursor: pointer;
     transition: 0.2s;
+    font-family: inherit;
 }
 
 .view-mode-btn.active {
@@ -162,6 +204,7 @@ body {
     transition: 0.15s;
     position: relative;
     padding: 4px;
+    user-select: none;
 }
 
 .day-cell.empty {
@@ -305,6 +348,19 @@ body {
    СТРАНИЦА "ОБЪЕКТЫ"
    ============================================================ */
 
+.page-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 16px 0 4px;
+}
+
+.page-subtitle {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
 .site-card {
     cursor: pointer;
     transition: 0.2s;
@@ -335,13 +391,6 @@ body {
     gap: 16px;
     font-size: 13px;
     color: #666;
-}
-
-.site-card-footer {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 8px;
-    color: #ccc;
 }
 
 /* ============================================================
@@ -390,11 +439,6 @@ body {
     margin-top: 4px;
 }
 
-.worker-card-arrow {
-    color: #ccc;
-    font-size: 18px;
-}
-
 /* ============================================================
    ПУСТЫЕ СОСТОЯНИЯ
    ============================================================ */
@@ -412,33 +456,6 @@ body {
 .empty-text {
     color: #999;
     font-size: 16px;
-}
-
-/* ============================================================
-   ОШИБКИ
-   ============================================================ */
-
-.error-state {
-    text-align: center;
-    padding: 30px 20px;
-    background: #ffebee;
-    border: 1px solid #ffcdd2;
-}
-
-.error-icon {
-    font-size: 32px;
-    margin-bottom: 8px;
-}
-
-.error-text {
-    color: #c62828;
-    font-weight: 600;
-    margin-bottom: 4px;
-}
-
-.error-detail {
-    font-size: 13px;
-    color: #d32f2f;
 }
 
 /* ============================================================
