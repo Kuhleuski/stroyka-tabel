@@ -534,3 +534,182 @@ body {
         padding: 12px;
     }
 }
+
+/* ============================================================
+   РЕЖИМ "СЕГОДНЯ"
+   ============================================================ */
+
+.today-view {
+    padding: 8px 0;
+}
+
+.today-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: #f0f7f2;
+    border-radius: 12px;
+    margin-bottom: 12px;
+}
+
+.today-icon {
+    font-size: 24px;
+}
+
+.today-date {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.today-empty {
+    text-align: center;
+    color: #999;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+}
+
+.today-shifts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.today-shift-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: white;
+    border-radius: 10px;
+    border-left: 4px solid #2d7d46;
+    flex-wrap: wrap;
+}
+
+.today-shift-worker {
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.today-shift-site {
+    color: #666;
+    font-size: 14px;
+    flex: 1;
+}
+
+.today-shift-hours {
+    color: #888;
+    font-size: 13px;
+}
+
+/* ============================================================
+   РЕЖИМ "НЕДЕЛЯ" (ВЕРТИКАЛЬНЫЙ)
+   ============================================================ */
+
+.week-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.week-day-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: white;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+    border-left: 4px solid transparent;
+}
+
+.week-day-row:hover {
+    background: #f8faf8;
+}
+
+.week-day-row.today {
+    border-left-color: #2d7d46;
+    background: #f5faf6;
+}
+
+.week-day-row.selected {
+    border-left-color: #2d7d46;
+    background: #e8f5e9;
+}
+
+.week-day-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 70px;
+}
+
+.week-day-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+    width: 30px;
+}
+
+.week-day-number {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.week-day-row.today .week-day-number {
+    color: #2d7d46;
+}
+
+.week-day-count {
+    font-size: 11px;
+    background: #2d7d46;
+    color: white;
+    padding: 1px 8px;
+    border-radius: 10px;
+    margin-left: 4px;
+}
+
+.week-day-info {
+    flex: 1;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.week-day-worker {
+    font-size: 13px;
+    color: #333;
+    background: #f0f0f0;
+    padding: 2px 10px;
+    border-radius: 12px;
+}
+
+.week-day-empty {
+    color: #ccc;
+    font-size: 14px;
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 400px) {
+    .week-day-row {
+        padding: 8px 10px;
+        gap: 8px;
+    }
+    
+    .week-day-header {
+        min-width: 55px;
+    }
+    
+    .week-day-number {
+        font-size: 16px;
+    }
+    
+    .week-day-worker {
+        font-size: 12px;
+        padding: 1px 8px;
+    }
+}
