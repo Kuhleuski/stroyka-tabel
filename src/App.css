@@ -1108,22 +1108,32 @@ body {
 }
 
 .detail-screen-close {
-    background: none;
+    background: #2d7d46;
     border: none;
-    font-size: 26px;
-    color: #999;
+    font-size: 28px;
+    font-weight: 400;
+    color: white;
     cursor: pointer;
-    padding: 4px 12px;
-    border-radius: 10px;
+    padding: 4px 14px;
+    border-radius: 30px;
     transition: 0.2s;
-    line-height: 1;
+    line-height: 1.4;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(45, 125, 70, 0.3);
 }
 
 .detail-screen-close:hover {
-    background: #f0f0f0;
-    color: #333;
+    background: #1e6b3a;
+    transform: scale(1.05);
 }
 
+.detail-screen-close:active {
+    transform: scale(0.95);
+}
 .detail-screen-content {
     display: flex;
     flex-direction: column;
