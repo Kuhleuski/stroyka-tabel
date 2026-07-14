@@ -72,11 +72,9 @@ export function Calendar({ shifts, selectedDate, onDateSelect }) {
             if (!isSelectedInWeek) {
                 onDateSelect(weekDays[0].date)
             } else {
-                // Даже если день в неделе — обновляем, чтобы таймлайн перерисовался
                 onDateSelect(new Date(selectedDate))
             }
         } else {
-            // Для месяца и дня просто обновляем
             onDateSelect(new Date(selectedDate))
         }
     }
@@ -112,7 +110,6 @@ export function Calendar({ shifts, selectedDate, onDateSelect }) {
     const handleModeChange = (newMode) => {
         setMode(newMode)
         
-        // Проверяем для недели
         if (newMode === 'week') {
             const weekDays = getWeekDays(currentDate)
             const isSelectedInWeek = weekDays.some(d => 
@@ -123,14 +120,9 @@ export function Calendar({ shifts, selectedDate, onDateSelect }) {
             if (!isSelectedInWeek) {
                 onDateSelect(weekDays[0].date)
             } else {
-                // Принудительно обновляем таймлайн с тем же днем
                 onDateSelect(new Date(selectedDate))
             }
-        } else if (newMode === 'day') {
-            // Для дня просто обновляем таймлайн
-            onDateSelect(new Date(selectedDate))
         } else {
-            // Для месяца — обновляем таймлайн
             onDateSelect(new Date(selectedDate))
         }
     }
@@ -150,10 +142,7 @@ export function Calendar({ shifts, selectedDate, onDateSelect }) {
                 selectedDate={selectedDate}
                 onDayClick={(date) => {
                     onDateSelect(date)
-                    // Если мы в режиме недели или месяца, обновляем currentDate
-                    if (mode === 'week') {
-                        setCurrentDate(new Date(date))
-                    } else if (mode === 'month') {
+                    if (mode === 'week' || mode === 'month') {
                         setCurrentDate(new Date(date))
                     }
                 }}
