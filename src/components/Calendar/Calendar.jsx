@@ -15,7 +15,6 @@ export function Calendar({
     const [currentDate, setCurrentDate] = useState(new Date())
     const isFirstRender = useRef(true)
 
-    // Синхронизируем с внешним режимом
     useEffect(() => {
         if (externalMode && externalMode !== mode) {
             setMode(externalMode)
@@ -130,7 +129,7 @@ export function Calendar({
     const handleDayClick = (date) => {
         onDateSelect(date)
         if (onDayClick) {
-            onDayClick(date, mode) // передаём текущий режим
+            onDayClick(date, mode)
         }
     }
 
