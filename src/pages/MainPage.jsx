@@ -4,8 +4,9 @@ import { Timeline } from '../components/Timeline/Timeline'
 
 export function MainPage({ shifts, loading }) {
     const [selectedDate, setSelectedDate] = useState(new Date())
-    const [detailDate, setDetailDate] = useState(null) // null = показываем обычный режим
+    const [detailDate, setDetailDate] = useState(null)
     const [isDetailOpen, setIsDetailOpen] = useState(false)
+    const [returnMode, setReturnMode] = useState('month') // запоминаем режим
 
     useEffect(() => {
         setSelectedDate(new Date())
@@ -15,8 +16,9 @@ export function MainPage({ shifts, loading }) {
         return <div className="loading-text">⏳ Загрузка...</div>
     }
 
-    const handleDayClick = (date) => {
+    const handleDayClick = (date, currentMode) => {
         setDetailDate(date)
+        setReturnMode(currentMode) // запоминаем режим
         setIsDetailOpen(true)
     }
 
@@ -27,26 +29,34 @@ export function MainPage({ shifts, loading }) {
 
     return (
         <>
-            <Calendar
-                shifts={shifts}
-                selectedDate={selectedDate}
-                onDateSelect={setSelectedDate}
-                onDayClick={handleDayClick}
-            />
-            
             {isDetailOpen && detailDate ? (
-                <Timeline 
-                    shifts={shifts} 
-                    date={detailDate} 
-                    onClose={handleCloseDetail}
-                />
+                // ПОЛНОЭКРАННЫЙ ДЕТАЛЬНЫЙ ПРОСМОТР
+                <div className="detail-overlay">
+                    <div className="detail-container">
+                        <Timeline 
+                            shifts={shifts} 
+                            date={detailDate} 
+                            onClose={handleCloseDetail}
+                            isFullscreen={true}
+                        />
+                    </div>
+                </div>
             ) : (
-                // Обычный режим — показываем таймлайн для выбранной даты
-                <Timeline 
-                    shifts={shifts} 
-                    date={selectedDate} 
-                    onClose={null}
-                />
+                // ОБЫЧНЫЙ РЕЖИМ — календарь + таймлайн
+                <>
+                    <Calendar
+                        shifts={shifts}
+                        selectedDate={selectedDate}
+                        onDateSelect={setSelectedDate}
+                        onDayClick={(date, mode) => handleDayClick(date, mode)}
+                    />
+                    <Timeline 
+                        shifts={shifts} 
+                        date={selectedDate} 
+                        onClose={null}
+                        isFullscreen={false}
+                    />
+                </>
             )}
         </>
     )
