@@ -3,12 +3,11 @@ import { ViewModeButtons } from './ViewModeButtons'
 import { CalendarGrid } from './CalendarGrid'
 import { MONTHS, getMonthDays, getWeekDays } from '../../utils/dateHelpers'
 
-export function Calendar({ shifts, selectedDate, onDateSelect }) {
+export function Calendar({ shifts, selectedDate, onDateSelect, onDayClick }) {
     const [mode, setMode] = useState('month')
     const [currentDate, setCurrentDate] = useState(new Date())
     const isFirstRender = useRef(true)
 
-    // Только при первом рендере устанавливаем сегодня
     useEffect(() => {
         if (isFirstRender.current) {
             isFirstRender.current = false
@@ -23,10 +22,6 @@ export function Calendar({ shifts, selectedDate, onDateSelect }) {
         const month = currentDate.getMonth()
         
         switch (mode) {
-            case 'today': {
-                const today = new Date()
-                return [{ date: today, day: today.getDate(), empty: false }]
-            }
             case 'week':
                 return getWeekDays(currentDate)
             case 'month':
@@ -42,10 +37,6 @@ export function Calendar({ shifts, selectedDate, onDateSelect }) {
         const month = currentDate.getMonth()
         
         switch (mode) {
-            case 'today': {
-                const today = new Date()
-                return `${today.getDate()} ${MONTHS[today.getMonth()]} ${today.getFullYear()}`
-            }
             case 'week': {
                 const first = days[0]?.date
                 const last = days[days.length - 1]?.date
@@ -66,8 +57,6 @@ export function Calendar({ shifts, selectedDate, onDateSelect }) {
             newDate.setMonth(newDate.getMonth() - 1)
         } else if (mode === 'week') {
             newDate.setDate(newDate.getDate() - 7)
-        } else if (mode === 'today') {
-            return
         }
         setCurrentDate(newDate)
         
@@ -94,8 +83,6 @@ export function Calendar({ shifts, selectedDate, onDateSelect }) {
             newDate.setMonth(newDate.getMonth() + 1)
         } else if (mode === 'week') {
             newDate.setDate(newDate.getDate() + 7)
-        } else if (mode === 'today') {
-            return
         }
         setCurrentDate(newDate)
         
@@ -123,6 +110,14 @@ export function Calendar({ shifts, selectedDate, onDateSelect }) {
         setCurrentDate(today)
     }
 
+    const handleDayClick = (date) => {
+        onDateSelect(date)
+        // Открываем детальный просмотр
+        if (onDayClick) {
+            onDayClick(date)
+        }
+    }
+
     return (
         <div className="calendar-wrapper">
             <ViewModeButtons mode={mode} onChange={handleModeChange} />
@@ -136,12 +131,7 @@ export function Calendar({ shifts, selectedDate, onDateSelect }) {
             <CalendarGrid
                 days={days}
                 selectedDate={selectedDate}
-                onDayClick={(date) => {
-                    onDateSelect(date)
-                    if (mode === 'week' || mode === 'month') {
-                        setCurrentDate(new Date(date))
-                    }
-                }}
+                onDayClick={handleDayClick}
                 shifts={shifts}
                 mode={mode}
             />
