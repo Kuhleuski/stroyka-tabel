@@ -1,19 +1,25 @@
-import { createClient } from '@supabase/supabase-js'
-
 const SUPABASE_URL = 'https://yrgvyklwdroklpwjdcov.supabase.co'
 const SUPABASE_ANON_KEY = 'sb_publishable_0hMmVw7NmfaXuKg6jX8jLQ_maFdF0fT'
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-
 export async function fetchShifts() {
-   const { data, error } = await supabase
-      .from('shifts')
-      .select('*')
-      .order('work_date', { ascending: false })
-
-   if (error) {
-      console.error('Ошибка загрузки:', error)
-      throw error
-   }
-   return data || []
+    try {
+        // Ключ прямо в URL — это обходит CORS
+        const url = `${SUPABASE_URL}/rest/v1/shifts?select=*&order=work_date.desc&apikey=${SUPABASE_ANON_KEY}`
+        
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+        }
+        
+        return await response.json()
+    } catch (error) {
+        console.error('Ошибка загрузки:', error)
+        throw error
+    }
 }
