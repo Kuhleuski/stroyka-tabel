@@ -12,39 +12,6 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
                date.getFullYear() === selectedDate.getFullYear()
     }
 
-    // Для режима "Сегодня" показываем не сетку, а информацию за сегодня
-    if (mode === 'today') {
-        const today = new Date()
-        const dayShifts = getDayShifts(today)
-        
-        return (
-            <div className="today-view">
-                <div className="today-label">
-                    <span className="today-icon">📅</span>
-                    <span className="today-date">
-                        {today.getDate()} {['Января','Февраля','Марта','Апреля','Мая','Июня','Июля','Августа','Сентября','Октября','Ноября','Декабря'][today.getMonth()]} {today.getFullYear()}
-                    </span>
-                </div>
-                {dayShifts.length === 0 ? (
-                    <div className="today-empty">Сегодня никто не работал</div>
-                ) : (
-                    <div className="today-shifts">
-                        {dayShifts.map((s, idx) => (
-                            <div key={idx} className="today-shift-item">
-                                <span className="today-shift-worker">{s.worker_name}</span>
-                                <span className="today-shift-site">📍 {s.site_name}</span>
-                                <span className="today-shift-hours">{s.hours} ч.</span>
-                                <span className={`badge ${s.status === 'confirmed' ? 'confirmed' : 'pending'}`}>
-                                    {s.status === 'confirmed' ? '✅' : '⏳'}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-        )
-    }
-
     // Для недели — вертикальное отображение
     if (mode === 'week') {
         return (
