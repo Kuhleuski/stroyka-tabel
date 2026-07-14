@@ -4,13 +4,6 @@ export function Timeline({ shifts, date, onClose, isFullscreen }) {
     const dateStr = date.toISOString().split('T')[0]
     const dayShifts = shifts.filter(s => s.work_date === dateStr)
 
-    const formatDateTitle = (date) => {
-        const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
-                        'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
-        const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота']
-        return `${days[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`
-    }
-
     const renderContent = () => {
         if (dayShifts.length === 0) {
             return (
@@ -56,24 +49,9 @@ export function Timeline({ shifts, date, onClose, isFullscreen }) {
         ))
     }
 
-    // Если есть onClose — показываем с крестиком
-    if (onClose) {
-        return (
-            <div className="timeline-detail">
-                <div className="timeline-detail-header">
-                    <div className="timeline-detail-date">
-                        <span className="timeline-detail-icon">📅</span>
-                        <span>{formatDateTitle(date)}</span>
-                    </div>
-                    <button className="timeline-detail-close" onClick={onClose}>
-                        ✕
-                    </button>
-                </div>
-                <div className="timeline-detail-content">
-                    {renderContent()}
-                </div>
-            </div>
-        )
+    // Если isFullscreen — просто контент без шапки (шапка уже есть в MainPage)
+    if (isFullscreen) {
+        return <>{renderContent()}</>
     }
 
     // Обычный режим (мини-таймлайн под календарём)
