@@ -975,3 +975,90 @@ body {
     padding: 2px 12px;
     border-radius: 12px;
 }
+/* ============================================================
+   ДЕТАЛЬНЫЙ ПРОСМОТР (внутри контента)
+   ============================================================ */
+
+.timeline-detail {
+    animation: fadeIn 0.3s ease;
+    margin-top: 4px;
+}
+
+.timeline-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    background: white;
+    border-radius: 12px 12px 0 0;
+    border-bottom: 2px solid #f0f0f0;
+    margin-bottom: 0;
+}
+
+.timeline-detail-date {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.timeline-detail-icon {
+    font-size: 22px;
+}
+
+.timeline-detail-close {
+    background: none;
+    border: none;
+    font-size: 26px;
+    color: #999;
+    cursor: pointer;
+    padding: 4px 12px;
+    border-radius: 10px;
+    transition: 0.2s;
+    line-height: 1;
+}
+
+.timeline-detail-close:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.timeline-detail-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+/* ============================================================
+   МИНИ-ТАЙМЛАЙН (под календарём)
+   ============================================================ */
+
+.timeline-mini {
+    margin-top: 4px;
+}
+
+.timeline-mini-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 4px 8px 4px;
+    border-bottom: 2px solid #e8eaed;
+    margin-bottom: 12px;
+}
+
+.timeline-mini-date {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.timeline-mini-count {
+    font-size: 13px;
+    color: #999;
+    background: #f0f0f0;
+    padding: 2px 12px;
+    border-radius: 12px;
+}
