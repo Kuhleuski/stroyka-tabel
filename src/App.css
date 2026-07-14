@@ -860,3 +860,118 @@ body {
         padding: 1px 8px;
     }
 }
+/* ============================================================
+   ПОЛНОЭКРАННЫЙ ДЕТАЛЬНЫЙ ПРОСМОТР
+   ============================================================ */
+
+.detail-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #f5f7f6;
+    z-index: 100;
+    animation: slideUp 0.3s ease;
+    overflow-y: auto;
+    padding-bottom: 20px;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.detail-container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+.timeline-fullscreen {
+    padding-top: 8px;
+}
+
+.timeline-fullscreen-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: white;
+    border-radius: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.timeline-fullscreen-date {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.timeline-fullscreen-icon {
+    font-size: 24px;
+}
+
+.timeline-fullscreen-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: #999;
+    cursor: pointer;
+    padding: 4px 12px;
+    border-radius: 10px;
+    transition: 0.2s;
+    line-height: 1;
+}
+
+.timeline-fullscreen-close:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.timeline-fullscreen-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* ============================================================
+   МИНИ-ТАЙМЛАЙН (под календарём)
+   ============================================================ */
+
+.timeline-mini {
+    margin-top: 4px;
+}
+
+.timeline-mini-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 4px 8px 4px;
+    border-bottom: 2px solid #e8eaed;
+    margin-bottom: 12px;
+}
+
+.timeline-mini-date {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.timeline-mini-count {
+    font-size: 13px;
+    color: #999;
+    background: #f0f0f0;
+    padding: 2px 12px;
+    border-radius: 12px;
+}
