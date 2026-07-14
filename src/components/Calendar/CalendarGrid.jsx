@@ -1,6 +1,6 @@
 import { DAYS_SHORT, isToday, formatDate } from '../../utils/dateHelpers'
 
-export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode, isGhost }) {
+export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
     const getDayShifts = (date) => {
         const dateStr = formatDate(date)
         return shifts.filter(s => s.work_date === dateStr)
@@ -17,7 +17,7 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode, isG
     if (mode === 'week') {
         const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
         return (
-            <div className="week-vertical" style={{ opacity: isGhost ? 0.4 : 1 }}>
+            <div className="week-vertical">
                 {days.map((day, index) => {
                     if (day.empty) return null
                     
@@ -31,8 +31,7 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode, isG
                         <div 
                             key={index} 
                             className={`week-day-row ${today ? 'today' : ''} ${selected ? 'selected' : ''}`}
-                            onClick={() => !isGhost && onDayClick(day.date)}
-                            style={{ cursor: isGhost ? 'default' : 'pointer' }}
+                            onClick={() => onDayClick(day.date)}
                         >
                             <div className="week-day-header">
                                 <span className="week-day-name">{dayName}</span>
@@ -59,7 +58,7 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode, isG
 
     // Месяц — стандартная сетка
     return (
-        <div className="calendar-grid" style={{ opacity: isGhost ? 0.4 : 1 }}>
+        <div className="calendar-grid">
             {DAYS_SHORT.map(day => (
                 <div key={day} className="day-label">{day}</div>
             ))}
@@ -78,8 +77,7 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode, isG
                     <div
                         key={index}
                         className={`day-cell ${today ? 'today' : ''} ${selected ? 'selected' : ''} ${hasWork ? 'has-work' : ''}`}
-                        onClick={() => !isGhost && onDayClick(day.date)}
-                        style={{ cursor: isGhost ? 'default' : 'pointer' }}
+                        onClick={() => onDayClick(day.date)}
                     >
                         <div className="day-number">{day.day}</div>
                         {hasWork && <div className="day-dot"></div>}
