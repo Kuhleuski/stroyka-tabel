@@ -137,12 +137,15 @@ body {
 .calendar-nav-btn {
     background: none;
     border: none;
-    font-size: 20px;
-    padding: 4px 12px;
+    font-size: 28px;
+    padding: 4px 20px;
     cursor: pointer;
     border-radius: 8px;
     transition: 0.2s;
     font-family: inherit;
+    font-weight: 300;
+    line-height: 1;
+    color: #333;
 }
 
 .calendar-nav-btn:hover {
