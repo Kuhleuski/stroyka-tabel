@@ -19,7 +19,6 @@ export function Calendar({
     const isFirstRender = useRef(true)
     const touchStartX = useRef(0)
     const touchEndX = useRef(0)
-    const animationTimeout = useRef(null)
 
     useEffect(() => {
         if (externalMode && externalMode !== mode) {
@@ -75,9 +74,6 @@ export function Calendar({
     const changeMonth = (direction) => {
         if (isAnimating) return
         
-        setIsAnimating(true)
-        setAnimationDirection(direction > 0 ? 'slide-left' : 'slide-right')
-        
         const newDate = new Date(displayDate)
         if (mode === 'month') {
             newDate.setMonth(newDate.getMonth() + direction)
@@ -85,34 +81,36 @@ export function Calendar({
             newDate.setDate(newDate.getDate() + direction * 7)
         }
         
-        // Сначала показываем анимацию
-        setTimeout(() => {
-            setDisplayDate(newDate)
-            setCurrentDate(newDate)
-            
-            // Обновляем выбранную дату
-            if (mode === 'week') {
-                const weekDays = getWeekDays(newDate)
-                const isSelectedInWeek = weekDays.some(d => 
-                    d.date.getDate() === selectedDate.getDate() &&
-                    d.date.getMonth() === selectedDate.getMonth() &&
-                    d.date.getFullYear() === selectedDate.getFullYear()
-                )
-                if (!isSelectedInWeek) {
-                    onDateSelect(weekDays[0].date)
-                } else {
-                    onDateSelect(new Date(selectedDate))
-                }
+        // Сразу обновляем данные
+        setDisplayDate(newDate)
+        setCurrentDate(newDate)
+        
+        // Запускаем анимацию
+        setIsAnimating(true)
+        setAnimationDirection(direction > 0 ? 'slide-left' : 'slide-right')
+        
+        // Обновляем выбранную дату
+        if (mode === 'week') {
+            const weekDays = getWeekDays(newDate)
+            const isSelectedInWeek = weekDays.some(d => 
+                d.date.getDate() === selectedDate.getDate() &&
+                d.date.getMonth() === selectedDate.getMonth() &&
+                d.date.getFullYear() === selectedDate.getFullYear()
+            )
+            if (!isSelectedInWeek) {
+                onDateSelect(weekDays[0].date)
             } else {
                 onDateSelect(new Date(selectedDate))
             }
-            
-            // Сбрасываем анимацию
-            setTimeout(() => {
-                setIsAnimating(false)
-                setAnimationDirection('')
-            }, 50)
-        }, 250)
+        } else {
+            onDateSelect(new Date(selectedDate))
+        }
+        
+        // Сбрасываем анимацию
+        setTimeout(() => {
+            setIsAnimating(false)
+            setAnimationDirection('')
+        }, 300)
     }
 
     const handlePrev = () => changeMonth(-1)
@@ -121,10 +119,6 @@ export function Calendar({
     const handleTouchStart = (e) => {
         if (isAnimating) return
         touchStartX.current = e.touches[0].clientX
-    }
-
-    const handleTouchMove = (e) => {
-        // Опционально: можно добавить визуальный отклик при свайпе
     }
 
     const handleTouchEnd = (e) => {
@@ -163,7 +157,6 @@ export function Calendar({
         <div 
             className="calendar-wrapper"
             onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
         >
             <ViewModeButtons mode={mode} onChange={handleModeChange} />
