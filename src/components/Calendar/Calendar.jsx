@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { ViewModeButtons } from './ViewModeButtons'
 import { CalendarGrid } from './CalendarGrid'
 import { MONTHS, getMonthDays, getWeekDays } from '../../utils/dateHelpers'
@@ -6,12 +6,16 @@ import { MONTHS, getMonthDays, getWeekDays } from '../../utils/dateHelpers'
 export function Calendar({ shifts, selectedDate, onDateSelect }) {
     const [mode, setMode] = useState('month')
     const [currentDate, setCurrentDate] = useState(new Date())
+    const isFirstRender = useRef(true)
 
-    // При загрузке и при смене даты — всегда устанавливаем сегодня
+    // Только при первом рендере устанавливаем сегодня
     useEffect(() => {
-        const today = new Date()
-        onDateSelect(today)
-        setCurrentDate(today)
+        if (isFirstRender.current) {
+            isFirstRender.current = false
+            const today = new Date()
+            onDateSelect(today)
+            setCurrentDate(today)
+        }
     }, [])
 
     const getDays = () => {
@@ -63,7 +67,6 @@ export function Calendar({ shifts, selectedDate, onDateSelect }) {
         } else if (mode === 'week') {
             newDate.setDate(newDate.getDate() - 7)
         } else if (mode === 'today') {
-            // Для режима "Сегодня" стрелочки не меняют дату
             return
         }
         setCurrentDate(newDate)
@@ -115,18 +118,9 @@ export function Calendar({ shifts, selectedDate, onDateSelect }) {
 
     const handleModeChange = (newMode) => {
         setMode(newMode)
-        
-        // При переключении на любой режим — выбираем сегодня
         const today = new Date()
         onDateSelect(today)
-        
-        if (newMode === 'week') {
-            setCurrentDate(today)
-        } else if (newMode === 'month') {
-            setCurrentDate(today)
-        } else if (newMode === 'today') {
-            setCurrentDate(today)
-        }
+        setCurrentDate(today)
     }
 
     return (
