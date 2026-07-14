@@ -112,9 +112,9 @@ export function Calendar({ shifts, selectedDate, onDateSelect, onDayClick }) {
 
     const handleDayClick = (date) => {
         onDateSelect(date)
-        // Открываем детальный просмотр
+        // Передаём текущий режим в onDayClick
         if (onDayClick) {
-            onDayClick(date)
+            onDayClick(date, mode)
         }
     }
 
