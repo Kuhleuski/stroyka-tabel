@@ -14,6 +14,10 @@ export function Calendar({
     const [mode, setMode] = useState(externalMode || 'month')
     const [currentDate, setCurrentDate] = useState(new Date())
     const isFirstRender = useRef(true)
+    
+    // Для свайпа
+    const touchStartX = useRef(0)
+    const touchEndX = useRef(0)
 
     useEffect(() => {
         if (externalMode && externalMode !== mode) {
@@ -64,12 +68,12 @@ export function Calendar({
         }
     }
 
-    const handlePrev = () => {
+    const changeMonth = (direction) => {
         const newDate = new Date(currentDate)
         if (mode === 'month') {
-            newDate.setMonth(newDate.getMonth() - 1)
+            newDate.setMonth(newDate.getMonth() + direction)
         } else if (mode === 'week') {
-            newDate.setDate(newDate.getDate() - 7)
+            newDate.setDate(newDate.getDate() + direction * 7)
         }
         setCurrentDate(newDate)
         
@@ -90,29 +94,27 @@ export function Calendar({
         }
     }
 
-    const handleNext = () => {
-        const newDate = new Date(currentDate)
-        if (mode === 'month') {
-            newDate.setMonth(newDate.getMonth() + 1)
-        } else if (mode === 'week') {
-            newDate.setDate(newDate.getDate() + 7)
-        }
-        setCurrentDate(newDate)
+    const handlePrev = () => changeMonth(-1)
+    const handleNext = () => changeMonth(1)
+
+    // === ОБРАБОТЧИКИ СВАЙПА ===
+    const handleTouchStart = (e) => {
+        touchStartX.current = e.touches[0].clientX
+    }
+
+    const handleTouchEnd = (e) => {
+        touchEndX.current = e.changedTouches[0].clientX
+        const diff = touchStartX.current - touchEndX.current
         
-        if (mode === 'week') {
-            const weekDays = getWeekDays(newDate)
-            const isSelectedInWeek = weekDays.some(d => 
-                d.date.getDate() === selectedDate.getDate() &&
-                d.date.getMonth() === selectedDate.getMonth() &&
-                d.date.getFullYear() === selectedDate.getFullYear()
-            )
-            if (!isSelectedInWeek) {
-                onDateSelect(weekDays[0].date)
+        // Минимальное расстояние для свайпа — 50px
+        if (Math.abs(diff) > 50) {
+            if (diff > 0) {
+                // Свайп влево — следующий месяц/неделя
+                handleNext()
             } else {
-                onDateSelect(new Date(selectedDate))
+                // Свайп вправо — предыдущий месяц/неделя
+                handlePrev()
             }
-        } else {
-            onDateSelect(new Date(selectedDate))
         }
     }
 
@@ -134,7 +136,11 @@ export function Calendar({
     }
 
     return (
-        <div className="calendar-wrapper">
+        <div 
+            className="calendar-wrapper"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+        >
             <ViewModeButtons mode={mode} onChange={handleModeChange} />
             
             <div className="calendar-header">
