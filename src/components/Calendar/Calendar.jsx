@@ -9,7 +9,8 @@ export function Calendar({
     onDateSelect, 
     onDayClick,
     mode: externalMode,
-    onModeChange 
+    onModeChange,
+    returnDate // <-- дата для восстановления
 }) {
     const [mode, setMode] = useState(externalMode || 'month')
     const [displayDate, setDisplayDate] = useState(new Date())
@@ -18,6 +19,7 @@ export function Calendar({
     const isFirstRender = useRef(true)
     const feedContainerRef = useRef(null)
     const isInitialized = useRef(false)
+    const isRestoring = useRef(false)
 
     // Генерация дней
     const generateFeedDays = (offset, count = 30) => {
@@ -55,24 +57,68 @@ export function Calendar({
         }
     }, [])
 
-    // Скролл к сегодняшнему дню при первом открытии
+    // Восстановление позиции по дате
     useEffect(() => {
-        if (mode === 'feed' && feedDays.length > 0 && !isInitialized.current) {
-            setTimeout(() => {
-                const container = feedContainerRef.current
-                if (container) {
-                    const todayItems = container.querySelectorAll('.feed-item.today')
-                    if (todayItems.length > 0) {
-                        const target = todayItems[0]
-                        const containerHeight = container.clientHeight
-                        const targetOffsetTop = target.offsetTop
-                        container.scrollTop = targetOffsetTop - containerHeight * 0.3
-                    }
+        if (mode === 'feed' && feedDays.length > 0 && returnDate) {
+            const container = feedContainerRef.current
+            if (!container) return
+
+            // Ищем элемент с нужной датой
+            const dateStr = returnDate.toISOString().split('T')[0]
+            const items = container.querySelectorAll('.feed-item')
+            
+            let targetIndex = -1
+            for (let i = 0; i < items.length; i++) {
+                const itemDate = items[i].dataset.date
+                if (itemDate === dateStr) {
+                    targetIndex = i
+                    break
                 }
-                isInitialized.current = true
-            }, 100)
+            }
+
+            if (targetIndex !== -1) {
+                isRestoring.current = true
+                const target = items[targetIndex]
+                const containerHeight = container.clientHeight
+                const targetOffsetTop = target.offsetTop
+                container.scrollTop = targetOffsetTop - containerHeight * 0.3
+                setTimeout(() => {
+                    isRestoring.current = false
+                }, 100)
+            }
         }
-    }, [mode, feedDays])
+    }, [mode, feedDays, returnDate])
+
+    // Скролл к сегодня при первом открытии (если нет returnDate)
+    useEffect(() => {
+        if (mode === 'feed' && feedDays.length > 0 && !isInitialized.current && !returnDate) {
+            const container = feedContainerRef.current
+            if (container) {
+                const todayItems = container.querySelectorAll('.feed-item.today')
+                if (todayItems.length > 0) {
+                    const target = todayItems[0]
+                    const containerHeight = container.clientHeight
+                    const targetOffsetTop = target.offsetTop
+                    container.scrollTop = targetOffsetTop - containerHeight * 0.3
+                }
+            }
+            isInitialized.current = true
+        }
+    }, [mode, feedDays, returnDate])
+
+    // Сброс флага при переключении режимов
+    useEffect(() => {
+        if (mode !== 'feed') {
+            isInitialized.current = false
+        }
+    }, [mode])
+
+    // При изменении returnDate сбрасываем флаг, чтобы сработало восстановление
+    useEffect(() => {
+        if (returnDate) {
+            isInitialized.current = false
+        }
+    }, [returnDate])
 
     const getDays = (date) => {
         const year = date.getFullYear()
@@ -141,12 +187,14 @@ export function Calendar({
         }
     }
 
-    // Бесконечная подгрузка (простая)
+    // Бесконечная подгрузка
     useEffect(() => {
         const container = feedContainerRef.current
         if (!container || mode !== 'feed' || feedDays.length === 0) return
 
         const handleScroll = () => {
+            if (isRestoring.current) return
+            
             const { scrollTop, scrollHeight, clientHeight } = container
             
             if (scrollTop < 30) {
