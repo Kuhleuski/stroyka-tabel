@@ -71,9 +71,8 @@ export function Calendar({
     onDayClick,
     mode: externalMode,
     onModeChange,
-    returnDate,
     isReturning,
-    savedScrollIndex // индекс для обычного скролла
+    savedScrollTop // <-- ТОЧНАЯ ПОЗИЦИЯ
 }) {
     const [mode, setMode] = useState(externalMode || 'month')
     const [displayDate, setDisplayDate] = useState(new Date())
@@ -83,7 +82,7 @@ export function Calendar({
     const isRestoring = useRef(false)
     const virtualizerRef = useRef(null)
     const [shouldShowToday, setShouldShowToday] = useState(true)
-    const [hasRestoredOnce, setHasRestoredOnce] = useState(false) // флаг, что мы уже восстановили позицию
+    const [hasRestored, setHasRestored] = useState(false)
 
     const generateDays = useCallback((centerDate) => {
         const days = []
@@ -112,7 +111,7 @@ export function Calendar({
     const initFeed = useCallback((centerDate) => {
         const days = generateDays(centerDate)
         setAllDays(days)
-        setHasRestoredOnce(false)
+        setHasRestored(false)
     }, [generateDays])
 
     const getDayShifts = useCallback((date) => {
@@ -163,31 +162,28 @@ export function Calendar({
         }
     }, [initFeed, onDateSelect])
 
-    // === ВОССТАНОВЛЕНИЕ ПОЗИЦИИ ПО ДАТЕ (а не по индексу) ===
+    // === ВОССТАНАВЛИВАЕМ ТОЧНУЮ ПОЗИЦИЮ (scrollTop) ===
     useEffect(() => {
         if (mode !== 'feed' || allDays.length === 0) return
-        if (!isReturning || !returnDate || hasRestoredOnce) return
+        if (!isReturning || savedScrollTop === undefined || savedScrollTop === null || hasRestored) return
 
-        const dateStr = returnDate.toISOString().split('T')[0]
-        const targetIndex = allDays.findIndex(d => 
-            d.date.toISOString().split('T')[0] === dateStr
-        )
+        const container = containerRef.current
+        if (!container) return
+
+        isRestoring.current = true
+        container.scrollTop = savedScrollTop // ВОССТАНАВЛИВАЕМ ТОЧНУЮ ПОЗИЦИЮ
+        setHasRestored(true)
         
-        if (targetIndex !== -1) {
-            isRestoring.current = true
-            virtualizer.scrollToIndex(targetIndex, { align: 'start', behavior: 'auto' })
-            setHasRestoredOnce(true)
-            setTimeout(() => {
-                isRestoring.current = false
-            }, 150)
-        }
-    }, [mode, allDays, isReturning, returnDate, virtualizer, hasRestoredOnce])
+        setTimeout(() => {
+            isRestoring.current = false
+        }, 100)
+    }, [mode, allDays, isReturning, savedScrollTop, hasRestored])
 
     // === ПОКАЗАТЬ СЕГОДНЯ ПО ЦЕНТРУ (только при первом переходе) ===
     useEffect(() => {
         if (mode !== 'feed' || allDays.length === 0) return
         if (!shouldShowToday || isReturning) return
-        if (hasRestoredOnce) return // если уже восстановили позицию — не трогаем
+        if (hasRestored) return
 
         const today = new Date()
         const dateStr = today.toISOString().split('T')[0]
@@ -203,17 +199,17 @@ export function Calendar({
                 setShouldShowToday(false)
             }, 150)
         }
-    }, [mode, allDays, shouldShowToday, isReturning, virtualizer, hasRestoredOnce])
+    }, [mode, allDays, shouldShowToday, isReturning, virtualizer, hasRestored])
 
     // === СБРОС ФЛАГОВ ПРИ ПЕРЕКЛЮЧЕНИИ ===
     useEffect(() => {
         if (mode !== 'feed') {
             setShouldShowToday(true)
-            setHasRestoredOnce(false)
+            setHasRestored(false)
         }
     }, [mode])
 
-    // Сохраняем индекс для обычного скролла
+    // Сохраняем индекс при скролле (для будущих фич)
     const handleScroll = useCallback(() => {
         if (!virtualizerRef.current || isRestoring.current) return
         
