@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { ViewModeButtons } from './ViewModeButtons'
 import { CalendarGrid } from './CalendarGrid'
-import { MONTHS, getMonthDays, getWeekDays } from '../../utils/dateHelpers'
+import { MONTHS, getMonthDays } from '../../utils/dateHelpers'
 
 export function Calendar({ 
     shifts, 
@@ -9,17 +9,18 @@ export function Calendar({
     onDateSelect, 
     onDayClick,
     mode: externalMode,
-    onModeChange 
+    onModeChange,
+    feedScrollPosition // позиция из MainPage
 }) {
     const [mode, setMode] = useState(externalMode || 'month')
     const [displayDate, setDisplayDate] = useState(new Date())
     const [feedDays, setFeedDays] = useState([])
     const [feedOffset, setFeedOffset] = useState(0)
     const [isFeedReady, setIsFeedReady] = useState(false)
-    const [savedScrollPosition, setSavedScrollPosition] = useState(0)
     const isFirstRender = useRef(true)
     const feedContainerRef = useRef(null)
     const isRestoringScroll = useRef(false)
+    const hasScrolledToToday = useRef(false)
 
     // Генерация дней для режима "День"
     const generateFeedDays = (offset, count = 30) => {
@@ -35,12 +36,12 @@ export function Calendar({
         return days
     }
 
-    // Инициализация ленты
     const initFeed = (offset = 0) => {
         const days = generateFeedDays(offset - 45, 90)
         setFeedDays(days)
         setFeedOffset(offset)
         setIsFeedReady(true)
+        hasScrolledToToday.current = false
     }
 
     useEffect(() => {
@@ -59,43 +60,52 @@ export function Calendar({
         }
     }, [])
 
-    // При переключении на режим "День" — центрируем на сегодня
+    // Позиционирование при открытии/переключении на "День"
     useEffect(() => {
-        if (mode === 'feed' && isFeedReady) {
-            // Центрируем на сегодня
-            setTimeout(() => {
-                const container = feedContainerRef.current
-                if (container) {
-                    // Находим элемент "Сегодня" и скроллим к нему
-                    const todayItems = container.querySelectorAll('.feed-item.today')
-                    if (todayItems.length > 0) {
-                        const target = todayItems[0]
-                        const containerRect = container.getBoundingClientRect()
-                        const targetRect = target.getBoundingClientRect()
-                        const scrollTo = target.offsetTop - containerRect.height / 2 + targetRect.height / 2
-                        container.scrollTo({ top: scrollTo, behavior: 'smooth' })
-                    } else {
-                        // Если нет "Сегодня" — скроллим в середину
-                        container.scrollTop = container.scrollHeight / 2
-                    }
-                }
-            }, 100)
+        if (mode === 'feed' && isFeedReady && feedContainerRef.current) {
+            const container = feedContainerRef.current
+            
+            // Если есть сохранённая позиция — восстанавливаем её
+            if (feedScrollPosition !== undefined && feedScrollPosition !== null) {
+                isRestoringScroll.current = true
+                container.scrollTop = feedScrollPosition
+                setTimeout(() => {
+                    isRestoringScroll.current = false
+                }, 50)
+                return
+            }
+            
+            // Иначе — скроллим к сегодняшнему дню на 30% от верха
+            const todayItems = container.querySelectorAll('.feed-item.today')
+            if (todayItems.length > 0) {
+                const target = todayItems[0]
+                const containerHeight = container.clientHeight
+                const targetOffsetTop = target.offsetTop
+                // 30% от верха
+                const scrollTo = targetOffsetTop - containerHeight * 0.3
+                // Мгновенный скролл без анимации
+                container.scrollTop = scrollTo
+                hasScrolledToToday.current = true
+            }
         }
-    }, [mode, isFeedReady])
+    }, [mode, isFeedReady, feedScrollPosition])
 
-    // Запоминаем позицию при скролле
+    // Запоминаем позицию скролла для сохранения
     useEffect(() => {
         const container = feedContainerRef.current
         if (!container || mode !== 'feed') return
 
         const handleScroll = () => {
             if (isRestoringScroll.current) return
-            setSavedScrollPosition(container.scrollTop)
+            // Передаём позицию в MainPage через onModeChange
+            if (onModeChange) {
+                onModeChange(mode, container.scrollTop)
+            }
         }
 
         container.addEventListener('scroll', handleScroll)
         return () => container.removeEventListener('scroll', handleScroll)
-    }, [mode])
+    }, [mode, onModeChange])
 
     // Бесконечная подгрузка при скролле
     useEffect(() => {
@@ -105,7 +115,6 @@ export function Calendar({
         const handleScroll = () => {
             const { scrollTop, scrollHeight, clientHeight } = container
             
-            // Дошли до верха — добавляем дни в начало
             if (scrollTop < 50) {
                 const newOffset = feedOffset - 20
                 const newDays = generateFeedDays(newOffset, 20)
@@ -119,7 +128,6 @@ export function Calendar({
                 return
             }
             
-            // Дошли до низа — добавляем дни в конец
             if (scrollTop + clientHeight >= scrollHeight - 50) {
                 const lastDate = feedDays[feedDays.length - 1]?.date
                 if (lastDate) {
@@ -167,7 +175,6 @@ export function Calendar({
         if (mode === 'month') {
             newDate.setMonth(newDate.getMonth() + direction)
         } else if (mode === 'feed') {
-            // Переключаем ленту на 30 дней
             const newOffset = feedOffset + direction * 30
             initFeed(newOffset)
             onDateSelect(new Date(selectedDate))
@@ -183,7 +190,8 @@ export function Calendar({
     const handleModeChange = (newMode) => {
         setMode(newMode)
         if (onModeChange) {
-            onModeChange(newMode)
+            // При переключении сбрасываем сохранённую позицию, чтобы показать сегодня
+            onModeChange(newMode, null)
         }
         const today = new Date()
         onDateSelect(today)
@@ -201,7 +209,6 @@ export function Calendar({
         }
     }
 
-    // Получаем дни для отображения
     const displayDays = getDays(displayDate)
 
     return (
