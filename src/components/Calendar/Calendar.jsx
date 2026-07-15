@@ -13,22 +13,13 @@ export function Calendar({
 }) {
     const [mode, setMode] = useState(externalMode || 'month')
     const [displayDate, setDisplayDate] = useState(new Date())
-    const [allDays, setAllDays] = useState([])
-    const [loading, setLoading] = useState(false)
     const isFirstRender = useRef(true)
-    const feedOffset = useRef(0)
 
-    const generateDays = (offset, count = 30) => {
-        const days = []
-        const startDate = new Date(displayDate)
-        startDate.setDate(startDate.getDate() + offset)
-        for (let i = 0; i < count; i++) {
-            const d = new Date(startDate)
-            d.setDate(startDate.getDate() + i)
-            days.push({ date: d, day: d.getDate(), empty: false })
+    useEffect(() => {
+        if (externalMode && externalMode !== mode) {
+            setMode(externalMode)
         }
-        return days
-    }
+    }, [externalMode])
 
     useEffect(() => {
         if (isFirstRender.current) {
@@ -36,44 +27,21 @@ export function Calendar({
             const today = new Date()
             onDateSelect(today)
             setDisplayDate(today)
-            const initialDays = generateDays(-30, 60)
-            setAllDays(initialDays)
         }
     }, [])
 
-    useEffect(() => {
-        const container = document.getElementById('feedContainer')
-        if (!container || mode !== 'feed') return
-
-        const handleScroll = () => {
-            const { scrollTop, scrollHeight, clientHeight } = container
-            
-            if (scrollTop < 100 && !loading) {
-                setLoading(true)
-                const newDays = generateDays(feedOffset.current - 30, 20)
-                setAllDays(prev => [...newDays, ...prev])
-                feedOffset.current -= 20
-                setTimeout(() => {
-                    container.scrollTop = 200
-                    setLoading(false)
-                }, 50)
-                return
-            }
-            
-            if (scrollTop + clientHeight >= scrollHeight - 100 && !loading) {
-                setLoading(true)
-                const currentOffset = feedOffset.current + allDays.length
-                const newDays = generateDays(currentOffset, 20)
-                setAllDays(prev => [...prev, ...newDays])
-                setTimeout(() => {
-                    setLoading(false)
-                }, 50)
-            }
+    // Генерация дней для режима "День" — 90 дней (45 назад + 45 вперёд)
+    const generateFeedDays = (date) => {
+        const days = []
+        const startDate = new Date(date)
+        startDate.setDate(startDate.getDate() - 45)
+        for (let i = 0; i < 90; i++) {
+            const d = new Date(startDate)
+            d.setDate(startDate.getDate() + i)
+            days.push({ date: d, day: d.getDate(), empty: false })
         }
-
-        container.addEventListener('scroll', handleScroll)
-        return () => container.removeEventListener('scroll', handleScroll)
-    }, [allDays, loading, mode])
+        return days
+    }
 
     const getDays = (date) => {
         const year = date.getFullYear()
@@ -81,9 +49,7 @@ export function Calendar({
         
         switch (mode) {
             case 'feed':
-                return allDays
-            case 'week':
-                return getWeekDays(date)
+                return generateFeedDays(date)
             case 'month':
             default:
                 return getMonthDays(year, month)
@@ -99,15 +65,6 @@ export function Calendar({
         switch (mode) {
             case 'feed':
                 return ''
-            case 'week': {
-                const weekDays = getWeekDays(date)
-                const first = weekDays[0]
-                const last = weekDays[weekDays.length - 1]
-                if (first && last) {
-                    return `${first.date.getDate()} ${MONTHS[first.date.getMonth()]} - ${last.date.getDate()} ${MONTHS[last.date.getMonth()]} ${year}`
-                }
-                return ''
-            }
             case 'month':
             default:
                 return `${MONTHS[month]} ${year}`
@@ -118,15 +75,8 @@ export function Calendar({
         const newDate = new Date(displayDate)
         if (mode === 'month') {
             newDate.setMonth(newDate.getMonth() + direction)
-        } else if (mode === 'week') {
-            newDate.setDate(newDate.getDate() + direction * 7)
         } else if (mode === 'feed') {
-            const offset = direction * 30
-            feedOffset.current += offset
-            const newDays = generateDays(feedOffset.current - 30, 60)
-            setAllDays(newDays)
-            onDateSelect(new Date(selectedDate))
-            return
+            newDate.setDate(newDate.getDate() + direction * 45)
         }
         setDisplayDate(newDate)
         onDateSelect(new Date(selectedDate))
@@ -143,9 +93,6 @@ export function Calendar({
         const today = new Date()
         onDateSelect(today)
         setDisplayDate(today)
-        feedOffset.current = 0
-        const initialDays = generateDays(-30, 60)
-        setAllDays(initialDays)
     }
 
     const handleDayClick = (date) => {
@@ -157,13 +104,13 @@ export function Calendar({
 
     return (
         <>
-            {/* Кнопки переключения режимов — отдельный блок */}
+            {/* Кнопки переключения режимов */}
             <div className="view-mode-wrapper">
                 <ViewModeButtons mode={mode} onChange={handleModeChange} />
             </div>
 
             {/* Контент календаря */}
-            <div className="calendar-wrapper">
+            <div className={`calendar-wrapper ${mode === 'feed' ? 'feed-mode' : ''}`}>
                 <div className="calendar-header">
                     {mode !== 'feed' && (
                         <>
