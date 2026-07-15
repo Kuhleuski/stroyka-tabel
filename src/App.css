@@ -813,3 +813,27 @@ body {
         font-size: 10px;
     }
 }
+
+/* ============================================================
+   ПЛАВНОЕ ПОЯВЛЕНИЕ ВКЛАДКИ "ДЕНЬ"
+   ============================================================ */
+
+.feed-container {
+    animation: feedFadeIn 0.25s ease;
+}
+
+@keyframes feedFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Убираем анимацию при первом рендере, чтобы не мешала позиционированию */
+.feed-container.no-animation {
+    animation: none;
+}
