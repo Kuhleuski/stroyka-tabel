@@ -1,9 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { Navigation, Pagination } from 'swiper/modules'
 import 'swiper/css'
-import 'swiper/css/navigation'
-import 'swiper/css/pagination'
 import { ViewModeButtons } from './ViewModeButtons'
 import { CalendarGrid } from './CalendarGrid'
 import { MONTHS, getMonthDays, getWeekDays } from '../../utils/dateHelpers'
@@ -20,7 +17,6 @@ export function Calendar({
     const [currentDate, setCurrentDate] = useState(new Date())
     const [displayDate, setDisplayDate] = useState(new Date())
     const [key, setKey] = useState(0)
-    const [isSwiping, setIsSwiping] = useState(false)
     const isFirstRender = useRef(true)
     const swiperRef = useRef(null)
     const transitionTimer = useRef(null)
@@ -115,7 +111,6 @@ export function Calendar({
                 newDate.setDate(newDate.getDate() - 7)
             }
             
-            // Плавно обновляем
             clearTimeout(transitionTimer.current)
             transitionTimer.current = setTimeout(() => {
                 setDisplayDate(newDate)
@@ -129,13 +124,12 @@ export function Calendar({
                     onDateSelect(new Date(selectedDate))
                 }
                 
-                // Возвращаем на центральный слайд БЕЗ анимации
                 setTimeout(() => {
                     if (swiperRef.current) {
                         swiperRef.current.slideTo(1, 0)
                     }
                 }, 50)
-            }, 200)
+            }, 150)
         } else if (direction === 1) {
             const newDate = new Date(displayDate)
             if (mode === 'month') {
@@ -162,16 +156,8 @@ export function Calendar({
                         swiperRef.current.slideTo(1, 0)
                     }
                 }, 50)
-            }, 200)
+            }, 150)
         }
-    }
-
-    const handleSlideChangeTransitionStart = () => {
-        setIsSwiping(true)
-    }
-
-    const handleSlideChangeTransitionEnd = () => {
-        setIsSwiping(false)
     }
 
     const handleModeChange = (newMode) => {
@@ -256,37 +242,37 @@ export function Calendar({
                 </button>
             </div>
 
-            <Swiper
-                onSwiper={(swiper) => {
-                    swiperRef.current = swiper
-                }}
-                slidesPerView={1}
-                onSlideChange={handleSlideChange}
-                onSlideChangeTransitionStart={handleSlideChangeTransitionStart}
-                onSlideChangeTransitionEnd={handleSlideChangeTransitionEnd}
-                initialSlide={1}
-                // === КЛЮЧЕВЫЕ НАСТРОЙКИ ДЛЯ ПЛАВНОСТИ ===
-                touchRatio={0.8}          // Чувствительность свайпа
-                touchAngle={45}           // Угол для свайпа
-                resistance={true}         // Сопротивление на краях
-                resistanceRatio={0.5}     // Сила сопротивления
-                speed={400}               // Скорость анимации (мс)
-                threshold={3}             // Минимальное движение для активации
-                followFinger={true}       // Следить за пальцем
-                freeMode={false}          // Отключаем свободный режим
-                freeModeMomentum={false}  // Отключаем инерцию
-                className="calendar-swiper"
-            >
-                <SwiperSlide>
-                    {renderCalendarGrid(daysPrev, false)}
-                </SwiperSlide>
-                <SwiperSlide>
-                    {renderCalendarGrid(daysCurrent, true)}
-                </SwiperSlide>
-                <SwiperSlide>
-                    {renderCalendarGrid(daysNext, false)}
-                </SwiperSlide>
-            </Swiper>
+            <div className="calendar-swiper-wrapper">
+                <Swiper
+                    onSwiper={(swiper) => {
+                        swiperRef.current = swiper
+                    }}
+                    slidesPerView={1}
+                    onSlideChange={handleSlideChange}
+                    initialSlide={1}
+                    // === МАКСИМАЛЬНАЯ ЧУВСТВИТЕЛЬНОСТЬ И СКОРОСТЬ ===
+                    touchRatio={1.2}          // Высокая чувствительность
+                    touchAngle={30}           // Широкий угол для свайпа
+                    resistance={true}
+                    resistanceRatio={0.3}     // Меньше сопротивления
+                    speed={500}               // Быстрая анимация
+                    threshold={2}             // Минимальное движение
+                    followFinger={true}
+                    freeMode={false}
+                    freeModeMomentum={false}
+                    className="calendar-swiper"
+                >
+                    <SwiperSlide>
+                        {renderCalendarGrid(daysPrev, false)}
+                    </SwiperSlide>
+                    <SwiperSlide>
+                        {renderCalendarGrid(daysCurrent, true)}
+                    </SwiperSlide>
+                    <SwiperSlide>
+                        {renderCalendarGrid(daysNext, false)}
+                    </SwiperSlide>
+                </Swiper>
+            </div>
         </div>
     )
 }
