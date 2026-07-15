@@ -28,7 +28,6 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
                     const selected = isSelected(day.date)
                     const dayName = dayNames[day.date.getDay()]
                     
-                    // Группируем смены по объектам
                     const sitesMap = {}
                     dayShifts.forEach(s => {
                         if (!sitesMap[s.site_name]) {
@@ -43,14 +42,12 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
                             className={`feed-item ${today ? 'today' : ''} ${selected ? 'selected' : ''}`}
                             onClick={() => onDayClick(day.date)}
                         >
-                            {/* Левая часть — дата */}
                             <div className="feed-date">
                                 <div className="feed-day-number">{day.day}</div>
                                 <div className="feed-day-name">{dayName}</div>
                                 {today && <div className="feed-today-badge">Сегодня</div>}
                             </div>
                             
-                            {/* Правая часть — объекты и работники */}
                             <div className="feed-content">
                                 {hasWork ? (
                                     Object.entries(sitesMap).map(([siteName, workers]) => (
@@ -58,9 +55,7 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
                                             <div className="feed-site-name">📍 {siteName}</div>
                                             <div className="feed-workers">
                                                 {workers.map((w, idx) => (
-                                                    <span key={idx} className="feed-worker">
-                                                        👷 {w}
-                                                    </span>
+                                                    <span key={idx} className="feed-worker">👷 {w}</span>
                                                 ))}
                                             </div>
                                         </div>
