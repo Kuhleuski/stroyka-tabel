@@ -1264,3 +1264,54 @@ body {
 .calendar-swiper .swiper-slide-active .week-vertical {
     opacity: 1 !important;
 }
+/* ============================================================
+   SWIPER СТИЛИ — СКРЫВАЕМ БОКОВЫЕ МЕСЯЦЫ
+   ============================================================ */
+
+.calendar-swiper-wrapper {
+    overflow: hidden !important;
+    border-radius: 12px;
+    position: relative;
+}
+
+.calendar-swiper {
+    overflow: hidden !important;
+    padding: 0 !important;
+    touch-action: pan-y !important;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+}
+
+.calendar-swiper .swiper-wrapper {
+    transition-timing-function: cubic-bezier(0.2, 0.9, 0.3, 1) !important;
+    will-change: transform;
+}
+
+.calendar-swiper .swiper-slide {
+    padding: 0 !important;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
+    will-change: transform;
+    width: 100% !important;
+}
+
+/* Скрываем боковые слайды */
+.calendar-swiper .swiper-slide-prev,
+.calendar-swiper .swiper-slide-next {
+    opacity: 0 !important;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.calendar-swiper .swiper-slide-active {
+    opacity: 1 !important;
+    pointer-events: auto;
+}
+
+/* Отключаем стандартные стрелки и пагинацию */
+.calendar-swiper .swiper-button-next,
+.calendar-swiper .swiper-button-prev,
+.calendar-swiper .swiper-pagination {
+    display: none !important;
+}
