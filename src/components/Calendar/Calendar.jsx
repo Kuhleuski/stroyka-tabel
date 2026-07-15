@@ -71,25 +71,27 @@ export function Calendar({
     onDayClick,
     mode: externalMode,
     onModeChange,
-    returnDate
+    returnDate,
+    isReturning // новый флаг — закрываем детали
 }) {
     const [mode, setMode] = useState(externalMode || 'month')
     const [displayDate, setDisplayDate] = useState(new Date())
     const [allDays, setAllDays] = useState([])
+    const [isFirstFeedRender, setIsFirstFeedRender] = useState(true)
     const containerRef = useRef(null)
     const isFirstRender = useRef(true)
     const isRestoring = useRef(false)
     const virtualizerRef = useRef(null)
 
-    // Генерация дней: 1 год назад + сегодня + 1 год вперёд = 731 день
+    // Генерация дней: 1 год назад + сегодня + 1 год вперёд
     const generateDays = useCallback((centerDate) => {
         const days = []
         const startDate = new Date(centerDate)
-        startDate.setFullYear(startDate.getFullYear() - 1) // минус 1 год
-        startDate.setDate(startDate.getDate() - 1) // чуть раньше для ровного счёта
+        startDate.setFullYear(startDate.getFullYear() - 1)
+        startDate.setDate(startDate.getDate() - 1)
         
         const endDate = new Date(centerDate)
-        endDate.setFullYear(endDate.getFullYear() + 1) // плюс 1 год
+        endDate.setFullYear(endDate.getFullYear() + 1)
         endDate.setDate(endDate.getDate() + 1)
         
         let currentDate = new Date(startDate)
@@ -106,7 +108,6 @@ export function Calendar({
         return days
     }, [])
 
-    // Инициализация ленты
     const initFeed = useCallback((centerDate) => {
         const days = generateDays(centerDate)
         setAllDays(days)
@@ -131,7 +132,6 @@ export function Calendar({
                date.getFullYear() === selectedDate.getFullYear()
     }, [selectedDate])
 
-    // Настройка виртуализатора
     const virtualizer = useVirtualizer({
         count: allDays.length,
         getScrollElement: () => containerRef.current,
@@ -153,9 +153,15 @@ export function Calendar({
         }
     }, [initFeed, onDateSelect])
 
-    // Восстановление позиции при возврате
+    // === ЛОГИКА ПОЗИЦИОНИРОВАНИЯ ===
     useEffect(() => {
-        if (mode === 'feed' && returnDate && allDays.length > 0) {
+        if (mode !== 'feed' || allDays.length === 0) return
+
+        const container = containerRef.current
+        if (!container) return
+
+        // Если мы возвращаемся из деталей — восстанавливаем позицию по returnDate
+        if (isReturning && returnDate) {
             const dateStr = returnDate.toISOString().split('T')[0]
             const index = allDays.findIndex(d => 
                 d.date.toISOString().split('T')[0] === dateStr
@@ -163,19 +169,17 @@ export function Calendar({
             
             if (index !== -1) {
                 isRestoring.current = true
+                // Мгновенный скролл без анимации
+                virtualizer.scrollToIndex(index, { align: 'center', behavior: 'auto' })
                 setTimeout(() => {
-                    virtualizer.scrollToIndex(index, { align: 'center', behavior: 'auto' })
-                    setTimeout(() => {
-                        isRestoring.current = false
-                    }, 150)
-                }, 50)
+                    isRestoring.current = false
+                }, 100)
+                return
             }
         }
-    }, [mode, returnDate, allDays, virtualizer])
 
-    // Центрируем на сегодня при переключении на "День"
-    useEffect(() => {
-        if (mode === 'feed' && allDays.length > 0 && !returnDate && !isRestoring.current) {
+        // Если это первый переход на вкладку "День" — показываем сегодня по центру
+        if (isFirstFeedRender) {
             const today = new Date()
             const dateStr = today.toISOString().split('T')[0]
             const index = allDays.findIndex(d => 
@@ -183,14 +187,23 @@ export function Calendar({
             )
             
             if (index !== -1) {
+                isRestoring.current = true
+                virtualizer.scrollToIndex(index, { align: 'center', behavior: 'auto' })
                 setTimeout(() => {
-                    virtualizer.scrollToIndex(index, { align: 'center', behavior: 'auto' })
-                }, 50)
+                    isRestoring.current = false
+                    setIsFirstFeedRender(false)
+                }, 150)
             }
         }
-    }, [mode, allDays, returnDate, virtualizer])
+    }, [mode, allDays, returnDate, isReturning, virtualizer, isFirstFeedRender])
 
-    // Функция для определения разделителя месяца
+    // Сброс флага при переключении на другой режим
+    useEffect(() => {
+        if (mode !== 'feed') {
+            setIsFirstFeedRender(true)
+        }
+    }, [mode])
+
     const shouldShowMonthDivider = (day, index) => {
         if (index === 0) return true
         const prevDay = allDays[index - 1]
@@ -240,6 +253,7 @@ export function Calendar({
         
         if (newMode === 'feed') {
             initFeed(today)
+            setIsFirstFeedRender(true)
         }
     }
 
@@ -250,7 +264,6 @@ export function Calendar({
         }
     }
 
-    // Ключ для принудительного перерендера при смене режима
     const feedKey = `feed-${mode}-${allDays.length}`
 
     return (
