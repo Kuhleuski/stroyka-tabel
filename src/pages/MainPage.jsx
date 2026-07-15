@@ -10,7 +10,7 @@ export function MainPage({ shifts, loading }) {
     const [calendarMode, setCalendarMode] = useState('month')
     const [returnDate, setReturnDate] = useState(null)
     const [isReturning, setIsReturning] = useState(false)
-    const [savedScrollIndex, setSavedScrollIndex] = useState(null) // <-- индекс вместо scrollTop
+    const [savedScrollIndex, setSavedScrollIndex] = useState(null)
 
     useEffect(() => {
         setSelectedDate(new Date())
@@ -21,11 +21,14 @@ export function MainPage({ shifts, loading }) {
     }
 
     const handleDayClick = (date, mode) => {
-        setDetailDate(date)
-        setReturnMode(mode)
+        // Запоминаем ДАТУ, на которую кликнули
         setReturnDate(date)
+        setReturnMode(mode)
         setIsReturning(false)
+        
+        // НЕ сохраняем индекс скролла — будем восстанавливать по дате
         setIsDetailOpen(true)
+        setDetailDate(date)
     }
 
     const handleCloseDetail = () => {
@@ -38,7 +41,7 @@ export function MainPage({ shifts, loading }) {
     const handleModeChange = (mode, scrollIndex) => {
         setCalendarMode(mode)
         
-        // Сохраняем индекс для восстановления
+        // Сохраняем индекс скролла только для обычного скролла (не для восстановления)
         if (mode === 'feed' && scrollIndex !== undefined && scrollIndex !== null) {
             setSavedScrollIndex(scrollIndex)
         }
