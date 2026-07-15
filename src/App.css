@@ -137,20 +137,15 @@ body {
 .calendar-nav-btn {
     background: none;
     border: none;
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 300;
-    padding: 8px 20px;
+    padding: 4px 16px;
     cursor: pointer;
     border-radius: 10px;
     transition: 0.2s;
     font-family: inherit;
     line-height: 1;
-    color: #222;
-    min-width: 48px;
-    min-height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    color: #333;
 }
 
 .calendar-nav-btn:hover {
@@ -269,6 +264,259 @@ body {
 
 .day-cell.selected .day-count {
     color: white;
+}
+
+/* ============================================================
+   РЕЖИМ "НЕДЕЛЯ" (ВЕРТИКАЛЬНЫЙ)
+   ============================================================ */
+
+.week-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.week-day-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: white;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+    border-left: 4px solid transparent;
+}
+
+.week-day-row:hover {
+    background: #f8faf8;
+}
+
+.week-day-row.today {
+    border-left-color: #2d7d46;
+    background: #f5faf6;
+}
+
+.week-day-row.selected {
+    border-left-color: #2d7d46;
+    background: #e8f5e9;
+}
+
+.week-day-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 70px;
+}
+
+.week-day-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+    width: 30px;
+}
+
+.week-day-number {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.week-day-row.today .week-day-number {
+    color: #2d7d46;
+}
+
+.week-day-count {
+    font-size: 11px;
+    background: #2d7d46;
+    color: white;
+    padding: 1px 8px;
+    border-radius: 10px;
+    margin-left: 4px;
+}
+
+.week-day-info {
+    flex: 1;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.week-day-worker {
+    font-size: 13px;
+    color: #333;
+    background: #f0f0f0;
+    padding: 2px 10px;
+    border-radius: 12px;
+}
+
+.week-day-empty {
+    color: #ccc;
+    font-size: 14px;
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 400px) {
+    .week-day-row {
+        padding: 8px 10px;
+        gap: 8px;
+    }
+    
+    .week-day-header {
+        min-width: 55px;
+    }
+    
+    .week-day-number {
+        font-size: 16px;
+    }
+    
+    .week-day-worker {
+        font-size: 12px;
+        padding: 1px 8px;
+    }
+}
+
+/* ============================================================
+   РЕЖИМ "ЛЕНТА"
+   ============================================================ */
+
+.feed-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 4px 0;
+}
+
+.feed-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 14px;
+    background: white;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+    border-left: 4px solid transparent;
+    min-height: 60px;
+    align-items: stretch;
+}
+
+.feed-item:hover {
+    background: #f8faf8;
+}
+
+.feed-item.today {
+    border-left-color: #2d7d46;
+    background: #f5faf6;
+}
+
+.feed-item.selected {
+    border-left-color: #2d7d46;
+    background: #e8f5e9;
+}
+
+.feed-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 55px;
+    padding-right: 12px;
+    border-right: 1px solid #e8eaed;
+    flex-shrink: 0;
+}
+
+.feed-day-number {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a1a;
+    line-height: 1.1;
+}
+
+.feed-item.today .feed-day-number {
+    color: #2d7d46;
+}
+
+.feed-day-name {
+    font-size: 12px;
+    color: #999;
+    font-weight: 500;
+}
+
+.feed-today-badge {
+    font-size: 9px;
+    background: #2d7d46;
+    color: white;
+    padding: 1px 8px;
+    border-radius: 10px;
+    margin-top: 2px;
+}
+
+.feed-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+}
+
+.feed-site {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.feed-site-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    min-width: 80px;
+}
+
+.feed-workers {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.feed-worker {
+    font-size: 12px;
+    color: #555;
+    background: #f0f0f0;
+    padding: 2px 10px;
+    border-radius: 12px;
+}
+
+.feed-empty {
+    color: #ccc;
+    font-size: 14px;
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 400px) {
+    .feed-item {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+    
+    .feed-date {
+        min-width: 45px;
+        padding-right: 8px;
+    }
+    
+    .feed-day-number {
+        font-size: 20px;
+    }
+    
+    .feed-site-name {
+        font-size: 13px;
+        min-width: 60px;
+    }
+    
+    .feed-worker {
+        font-size: 11px;
+        padding: 1px 8px;
+    }
 }
 
 /* ============================================================
@@ -541,533 +789,6 @@ body {
 }
 
 /* ============================================================
-   РЕЖИМ "СЕГОДНЯ"
-   ============================================================ */
-
-.today-view {
-    padding: 8px 0;
-}
-
-.today-label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
-    background: #f0f7f2;
-    border-radius: 12px;
-    margin-bottom: 12px;
-}
-
-.today-icon {
-    font-size: 24px;
-}
-
-.today-date {
-    font-size: 18px;
-    font-weight: 600;
-    color: #1a1a1a;
-}
-
-.today-empty {
-    text-align: center;
-    color: #999;
-    padding: 20px;
-    background: white;
-    border-radius: 12px;
-}
-
-.today-shifts {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.today-shift-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 14px;
-    background: white;
-    border-radius: 10px;
-    border-left: 4px solid #2d7d46;
-    flex-wrap: wrap;
-}
-
-.today-shift-worker {
-    font-weight: 600;
-    font-size: 15px;
-}
-
-.today-shift-site {
-    color: #666;
-    font-size: 14px;
-    flex: 1;
-}
-
-.today-shift-hours {
-    color: #888;
-    font-size: 13px;
-}
-
-/* ============================================================
-   РЕЖИМ "НЕДЕЛЯ" (ВЕРТИКАЛЬНЫЙ)
-   ============================================================ */
-
-.week-vertical {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.week-day-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 14px;
-    background: white;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: 0.2s;
-    border-left: 4px solid transparent;
-}
-
-.week-day-row:hover {
-    background: #f8faf8;
-}
-
-.week-day-row.today {
-    border-left-color: #2d7d46;
-    background: #f5faf6;
-}
-
-.week-day-row.selected {
-    border-left-color: #2d7d46;
-    background: #e8f5e9;
-}
-
-.week-day-header {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    min-width: 70px;
-}
-
-.week-day-name {
-    font-size: 13px;
-    font-weight: 600;
-    color: #666;
-    width: 30px;
-}
-
-.week-day-number {
-    font-size: 18px;
-    font-weight: 700;
-    color: #1a1a1a;
-}
-
-.week-day-row.today .week-day-number {
-    color: #2d7d46;
-}
-
-.week-day-count {
-    font-size: 11px;
-    background: #2d7d46;
-    color: white;
-    padding: 1px 8px;
-    border-radius: 10px;
-    margin-left: 4px;
-}
-
-.week-day-info {
-    flex: 1;
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-}
-
-.week-day-worker {
-    font-size: 13px;
-    color: #333;
-    background: #f0f0f0;
-    padding: 2px 10px;
-    border-radius: 12px;
-}
-
-.week-day-empty {
-    color: #ccc;
-    font-size: 14px;
-}
-
-/* Адаптация для мобильных */
-@media (max-width: 400px) {
-    .week-day-row {
-        padding: 8px 10px;
-        gap: 8px;
-    }
-    
-    .week-day-header {
-        min-width: 55px;
-    }
-    
-    .week-day-number {
-        font-size: 16px;
-    }
-    
-    .week-day-worker {
-        font-size: 12px;
-        padding: 1px 8px;
-    }
-}
-/* ============================================================
-   ТАЙМЛАЙН С КРЕСТИКОМ
-   ============================================================ */
-
-.timeline-container {
-    animation: fadeIn 0.3s ease;
-    margin-top: 12px;
-}
-
-.timeline-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 16px;
-    background: white;
-    border-radius: 12px 12px 0 0;
-    border-bottom: 2px solid #f0f0f0;
-}
-
-.timeline-date {
-    font-size: 18px;
-    font-weight: 700;
-    color: #1a1a1a;
-}
-
-.timeline-close {
-    background: none;
-    border: none;
-    font-size: 24px;
-    color: #999;
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 8px;
-    transition: 0.2s;
-    line-height: 1;
-}
-
-.timeline-close:hover {
-    background: #f0f0f0;
-    color: #333;
-}
-
-/* Стили для недели (оставляем как есть) */
-.week-vertical {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.week-day-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 14px;
-    background: white;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: 0.2s;
-    border-left: 4px solid transparent;
-}
-
-.week-day-row:hover {
-    background: #f8faf8;
-}
-
-.week-day-row.today {
-    border-left-color: #2d7d46;
-    background: #f5faf6;
-}
-
-.week-day-row.selected {
-    border-left-color: #2d7d46;
-    background: #e8f5e9;
-}
-
-.week-day-header {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    min-width: 70px;
-}
-
-.week-day-name {
-    font-size: 13px;
-    font-weight: 600;
-    color: #666;
-    width: 30px;
-}
-
-.week-day-number {
-    font-size: 18px;
-    font-weight: 700;
-    color: #1a1a1a;
-}
-
-.week-day-row.today .week-day-number {
-    color: #2d7d46;
-}
-
-.week-day-count {
-    font-size: 11px;
-    background: #2d7d46;
-    color: white;
-    padding: 1px 8px;
-    border-radius: 10px;
-    margin-left: 4px;
-}
-
-.week-day-info {
-    flex: 1;
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-}
-
-.week-day-worker {
-    font-size: 13px;
-    color: #333;
-    background: #f0f0f0;
-    padding: 2px 10px;
-    border-radius: 12px;
-}
-
-.week-day-empty {
-    color: #ccc;
-    font-size: 14px;
-}
-
-@media (max-width: 400px) {
-    .week-day-row {
-        padding: 8px 10px;
-        gap: 8px;
-    }
-    
-    .week-day-header {
-        min-width: 55px;
-    }
-    
-    .week-day-number {
-        font-size: 16px;
-    }
-    
-    .week-day-worker {
-        font-size: 12px;
-        padding: 1px 8px;
-    }
-}
-/* ============================================================
-   ПОЛНОЭКРАННЫЙ ДЕТАЛЬНЫЙ ПРОСМОТР
-   ============================================================ */
-
-.detail-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #f5f7f6;
-    z-index: 100;
-    animation: slideUp 0.3s ease;
-    overflow-y: auto;
-    padding-bottom: 20px;
-}
-
-@keyframes slideUp {
-    from {
-        transform: translateY(30px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-.detail-container {
-    max-width: 500px;
-    margin: 0 auto;
-    padding: 16px;
-}
-
-.timeline-fullscreen {
-    padding-top: 8px;
-}
-
-.timeline-fullscreen-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 20px;
-    background: white;
-    border-radius: 16px;
-    margin-bottom: 16px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-}
-
-.timeline-fullscreen-date {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 20px;
-    font-weight: 700;
-    color: #1a1a1a;
-}
-
-.timeline-fullscreen-icon {
-    font-size: 24px;
-}
-
-.timeline-fullscreen-close {
-    background: none;
-    border: none;
-    font-size: 28px;
-    color: #999;
-    cursor: pointer;
-    padding: 4px 12px;
-    border-radius: 10px;
-    transition: 0.2s;
-    line-height: 1;
-}
-
-.timeline-fullscreen-close:hover {
-    background: #f0f0f0;
-    color: #333;
-}
-
-.timeline-fullscreen-content {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-/* ============================================================
-   МИНИ-ТАЙМЛАЙН (под календарём)
-   ============================================================ */
-
-.timeline-mini {
-    margin-top: 4px;
-}
-
-.timeline-mini-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 4px 8px 4px;
-    border-bottom: 2px solid #e8eaed;
-    margin-bottom: 12px;
-}
-
-.timeline-mini-date {
-    font-size: 16px;
-    font-weight: 600;
-    color: #1a1a1a;
-}
-
-.timeline-mini-count {
-    font-size: 13px;
-    color: #999;
-    background: #f0f0f0;
-    padding: 2px 12px;
-    border-radius: 12px;
-}
-/* ============================================================
-   ДЕТАЛЬНЫЙ ПРОСМОТР (внутри контента)
-   ============================================================ */
-
-.timeline-detail {
-    animation: fadeIn 0.3s ease;
-    margin-top: 4px;
-}
-
-.timeline-detail-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 16px;
-    background: white;
-    border-radius: 12px 12px 0 0;
-    border-bottom: 2px solid #f0f0f0;
-    margin-bottom: 0;
-}
-
-.timeline-detail-date {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 18px;
-    font-weight: 700;
-    color: #1a1a1a;
-}
-
-.timeline-detail-icon {
-    font-size: 22px;
-}
-
-.timeline-detail-close {
-    background: none;
-    border: none;
-    font-size: 26px;
-    color: #999;
-    cursor: pointer;
-    padding: 4px 12px;
-    border-radius: 10px;
-    transition: 0.2s;
-    line-height: 1;
-}
-
-.timeline-detail-close:hover {
-    background: #f0f0f0;
-    color: #333;
-}
-
-.timeline-detail-content {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 12px;
-}
-
-/* ============================================================
-   МИНИ-ТАЙМЛАЙН (под календарём)
-   ============================================================ */
-
-.timeline-mini {
-    margin-top: 4px;
-}
-
-.timeline-mini-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 4px 8px 4px;
-    border-bottom: 2px solid #e8eaed;
-    margin-bottom: 12px;
-}
-
-.timeline-mini-date {
-    font-size: 16px;
-    font-weight: 600;
-    color: #1a1a1a;
-}
-
-.timeline-mini-count {
-    font-size: 13px;
-    color: #999;
-    background: #f0f0f0;
-    padding: 2px 12px;
-    border-radius: 12px;
-}
-/* ============================================================
    ЭКРАН ДЕТАЛЬНОГО ПРОСМОТРА
    ============================================================ */
 
@@ -1084,23 +805,6 @@ body {
     margin-bottom: 16px;
 }
 
-.detail-screen-back {
-    background: none;
-    border: none;
-    font-size: 16px;
-    color: #2d7d46;
-    cursor: pointer;
-    padding: 8px 12px;
-    border-radius: 10px;
-    font-weight: 500;
-    transition: 0.2s;
-    font-family: inherit;
-}
-
-.detail-screen-back:hover {
-    background: #f0f7f2;
-}
-
 .detail-screen-title {
     font-size: 18px;
     font-weight: 700;
@@ -1115,7 +819,7 @@ body {
     color: white;
     cursor: pointer;
     padding: 4px 14px;
-    border-radius: 10px;
+    border-radius: 30px;
     transition: 0.2s;
     line-height: 1.4;
     min-width: 44px;
@@ -1134,6 +838,7 @@ body {
 .detail-screen-close:active {
     transform: scale(0.95);
 }
+
 .detail-screen-content {
     display: flex;
     flex-direction: column;
@@ -1141,7 +846,7 @@ body {
 }
 
 /* ============================================================
-   МИНИ-ТАЙМЛАЙН (под календарём)
+   ТАЙМЛАЙН
    ============================================================ */
 
 .timeline-mini {
@@ -1169,180 +874,4 @@ body {
     background: #f0f0f0;
     padding: 2px 12px;
     border-radius: 12px;
-}
-/* ============================================================
-   ЭКРАН ДЕТАЛЬНОГО ПРОСМОТРА
-   ============================================================ */
-
-.detail-screen {
-    animation: fadeIn 0.3s ease;
-}
-
-.detail-screen-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 4px 16px 4px;
-    border-bottom: 2px solid #e8eaed;
-    margin-bottom: 16px;
-}
-
-.detail-screen-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: #1a1a1a;
-}
-
-
-.detail-screen-content {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-/* ============================================================
-   РЕЖИМ "ЛЕНТА"
-   ============================================================ */
-
-.feed-container {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    max-height: 500px;
-    overflow-y: auto;
-    padding: 4px 0;
-    -webkit-overflow-scrolling: touch;
-}
-
-.feed-item {
-    display: flex;
-    gap: 12px;
-    padding: 12px 14px;
-    background: white;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: 0.2s;
-    border-left: 4px solid transparent;
-    min-height: 60px;
-    align-items: stretch;
-}
-
-.feed-item:hover {
-    background: #f8faf8;
-}
-
-.feed-item.today {
-    border-left-color: #2d7d46;
-    background: #f5faf6;
-}
-
-.feed-item.selected {
-    border-left-color: #2d7d46;
-    background: #e8f5e9;
-}
-
-/* Левая часть — дата */
-.feed-date {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-width: 55px;
-    padding-right: 12px;
-    border-right: 1px solid #e8eaed;
-    flex-shrink: 0;
-}
-
-.feed-day-number {
-    font-size: 24px;
-    font-weight: 700;
-    color: #1a1a1a;
-    line-height: 1.1;
-}
-
-.feed-item.today .feed-day-number {
-    color: #2d7d46;
-}
-
-.feed-day-name {
-    font-size: 12px;
-    color: #999;
-    font-weight: 500;
-}
-
-.feed-today-badge {
-    font-size: 9px;
-    background: #2d7d46;
-    color: white;
-    padding: 1px 8px;
-    border-radius: 10px;
-    margin-top: 2px;
-}
-
-/* Правая часть — объекты */
-.feed-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 4px;
-}
-
-.feed-site {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.feed-site-name {
-    font-size: 14px;
-    font-weight: 500;
-    color: #333;
-    min-width: 80px;
-}
-
-.feed-workers {
-    display: flex;
-    gap: 4px;
-    flex-wrap: wrap;
-}
-
-.feed-worker {
-    font-size: 12px;
-    color: #555;
-    background: #f0f0f0;
-    padding: 2px 10px;
-    border-radius: 12px;
-}
-
-.feed-empty {
-    color: #ccc;
-    font-size: 14px;
-}
-
-/* Адаптация для мобильных */
-@media (max-width: 400px) {
-    .feed-item {
-        padding: 10px 12px;
-        gap: 8px;
-    }
-    
-    .feed-date {
-        min-width: 45px;
-        padding-right: 8px;
-    }
-    
-    .feed-day-number {
-        font-size: 20px;
-    }
-    
-    .feed-site-name {
-        font-size: 13px;
-        min-width: 60px;
-    }
-    
-    .feed-worker {
-        font-size: 11px;
-        padding: 1px 8px;
-    }
 }
