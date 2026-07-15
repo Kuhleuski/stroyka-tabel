@@ -8,9 +8,8 @@ export function MainPage({ shifts, loading }) {
     const [isDetailOpen, setIsDetailOpen] = useState(false)
     const [returnMode, setReturnMode] = useState('month')
     const [calendarMode, setCalendarMode] = useState('month')
-    const [returnDate, setReturnDate] = useState(null)
     const [isReturning, setIsReturning] = useState(false)
-    const [savedScrollIndex, setSavedScrollIndex] = useState(null)
+    const [savedScrollTop, setSavedScrollTop] = useState(null) // <-- ТОЧНАЯ ПОЗИЦИЯ
 
     useEffect(() => {
         setSelectedDate(new Date())
@@ -21,38 +20,35 @@ export function MainPage({ shifts, loading }) {
     }
 
     const handleDayClick = (date, mode) => {
-        // Запоминаем ДАТУ, на которую кликнули
-        setReturnDate(date)
+        // === ЗАПОМИНАЕМ ТОЧНУЮ ПОЗИЦИЮ СКРОЛЛА ===
+        if (mode === 'feed') {
+            const container = document.querySelector('.feed-container')
+            if (container) {
+                setSavedScrollTop(container.scrollTop)
+            }
+        }
+        
+        setDetailDate(date)
         setReturnMode(mode)
         setIsReturning(false)
-        
-        // НЕ сохраняем индекс скролла — будем восстанавливать по дате
         setIsDetailOpen(true)
-        setDetailDate(date)
     }
 
     const handleCloseDetail = () => {
         setIsDetailOpen(false)
         setDetailDate(null)
         setCalendarMode(returnMode)
-        setIsReturning(true)
+        setIsReturning(true) // возвращаемся с флагом
     }
 
-    const handleModeChange = (mode, scrollIndex) => {
+    const handleModeChange = (mode) => {
         setCalendarMode(mode)
-        
-        // Сохраняем индекс скролла только для обычного скролла (не для восстановления)
-        if (mode === 'feed' && scrollIndex !== undefined && scrollIndex !== null) {
-            setSavedScrollIndex(scrollIndex)
-        }
-        
         if (isDetailOpen) {
             setIsDetailOpen(false)
             setDetailDate(null)
         }
         if (mode !== returnMode) {
-            setReturnDate(null)
-            setSavedScrollIndex(null)
+            setSavedScrollTop(null)
         }
         setIsReturning(false)
     }
@@ -87,9 +83,8 @@ export function MainPage({ shifts, loading }) {
                         onDayClick={handleDayClick}
                         mode={calendarMode}
                         onModeChange={handleModeChange}
-                        returnDate={returnDate}
                         isReturning={isReturning}
-                        savedScrollIndex={savedScrollIndex}
+                        savedScrollTop={savedScrollTop}
                     />
                     <Timeline 
                         shifts={shifts} 
