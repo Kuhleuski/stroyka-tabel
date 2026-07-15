@@ -57,6 +57,7 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode, fee
                     })
                     
                     const dateStr = `${String(day.date.getDate()).padStart(2, '0')}.${String(month + 1).padStart(2, '0')} ${dayName}`
+                    const dateAttr = formatDate(day.date) // для data-date
                     
                     return (
                         <div key={index}>
@@ -71,6 +72,7 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode, fee
                             <div 
                                 className={`feed-item ${today ? 'today' : ''} ${selected ? 'selected' : ''}`}
                                 onClick={() => onDayClick(day.date)}
+                                data-date={dateAttr}
                             >
                                 <div className="feed-date">
                                     <div className="feed-date-full">{dateStr}</div>
