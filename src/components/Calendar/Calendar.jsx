@@ -73,7 +73,7 @@ export function Calendar({
     onModeChange,
     returnDate,
     isReturning,
-    savedScrollTop // новый проп — сохранённая позиция скролла
+    savedScrollIndex // <-- теперь индекс, а не scrollTop
 }) {
     const [mode, setMode] = useState(externalMode || 'month')
     const [displayDate, setDisplayDate] = useState(new Date())
@@ -161,24 +161,22 @@ export function Calendar({
         }
     }, [initFeed, onDateSelect])
 
-    // === ВОССТАНОВЛЕНИЕ ПОЗИЦИИ ===
+    // === ПРОФЕССИОНАЛЬНОЕ ВОССТАНОВЛЕНИЕ ПОЗИЦИИ ===
     useEffect(() => {
         if (mode !== 'feed' || allDays.length === 0) return
 
-        const container = containerRef.current
-        if (!container) return
-
-        // 1. Если есть savedScrollTop — восстанавливаем точную позицию
-        if (isReturning && savedScrollTop !== undefined && savedScrollTop !== null) {
+        // 1. Если есть сохранённый индекс — восстанавливаем позицию через виртуализатор
+        if (isReturning && savedScrollIndex !== undefined && savedScrollIndex !== null) {
+            const targetIndex = Math.min(savedScrollIndex, allDays.length - 1)
             isRestoring.current = true
-            container.scrollTop = savedScrollTop
+            virtualizer.scrollToIndex(targetIndex, { align: 'start', behavior: 'auto' })
             setTimeout(() => {
                 isRestoring.current = false
             }, 100)
             return
         }
 
-        // 2. Если это первый переход на вкладку "День" — показываем сегодня по центру
+        // 2. Первый переход на "День" — показываем сегодня по центру
         if (isFirstFeedRender) {
             const today = new Date()
             const dateStr = today.toISOString().split('T')[0]
@@ -195,7 +193,29 @@ export function Calendar({
                 }, 150)
             }
         }
-    }, [mode, allDays, isReturning, savedScrollTop, virtualizer, isFirstFeedRender])
+    }, [mode, allDays, isReturning, savedScrollIndex, virtualizer, isFirstFeedRender])
+
+    // Сохраняем индекс первого видимого элемента при скролле
+    const handleScroll = useCallback(() => {
+        if (!virtualizerRef.current || isRestoring.current) return
+        
+        const virtualItems = virtualizerRef.current.getVirtualItems()
+        if (virtualItems.length > 0) {
+            const firstVisibleIndex = virtualItems[0].index
+            // Передаём индекс в MainPage через onModeChange
+            if (onModeChange) {
+                onModeChange(mode, firstVisibleIndex)
+            }
+        }
+    }, [mode, onModeChange])
+
+    useEffect(() => {
+        const container = containerRef.current
+        if (!container || mode !== 'feed') return
+
+        container.addEventListener('scroll', handleScroll)
+        return () => container.removeEventListener('scroll', handleScroll)
+    }, [mode, handleScroll])
 
     useEffect(() => {
         if (mode !== 'feed') {
@@ -243,7 +263,7 @@ export function Calendar({
     const handleModeChange = (newMode) => {
         setMode(newMode)
         if (onModeChange) {
-            onModeChange(newMode)
+            onModeChange(newMode, null) // сбрасываем индекс
         }
         const today = new Date()
         onDateSelect(today)
