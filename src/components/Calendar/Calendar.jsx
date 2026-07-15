@@ -73,7 +73,7 @@ export function Calendar({
     onModeChange,
     returnDate,
     isReturning,
-    savedScrollIndex
+    savedScrollIndex // индекс для обычного скролла
 }) {
     const [mode, setMode] = useState(externalMode || 'month')
     const [displayDate, setDisplayDate] = useState(new Date())
@@ -82,9 +82,8 @@ export function Calendar({
     const isFirstRender = useRef(true)
     const isRestoring = useRef(false)
     const virtualizerRef = useRef(null)
-    
-    // Флаг — нужно ли показать сегодня по центру (только при первом переходе на "День")
     const [shouldShowToday, setShouldShowToday] = useState(true)
+    const [hasRestoredOnce, setHasRestoredOnce] = useState(false) // флаг, что мы уже восстановили позицию
 
     const generateDays = useCallback((centerDate) => {
         const days = []
@@ -113,6 +112,7 @@ export function Calendar({
     const initFeed = useCallback((centerDate) => {
         const days = generateDays(centerDate)
         setAllDays(days)
+        setHasRestoredOnce(false)
     }, [generateDays])
 
     const getDayShifts = useCallback((date) => {
@@ -163,35 +163,31 @@ export function Calendar({
         }
     }, [initFeed, onDateSelect])
 
-    // === ЛОГИКА ПОЗИЦИОНИРОВАНИЯ (РАЗДЕЛЁННАЯ) ===
-
-    // 1. ВОССТАНОВЛЕНИЕ ПОЗИЦИИ ПРИ ВОЗВРАТЕ ИЗ ДЕТАЛЕЙ
+    // === ВОССТАНОВЛЕНИЕ ПОЗИЦИИ ПО ДАТЕ (а не по индексу) ===
     useEffect(() => {
-        // Если мы не в режиме "День" или нет данных — выходим
         if (mode !== 'feed' || allDays.length === 0) return
-        // Если это не возврат из деталей или нет сохранённого индекса — выходим
-        if (!isReturning || savedScrollIndex === undefined || savedScrollIndex === null) return
+        if (!isReturning || !returnDate || hasRestoredOnce) return
 
-        const targetIndex = Math.min(savedScrollIndex, allDays.length - 1)
-        isRestoring.current = true
+        const dateStr = returnDate.toISOString().split('T')[0]
+        const targetIndex = allDays.findIndex(d => 
+            d.date.toISOString().split('T')[0] === dateStr
+        )
         
-        // Восстанавливаем позицию (align: 'start' — чтобы день остался на том же месте)
-        virtualizer.scrollToIndex(targetIndex, { align: 'start', behavior: 'auto' })
-        
-        // Отключаем показ "сегодня"
-        setShouldShowToday(false)
-        
-        setTimeout(() => {
-            isRestoring.current = false
-        }, 150)
-    }, [mode, allDays, isReturning, savedScrollIndex, virtualizer])
+        if (targetIndex !== -1) {
+            isRestoring.current = true
+            virtualizer.scrollToIndex(targetIndex, { align: 'start', behavior: 'auto' })
+            setHasRestoredOnce(true)
+            setTimeout(() => {
+                isRestoring.current = false
+            }, 150)
+        }
+    }, [mode, allDays, isReturning, returnDate, virtualizer, hasRestoredOnce])
 
-    // 2. ПОКАЗАТЬ СЕГОДНЯ ПО ЦЕНТРУ (только при первом переходе на "День")
+    // === ПОКАЗАТЬ СЕГОДНЯ ПО ЦЕНТРУ (только при первом переходе) ===
     useEffect(() => {
-        // Если мы не в режиме "День" или нет данных — выходим
         if (mode !== 'feed' || allDays.length === 0) return
-        // Если не нужно показывать сегодня или это возврат — выходим
         if (!shouldShowToday || isReturning) return
+        if (hasRestoredOnce) return // если уже восстановили позицию — не трогаем
 
         const today = new Date()
         const dateStr = today.toISOString().split('T')[0]
@@ -204,19 +200,20 @@ export function Calendar({
             virtualizer.scrollToIndex(index, { align: 'center', behavior: 'auto' })
             setTimeout(() => {
                 isRestoring.current = false
-                setShouldShowToday(false) // больше не показываем сегодня
+                setShouldShowToday(false)
             }, 150)
         }
-    }, [mode, allDays, shouldShowToday, isReturning, virtualizer])
+    }, [mode, allDays, shouldShowToday, isReturning, virtualizer, hasRestoredOnce])
 
-    // 3. СБРАСЫВАЕМ ФЛАГИ ПРИ ПЕРЕКЛЮЧЕНИИ РЕЖИМОВ
+    // === СБРОС ФЛАГОВ ПРИ ПЕРЕКЛЮЧЕНИИ ===
     useEffect(() => {
         if (mode !== 'feed') {
-            setShouldShowToday(true) // при следующем переходе на "День" покажем сегодня
+            setShouldShowToday(true)
+            setHasRestoredOnce(false)
         }
     }, [mode])
 
-    // Сохраняем индекс первого видимого элемента при скролле
+    // Сохраняем индекс для обычного скролла
     const handleScroll = useCallback(() => {
         if (!virtualizerRef.current || isRestoring.current) return
         
@@ -286,7 +283,7 @@ export function Calendar({
         
         if (newMode === 'feed') {
             initFeed(today)
-            setShouldShowToday(true) // при переходе на "День" показываем сегодня
+            setShouldShowToday(true)
         }
     }
 
