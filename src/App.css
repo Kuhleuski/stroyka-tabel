@@ -1202,25 +1202,65 @@ body {
 
 
 /* ============================================================
-   SWIPER СТИЛИ ДЛЯ КАЛЕНДАРЯ
+   SWIPER СТИЛИ ДЛЯ КАЛЕНДАРЯ — МАКСИМАЛЬНАЯ ПЛАВНОСТЬ
    ============================================================ */
 
 .calendar-swiper {
-    overflow: hidden;
+    overflow: visible !important;
     padding: 4px 0;
+    touch-action: pan-y !important;
+    -webkit-overflow-scrolling: touch;
+}
+
+.calendar-swiper .swiper-wrapper {
+    transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+    will-change: transform;
 }
 
 .calendar-swiper .swiper-slide {
     padding: 0 2px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
+    will-change: transform;
 }
 
-/* Отключаем стандартные стрелки Swiper, используем свои */
+/* Отключаем стандартные стрелки Swiper */
 .calendar-swiper .swiper-button-next,
 .calendar-swiper .swiper-button-prev {
-    display: none;
+    display: none !important;
 }
 
 /* Отключаем пагинацию */
 .calendar-swiper .swiper-pagination {
-    display: none;
+    display: none !important;
+}
+
+/* === ДОПОЛНИТЕЛЬНАЯ ОПТИМИЗАЦИЯ === */
+.calendar-swiper .swiper-slide {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
+.calendar-swiper .swiper-slide-active {
+    z-index: 2;
+}
+
+.calendar-swiper .swiper-slide-prev,
+.calendar-swiper .swiper-slide-next {
+    z-index: 1;
+}
+
+/* Затемнение для боковых слайдов */
+.calendar-swiper .swiper-slide-prev .calendar-grid,
+.calendar-swiper .swiper-slide-next .calendar-grid,
+.calendar-swiper .swiper-slide-prev .week-vertical,
+.calendar-swiper .swiper-slide-next .week-vertical {
+    opacity: 0.5 !important;
+    transition: opacity 0.3s ease;
+}
+
+.calendar-swiper .swiper-slide-active .calendar-grid,
+.calendar-swiper .swiper-slide-active .week-vertical {
+    opacity: 1 !important;
 }
