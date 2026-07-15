@@ -36,7 +36,6 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
                     const selected = isSelected(day.date)
                     const dayName = dayNames[day.date.getDay()]
                     
-                    // Группируем по объектам
                     const sitesMap = {}
                     dayShifts.forEach(s => {
                         if (!sitesMap[s.site_name]) {
@@ -45,8 +44,8 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
                         sitesMap[s.site_name].push(s.worker_name)
                     })
                     
-                    // Форматируем дату: 15.07.2026
-                    const dateStr = `${String(day.date.getDate()).padStart(2, '0')}.${String(day.date.getMonth() + 1).padStart(2, '0')}.${day.date.getFullYear()}`
+                    // Формат: "15.07 Сб"
+                    const dateStr = `${String(day.date.getDate()).padStart(2, '0')}.${String(day.date.getMonth() + 1).padStart(2, '0')} ${dayName}`
                     
                     return (
                         <div 
@@ -54,14 +53,11 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
                             className={`feed-item ${today ? 'today' : ''} ${selected ? 'selected' : ''}`}
                             onClick={() => onDayClick(day.date)}
                         >
-                            {/* Левая часть — дата */}
                             <div className="feed-date">
                                 <div className="feed-date-full">{dateStr}</div>
-                                <div className="feed-day-name">{dayName}</div>
                                 {today && <div className="feed-today-badge">Сегодня</div>}
                             </div>
                             
-                            {/* Правая часть — объекты и работники */}
                             <div className="feed-content">
                                 {hasWork ? (
                                     Object.entries(sitesMap).map(([siteName, workers]) => (
@@ -87,7 +83,6 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
 
     // === РЕЖИМ "НЕДЕЛЯ" ===
     if (mode === 'week') {
-        // ... код недели (оставляем как есть)
         const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
         return (
             <div className="week-vertical">
