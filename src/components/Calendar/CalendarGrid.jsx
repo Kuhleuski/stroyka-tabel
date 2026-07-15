@@ -23,7 +23,11 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
     // === РЕЖИМ "ЛЕНТА" ===
     if (mode === 'feed') {
         const dayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб']
-        const monthNames = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек']
+        const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
+                            'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
+        
+        let currentMonth = -1
+        let currentYear = -1
         
         return (
             <div className="feed-container" id="feedContainer">
@@ -35,6 +39,15 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
                     const today = isToday(day.date)
                     const selected = isSelected(day.date)
                     const dayName = dayNames[day.date.getDay()]
+                    const month = day.date.getMonth()
+                    const year = day.date.getFullYear()
+                    
+                    // Проверяем, сменился ли месяц
+                    const monthChanged = (month !== currentMonth || year !== currentYear)
+                    if (monthChanged) {
+                        currentMonth = month
+                        currentYear = year
+                    }
                     
                     const sitesMap = {}
                     dayShifts.forEach(s => {
@@ -44,35 +57,44 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
                         sitesMap[s.site_name].push(s.worker_name)
                     })
                     
-                    // Формат: "15.07 Сб"
-                    const dateStr = `${String(day.date.getDate()).padStart(2, '0')}.${String(day.date.getMonth() + 1).padStart(2, '0')} ${dayName}`
+                    const dateStr = `${String(day.date.getDate()).padStart(2, '0')}.${String(month + 1).padStart(2, '0')} ${dayName}`
                     
                     return (
-                        <div 
-                            key={index} 
-                            className={`feed-item ${today ? 'today' : ''} ${selected ? 'selected' : ''}`}
-                            onClick={() => onDayClick(day.date)}
-                        >
-                            <div className="feed-date">
-                                <div className="feed-date-full">{dateStr}</div>
-                                {today && <div className="feed-today-badge">Сегодня</div>}
-                            </div>
+                        <div key={index}>
+                            {/* Разделитель месяца */}
+                            {monthChanged && (
+                                <div className="feed-month-divider">
+                                    <span className="feed-month-label">
+                                        {monthNames[month]} {year}
+                                    </span>
+                                </div>
+                            )}
                             
-                            <div className="feed-content">
-                                {hasWork ? (
-                                    Object.entries(sitesMap).map(([siteName, workers]) => (
-                                        <div key={siteName} className="feed-site">
-                                            <div className="feed-site-name">📍 {siteName}</div>
-                                            <div className="feed-workers">
-                                                {workers.map((w, idx) => (
-                                                    <span key={idx} className="feed-worker">👷 {w}</span>
-                                                ))}
+                            <div 
+                                className={`feed-item ${today ? 'today' : ''} ${selected ? 'selected' : ''}`}
+                                onClick={() => onDayClick(day.date)}
+                            >
+                                <div className="feed-date">
+                                    <div className="feed-date-full">{dateStr}</div>
+                                    {today && <div className="feed-today-badge">Сегодня</div>}
+                                </div>
+                                
+                                <div className="feed-content">
+                                    {hasWork ? (
+                                        Object.entries(sitesMap).map(([siteName, workers]) => (
+                                            <div key={siteName} className="feed-site">
+                                                <div className="feed-site-name">📍 {siteName}</div>
+                                                <div className="feed-workers">
+                                                    {workers.map((w, idx) => (
+                                                        <span key={idx} className="feed-worker">👷 {w}</span>
+                                                    ))}
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="feed-empty">— нет смен</div>
-                                )}
+                                        ))
+                                    ) : (
+                                        <div className="feed-empty">— нет смен</div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     )
