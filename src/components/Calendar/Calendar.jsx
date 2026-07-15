@@ -3,15 +3,13 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { ViewModeButtons } from './ViewModeButtons'
 import { MONTHS, getMonthDays } from '../../utils/dateHelpers'
 
-// Компонент одного дня в ленте (вынесен для производительности)
+// Компонент одного дня в ленте
 const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelected, isToday }) => {
     const dayShifts = getDayShifts(day.date)
     const hasWork = dayShifts.length > 0
     const today = isToday(day.date)
     const selected = isSelected(day.date)
     const dayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб']
-    const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
-                        'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
     
     const dayName = dayNames[day.date.getDay()]
     const dateStr = `${String(day.date.getDate()).padStart(2, '0')}.${String(day.date.getMonth() + 1).padStart(2, '0')} ${dayName}`
@@ -78,39 +76,42 @@ export function Calendar({
     const [mode, setMode] = useState(externalMode || 'month')
     const [displayDate, setDisplayDate] = useState(new Date())
     const [allDays, setAllDays] = useState([])
-    const [isLoading, setIsLoading] = useState(false)
     const containerRef = useRef(null)
     const isFirstRender = useRef(true)
-    const savedIndex = useRef(null) // сохранённый индекс для восстановления
-    
-    // Генерация дней с учётом смещения
-    const generateDays = useCallback((centerDate, count = 100) => {
+    const isRestoring = useRef(false)
+    const virtualizerRef = useRef(null)
+
+    // Генерация дней: 1 год назад + сегодня + 1 год вперёд = 731 день
+    const generateDays = useCallback((centerDate) => {
         const days = []
-        const half = Math.floor(count / 2)
         const startDate = new Date(centerDate)
-        startDate.setDate(centerDate.getDate() - half)
+        startDate.setFullYear(startDate.getFullYear() - 1) // минус 1 год
+        startDate.setDate(startDate.getDate() - 1) // чуть раньше для ровного счёта
         
-        for (let i = 0; i < count; i++) {
-            const d = new Date(startDate)
-            d.setDate(startDate.getDate() + i)
+        const endDate = new Date(centerDate)
+        endDate.setFullYear(endDate.getFullYear() + 1) // плюс 1 год
+        endDate.setDate(endDate.getDate() + 1)
+        
+        let currentDate = new Date(startDate)
+        while (currentDate <= endDate) {
             days.push({ 
-                date: d, 
-                day: d.getDate(), 
-                month: d.getMonth(),
-                year: d.getFullYear(),
+                date: new Date(currentDate), 
+                day: currentDate.getDate(), 
+                month: currentDate.getMonth(),
+                year: currentDate.getFullYear(),
                 empty: false 
             })
+            currentDate.setDate(currentDate.getDate() + 1)
         }
         return days
     }, [])
 
     // Инициализация ленты
-    const initFeed = useCallback((centerDate, count = 100) => {
-        const days = generateDays(centerDate, count)
+    const initFeed = useCallback((centerDate) => {
+        const days = generateDays(centerDate)
         setAllDays(days)
     }, [generateDays])
 
-    // Получение дня для виртуализации
     const getDayShifts = useCallback((date) => {
         const dateStr = date.toISOString().split('T')[0]
         return shifts.filter(s => s.work_date === dateStr)
@@ -134,16 +135,10 @@ export function Calendar({
     const virtualizer = useVirtualizer({
         count: allDays.length,
         getScrollElement: () => containerRef.current,
-        estimateSize: () => 46, // высота одного элемента
-        overscan: 10,
-        // Сохраняем позицию при скролле
+        estimateSize: () => 46,
+        overscan: 20,
         onChange: (instance) => {
-            if (!isLoading) {
-                const index = instance.scrollToIndex
-                if (index !== undefined && index !== null) {
-                    savedIndex.current = index
-                }
-            }
+            virtualizerRef.current = instance
         }
     })
 
@@ -154,24 +149,25 @@ export function Calendar({
             const today = new Date()
             onDateSelect(today)
             setDisplayDate(today)
-            initFeed(today, 100)
+            initFeed(today)
         }
     }, [initFeed, onDateSelect])
 
     // Восстановление позиции при возврате
     useEffect(() => {
         if (mode === 'feed' && returnDate && allDays.length > 0) {
-            // Находим индекс дня
             const dateStr = returnDate.toISOString().split('T')[0]
             const index = allDays.findIndex(d => 
                 d.date.toISOString().split('T')[0] === dateStr
             )
             
             if (index !== -1) {
-                savedIndex.current = index
-                // Скроллим к сохранённому индексу без анимации
+                isRestoring.current = true
                 setTimeout(() => {
                     virtualizer.scrollToIndex(index, { align: 'center', behavior: 'auto' })
+                    setTimeout(() => {
+                        isRestoring.current = false
+                    }, 150)
                 }, 50)
             }
         }
@@ -179,7 +175,7 @@ export function Calendar({
 
     // Центрируем на сегодня при переключении на "День"
     useEffect(() => {
-        if (mode === 'feed' && allDays.length > 0 && !returnDate) {
+        if (mode === 'feed' && allDays.length > 0 && !returnDate && !isRestoring.current) {
             const today = new Date()
             const dateStr = today.toISOString().split('T')[0]
             const index = allDays.findIndex(d => 
@@ -194,56 +190,7 @@ export function Calendar({
         }
     }, [mode, allDays, returnDate, virtualizer])
 
-    // Бесконечная подгрузка
-    useEffect(() => {
-        const container = containerRef.current
-        if (!container || mode !== 'feed') return
-
-        const handleScroll = () => {
-            if (isLoading) return
-            
-            const { scrollTop, scrollHeight, clientHeight } = container
-            
-            // Если дошли до верха
-            if (scrollTop < 50) {
-                setIsLoading(true)
-                const firstDate = allDays[0]?.date
-                if (firstDate) {
-                    const newDate = new Date(firstDate)
-                    newDate.setDate(newDate.getDate() - 30)
-                    const newDays = generateDays(newDate, 30)
-                    setAllDays(prev => [...newDays, ...prev])
-                    // Корректируем скролл
-                    setTimeout(() => {
-                        const newHeight = newDays.length * 46
-                        container.scrollTop = newHeight + 50
-                        setIsLoading(false)
-                    }, 50)
-                }
-                return
-            }
-            
-            // Если дошли до низа
-            if (scrollTop + clientHeight >= scrollHeight - 50) {
-                setIsLoading(true)
-                const lastDate = allDays[allDays.length - 1]?.date
-                if (lastDate) {
-                    const newDate = new Date(lastDate)
-                    newDate.setDate(newDate.getDate() + 1)
-                    const newDays = generateDays(newDate, 30)
-                    setAllDays(prev => [...prev, ...newDays])
-                    setTimeout(() => {
-                        setIsLoading(false)
-                    }, 50)
-                }
-            }
-        }
-
-        container.addEventListener('scroll', handleScroll)
-        return () => container.removeEventListener('scroll', handleScroll)
-    }, [allDays, generateDays, isLoading, mode])
-
-    // Функция для определения, нужно ли показывать разделитель месяца
+    // Функция для определения разделителя месяца
     const shouldShowMonthDivider = (day, index) => {
         if (index === 0) return true
         const prevDay = allDays[index - 1]
@@ -270,7 +217,7 @@ export function Calendar({
         } else if (mode === 'feed') {
             const centerDate = new Date(displayDate)
             centerDate.setDate(centerDate.getDate() + direction * 30)
-            initFeed(centerDate, 100)
+            initFeed(centerDate)
             onDateSelect(new Date(selectedDate))
             return
         }
@@ -289,9 +236,10 @@ export function Calendar({
         const today = new Date()
         onDateSelect(today)
         setDisplayDate(today)
+        isRestoring.current = false
         
         if (newMode === 'feed') {
-            initFeed(today, 100)
+            initFeed(today)
         }
     }
 
@@ -301,6 +249,9 @@ export function Calendar({
             onDayClick(date, mode)
         }
     }
+
+    // Ключ для принудительного перерендера при смене режима
+    const feedKey = `feed-${mode}-${allDays.length}`
 
     return (
         <>
@@ -324,6 +275,7 @@ export function Calendar({
                 
                 {mode === 'feed' ? (
                     <div 
+                        key={feedKey}
                         ref={containerRef}
                         className="feed-container"
                         style={{ height: '65vh', overflowY: 'auto' }}
