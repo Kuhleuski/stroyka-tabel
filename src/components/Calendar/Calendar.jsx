@@ -53,7 +53,7 @@ const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelec
     )
 }
 
-// Разделитель месяцев — уменьшенный
+// Разделитель месяцев
 const MonthDivider = ({ month, year }) => {
     const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
                         'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
@@ -72,7 +72,8 @@ export function Calendar({
     mode: externalMode,
     onModeChange,
     returnDate,
-    isReturning
+    isReturning,
+    savedScrollTop // новый проп — сохранённая позиция скролла
 }) {
     const [mode, setMode] = useState(externalMode || 'month')
     const [displayDate, setDisplayDate] = useState(new Date())
@@ -131,16 +132,13 @@ export function Calendar({
                date.getFullYear() === selectedDate.getFullYear()
     }, [selectedDate])
 
-    // Функция для вычисления реальной высоты элемента с учётом разделителя
     const getItemHeight = useCallback((index) => {
         const day = allDays[index]
         if (!day) return 44
-        
-        // Проверяем, нужно ли показывать разделитель перед этим днём
-        if (index === 0) return 44 + 24 // разделитель + отступ
+        if (index === 0) return 44 + 20
         const prevDay = allDays[index - 1]
         const hasDivider = day.month !== prevDay.month || day.year !== prevDay.year
-        return hasDivider ? 44 + 24 : 44
+        return hasDivider ? 44 + 20 : 44
     }, [allDays])
 
     const virtualizer = useVirtualizer({
@@ -163,29 +161,24 @@ export function Calendar({
         }
     }, [initFeed, onDateSelect])
 
-    // === ЛОГИКА ПОЗИЦИОНИРОВАНИЯ ===
+    // === ВОССТАНОВЛЕНИЕ ПОЗИЦИИ ===
     useEffect(() => {
         if (mode !== 'feed' || allDays.length === 0) return
 
         const container = containerRef.current
         if (!container) return
 
-        if (isReturning && returnDate) {
-            const dateStr = returnDate.toISOString().split('T')[0]
-            const index = allDays.findIndex(d => 
-                d.date.toISOString().split('T')[0] === dateStr
-            )
-            
-            if (index !== -1) {
-                isRestoring.current = true
-                virtualizer.scrollToIndex(index, { align: 'center', behavior: 'auto' })
-                setTimeout(() => {
-                    isRestoring.current = false
-                }, 100)
-                return
-            }
+        // 1. Если есть savedScrollTop — восстанавливаем точную позицию
+        if (isReturning && savedScrollTop !== undefined && savedScrollTop !== null) {
+            isRestoring.current = true
+            container.scrollTop = savedScrollTop
+            setTimeout(() => {
+                isRestoring.current = false
+            }, 100)
+            return
         }
 
+        // 2. Если это первый переход на вкладку "День" — показываем сегодня по центру
         if (isFirstFeedRender) {
             const today = new Date()
             const dateStr = today.toISOString().split('T')[0]
@@ -202,7 +195,7 @@ export function Calendar({
                 }, 150)
             }
         }
-    }, [mode, allDays, returnDate, isReturning, virtualizer, isFirstFeedRender])
+    }, [mode, allDays, isReturning, savedScrollTop, virtualizer, isFirstFeedRender])
 
     useEffect(() => {
         if (mode !== 'feed') {
