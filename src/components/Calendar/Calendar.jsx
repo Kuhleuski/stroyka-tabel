@@ -13,8 +13,8 @@ export function Calendar({
 }) {
     const [mode, setMode] = useState(externalMode || 'month')
     const [displayDate, setDisplayDate] = useState(new Date())
+    const [feedOffset, setFeedOffset] = useState(0) // для бесконечной ленты
     const isFirstRender = useRef(true)
-    const containerRef = useRef(null)
 
     useEffect(() => {
         if (externalMode && externalMode !== mode) {
@@ -37,10 +37,10 @@ export function Calendar({
         
         switch (mode) {
             case 'feed': {
-                // Показываем 60 дней: 30 в прошлое и 30 в будущее
+                // Бесконечная лента — показываем 60 дней вокруг текущей позиции
                 const days = []
                 const startDate = new Date(date)
-                startDate.setDate(startDate.getDate() - 30)
+                startDate.setDate(startDate.getDate() - 30 + feedOffset)
                 for (let i = 0; i < 60; i++) {
                     const d = new Date(startDate)
                     d.setDate(startDate.getDate() + i)
@@ -64,7 +64,7 @@ export function Calendar({
         
         switch (mode) {
             case 'feed':
-                return `📋 Лента событий`
+                return '' // Убираем заголовок
             case 'week': {
                 const weekDays = getWeekDays(date)
                 const first = weekDays[0]
@@ -87,7 +87,10 @@ export function Calendar({
         } else if (mode === 'week') {
             newDate.setDate(newDate.getDate() + direction * 7)
         } else if (mode === 'feed') {
-            newDate.setDate(newDate.getDate() + direction * 30)
+            // Для ленты просто смещаем offset
+            setFeedOffset(feedOffset + direction * 30)
+            onDateSelect(new Date(selectedDate))
+            return
         }
         setDisplayDate(newDate)
         onDateSelect(new Date(selectedDate))
@@ -104,6 +107,7 @@ export function Calendar({
         const today = new Date()
         onDateSelect(today)
         setDisplayDate(today)
+        setFeedOffset(0)
     }
 
     const handleDayClick = (date) => {
@@ -126,7 +130,7 @@ export function Calendar({
                     </>
                 )}
                 {mode === 'feed' && (
-                    <span className="month-title">{getTitle(displayDate)}</span>
+                    <span className="month-title" style={{ visibility: 'hidden' }}>—</span>
                 )}
             </div>
             
