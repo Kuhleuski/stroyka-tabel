@@ -48,3 +48,101 @@
 ---
 
 ## 📦 Структура проекта
+src/
+├── components/
+│ ├── Calendar/
+│ │ ├── Calendar.jsx # Основной компонент календаря
+│ │ ├── ViewModeButtons.jsx # Переключение между режимами
+│ │ └── CalendarGrid.jsx # Сетка для режима "Месяц" (устаревший)
+│ ├── Layout/
+│ │ ├── Header.jsx # Шапка приложения
+│ │ └── BottomNav.jsx # Нижняя навигация
+│ ├── Sites/
+│ │ └── SitesList.jsx # Список объектов
+│ ├── Workers/
+│ │ └── WorkersList.jsx # Список рабочих
+│ └── Timeline/
+│ └── Timeline.jsx # Детальная информация по дню
+├── pages/
+│ ├── MainPage.jsx # Главная страница
+│ ├── SitesPage.jsx # Страница объектов
+│ └── WorkersPage.jsx # Страница бригады
+├── services/
+│ └── supabase.js # Подключение к Supabase
+├── hooks/
+│ └── useShifts.js # Хук для загрузки данных
+├── utils/
+│ └── dateHelpers.js # Утилиты для работы с датами
+├── App.jsx
+├── App.css
+└── main.jsx
+
+text
+
+---
+
+## 🗄️ База данных (Supabase)
+
+### Таблица `shifts`
+
+| Поле | Тип | Описание |
+|------|-----|----------|
+| `id` | BIGSERIAL | Первичный ключ |
+| `worker_name` | TEXT | Имя рабочего |
+| `site_name` | TEXT | Название объекта |
+| `work_date` | DATE | Дата работы |
+| `hours` | DECIMAL | Количество часов |
+| `status` | TEXT | `confirmed` или `pending` |
+| `created_at` | TIMESTAMP | Дата создания записи |
+
+### Пример данных
+
+```sql
+INSERT INTO shifts (worker_name, site_name, work_date, hours, status) VALUES
+  ('Алексей Строитель', 'Дом на Ленина, 15', '2026-07-13', 8, 'confirmed'),
+  ('Иван Мастер', 'Коттедж в Сосновке', '2026-07-12', 6, 'pending'),
+  ('Петр Электрик', 'Офис на Мира, 10', '2026-07-11', 4, 'confirmed');
+🔧 Настройка окружения
+Переменные окружения
+В файле src/services/supabase.js:
+
+javascript
+const SUPABASE_URL = 'https://yrgvyklwdroklpwjdcov.supabase.co'
+const SUPABASE_ANON_KEY = 'sb_publishable_0hMmVw7NmfaXuKg6jX8jLQ_maFdF0fT'
+Локальная разработка
+bash
+# Установка зависимостей
+npm install
+
+# Запуск в режиме разработки
+npm run dev
+
+# Сборка для продакшена
+npm run build
+🚀 Деплой
+Vercel
+Подключи репозиторий к Vercel
+
+Vercel автоматически определит Vite-проект
+
+Деплой происходит автоматически при пуше в main
+
+📌 Важные особенности
+Режим "День" (виртуальный список)
+Использует @tanstack/react-virtual для рендеринга только видимых элементов
+
+365 дней назад + сегодня + 365 дней вперёд = ~731 день
+
+Бесконечный скролл с подгрузкой новых дней
+
+Сохранение позиции
+При открытии детального просмотра запоминается точный scrollTop
+
+При закрытии позиция восстанавливается — день остаётся на том же месте
+
+Мобильная адаптация
+Mobile-first дизайн
+
+Оптимизированные размеры элементов для сенсорного управления
+
+
