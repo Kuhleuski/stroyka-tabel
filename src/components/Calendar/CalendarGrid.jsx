@@ -20,7 +20,7 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
                date.getFullYear() === today.getFullYear()
     }
 
-    // === РЕЖИМ "ЛЕНТА" ===
+    // === РЕЖИМ "ДЕНЬ" (ЛЕНТА) ===
     if (mode === 'feed') {
         const dayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб']
         const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
@@ -42,7 +42,6 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
                     const month = day.date.getMonth()
                     const year = day.date.getFullYear()
                     
-                    // Проверяем, сменился ли месяц
                     const monthChanged = (month !== currentMonth || year !== currentYear)
                     if (monthChanged) {
                         currentMonth = month
@@ -61,7 +60,6 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
                     
                     return (
                         <div key={index}>
-                            {/* Разделитель месяца */}
                             {monthChanged && (
                                 <div className="feed-month-divider">
                                     <span className="feed-month-label">
@@ -95,49 +93,6 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
                                         <div className="feed-empty">— нет смен</div>
                                     )}
                                 </div>
-                            </div>
-                        </div>
-                    )
-                })}
-            </div>
-        )
-    }
-
-    // === РЕЖИМ "НЕДЕЛЯ" ===
-    if (mode === 'week') {
-        const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
-        return (
-            <div className="week-vertical">
-                {days.map((day, index) => {
-                    if (day.empty) return null
-                    
-                    const dayShifts = getDayShifts(day.date)
-                    const hasWork = dayShifts.length > 0
-                    const today = isToday(day.date)
-                    const selected = isSelected(day.date)
-                    const dayName = dayNames[day.date.getDay() === 0 ? 6 : day.date.getDay() - 1]
-                    
-                    return (
-                        <div 
-                            key={index} 
-                            className={`week-day-row ${today ? 'today' : ''} ${selected ? 'selected' : ''}`}
-                            onClick={() => onDayClick(day.date)}
-                        >
-                            <div className="week-day-header">
-                                <span className="week-day-name">{dayName}</span>
-                                <span className="week-day-number">{day.day}</span>
-                                {hasWork && <span className="week-day-count">{dayShifts.length}</span>}
-                            </div>
-                            <div className="week-day-info">
-                                {hasWork ? (
-                                    dayShifts.map((s, idx) => (
-                                        <span key={idx} className="week-day-worker">
-                                            {s.worker_name} ({s.hours}ч)
-                                        </span>
-                                    ))
-                                ) : (
-                                    <span className="week-day-empty">—</span>
-                                )}
                             </div>
                         </div>
                     )
