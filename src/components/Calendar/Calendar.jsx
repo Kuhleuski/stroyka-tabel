@@ -14,6 +14,7 @@ export function Calendar({
     const [mode, setMode] = useState(externalMode || 'month')
     const [displayDate, setDisplayDate] = useState(new Date())
     const isFirstRender = useRef(true)
+    const containerRef = useRef(null)
 
     useEffect(() => {
         if (externalMode && externalMode !== mode) {
@@ -36,10 +37,11 @@ export function Calendar({
         
         switch (mode) {
             case 'feed': {
+                // Показываем 60 дней: 30 в прошлое и 30 в будущее
                 const days = []
                 const startDate = new Date(date)
-                startDate.setDate(startDate.getDate() - 15)
-                for (let i = 0; i < 30; i++) {
+                startDate.setDate(startDate.getDate() - 30)
+                for (let i = 0; i < 60; i++) {
                     const d = new Date(startDate)
                     d.setDate(startDate.getDate() + i)
                     days.push({ date: d, day: d.getDate(), empty: false })
@@ -62,7 +64,7 @@ export function Calendar({
         
         switch (mode) {
             case 'feed':
-                return `Лента событий`
+                return `📋 Лента событий`
             case 'week': {
                 const weekDays = getWeekDays(date)
                 const first = weekDays[0]
@@ -85,7 +87,7 @@ export function Calendar({
         } else if (mode === 'week') {
             newDate.setDate(newDate.getDate() + direction * 7)
         } else if (mode === 'feed') {
-            newDate.setDate(newDate.getDate() + direction * 15)
+            newDate.setDate(newDate.getDate() + direction * 30)
         }
         setDisplayDate(newDate)
         onDateSelect(new Date(selectedDate))
@@ -116,9 +118,16 @@ export function Calendar({
             <ViewModeButtons mode={mode} onChange={handleModeChange} />
             
             <div className="calendar-header">
-                <button className="calendar-nav-btn" onClick={handlePrev}>‹</button>
-                <span className="month-title">{getTitle(displayDate)}</span>
-                <button className="calendar-nav-btn" onClick={handleNext}>›</button>
+                {mode !== 'feed' && (
+                    <>
+                        <button className="calendar-nav-btn" onClick={handlePrev}>‹</button>
+                        <span className="month-title">{getTitle(displayDate)}</span>
+                        <button className="calendar-nav-btn" onClick={handleNext}>›</button>
+                    </>
+                )}
+                {mode === 'feed' && (
+                    <span className="month-title">{getTitle(displayDate)}</span>
+                )}
             </div>
             
             <CalendarGrid
