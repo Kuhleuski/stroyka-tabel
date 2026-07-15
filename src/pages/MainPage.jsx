@@ -8,7 +8,7 @@ export function MainPage({ shifts, loading }) {
     const [isDetailOpen, setIsDetailOpen] = useState(false)
     const [returnMode, setReturnMode] = useState('month')
     const [calendarMode, setCalendarMode] = useState('month')
-    const [returnDate, setReturnDate] = useState(null) // <-- запоминаем дату
+    const [returnDate, setReturnDate] = useState(null)
 
     useEffect(() => {
         setSelectedDate(new Date())
@@ -21,7 +21,7 @@ export function MainPage({ shifts, loading }) {
     const handleDayClick = (date, mode) => {
         setDetailDate(date)
         setReturnMode(mode)
-        setReturnDate(date) // <-- запоминаем дату
+        setReturnDate(date)
         setIsDetailOpen(true)
     }
 
@@ -29,7 +29,6 @@ export function MainPage({ shifts, loading }) {
         setIsDetailOpen(false)
         setDetailDate(null)
         setCalendarMode(returnMode)
-        // Не сбрасываем returnDate, Calendar сам восстановит позицию
     }
 
     const handleModeChange = (mode) => {
@@ -38,7 +37,6 @@ export function MainPage({ shifts, loading }) {
             setIsDetailOpen(false)
             setDetailDate(null)
         }
-        // При переключении режимов сбрасываем returnDate
         if (mode !== returnMode) {
             setReturnDate(null)
         }
@@ -74,7 +72,7 @@ export function MainPage({ shifts, loading }) {
                         onDayClick={handleDayClick}
                         mode={calendarMode}
                         onModeChange={handleModeChange}
-                        returnDate={returnDate} // <-- передаём дату для восстановления
+                        returnDate={returnDate}
                     />
                     <Timeline 
                         shifts={shifts} 
