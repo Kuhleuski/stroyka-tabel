@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Calendar } from '../components/Calendar/Calendar'
 import { Timeline } from '../components/Timeline/Timeline'
 
@@ -10,6 +10,7 @@ export function MainPage({ shifts, loading }) {
     const [calendarMode, setCalendarMode] = useState('month')
     const [returnDate, setReturnDate] = useState(null)
     const [isReturning, setIsReturning] = useState(false)
+    const [savedScrollTop, setSavedScrollTop] = useState(null) // <-- сохраняем позицию
 
     useEffect(() => {
         setSelectedDate(new Date())
@@ -20,6 +21,14 @@ export function MainPage({ shifts, loading }) {
     }
 
     const handleDayClick = (date, mode) => {
+        // Запоминаем текущую позицию скролла
+        if (mode === 'feed') {
+            const container = document.getElementById('feedContainer')
+            if (container) {
+                setSavedScrollTop(container.scrollTop)
+            }
+        }
+        
         setDetailDate(date)
         setReturnMode(mode)
         setReturnDate(date)
@@ -31,7 +40,7 @@ export function MainPage({ shifts, loading }) {
         setIsDetailOpen(false)
         setDetailDate(null)
         setCalendarMode(returnMode)
-        setIsReturning(true) // <-- флаг, что мы возвращаемся
+        setIsReturning(true) // флаг, что мы возвращаемся
     }
 
     const handleModeChange = (mode) => {
@@ -42,6 +51,7 @@ export function MainPage({ shifts, loading }) {
         }
         if (mode !== returnMode) {
             setReturnDate(null)
+            setSavedScrollTop(null)
         }
         setIsReturning(false)
     }
@@ -78,6 +88,7 @@ export function MainPage({ shifts, loading }) {
                         onModeChange={handleModeChange}
                         returnDate={returnDate}
                         isReturning={isReturning}
+                        savedScrollTop={savedScrollTop}
                     />
                     <Timeline 
                         shifts={shifts} 
