@@ -4,7 +4,7 @@ import { ViewModeButtons } from './ViewModeButtons'
 import { MONTHS, getMonthDays } from '../../utils/dateHelpers'
 
 // Компонент одного дня в ленте
-const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelected, isToday }) => {
+const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelected, isToday, isFirstOfMonth }) => {
     const dayShifts = getDayShifts(day.date)
     const hasWork = dayShifts.length > 0
     const today = isToday(day.date)
@@ -24,7 +24,7 @@ const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelec
     
     return (
         <div 
-            className={`feed-item ${today ? 'today' : ''} ${selected ? 'selected' : ''}`}
+            className={`feed-item ${today ? 'today' : ''} ${selected ? 'selected' : ''} ${isFirstOfMonth ? 'first-of-month' : ''}`}
             onClick={() => onDayClick(day.date)}
             data-date={day.date.toISOString().split('T')[0]}
         >
@@ -72,7 +72,7 @@ export function Calendar({
     mode: externalMode,
     onModeChange,
     returnDate,
-    isReturning // новый флаг — закрываем детали
+    isReturning
 }) {
     const [mode, setMode] = useState(externalMode || 'month')
     const [displayDate, setDisplayDate] = useState(new Date())
@@ -83,7 +83,6 @@ export function Calendar({
     const isRestoring = useRef(false)
     const virtualizerRef = useRef(null)
 
-    // Генерация дней: 1 год назад + сегодня + 1 год вперёд
     const generateDays = useCallback((centerDate) => {
         const days = []
         const startDate = new Date(centerDate)
@@ -135,14 +134,13 @@ export function Calendar({
     const virtualizer = useVirtualizer({
         count: allDays.length,
         getScrollElement: () => containerRef.current,
-        estimateSize: () => 46,
+        estimateSize: () => 50, // чуть увеличил высоту для отступа
         overscan: 20,
         onChange: (instance) => {
             virtualizerRef.current = instance
         }
     })
 
-    // Инициализация при первом рендере
     useEffect(() => {
         if (isFirstRender.current) {
             isFirstRender.current = false
@@ -160,7 +158,6 @@ export function Calendar({
         const container = containerRef.current
         if (!container) return
 
-        // Если мы возвращаемся из деталей — восстанавливаем позицию по returnDate
         if (isReturning && returnDate) {
             const dateStr = returnDate.toISOString().split('T')[0]
             const index = allDays.findIndex(d => 
@@ -169,7 +166,6 @@ export function Calendar({
             
             if (index !== -1) {
                 isRestoring.current = true
-                // Мгновенный скролл без анимации
                 virtualizer.scrollToIndex(index, { align: 'center', behavior: 'auto' })
                 setTimeout(() => {
                     isRestoring.current = false
@@ -178,7 +174,6 @@ export function Calendar({
             }
         }
 
-        // Если это первый переход на вкладку "День" — показываем сегодня по центру
         if (isFirstFeedRender) {
             const today = new Date()
             const dateStr = today.toISOString().split('T')[0]
@@ -197,7 +192,6 @@ export function Calendar({
         }
     }, [mode, allDays, returnDate, isReturning, virtualizer, isFirstFeedRender])
 
-    // Сброс флага при переключении на другой режим
     useEffect(() => {
         if (mode !== 'feed') {
             setIsFirstFeedRender(true)
@@ -205,6 +199,12 @@ export function Calendar({
     }, [mode])
 
     const shouldShowMonthDivider = (day, index) => {
+        if (index === 0) return true
+        const prevDay = allDays[index - 1]
+        return day.month !== prevDay.month || day.year !== prevDay.year
+    }
+
+    const isFirstOfMonth = (day, index) => {
         if (index === 0) return true
         const prevDay = allDays[index - 1]
         return day.month !== prevDay.month || day.year !== prevDay.year
@@ -305,6 +305,7 @@ export function Calendar({
                                 if (!day) return null
                                 
                                 const showDivider = shouldShowMonthDivider(day, virtualRow.index)
+                                const firstOfMonth = isFirstOfMonth(day, virtualRow.index)
                                 
                                 return (
                                     <div
@@ -328,6 +329,7 @@ export function Calendar({
                                             getDayShifts={getDayShifts}
                                             isSelected={isSelected}
                                             isToday={isToday}
+                                            isFirstOfMonth={firstOfMonth}
                                         />
                                     </div>
                                 )
