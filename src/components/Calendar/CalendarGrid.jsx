@@ -13,6 +13,70 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
                date.getFullYear() === selectedDate.getFullYear()
     }
 
+    // === РЕЖИМ "ЛЕНТА" ===
+    if (mode === 'feed') {
+        const dayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб']
+        
+        return (
+            <div className="feed-container">
+                {days.map((day, index) => {
+                    if (day.empty) return null
+                    
+                    const dayShifts = getDayShifts(day.date)
+                    const hasWork = dayShifts.length > 0
+                    const today = isToday(day.date)
+                    const selected = isSelected(day.date)
+                    const dayName = dayNames[day.date.getDay()]
+                    
+                    // Группируем смены по объектам
+                    const sitesMap = {}
+                    dayShifts.forEach(s => {
+                        if (!sitesMap[s.site_name]) {
+                            sitesMap[s.site_name] = []
+                        }
+                        sitesMap[s.site_name].push(s.worker_name)
+                    })
+                    
+                    return (
+                        <div 
+                            key={index} 
+                            className={`feed-item ${today ? 'today' : ''} ${selected ? 'selected' : ''}`}
+                            onClick={() => onDayClick(day.date)}
+                        >
+                            {/* Левая часть — дата */}
+                            <div className="feed-date">
+                                <div className="feed-day-number">{day.day}</div>
+                                <div className="feed-day-name">{dayName}</div>
+                                {today && <div className="feed-today-badge">Сегодня</div>}
+                            </div>
+                            
+                            {/* Правая часть — объекты и работники */}
+                            <div className="feed-content">
+                                {hasWork ? (
+                                    Object.entries(sitesMap).map(([siteName, workers]) => (
+                                        <div key={siteName} className="feed-site">
+                                            <div className="feed-site-name">📍 {siteName}</div>
+                                            <div className="feed-workers">
+                                                {workers.map((w, idx) => (
+                                                    <span key={idx} className="feed-worker">
+                                                        👷 {w}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="feed-empty">— нет смен</div>
+                                )}
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+        )
+    }
+
+    // === РЕЖИМ "НЕДЕЛЯ" ===
     if (mode === 'week') {
         const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
         return (
@@ -55,6 +119,7 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
         )
     }
 
+    // === РЕЖИМ "МЕСЯЦ" ===
     return (
         <div className="calendar-grid">
             {DAYS_SHORT.map(day => (
