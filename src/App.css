@@ -1609,3 +1609,320 @@ body {
         font-size: 10px;
     }
 }
+
+/* ============================================================
+   КНОПКИ ПЕРЕКЛЮЧЕНИЯ РЕЖИМОВ (ЧИПСЫ)
+   ============================================================ */
+
+.view-mode-wrapper {
+    padding: 0 0 12px 0;
+    margin-bottom: 4px;
+}
+
+.view-mode-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-start;
+}
+
+.view-mode-btn {
+    padding: 8px 20px;
+    border: 1.5px solid #e0e0e0;
+    background: white;
+    border-radius: 24px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #666;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+.view-mode-btn.active {
+    background: #2d7d46;
+    color: white;
+    border-color: #2d7d46;
+}
+
+.view-mode-btn:hover:not(.active) {
+    background: #f5f7f6;
+}
+
+/* ============================================================
+   КАЛЕНДАРЬ
+   ============================================================ */
+
+.calendar-wrapper {
+    background: white;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.calendar-wrapper.feed-mode {
+    background: white;
+    border-radius: 16px;
+    padding: 0 0 16px 0;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.calendar-wrapper.feed-mode .calendar-header {
+    padding: 12px 16px 0 16px;
+    margin-bottom: 4px;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.day-label {
+    text-align: center;
+    font-size: 12px;
+    color: #999;
+    padding: 6px 0;
+    font-weight: 600;
+}
+
+.day-cell {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.15s;
+    position: relative;
+    padding: 4px;
+    user-select: none;
+}
+
+.day-cell.empty {
+    cursor: default;
+}
+
+.day-cell .day-number {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+}
+
+.day-cell.today .day-number {
+    color: #2d7d46;
+    font-weight: 700;
+}
+
+.day-cell.selected {
+    background: #2d7d46;
+}
+
+.day-cell.selected .day-number {
+    color: white;
+}
+
+.day-cell.has-work {
+    background: #f0f7f2;
+}
+
+.day-cell.has-work.selected {
+    background: #2d7d46;
+}
+
+.day-cell .day-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #2d7d46;
+    margin-top: 2px;
+}
+
+.day-cell.selected .day-dot {
+    background: white;
+}
+
+.day-cell .day-count {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: 9px;
+    color: #2d7d46;
+    font-weight: 600;
+}
+
+.day-cell.selected .day-count {
+    color: white;
+}
+
+/* ============================================================
+   РЕЖИМ "ДЕНЬ" — ВИРТУАЛЬНЫЙ СПИСОК
+   ============================================================ */
+
+.feed-container {
+    scroll-behavior: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 8px 8px 8px;
+}
+
+.feed-item {
+    display: flex;
+    gap: 10px;
+    padding: 8px 10px;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.15s;
+    border-left: 3px solid transparent;
+    min-height: 40px;
+    align-items: center;
+    margin: 1px 0;
+}
+
+.feed-item:hover {
+    background: #f8faf8;
+}
+
+.feed-item.today {
+    border-left-color: #2d7d46;
+    background: #f5faf6;
+}
+
+.feed-item.selected {
+    border-left-color: #2d7d46;
+    background: #e8f5e9;
+}
+
+.feed-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 52px;
+    padding-right: 8px;
+    border-right: 1px solid #e8eaed;
+    flex-shrink: 0;
+}
+
+.feed-date-full {
+    font-size: 12px;
+    font-weight: 600;
+    color: #1a1a1a;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.feed-item.today .feed-date-full {
+    color: #2d7d46;
+}
+
+.feed-today-badge {
+    font-size: 7px;
+    background: #2d7d46;
+    color: white;
+    padding: 0px 5px;
+    border-radius: 8px;
+    margin-top: 1px;
+    font-weight: 700;
+}
+
+.feed-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1px;
+    min-width: 0;
+}
+
+.feed-site {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.feed-site-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: #333;
+    white-space: nowrap;
+}
+
+.feed-workers {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+}
+
+.feed-worker {
+    font-size: 10px;
+    color: #555;
+    background: #f0f0f0;
+    padding: 0px 6px;
+    border-radius: 8px;
+    white-space: nowrap;
+}
+
+.feed-empty {
+    color: #ccc;
+    font-size: 12px;
+}
+
+/* ============================================================
+   РАЗДЕЛИТЕЛЬ МЕСЯЦЕВ
+   ============================================================ */
+
+.feed-month-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 0 4px 0;
+    position: relative;
+}
+
+.feed-month-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #e8eaed;
+    transform: translateY(-50%);
+}
+
+.feed-month-label {
+    background: white;
+    padding: 0 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #999;
+    text-transform: uppercase;
+    position: relative;
+    z-index: 1;
+}
+
+/* ============================================================
+   МЕДИА-ЗАПРОСЫ
+   ============================================================ */
+
+@media (max-width: 400px) {
+    .feed-item {
+        padding: 6px 8px;
+        gap: 6px;
+        min-height: 34px;
+    }
+    
+    .feed-date {
+        min-width: 44px;
+        padding-right: 6px;
+    }
+    
+    .feed-date-full {
+        font-size: 10px;
+    }
+}
