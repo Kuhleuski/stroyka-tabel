@@ -18,6 +18,8 @@ export function Calendar({
     const isFirstRender = useRef(true)
     const touchStartX = useRef(0)
     const touchEndX = useRef(0)
+    const touchStartY = useRef(0)
+    const touchEndY = useRef(0)
 
     useEffect(() => {
         if (externalMode && externalMode !== mode) {
@@ -40,6 +42,17 @@ export function Calendar({
         const month = date.getMonth()
         
         switch (mode) {
+            case 'feed':
+                // Для ленты показываем 30 дней от текущей даты
+                const days = []
+                const startDate = new Date(date)
+                startDate.setDate(startDate.getDate() - 15)
+                for (let i = 0; i < 30; i++) {
+                    const d = new Date(startDate)
+                    d.setDate(startDate.getDate() + i)
+                    days.push({ date: d, day: d.getDate(), empty: false })
+                }
+                return days
             case 'week':
                 return getWeekDays(date)
             case 'month':
@@ -55,6 +68,8 @@ export function Calendar({
         const month = date.getMonth()
         
         switch (mode) {
+            case 'feed':
+                return `Лента событий`
             case 'week': {
                 const weekDays = getWeekDays(date)
                 const first = weekDays[0]
@@ -80,6 +95,8 @@ export function Calendar({
             newDate.setMonth(newDate.getMonth() + direction)
         } else if (mode === 'week') {
             newDate.setDate(newDate.getDate() + direction * 7)
+        } else if (mode === 'feed') {
+            newDate.setDate(newDate.getDate() + direction * 15)
         }
         
         setDisplayDate(newDate)
@@ -111,14 +128,41 @@ export function Calendar({
 
     const handleTouchStart = (e) => {
         touchStartX.current = e.touches[0].clientX
+        touchStartY.current = e.touches[0].clientY
     }
 
     const handleTouchEnd = (e) => {
         touchEndX.current = e.changedTouches[0].clientX
-        const diff = touchStartX.current - touchEndX.current
+        touchEndY.current = e.changedTouches[0].clientY
         
-        if (Math.abs(diff) > 50) {
-            if (diff > 0) {
+        const diffX = touchStartX.current - touchEndX.current
+        const diffY = touchStartY.current - touchEndY.current
+        
+        // Для ленты — свайп вверх/вниз
+        if (mode === 'feed') {
+            if (Math.abs(diffY) > 50) {
+                if (diffY > 0) {
+                    // Свайп вверх — следующие дни
+                    const newDate = new Date(displayDate)
+                    newDate.setDate(newDate.getDate() + 15)
+                    setDisplayDate(newDate)
+                    setCurrentDate(newDate)
+                    onDateSelect(new Date(selectedDate))
+                } else {
+                    // Свайп вниз — предыдущие дни
+                    const newDate = new Date(displayDate)
+                    newDate.setDate(newDate.getDate() - 15)
+                    setDisplayDate(newDate)
+                    setCurrentDate(newDate)
+                    onDateSelect(new Date(selectedDate))
+                }
+            }
+            return
+        }
+        
+        // Для месяца и недели — свайп влево/вправо
+        if (Math.abs(diffX) > 50) {
+            if (diffX > 0) {
                 handleNext()
             } else {
                 handlePrev()
@@ -153,9 +197,16 @@ export function Calendar({
             <ViewModeButtons mode={mode} onChange={handleModeChange} />
             
             <div className="calendar-header">
-                <button className="calendar-nav-btn" onClick={handlePrev}>‹</button>
-                <span className="month-title">{getTitle(displayDate)}</span>
-                <button className="calendar-nav-btn" onClick={handleNext}>›</button>
+                {mode !== 'feed' && (
+                    <>
+                        <button className="calendar-nav-btn" onClick={handlePrev}>‹</button>
+                        <span className="month-title">{getTitle(displayDate)}</span>
+                        <button className="calendar-nav-btn" onClick={handleNext}>›</button>
+                    </>
+                )}
+                {mode === 'feed' && (
+                    <span className="month-title">{getTitle(displayDate)}</span>
+                )}
             </div>
             
             <div className={`calendar-slide-container ${isAnimating ? 'slide-animate' : ''}`}>
