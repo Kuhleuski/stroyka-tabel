@@ -1,7 +1,70 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import { ViewModeButtons } from './ViewModeButtons'
-import { CalendarGrid } from './CalendarGrid'
 import { MONTHS, getMonthDays } from '../../utils/dateHelpers'
+
+// Компонент одного дня в ленте (вынесен для производительности)
+const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelected, isToday }) => {
+    const dayShifts = getDayShifts(day.date)
+    const hasWork = dayShifts.length > 0
+    const today = isToday(day.date)
+    const selected = isSelected(day.date)
+    const dayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб']
+    const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
+                        'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
+    
+    const dayName = dayNames[day.date.getDay()]
+    const dateStr = `${String(day.date.getDate()).padStart(2, '0')}.${String(day.date.getMonth() + 1).padStart(2, '0')} ${dayName}`
+    
+    const sitesMap = {}
+    dayShifts.forEach(s => {
+        if (!sitesMap[s.site_name]) {
+            sitesMap[s.site_name] = []
+        }
+        sitesMap[s.site_name].push(s.worker_name)
+    })
+    
+    return (
+        <div 
+            className={`feed-item ${today ? 'today' : ''} ${selected ? 'selected' : ''}`}
+            onClick={() => onDayClick(day.date)}
+            data-date={day.date.toISOString().split('T')[0]}
+        >
+            <div className="feed-date">
+                <div className="feed-date-full">{dateStr}</div>
+                {today && <div className="feed-today-badge">Сегодня</div>}
+            </div>
+            
+            <div className="feed-content">
+                {hasWork ? (
+                    Object.entries(sitesMap).map(([siteName, workers]) => (
+                        <div key={siteName} className="feed-site">
+                            <div className="feed-site-name">📍 {siteName}</div>
+                            <div className="feed-workers">
+                                {workers.map((w, idx) => (
+                                    <span key={idx} className="feed-worker">👷 {w}</span>
+                                ))}
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <div className="feed-empty">— нет смен</div>
+                )}
+            </div>
+        </div>
+    )
+}
+
+// Разделитель месяцев
+const MonthDivider = ({ month, year }) => {
+    const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
+                        'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
+    return (
+        <div className="feed-month-divider">
+            <span className="feed-month-label">{monthNames[month]} {year}</span>
+        </div>
+    )
+}
 
 export function Calendar({ 
     shifts, 
@@ -10,130 +73,182 @@ export function Calendar({
     onDayClick,
     mode: externalMode,
     onModeChange,
-    returnDate // <-- дата для восстановления
+    returnDate
 }) {
     const [mode, setMode] = useState(externalMode || 'month')
     const [displayDate, setDisplayDate] = useState(new Date())
-    const [feedDays, setFeedDays] = useState([])
-    const [feedOffset, setFeedOffset] = useState(0)
+    const [allDays, setAllDays] = useState([])
+    const [isLoading, setIsLoading] = useState(false)
+    const containerRef = useRef(null)
     const isFirstRender = useRef(true)
-    const feedContainerRef = useRef(null)
-    const isInitialized = useRef(false)
-    const isRestoring = useRef(false)
-
-    // Генерация дней
-    const generateFeedDays = (offset, count = 30) => {
+    const savedIndex = useRef(null) // сохранённый индекс для восстановления
+    
+    // Генерация дней с учётом смещения
+    const generateDays = useCallback((centerDate, count = 100) => {
         const days = []
-        const today = new Date()
-        const startDate = new Date(today)
-        startDate.setDate(today.getDate() + offset)
+        const half = Math.floor(count / 2)
+        const startDate = new Date(centerDate)
+        startDate.setDate(centerDate.getDate() - half)
+        
         for (let i = 0; i < count; i++) {
             const d = new Date(startDate)
             d.setDate(startDate.getDate() + i)
-            days.push({ date: d, day: d.getDate(), empty: false })
+            days.push({ 
+                date: d, 
+                day: d.getDate(), 
+                month: d.getMonth(),
+                year: d.getFullYear(),
+                empty: false 
+            })
         }
         return days
-    }
+    }, [])
 
-    const initFeed = (offset = 0) => {
-        const days = generateFeedDays(offset - 45, 90)
-        setFeedDays(days)
-        setFeedOffset(offset)
-    }
+    // Инициализация ленты
+    const initFeed = useCallback((centerDate, count = 100) => {
+        const days = generateDays(centerDate, count)
+        setAllDays(days)
+    }, [generateDays])
 
-    useEffect(() => {
-        if (externalMode && externalMode !== mode) {
-            setMode(externalMode)
+    // Получение дня для виртуализации
+    const getDayShifts = useCallback((date) => {
+        const dateStr = date.toISOString().split('T')[0]
+        return shifts.filter(s => s.work_date === dateStr)
+    }, [shifts])
+
+    const isToday = useCallback((date) => {
+        const today = new Date()
+        return date.getDate() === today.getDate() &&
+               date.getMonth() === today.getMonth() &&
+               date.getFullYear() === today.getFullYear()
+    }, [])
+
+    const isSelected = useCallback((date) => {
+        if (!selectedDate) return false
+        return date.getDate() === selectedDate.getDate() &&
+               date.getMonth() === selectedDate.getMonth() &&
+               date.getFullYear() === selectedDate.getFullYear()
+    }, [selectedDate])
+
+    // Настройка виртуализатора
+    const virtualizer = useVirtualizer({
+        count: allDays.length,
+        getScrollElement: () => containerRef.current,
+        estimateSize: () => 46, // высота одного элемента
+        overscan: 10,
+        // Сохраняем позицию при скролле
+        onChange: (instance) => {
+            if (!isLoading) {
+                const index = instance.scrollToIndex
+                if (index !== undefined && index !== null) {
+                    savedIndex.current = index
+                }
+            }
         }
-    }, [externalMode])
+    })
 
+    // Инициализация при первом рендере
     useEffect(() => {
         if (isFirstRender.current) {
             isFirstRender.current = false
             const today = new Date()
             onDateSelect(today)
             setDisplayDate(today)
-            initFeed(0)
+            initFeed(today, 100)
         }
-    }, [])
+    }, [initFeed, onDateSelect])
 
-    // Восстановление позиции по дате
+    // Восстановление позиции при возврате
     useEffect(() => {
-        if (mode === 'feed' && feedDays.length > 0 && returnDate) {
-            const container = feedContainerRef.current
-            if (!container) return
-
-            // Ищем элемент с нужной датой
+        if (mode === 'feed' && returnDate && allDays.length > 0) {
+            // Находим индекс дня
             const dateStr = returnDate.toISOString().split('T')[0]
-            const items = container.querySelectorAll('.feed-item')
+            const index = allDays.findIndex(d => 
+                d.date.toISOString().split('T')[0] === dateStr
+            )
             
-            let targetIndex = -1
-            for (let i = 0; i < items.length; i++) {
-                const itemDate = items[i].dataset.date
-                if (itemDate === dateStr) {
-                    targetIndex = i
-                    break
-                }
-            }
-
-            if (targetIndex !== -1) {
-                isRestoring.current = true
-                const target = items[targetIndex]
-                const containerHeight = container.clientHeight
-                const targetOffsetTop = target.offsetTop
-                container.scrollTop = targetOffsetTop - containerHeight * 0.3
+            if (index !== -1) {
+                savedIndex.current = index
+                // Скроллим к сохранённому индексу без анимации
                 setTimeout(() => {
-                    isRestoring.current = false
-                }, 100)
+                    virtualizer.scrollToIndex(index, { align: 'center', behavior: 'auto' })
+                }, 50)
             }
         }
-    }, [mode, feedDays, returnDate])
+    }, [mode, returnDate, allDays, virtualizer])
 
-    // Скролл к сегодня при первом открытии (если нет returnDate)
+    // Центрируем на сегодня при переключении на "День"
     useEffect(() => {
-        if (mode === 'feed' && feedDays.length > 0 && !isInitialized.current && !returnDate) {
-            const container = feedContainerRef.current
-            if (container) {
-                const todayItems = container.querySelectorAll('.feed-item.today')
-                if (todayItems.length > 0) {
-                    const target = todayItems[0]
-                    const containerHeight = container.clientHeight
-                    const targetOffsetTop = target.offsetTop
-                    container.scrollTop = targetOffsetTop - containerHeight * 0.3
+        if (mode === 'feed' && allDays.length > 0 && !returnDate) {
+            const today = new Date()
+            const dateStr = today.toISOString().split('T')[0]
+            const index = allDays.findIndex(d => 
+                d.date.toISOString().split('T')[0] === dateStr
+            )
+            
+            if (index !== -1) {
+                setTimeout(() => {
+                    virtualizer.scrollToIndex(index, { align: 'center', behavior: 'auto' })
+                }, 50)
+            }
+        }
+    }, [mode, allDays, returnDate, virtualizer])
+
+    // Бесконечная подгрузка
+    useEffect(() => {
+        const container = containerRef.current
+        if (!container || mode !== 'feed') return
+
+        const handleScroll = () => {
+            if (isLoading) return
+            
+            const { scrollTop, scrollHeight, clientHeight } = container
+            
+            // Если дошли до верха
+            if (scrollTop < 50) {
+                setIsLoading(true)
+                const firstDate = allDays[0]?.date
+                if (firstDate) {
+                    const newDate = new Date(firstDate)
+                    newDate.setDate(newDate.getDate() - 30)
+                    const newDays = generateDays(newDate, 30)
+                    setAllDays(prev => [...newDays, ...prev])
+                    // Корректируем скролл
+                    setTimeout(() => {
+                        const newHeight = newDays.length * 46
+                        container.scrollTop = newHeight + 50
+                        setIsLoading(false)
+                    }, 50)
+                }
+                return
+            }
+            
+            // Если дошли до низа
+            if (scrollTop + clientHeight >= scrollHeight - 50) {
+                setIsLoading(true)
+                const lastDate = allDays[allDays.length - 1]?.date
+                if (lastDate) {
+                    const newDate = new Date(lastDate)
+                    newDate.setDate(newDate.getDate() + 1)
+                    const newDays = generateDays(newDate, 30)
+                    setAllDays(prev => [...prev, ...newDays])
+                    setTimeout(() => {
+                        setIsLoading(false)
+                    }, 50)
                 }
             }
-            isInitialized.current = true
         }
-    }, [mode, feedDays, returnDate])
 
-    // Сброс флага при переключении режимов
-    useEffect(() => {
-        if (mode !== 'feed') {
-            isInitialized.current = false
-        }
-    }, [mode])
+        container.addEventListener('scroll', handleScroll)
+        return () => container.removeEventListener('scroll', handleScroll)
+    }, [allDays, generateDays, isLoading, mode])
 
-    // При изменении returnDate сбрасываем флаг, чтобы сработало восстановление
-    useEffect(() => {
-        if (returnDate) {
-            isInitialized.current = false
-        }
-    }, [returnDate])
-
-    const getDays = (date) => {
-        const year = date.getFullYear()
-        const month = date.getMonth()
-        
-        switch (mode) {
-            case 'feed':
-                return feedDays
-            case 'month':
-            default:
-                return getMonthDays(year, month)
-        }
+    // Функция для определения, нужно ли показывать разделитель месяца
+    const shouldShowMonthDivider = (day, index) => {
+        if (index === 0) return true
+        const prevDay = allDays[index - 1]
+        return day.month !== prevDay.month || day.year !== prevDay.year
     }
-
-    const days = getDays(displayDate)
 
     const getTitle = (date) => {
         const year = date.getFullYear()
@@ -153,8 +268,9 @@ export function Calendar({
         if (mode === 'month') {
             newDate.setMonth(newDate.getMonth() + direction)
         } else if (mode === 'feed') {
-            const newOffset = feedOffset + direction * 30
-            initFeed(newOffset)
+            const centerDate = new Date(displayDate)
+            centerDate.setDate(centerDate.getDate() + direction * 30)
+            initFeed(centerDate, 100)
             onDateSelect(new Date(selectedDate))
             return
         }
@@ -173,10 +289,9 @@ export function Calendar({
         const today = new Date()
         onDateSelect(today)
         setDisplayDate(today)
-        isInitialized.current = false
         
         if (newMode === 'feed') {
-            initFeed(0)
+            initFeed(today, 100)
         }
     }
 
@@ -186,36 +301,6 @@ export function Calendar({
             onDayClick(date, mode)
         }
     }
-
-    // Бесконечная подгрузка
-    useEffect(() => {
-        const container = feedContainerRef.current
-        if (!container || mode !== 'feed' || feedDays.length === 0) return
-
-        const handleScroll = () => {
-            if (isRestoring.current) return
-            
-            const { scrollTop, scrollHeight, clientHeight } = container
-            
-            if (scrollTop < 30) {
-                const newOffset = feedOffset - 15
-                const newDays = generateFeedDays(newOffset, 15)
-                setFeedDays(prev => [...newDays, ...prev])
-                setFeedOffset(newOffset)
-                container.scrollTop = 100
-                return
-            }
-            
-            if (scrollTop + clientHeight >= scrollHeight - 30) {
-                const newOffset = feedOffset + feedDays.length
-                const newDays = generateFeedDays(newOffset, 15)
-                setFeedDays(prev => [...prev, ...newDays])
-            }
-        }
-
-        container.addEventListener('scroll', handleScroll)
-        return () => container.removeEventListener('scroll', handleScroll)
-    }, [feedDays, feedOffset, mode])
 
     return (
         <>
@@ -237,14 +322,85 @@ export function Calendar({
                     )}
                 </div>
                 
-                <CalendarGrid
-                    days={days}
-                    selectedDate={selectedDate}
-                    onDayClick={handleDayClick}
-                    shifts={shifts}
-                    mode={mode}
-                    feedContainerRef={feedContainerRef}
-                />
+                {mode === 'feed' ? (
+                    <div 
+                        ref={containerRef}
+                        className="feed-container"
+                        style={{ height: '65vh', overflowY: 'auto' }}
+                    >
+                        <div
+                            style={{
+                                height: `${virtualizer.getTotalSize()}px`,
+                                width: '100%',
+                                position: 'relative',
+                            }}
+                        >
+                            {virtualizer.getVirtualItems().map((virtualRow) => {
+                                const day = allDays[virtualRow.index]
+                                if (!day) return null
+                                
+                                const showDivider = shouldShowMonthDivider(day, virtualRow.index)
+                                
+                                return (
+                                    <div
+                                        key={virtualRow.key}
+                                        style={{
+                                            position: 'absolute',
+                                            top: 0,
+                                            left: 0,
+                                            width: '100%',
+                                            transform: `translateY(${virtualRow.start}px)`,
+                                        }}
+                                    >
+                                        {showDivider && (
+                                            <MonthDivider month={day.month} year={day.year} />
+                                        )}
+                                        <FeedItem
+                                            day={day}
+                                            shifts={shifts}
+                                            selectedDate={selectedDate}
+                                            onDayClick={handleDayClick}
+                                            getDayShifts={getDayShifts}
+                                            isSelected={isSelected}
+                                            isToday={isToday}
+                                        />
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </div>
+                ) : (
+                    <div className="calendar-grid">
+                        {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
+                            <div key={day} className="day-label">{day}</div>
+                        ))}
+                        
+                        {getMonthDays(displayDate.getFullYear(), displayDate.getMonth()).map((day, index) => {
+                            if (day.empty) {
+                                return <div key={`empty-${index}`} className="day-cell empty"></div>
+                            }
+
+                            const dayShifts = getDayShifts(day.date)
+                            const hasWork = dayShifts.length > 0
+                            const today = isToday(day.date)
+                            const selected = isSelected(day.date)
+
+                            return (
+                                <div
+                                    key={index}
+                                    className={`day-cell ${today ? 'today' : ''} ${selected ? 'selected' : ''} ${hasWork ? 'has-work' : ''}`}
+                                    onClick={() => handleDayClick(day.date)}
+                                >
+                                    <div className="day-number">{day.day}</div>
+                                    {hasWork && <div className="day-dot"></div>}
+                                    {dayShifts.length > 0 && (
+                                        <div className="day-count">{dayShifts.length}</div>
+                                    )}
+                                </div>
+                            )
+                        })}
+                    </div>
+                )}
             </div>
         </>
     )
