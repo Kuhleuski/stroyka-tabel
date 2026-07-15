@@ -73,16 +73,18 @@ export function Calendar({
     onModeChange,
     returnDate,
     isReturning,
-    savedScrollIndex // <-- теперь индекс, а не scrollTop
+    savedScrollIndex
 }) {
     const [mode, setMode] = useState(externalMode || 'month')
     const [displayDate, setDisplayDate] = useState(new Date())
     const [allDays, setAllDays] = useState([])
-    const [isFirstFeedRender, setIsFirstFeedRender] = useState(true)
     const containerRef = useRef(null)
     const isFirstRender = useRef(true)
     const isRestoring = useRef(false)
     const virtualizerRef = useRef(null)
+    
+    // Флаг — нужно ли показать сегодня по центру (только при первом переходе на "День")
+    const [shouldShowToday, setShouldShowToday] = useState(true)
 
     const generateDays = useCallback((centerDate) => {
         const days = []
@@ -161,39 +163,58 @@ export function Calendar({
         }
     }, [initFeed, onDateSelect])
 
-    // === ПРОФЕССИОНАЛЬНОЕ ВОССТАНОВЛЕНИЕ ПОЗИЦИИ ===
-    useEffect(() => {
-        if (mode !== 'feed' || allDays.length === 0) return
+    // === ЛОГИКА ПОЗИЦИОНИРОВАНИЯ (РАЗДЕЛЁННАЯ) ===
 
-        // 1. Если есть сохранённый индекс — восстанавливаем позицию через виртуализатор
-        if (isReturning && savedScrollIndex !== undefined && savedScrollIndex !== null) {
-            const targetIndex = Math.min(savedScrollIndex, allDays.length - 1)
+    // 1. ВОССТАНОВЛЕНИЕ ПОЗИЦИИ ПРИ ВОЗВРАТЕ ИЗ ДЕТАЛЕЙ
+    useEffect(() => {
+        // Если мы не в режиме "День" или нет данных — выходим
+        if (mode !== 'feed' || allDays.length === 0) return
+        // Если это не возврат из деталей или нет сохранённого индекса — выходим
+        if (!isReturning || savedScrollIndex === undefined || savedScrollIndex === null) return
+
+        const targetIndex = Math.min(savedScrollIndex, allDays.length - 1)
+        isRestoring.current = true
+        
+        // Восстанавливаем позицию (align: 'start' — чтобы день остался на том же месте)
+        virtualizer.scrollToIndex(targetIndex, { align: 'start', behavior: 'auto' })
+        
+        // Отключаем показ "сегодня"
+        setShouldShowToday(false)
+        
+        setTimeout(() => {
+            isRestoring.current = false
+        }, 150)
+    }, [mode, allDays, isReturning, savedScrollIndex, virtualizer])
+
+    // 2. ПОКАЗАТЬ СЕГОДНЯ ПО ЦЕНТРУ (только при первом переходе на "День")
+    useEffect(() => {
+        // Если мы не в режиме "День" или нет данных — выходим
+        if (mode !== 'feed' || allDays.length === 0) return
+        // Если не нужно показывать сегодня или это возврат — выходим
+        if (!shouldShowToday || isReturning) return
+
+        const today = new Date()
+        const dateStr = today.toISOString().split('T')[0]
+        const index = allDays.findIndex(d => 
+            d.date.toISOString().split('T')[0] === dateStr
+        )
+        
+        if (index !== -1) {
             isRestoring.current = true
-            virtualizer.scrollToIndex(targetIndex, { align: 'start', behavior: 'auto' })
+            virtualizer.scrollToIndex(index, { align: 'center', behavior: 'auto' })
             setTimeout(() => {
                 isRestoring.current = false
-            }, 100)
-            return
+                setShouldShowToday(false) // больше не показываем сегодня
+            }, 150)
         }
+    }, [mode, allDays, shouldShowToday, isReturning, virtualizer])
 
-        // 2. Первый переход на "День" — показываем сегодня по центру
-        if (isFirstFeedRender) {
-            const today = new Date()
-            const dateStr = today.toISOString().split('T')[0]
-            const index = allDays.findIndex(d => 
-                d.date.toISOString().split('T')[0] === dateStr
-            )
-            
-            if (index !== -1) {
-                isRestoring.current = true
-                virtualizer.scrollToIndex(index, { align: 'center', behavior: 'auto' })
-                setTimeout(() => {
-                    isRestoring.current = false
-                    setIsFirstFeedRender(false)
-                }, 150)
-            }
+    // 3. СБРАСЫВАЕМ ФЛАГИ ПРИ ПЕРЕКЛЮЧЕНИИ РЕЖИМОВ
+    useEffect(() => {
+        if (mode !== 'feed') {
+            setShouldShowToday(true) // при следующем переходе на "День" покажем сегодня
         }
-    }, [mode, allDays, isReturning, savedScrollIndex, virtualizer, isFirstFeedRender])
+    }, [mode])
 
     // Сохраняем индекс первого видимого элемента при скролле
     const handleScroll = useCallback(() => {
@@ -202,7 +223,6 @@ export function Calendar({
         const virtualItems = virtualizerRef.current.getVirtualItems()
         if (virtualItems.length > 0) {
             const firstVisibleIndex = virtualItems[0].index
-            // Передаём индекс в MainPage через onModeChange
             if (onModeChange) {
                 onModeChange(mode, firstVisibleIndex)
             }
@@ -216,12 +236,6 @@ export function Calendar({
         container.addEventListener('scroll', handleScroll)
         return () => container.removeEventListener('scroll', handleScroll)
     }, [mode, handleScroll])
-
-    useEffect(() => {
-        if (mode !== 'feed') {
-            setIsFirstFeedRender(true)
-        }
-    }, [mode])
 
     const shouldShowMonthDivider = (day, index) => {
         if (index === 0) return true
@@ -263,7 +277,7 @@ export function Calendar({
     const handleModeChange = (newMode) => {
         setMode(newMode)
         if (onModeChange) {
-            onModeChange(newMode, null) // сбрасываем индекс
+            onModeChange(newMode, null)
         }
         const today = new Date()
         onDateSelect(today)
@@ -272,7 +286,7 @@ export function Calendar({
         
         if (newMode === 'feed') {
             initFeed(today)
-            setIsFirstFeedRender(true)
+            setShouldShowToday(true) // при переходе на "День" показываем сегодня
         }
     }
 
