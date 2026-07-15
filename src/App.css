@@ -899,7 +899,7 @@ body {
     cursor: pointer;
     transition: 0.15s;
     border-left: 4px solid transparent;
-    min-height: 52px;
+    min-height: 48px;
     align-items: center;
 }
 
@@ -923,40 +923,34 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-width: 72px;
-    padding-right: 12px;
+    min-width: 60px;
+    padding-right: 10px;
     border-right: 1px solid #e8eaed;
     flex-shrink: 0;
 }
 
 .feed-date-full {
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 600;
     color: #1a1a1a;
     line-height: 1.2;
-    letter-spacing: -0.3px;
+    text-align: center;
+    letter-spacing: -0.2px;
 }
 
 .feed-item.today .feed-date-full {
     color: #2d7d46;
 }
 
-.feed-day-name {
-    font-size: 11px;
-    color: #999;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
 .feed-today-badge {
-    font-size: 8px;
+    font-size: 7px;
     background: #2d7d46;
     color: white;
     padding: 0px 6px;
     border-radius: 8px;
     margin-top: 1px;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: 0.3px;
 }
 
 /* Правая часть — объекты */
@@ -1008,16 +1002,16 @@ body {
     .feed-item {
         padding: 8px 10px;
         gap: 8px;
-        min-height: 44px;
+        min-height: 40px;
     }
     
     .feed-date {
-        min-width: 60px;
-        padding-right: 8px;
+        min-width: 50px;
+        padding-right: 6px;
     }
     
     .feed-date-full {
-        font-size: 13px;
+        font-size: 11px;
     }
     
     .feed-site-name {
