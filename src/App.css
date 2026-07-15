@@ -1030,3 +1030,47 @@ body {
         padding: 0px 6px;
     }
 }
+/* ============================================================
+   РАЗДЕЛИТЕЛЬ МЕСЯЦЕВ В ЛЕНТЕ
+   ============================================================ */
+
+.feed-month-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 0 8px 0;
+    position: relative;
+}
+
+.feed-month-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #e8eaed;
+    transform: translateY(-50%);
+}
+
+.feed-month-label {
+    background: #f5f7f6;
+    padding: 0 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #888;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    position: relative;
+    z-index: 1;
+}
+
+.feed-month-label .year {
+    font-weight: 400;
+    color: #bbb;
+}
+
+/* Первый разделитель — без верхнего отступа */
+.feed-item:first-child .feed-month-divider {
+    padding-top: 0;
+}
