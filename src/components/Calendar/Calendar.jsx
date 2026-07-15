@@ -13,7 +13,35 @@ export function Calendar({
 }) {
     const [mode, setMode] = useState(externalMode || 'month')
     const [displayDate, setDisplayDate] = useState(new Date())
+    const [feedDays, setFeedDays] = useState([])
+    const [feedOffset, setFeedOffset] = useState(0)
+    const [isFeedReady, setIsFeedReady] = useState(false)
+    const [savedScrollPosition, setSavedScrollPosition] = useState(0)
     const isFirstRender = useRef(true)
+    const feedContainerRef = useRef(null)
+    const isRestoringScroll = useRef(false)
+
+    // Генерация дней для режима "День"
+    const generateFeedDays = (offset, count = 30) => {
+        const days = []
+        const today = new Date()
+        const startDate = new Date(today)
+        startDate.setDate(today.getDate() + offset)
+        for (let i = 0; i < count; i++) {
+            const d = new Date(startDate)
+            d.setDate(startDate.getDate() + i)
+            days.push({ date: d, day: d.getDate(), empty: false })
+        }
+        return days
+    }
+
+    // Инициализация ленты
+    const initFeed = (offset = 0) => {
+        const days = generateFeedDays(offset - 45, 90)
+        setFeedDays(days)
+        setFeedOffset(offset)
+        setIsFeedReady(true)
+    }
 
     useEffect(() => {
         if (externalMode && externalMode !== mode) {
@@ -27,21 +55,84 @@ export function Calendar({
             const today = new Date()
             onDateSelect(today)
             setDisplayDate(today)
+            initFeed(0)
         }
     }, [])
 
-    // Генерация дней для режима "День" — 90 дней (45 назад + 45 вперёд)
-    const generateFeedDays = (date) => {
-        const days = []
-        const startDate = new Date(date)
-        startDate.setDate(startDate.getDate() - 45)
-        for (let i = 0; i < 90; i++) {
-            const d = new Date(startDate)
-            d.setDate(startDate.getDate() + i)
-            days.push({ date: d, day: d.getDate(), empty: false })
+    // При переключении на режим "День" — центрируем на сегодня
+    useEffect(() => {
+        if (mode === 'feed' && isFeedReady) {
+            // Центрируем на сегодня
+            setTimeout(() => {
+                const container = feedContainerRef.current
+                if (container) {
+                    // Находим элемент "Сегодня" и скроллим к нему
+                    const todayItems = container.querySelectorAll('.feed-item.today')
+                    if (todayItems.length > 0) {
+                        const target = todayItems[0]
+                        const containerRect = container.getBoundingClientRect()
+                        const targetRect = target.getBoundingClientRect()
+                        const scrollTo = target.offsetTop - containerRect.height / 2 + targetRect.height / 2
+                        container.scrollTo({ top: scrollTo, behavior: 'smooth' })
+                    } else {
+                        // Если нет "Сегодня" — скроллим в середину
+                        container.scrollTop = container.scrollHeight / 2
+                    }
+                }
+            }, 100)
         }
-        return days
-    }
+    }, [mode, isFeedReady])
+
+    // Запоминаем позицию при скролле
+    useEffect(() => {
+        const container = feedContainerRef.current
+        if (!container || mode !== 'feed') return
+
+        const handleScroll = () => {
+            if (isRestoringScroll.current) return
+            setSavedScrollPosition(container.scrollTop)
+        }
+
+        container.addEventListener('scroll', handleScroll)
+        return () => container.removeEventListener('scroll', handleScroll)
+    }, [mode])
+
+    // Бесконечная подгрузка при скролле
+    useEffect(() => {
+        const container = feedContainerRef.current
+        if (!container || mode !== 'feed' || !isFeedReady) return
+
+        const handleScroll = () => {
+            const { scrollTop, scrollHeight, clientHeight } = container
+            
+            // Дошли до верха — добавляем дни в начало
+            if (scrollTop < 50) {
+                const newOffset = feedOffset - 20
+                const newDays = generateFeedDays(newOffset, 20)
+                setFeedDays(prev => [...newDays, ...prev])
+                setFeedOffset(newOffset)
+                isRestoringScroll.current = true
+                setTimeout(() => {
+                    container.scrollTop = 200
+                    isRestoringScroll.current = false
+                }, 50)
+                return
+            }
+            
+            // Дошли до низа — добавляем дни в конец
+            if (scrollTop + clientHeight >= scrollHeight - 50) {
+                const lastDate = feedDays[feedDays.length - 1]?.date
+                if (lastDate) {
+                    const newOffset = feedOffset + feedDays.length
+                    const newDays = generateFeedDays(newOffset, 20)
+                    setFeedDays(prev => [...prev, ...newDays])
+                }
+            }
+        }
+
+        container.addEventListener('scroll', handleScroll)
+        return () => container.removeEventListener('scroll', handleScroll)
+    }, [feedDays, feedOffset, mode, isFeedReady])
 
     const getDays = (date) => {
         const year = date.getFullYear()
@@ -49,7 +140,7 @@ export function Calendar({
         
         switch (mode) {
             case 'feed':
-                return generateFeedDays(date)
+                return feedDays
             case 'month':
             default:
                 return getMonthDays(year, month)
@@ -76,7 +167,11 @@ export function Calendar({
         if (mode === 'month') {
             newDate.setMonth(newDate.getMonth() + direction)
         } else if (mode === 'feed') {
-            newDate.setDate(newDate.getDate() + direction * 45)
+            // Переключаем ленту на 30 дней
+            const newOffset = feedOffset + direction * 30
+            initFeed(newOffset)
+            onDateSelect(new Date(selectedDate))
+            return
         }
         setDisplayDate(newDate)
         onDateSelect(new Date(selectedDate))
@@ -93,6 +188,10 @@ export function Calendar({
         const today = new Date()
         onDateSelect(today)
         setDisplayDate(today)
+        
+        if (newMode === 'feed') {
+            initFeed(0)
+        }
     }
 
     const handleDayClick = (date) => {
@@ -102,14 +201,15 @@ export function Calendar({
         }
     }
 
+    // Получаем дни для отображения
+    const displayDays = getDays(displayDate)
+
     return (
         <>
-            {/* Кнопки переключения режимов */}
             <div className="view-mode-wrapper">
                 <ViewModeButtons mode={mode} onChange={handleModeChange} />
             </div>
 
-            {/* Контент календаря */}
             <div className={`calendar-wrapper ${mode === 'feed' ? 'feed-mode' : ''}`}>
                 <div className="calendar-header">
                     {mode !== 'feed' && (
@@ -125,11 +225,12 @@ export function Calendar({
                 </div>
                 
                 <CalendarGrid
-                    days={days}
+                    days={displayDays}
                     selectedDate={selectedDate}
                     onDayClick={handleDayClick}
                     shifts={shifts}
                     mode={mode}
+                    feedContainerRef={feedContainerRef}
                 />
             </div>
         </>
