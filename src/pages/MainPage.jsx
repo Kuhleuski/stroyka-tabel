@@ -8,6 +8,7 @@ export function MainPage({ shifts, loading }) {
     const [isDetailOpen, setIsDetailOpen] = useState(false)
     const [returnMode, setReturnMode] = useState('month')
     const [calendarMode, setCalendarMode] = useState('month')
+    const [feedScrollPosition, setFeedScrollPosition] = useState(null) // сохранённая позиция
 
     useEffect(() => {
         setSelectedDate(new Date())
@@ -21,19 +22,34 @@ export function MainPage({ shifts, loading }) {
         setDetailDate(date)
         setReturnMode(mode)
         setIsDetailOpen(true)
+        // Запоминаем текущую позицию перед открытием деталей
+        if (mode === 'feed') {
+            const container = document.getElementById('feedContainer')
+            if (container) {
+                setFeedScrollPosition(container.scrollTop)
+            }
+        }
     }
 
     const handleCloseDetail = () => {
         setIsDetailOpen(false)
         setDetailDate(null)
         setCalendarMode(returnMode)
+        // Позиция сохранилась в feedScrollPosition, Calendar восстановит её при рендере
     }
 
-    const handleModeChange = (mode) => {
+    const handleModeChange = (mode, scrollPos) => {
         setCalendarMode(mode)
         if (isDetailOpen) {
             setIsDetailOpen(false)
             setDetailDate(null)
+        }
+        // Если переключились на другой режим — сбрасываем сохранённую позицию
+        if (mode !== 'feed') {
+            setFeedScrollPosition(null)
+        } else if (scrollPos !== undefined) {
+            // Обновляем позицию при скролле
+            setFeedScrollPosition(scrollPos)
         }
     }
 
@@ -67,6 +83,7 @@ export function MainPage({ shifts, loading }) {
                         onDayClick={handleDayClick}
                         mode={calendarMode}
                         onModeChange={handleModeChange}
+                        feedScrollPosition={feedScrollPosition}
                     />
                     <Timeline 
                         shifts={shifts} 
