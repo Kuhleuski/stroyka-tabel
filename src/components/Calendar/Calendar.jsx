@@ -13,41 +13,85 @@ export function Calendar({
 }) {
     const [mode, setMode] = useState(externalMode || 'month')
     const [displayDate, setDisplayDate] = useState(new Date())
-    const [feedOffset, setFeedOffset] = useState(0) // для бесконечной ленты
+    const [allDays, setAllDays] = useState([])
+    const [loading, setLoading] = useState(false)
     const isFirstRender = useRef(true)
+    const containerRef = useRef(null)
+    const feedOffset = useRef(0)
 
-    useEffect(() => {
-        if (externalMode && externalMode !== mode) {
-            setMode(externalMode)
+    // Генерация дней от текущей позиции
+    const generateDays = (offset, count = 30) => {
+        const days = []
+        const startDate = new Date(displayDate)
+        startDate.setDate(startDate.getDate() + offset)
+        for (let i = 0; i < count; i++) {
+            const d = new Date(startDate)
+            d.setDate(startDate.getDate() + i)
+            days.push({ date: d, day: d.getDate(), empty: false })
         }
-    }, [externalMode])
+        return days
+    }
 
+    // Загружаем начальные дни
     useEffect(() => {
         if (isFirstRender.current) {
             isFirstRender.current = false
             const today = new Date()
             onDateSelect(today)
             setDisplayDate(today)
+            // Начальные дни: 60 дней (30 назад + 30 вперёд)
+            const initialDays = generateDays(-30, 60)
+            setAllDays(initialDays)
         }
     }, [])
+
+    // Проверка скролла для подгрузки
+    useEffect(() => {
+        const container = document.getElementById('feedContainer')
+        if (!container || mode !== 'feed') return
+
+        const handleScroll = () => {
+            const { scrollTop, scrollHeight, clientHeight } = container
+            
+            // Подгружаем если дошли до верха
+            if (scrollTop < 100 && !loading) {
+                setLoading(true)
+                // Добавляем 20 дней в начало
+                const newDays = generateDays(feedOffset.current - 30, 20)
+                setAllDays(prev => [...newDays, ...prev])
+                feedOffset.current -= 20
+                // Сохраняем позицию скролла
+                setTimeout(() => {
+                    container.scrollTop = 200
+                    setLoading(false)
+                }, 50)
+                return
+            }
+            
+            // Подгружаем если дошли до низа
+            if (scrollTop + clientHeight >= scrollHeight - 100 && !loading) {
+                setLoading(true)
+                // Добавляем 20 дней в конец
+                const currentOffset = feedOffset.current + allDays.length
+                const newDays = generateDays(currentOffset, 20)
+                setAllDays(prev => [...prev, ...newDays])
+                setTimeout(() => {
+                    setLoading(false)
+                }, 50)
+            }
+        }
+
+        container.addEventListener('scroll', handleScroll)
+        return () => container.removeEventListener('scroll', handleScroll)
+    }, [allDays, loading, mode])
 
     const getDays = (date) => {
         const year = date.getFullYear()
         const month = date.getMonth()
         
         switch (mode) {
-            case 'feed': {
-                // Бесконечная лента — показываем 60 дней вокруг текущей позиции
-                const days = []
-                const startDate = new Date(date)
-                startDate.setDate(startDate.getDate() - 30 + feedOffset)
-                for (let i = 0; i < 60; i++) {
-                    const d = new Date(startDate)
-                    d.setDate(startDate.getDate() + i)
-                    days.push({ date: d, day: d.getDate(), empty: false })
-                }
-                return days
-            }
+            case 'feed':
+                return allDays
             case 'week':
                 return getWeekDays(date)
             case 'month':
@@ -64,7 +108,7 @@ export function Calendar({
         
         switch (mode) {
             case 'feed':
-                return '' // Убираем заголовок
+                return ''
             case 'week': {
                 const weekDays = getWeekDays(date)
                 const first = weekDays[0]
@@ -87,8 +131,11 @@ export function Calendar({
         } else if (mode === 'week') {
             newDate.setDate(newDate.getDate() + direction * 7)
         } else if (mode === 'feed') {
-            // Для ленты просто смещаем offset
-            setFeedOffset(feedOffset + direction * 30)
+            // Смещаем все дни на 30 дней
+            const offset = direction * 30
+            feedOffset.current += offset
+            const newDays = generateDays(feedOffset.current - 30, 60)
+            setAllDays(newDays)
             onDateSelect(new Date(selectedDate))
             return
         }
@@ -107,7 +154,9 @@ export function Calendar({
         const today = new Date()
         onDateSelect(today)
         setDisplayDate(today)
-        setFeedOffset(0)
+        feedOffset.current = 0
+        const initialDays = generateDays(-30, 60)
+        setAllDays(initialDays)
     }
 
     const handleDayClick = (date) => {
