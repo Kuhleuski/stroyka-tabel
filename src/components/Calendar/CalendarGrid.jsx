@@ -1,6 +1,6 @@
 import { formatDate } from '../../utils/dateHelpers'
 
-export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
+export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode, feedContainerRef }) {
     const getDayShifts = (date) => {
         const dateStr = formatDate(date)
         return shifts.filter(s => s.work_date === dateStr)
@@ -30,7 +30,7 @@ export function CalendarGrid({ days, selectedDate, onDayClick, shifts, mode }) {
         let currentYear = -1
         
         return (
-            <div className="feed-container" id="feedContainer">
+            <div className="feed-container" id="feedContainer" ref={feedContainerRef}>
                 {days.map((day, index) => {
                     if (day.empty) return null
                     
