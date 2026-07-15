@@ -16,10 +16,8 @@ export function Calendar({
     const [allDays, setAllDays] = useState([])
     const [loading, setLoading] = useState(false)
     const isFirstRender = useRef(true)
-    const containerRef = useRef(null)
     const feedOffset = useRef(0)
 
-    // Генерация дней от текущей позиции
     const generateDays = (offset, count = 30) => {
         const days = []
         const startDate = new Date(displayDate)
@@ -32,20 +30,17 @@ export function Calendar({
         return days
     }
 
-    // Загружаем начальные дни
     useEffect(() => {
         if (isFirstRender.current) {
             isFirstRender.current = false
             const today = new Date()
             onDateSelect(today)
             setDisplayDate(today)
-            // Начальные дни: 60 дней (30 назад + 30 вперёд)
             const initialDays = generateDays(-30, 60)
             setAllDays(initialDays)
         }
     }, [])
 
-    // Проверка скролла для подгрузки
     useEffect(() => {
         const container = document.getElementById('feedContainer')
         if (!container || mode !== 'feed') return
@@ -53,14 +48,11 @@ export function Calendar({
         const handleScroll = () => {
             const { scrollTop, scrollHeight, clientHeight } = container
             
-            // Подгружаем если дошли до верха
             if (scrollTop < 100 && !loading) {
                 setLoading(true)
-                // Добавляем 20 дней в начало
                 const newDays = generateDays(feedOffset.current - 30, 20)
                 setAllDays(prev => [...newDays, ...prev])
                 feedOffset.current -= 20
-                // Сохраняем позицию скролла
                 setTimeout(() => {
                     container.scrollTop = 200
                     setLoading(false)
@@ -68,10 +60,8 @@ export function Calendar({
                 return
             }
             
-            // Подгружаем если дошли до низа
             if (scrollTop + clientHeight >= scrollHeight - 100 && !loading) {
                 setLoading(true)
-                // Добавляем 20 дней в конец
                 const currentOffset = feedOffset.current + allDays.length
                 const newDays = generateDays(currentOffset, 20)
                 setAllDays(prev => [...prev, ...newDays])
@@ -131,7 +121,6 @@ export function Calendar({
         } else if (mode === 'week') {
             newDate.setDate(newDate.getDate() + direction * 7)
         } else if (mode === 'feed') {
-            // Смещаем все дни на 30 дней
             const offset = direction * 30
             feedOffset.current += offset
             const newDays = generateDays(feedOffset.current - 30, 60)
@@ -167,29 +156,35 @@ export function Calendar({
     }
 
     return (
-        <div className="calendar-wrapper">
-            <ViewModeButtons mode={mode} onChange={handleModeChange} />
-            
-            <div className="calendar-header">
-                {mode !== 'feed' && (
-                    <>
-                        <button className="calendar-nav-btn" onClick={handlePrev}>‹</button>
-                        <span className="month-title">{getTitle(displayDate)}</span>
-                        <button className="calendar-nav-btn" onClick={handleNext}>›</button>
-                    </>
-                )}
-                {mode === 'feed' && (
-                    <span className="month-title" style={{ visibility: 'hidden' }}>—</span>
-                )}
+        <>
+            {/* Кнопки переключения режимов — отдельный блок */}
+            <div className="view-mode-wrapper">
+                <ViewModeButtons mode={mode} onChange={handleModeChange} />
             </div>
-            
-            <CalendarGrid
-                days={days}
-                selectedDate={selectedDate}
-                onDayClick={handleDayClick}
-                shifts={shifts}
-                mode={mode}
-            />
-        </div>
+
+            {/* Контент календаря */}
+            <div className="calendar-wrapper">
+                <div className="calendar-header">
+                    {mode !== 'feed' && (
+                        <>
+                            <button className="calendar-nav-btn" onClick={handlePrev}>‹</button>
+                            <span className="month-title">{getTitle(displayDate)}</span>
+                            <button className="calendar-nav-btn" onClick={handleNext}>›</button>
+                        </>
+                    )}
+                    {mode === 'feed' && (
+                        <span className="month-title" style={{ visibility: 'hidden' }}>—</span>
+                    )}
+                </div>
+                
+                <CalendarGrid
+                    days={days}
+                    selectedDate={selectedDate}
+                    onDayClick={handleDayClick}
+                    shifts={shifts}
+                    mode={mode}
+                />
+            </div>
+        </>
     )
 }
