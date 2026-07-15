@@ -20,8 +20,10 @@ export function Calendar({
     const [currentDate, setCurrentDate] = useState(new Date())
     const [displayDate, setDisplayDate] = useState(new Date())
     const [key, setKey] = useState(0)
+    const [isSwiping, setIsSwiping] = useState(false)
     const isFirstRender = useRef(true)
     const swiperRef = useRef(null)
+    const transitionTimer = useRef(null)
 
     useEffect(() => {
         if (externalMode && externalMode !== mode) {
@@ -75,7 +77,6 @@ export function Calendar({
         }
     }
 
-    // Получаем даты для трёх слайдов
     const getPrevDate = () => {
         const date = new Date(displayDate)
         if (mode === 'month') {
@@ -104,59 +105,73 @@ export function Calendar({
     const daysNext = getDays(nextDate)
 
     const handleSlideChange = (swiper) => {
-        const direction = swiper.activeIndex - 1 // 0 = prev, 1 = current, 2 = next
+        const direction = swiper.activeIndex - 1
         
         if (direction === -1) {
-            // Свайп вправо — переключаем на предыдущий
             const newDate = new Date(displayDate)
             if (mode === 'month') {
                 newDate.setMonth(newDate.getMonth() - 1)
             } else if (mode === 'week') {
                 newDate.setDate(newDate.getDate() - 7)
             }
-            setDisplayDate(newDate)
-            setCurrentDate(newDate)
-            setKey(key + 1)
             
-            // Обновляем выбранную дату
-            if (mode === 'week') {
-                const weekDays = getWeekDays(newDate)
-                onDateSelect(weekDays[0].date)
-            } else {
-                onDateSelect(new Date(selectedDate))
-            }
-            
-            // Возвращаем на центральный слайд
-            setTimeout(() => {
-                if (swiperRef.current) {
-                    swiperRef.current.slideTo(1, 0)
+            // Плавно обновляем
+            clearTimeout(transitionTimer.current)
+            transitionTimer.current = setTimeout(() => {
+                setDisplayDate(newDate)
+                setCurrentDate(newDate)
+                setKey(key + 1)
+                
+                if (mode === 'week') {
+                    const weekDays = getWeekDays(newDate)
+                    onDateSelect(weekDays[0].date)
+                } else {
+                    onDateSelect(new Date(selectedDate))
                 }
-            }, 100)
+                
+                // Возвращаем на центральный слайд БЕЗ анимации
+                setTimeout(() => {
+                    if (swiperRef.current) {
+                        swiperRef.current.slideTo(1, 0)
+                    }
+                }, 50)
+            }, 200)
         } else if (direction === 1) {
-            // Свайп влево — переключаем на следующий
             const newDate = new Date(displayDate)
             if (mode === 'month') {
                 newDate.setMonth(newDate.getMonth() + 1)
             } else if (mode === 'week') {
                 newDate.setDate(newDate.getDate() + 7)
             }
-            setDisplayDate(newDate)
-            setCurrentDate(newDate)
-            setKey(key + 1)
             
-            if (mode === 'week') {
-                const weekDays = getWeekDays(newDate)
-                onDateSelect(weekDays[0].date)
-            } else {
-                onDateSelect(new Date(selectedDate))
-            }
-            
-            setTimeout(() => {
-                if (swiperRef.current) {
-                    swiperRef.current.slideTo(1, 0)
+            clearTimeout(transitionTimer.current)
+            transitionTimer.current = setTimeout(() => {
+                setDisplayDate(newDate)
+                setCurrentDate(newDate)
+                setKey(key + 1)
+                
+                if (mode === 'week') {
+                    const weekDays = getWeekDays(newDate)
+                    onDateSelect(weekDays[0].date)
+                } else {
+                    onDateSelect(new Date(selectedDate))
                 }
-            }, 100)
+                
+                setTimeout(() => {
+                    if (swiperRef.current) {
+                        swiperRef.current.slideTo(1, 0)
+                    }
+                }, 50)
+            }, 200)
         }
+    }
+
+    const handleSlideChangeTransitionStart = () => {
+        setIsSwiping(true)
+    }
+
+    const handleSlideChangeTransitionEnd = () => {
+        setIsSwiping(false)
     }
 
     const handleModeChange = (newMode) => {
@@ -178,7 +193,6 @@ export function Calendar({
         }
     }
 
-    // Рендерим сетку календаря для слайда
     const renderCalendarGrid = (days, isActive = true) => {
         return (
             <CalendarGrid
@@ -248,11 +262,19 @@ export function Calendar({
                 }}
                 slidesPerView={1}
                 onSlideChange={handleSlideChange}
+                onSlideChangeTransitionStart={handleSlideChangeTransitionStart}
+                onSlideChangeTransitionEnd={handleSlideChangeTransitionEnd}
                 initialSlide={1}
-                touchRatio={0.5}
-                resistance={true}
-                resistanceRatio={0.85}
-                speed={300}
+                // === КЛЮЧЕВЫЕ НАСТРОЙКИ ДЛЯ ПЛАВНОСТИ ===
+                touchRatio={0.8}          // Чувствительность свайпа
+                touchAngle={45}           // Угол для свайпа
+                resistance={true}         // Сопротивление на краях
+                resistanceRatio={0.5}     // Сила сопротивления
+                speed={400}               // Скорость анимации (мс)
+                threshold={3}             // Минимальное движение для активации
+                followFinger={true}       // Следить за пальцем
+                freeMode={false}          // Отключаем свободный режим
+                freeModeMomentum={false}  // Отключаем инерцию
                 className="calendar-swiper"
             >
                 <SwiperSlide>
