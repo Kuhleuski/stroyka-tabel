@@ -1226,3 +1226,27 @@ body {
         opacity: 1;
     }
 }
+
+/* ============================================================
+   SWIPER СТИЛИ ДЛЯ КАЛЕНДАРЯ
+   ============================================================ */
+
+.calendar-swiper {
+    overflow: hidden;
+    padding: 4px 0;
+}
+
+.calendar-swiper .swiper-slide {
+    padding: 0 2px;
+}
+
+/* Отключаем стандартные стрелки Swiper, используем свои */
+.calendar-swiper .swiper-button-next,
+.calendar-swiper .swiper-button-prev {
+    display: none;
+}
+
+/* Отключаем пагинацию */
+.calendar-swiper .swiper-pagination {
+    display: none;
+}
