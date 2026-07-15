@@ -40,7 +40,6 @@ export function MainPage({ shifts, loading }) {
     return (
         <>
             {isDetailOpen && detailDate ? (
-                // === ЭКРАН ДЕТАЛЬНОГО ПРОСМОТРА ===
                 <div className="detail-screen">
                     <div className="detail-screen-header">
                         <span className="detail-screen-title">
@@ -60,7 +59,6 @@ export function MainPage({ shifts, loading }) {
                     </div>
                 </div>
             ) : (
-                // === ОБЫЧНЫЙ РЕЖИМ ===
                 <>
                     <Calendar
                         shifts={shifts}
