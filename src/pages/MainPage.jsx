@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Calendar } from '../components/Calendar/Calendar'
 import { Timeline } from '../components/Timeline/Timeline'
 
@@ -10,7 +10,7 @@ export function MainPage({ shifts, loading }) {
     const [calendarMode, setCalendarMode] = useState('month')
     const [returnDate, setReturnDate] = useState(null)
     const [isReturning, setIsReturning] = useState(false)
-    const [savedScrollTop, setSavedScrollTop] = useState(null) // <-- сохраняем позицию
+    const [savedScrollIndex, setSavedScrollIndex] = useState(null) // <-- индекс вместо scrollTop
 
     useEffect(() => {
         setSelectedDate(new Date())
@@ -21,14 +21,6 @@ export function MainPage({ shifts, loading }) {
     }
 
     const handleDayClick = (date, mode) => {
-        // Запоминаем текущую позицию скролла
-        if (mode === 'feed') {
-            const container = document.getElementById('feedContainer')
-            if (container) {
-                setSavedScrollTop(container.scrollTop)
-            }
-        }
-        
         setDetailDate(date)
         setReturnMode(mode)
         setReturnDate(date)
@@ -40,18 +32,24 @@ export function MainPage({ shifts, loading }) {
         setIsDetailOpen(false)
         setDetailDate(null)
         setCalendarMode(returnMode)
-        setIsReturning(true) // флаг, что мы возвращаемся
+        setIsReturning(true)
     }
 
-    const handleModeChange = (mode) => {
+    const handleModeChange = (mode, scrollIndex) => {
         setCalendarMode(mode)
+        
+        // Сохраняем индекс для восстановления
+        if (mode === 'feed' && scrollIndex !== undefined && scrollIndex !== null) {
+            setSavedScrollIndex(scrollIndex)
+        }
+        
         if (isDetailOpen) {
             setIsDetailOpen(false)
             setDetailDate(null)
         }
         if (mode !== returnMode) {
             setReturnDate(null)
-            setSavedScrollTop(null)
+            setSavedScrollIndex(null)
         }
         setIsReturning(false)
     }
@@ -88,7 +86,7 @@ export function MainPage({ shifts, loading }) {
                         onModeChange={handleModeChange}
                         returnDate={returnDate}
                         isReturning={isReturning}
-                        savedScrollTop={savedScrollTop}
+                        savedScrollIndex={savedScrollIndex}
                     />
                     <Timeline 
                         shifts={shifts} 
