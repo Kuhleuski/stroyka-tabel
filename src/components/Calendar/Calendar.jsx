@@ -4,7 +4,7 @@ import { ViewModeButtons } from './ViewModeButtons'
 import { MONTHS, getMonthDays } from '../../utils/dateHelpers'
 
 // Компонент одного дня в ленте
-const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelected, isToday, isFirstOfMonth }) => {
+const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelected, isToday }) => {
     const dayShifts = getDayShifts(day.date)
     const hasWork = dayShifts.length > 0
     const today = isToday(day.date)
@@ -24,7 +24,7 @@ const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelec
     
     return (
         <div 
-            className={`feed-item ${today ? 'today' : ''} ${selected ? 'selected' : ''} ${isFirstOfMonth ? 'first-of-month' : ''}`}
+            className={`feed-item ${today ? 'today' : ''} ${selected ? 'selected' : ''}`}
             onClick={() => onDayClick(day.date)}
             data-date={day.date.toISOString().split('T')[0]}
         >
@@ -53,7 +53,7 @@ const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelec
     )
 }
 
-// Разделитель месяцев
+// Разделитель месяцев — уменьшенный
 const MonthDivider = ({ month, year }) => {
     const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
                         'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
@@ -131,10 +131,22 @@ export function Calendar({
                date.getFullYear() === selectedDate.getFullYear()
     }, [selectedDate])
 
+    // Функция для вычисления реальной высоты элемента с учётом разделителя
+    const getItemHeight = useCallback((index) => {
+        const day = allDays[index]
+        if (!day) return 44
+        
+        // Проверяем, нужно ли показывать разделитель перед этим днём
+        if (index === 0) return 44 + 24 // разделитель + отступ
+        const prevDay = allDays[index - 1]
+        const hasDivider = day.month !== prevDay.month || day.year !== prevDay.year
+        return hasDivider ? 44 + 24 : 44
+    }, [allDays])
+
     const virtualizer = useVirtualizer({
         count: allDays.length,
         getScrollElement: () => containerRef.current,
-        estimateSize: () => 50, // чуть увеличил высоту для отступа
+        estimateSize: (index) => getItemHeight(index),
         overscan: 20,
         onChange: (instance) => {
             virtualizerRef.current = instance
@@ -199,12 +211,6 @@ export function Calendar({
     }, [mode])
 
     const shouldShowMonthDivider = (day, index) => {
-        if (index === 0) return true
-        const prevDay = allDays[index - 1]
-        return day.month !== prevDay.month || day.year !== prevDay.year
-    }
-
-    const isFirstOfMonth = (day, index) => {
         if (index === 0) return true
         const prevDay = allDays[index - 1]
         return day.month !== prevDay.month || day.year !== prevDay.year
@@ -305,7 +311,6 @@ export function Calendar({
                                 if (!day) return null
                                 
                                 const showDivider = shouldShowMonthDivider(day, virtualRow.index)
-                                const firstOfMonth = isFirstOfMonth(day, virtualRow.index)
                                 
                                 return (
                                     <div
@@ -329,7 +334,6 @@ export function Calendar({
                                             getDayShifts={getDayShifts}
                                             isSelected={isSelected}
                                             isToday={isToday}
-                                            isFirstOfMonth={firstOfMonth}
                                         />
                                     </div>
                                 )
