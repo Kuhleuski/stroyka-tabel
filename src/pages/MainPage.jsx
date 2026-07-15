@@ -9,6 +9,7 @@ export function MainPage({ shifts, loading }) {
     const [returnMode, setReturnMode] = useState('month')
     const [calendarMode, setCalendarMode] = useState('month')
     const [returnDate, setReturnDate] = useState(null)
+    const [isReturning, setIsReturning] = useState(false)
 
     useEffect(() => {
         setSelectedDate(new Date())
@@ -22,6 +23,7 @@ export function MainPage({ shifts, loading }) {
         setDetailDate(date)
         setReturnMode(mode)
         setReturnDate(date)
+        setIsReturning(false)
         setIsDetailOpen(true)
     }
 
@@ -29,6 +31,7 @@ export function MainPage({ shifts, loading }) {
         setIsDetailOpen(false)
         setDetailDate(null)
         setCalendarMode(returnMode)
+        setIsReturning(true) // <-- флаг, что мы возвращаемся
     }
 
     const handleModeChange = (mode) => {
@@ -40,6 +43,7 @@ export function MainPage({ shifts, loading }) {
         if (mode !== returnMode) {
             setReturnDate(null)
         }
+        setIsReturning(false)
     }
 
     return (
@@ -73,6 +77,7 @@ export function MainPage({ shifts, loading }) {
                         mode={calendarMode}
                         onModeChange={handleModeChange}
                         returnDate={returnDate}
+                        isReturning={isReturning}
                     />
                     <Timeline 
                         shifts={shifts} 
