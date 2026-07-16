@@ -14,7 +14,7 @@ const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelec
     const dayName = dayNames[day.date.getDay()]
     const dateStr = `${String(day.date.getDate()).padStart(2, '0')}.${String(day.date.getMonth() + 1).padStart(2, '0')} ${dayName}`
     
-    // Группируем по объектам с часами
+    // Группируем по объектам
     const sitesMap = {}
     dayShifts.forEach(s => {
         if (!sitesMap[s.site_name]) {
@@ -22,10 +22,22 @@ const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelec
         }
         sitesMap[s.site_name].push({
             name: s.worker_name,
-            hours: s.hours,
-            status: s.status
+            hours: s.hours
         })
     })
+    
+    // Формируем строку с объектами и рабочими
+    let contentHtml = ''
+    if (hasWork) {
+        const parts = []
+        Object.entries(sitesMap).forEach(([siteName, workers]) => {
+            const workersStr = workers.map(w => `${w.name}(${w.hours}ч)`).join(' ')
+            parts.push(`📍${siteName}: ${workersStr}`)
+        })
+        contentHtml = parts.join(' | ')
+    } else {
+        contentHtml = '— нет смен'
+    }
     
     return (
         <div 
@@ -37,25 +49,8 @@ const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelec
                 <div className="feed-date-full">{dateStr}</div>
                 {today && <div className="feed-today-badge">Сегодня</div>}
             </div>
-            
-            <div className="feed-content">
-                {hasWork ? (
-                    Object.entries(sitesMap).map(([siteName, workers]) => (
-                        <div key={siteName} className="feed-site">
-                            <div className="feed-site-name">📍 {siteName}</div>
-                            <div className="feed-workers">
-                                {workers.map((w, idx) => (
-                                    <span key={idx} className="feed-worker">
-                                        👷 {w.name}
-                                        <span className="hours">{w.hours}ч</span>
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-                    ))
-                ) : (
-                    <div className="feed-empty">— нет смен</div>
-                )}
+            <div className={`feed-content ${hasWork ? 'has-work' : 'empty'}`}>
+                {contentHtml}
             </div>
         </div>
     )
