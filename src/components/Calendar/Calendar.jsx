@@ -72,7 +72,7 @@ export function Calendar({
     mode: externalMode,
     onModeChange,
     isReturning,
-    savedScrollTop // <-- ТОЧНАЯ ПОЗИЦИЯ
+    savedScrollTop
 }) {
     const [mode, setMode] = useState(externalMode || 'month')
     const [displayDate, setDisplayDate] = useState(new Date())
@@ -84,14 +84,19 @@ export function Calendar({
     const [shouldShowToday, setShouldShowToday] = useState(true)
     const [hasRestored, setHasRestored] = useState(false)
 
+    // === КОНСТАНТЫ: 5 лет назад + 3 года вперёд = 8 лет ===
+    const YEARS_BACK = 10
+    const YEARS_FORWARD = 10
+
+    // === ГЕНЕРАЦИЯ ДНЕЙ ===
     const generateDays = useCallback((centerDate) => {
         const days = []
         const startDate = new Date(centerDate)
-        startDate.setFullYear(startDate.getFullYear() - 1)
+        startDate.setFullYear(startDate.getFullYear() - YEARS_BACK)
         startDate.setDate(startDate.getDate() - 1)
         
         const endDate = new Date(centerDate)
-        endDate.setFullYear(endDate.getFullYear() + 1)
+        endDate.setFullYear(endDate.getFullYear() + YEARS_FORWARD)
         endDate.setDate(endDate.getDate() + 1)
         
         let currentDate = new Date(startDate)
@@ -146,12 +151,13 @@ export function Calendar({
         count: allDays.length,
         getScrollElement: () => containerRef.current,
         estimateSize: (index) => getItemHeight(index),
-        overscan: 20,
+        overscan: 30,
         onChange: (instance) => {
             virtualizerRef.current = instance
         }
     })
 
+    // === ИНИЦИАЛИЗАЦИЯ ===
     useEffect(() => {
         if (isFirstRender.current) {
             isFirstRender.current = false
@@ -162,7 +168,7 @@ export function Calendar({
         }
     }, [initFeed, onDateSelect])
 
-    // === ВОССТАНАВЛИВАЕМ ТОЧНУЮ ПОЗИЦИЮ (scrollTop) ===
+    // === ВОССТАНОВЛЕНИЕ ПОЗИЦИИ ===
     useEffect(() => {
         if (mode !== 'feed' || allDays.length === 0) return
         if (!isReturning || savedScrollTop === undefined || savedScrollTop === null || hasRestored) return
@@ -171,7 +177,7 @@ export function Calendar({
         if (!container) return
 
         isRestoring.current = true
-        container.scrollTop = savedScrollTop // ВОССТАНАВЛИВАЕМ ТОЧНУЮ ПОЗИЦИЮ
+        container.scrollTop = savedScrollTop
         setHasRestored(true)
         
         setTimeout(() => {
@@ -209,7 +215,7 @@ export function Calendar({
         }
     }, [mode])
 
-    // Сохраняем индекс при скролле (для будущих фич)
+    // === СОХРАНЯЕМ ИНДЕКС ПРИ СКРОЛЛЕ ===
     const handleScroll = useCallback(() => {
         if (!virtualizerRef.current || isRestoring.current) return
         
