@@ -26,15 +26,15 @@ const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelec
         })
     })
     
-    // Формируем строку с объектами и рабочими
+    // Формируем HTML: каждый объект с новой строки
     let contentHtml = ''
     if (hasWork) {
-        const parts = []
+        const lines = []
         Object.entries(sitesMap).forEach(([siteName, workers]) => {
             const workersStr = workers.map(w => `${w.name}(${w.hours}ч)`).join(' ')
-            parts.push(`📍${siteName}: ${workersStr}`)
+            lines.push(`📍${siteName}: ${workersStr}`)
         })
-        contentHtml = parts.join(' | ')
+        contentHtml = lines.join('<br>')
     } else {
         contentHtml = '— нет смен'
     }
@@ -49,9 +49,10 @@ const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelec
                 <div className="feed-date-full">{dateStr}</div>
                 {today && <div className="feed-today-badge">Сегодня</div>}
             </div>
-            <div className={`feed-content ${hasWork ? 'has-work' : 'empty'}`}>
-                {contentHtml}
-            </div>
+            <div 
+                className={`feed-content ${hasWork ? 'has-work' : 'empty'}`}
+                dangerouslySetInnerHTML={{ __html: contentHtml }}
+            />
         </div>
     )
 }
