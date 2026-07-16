@@ -298,7 +298,7 @@ body {
 }
 
 /* ============================================================
-   РЕЖИМ "ДЕНЬ" — ВИРТУАЛЬНЫЙ СПИСОК (ФИНАЛЬНАЯ ВЕРСИЯ)
+   РЕЖИМ "ДЕНЬ" — УПРОЩЁННАЯ ВЕРСИЯ
    ============================================================ */
 
 .feed-container {
@@ -311,17 +311,16 @@ body {
 
 .feed-item {
     display: flex;
-    gap: 12px;
-    padding: 12px 10px;
+    gap: 10px;
+    padding: 8px 10px;
     background: white;
     border-radius: 8px;
     cursor: pointer;
     transition: 0.15s;
     border-left: 3px solid transparent;
-    min-height: 48px;
-    align-items: stretch;
+    min-height: 40px;
+    align-items: center;
     margin: 1px 0;
-    width: 100%;
 }
 
 .feed-item.today {
@@ -339,14 +338,14 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-width: 56px;
-    padding-right: 10px;
+    min-width: 52px;
+    padding-right: 8px;
     border-right: 1px solid #e8eaed;
     flex-shrink: 0;
 }
 
 .feed-date-full {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     color: #1a1a1a;
     line-height: 1.2;
@@ -363,66 +362,26 @@ body {
     color: white;
     padding: 0px 5px;
     border-radius: 8px;
-    margin-top: 2px;
+    margin-top: 1px;
     font-weight: 700;
 }
 
 .feed-content {
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    min-width: 0;
-    padding: 2px 0;
-}
-
-.feed-site {
-    display: block;
-    padding: 2px 0;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.feed-site:last-child {
-    border-bottom: none;
-}
-
-.feed-site-name {
-    font-size: 13px;
-    font-weight: 500;
-    color: #333;
-    display: inline-block;
-    margin-bottom: 2px;
-}
-
-.feed-workers {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    margin-top: 2px;
-}
-
-.feed-worker {
     font-size: 12px;
-    color: #555;
-    background: #f0f0f0;
-    padding: 2px 10px;
-    border-radius: 12px;
-    white-space: nowrap;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
+    color: #333;
+    line-height: 1.5;
+    min-width: 0;
+    word-break: break-word;
 }
 
-.feed-worker .hours {
-    font-size: 10px;
-    color: #999;
-    font-weight: 400;
+.feed-content.has-work {
+    font-weight: 500;
 }
 
-.feed-empty {
+.feed-content.empty {
     color: #ccc;
-    font-size: 13px;
-    padding: 4px 0;
+    font-weight: 400;
 }
 
 /* ============================================================
@@ -818,26 +777,17 @@ body {
     }
 
     .feed-item {
-        padding: 8px 8px;
-        gap: 8px;
-        min-height: 40px;
+        padding: 6px 8px;
+        gap: 6px;
+        min-height: 34px;
     }
     
     .feed-date {
-        min-width: 46px;
+        min-width: 44px;
         padding-right: 6px;
     }
     
     .feed-date-full {
-        font-size: 11px;
-    }
-    
-    .feed-site-name {
-        font-size: 12px;
-    }
-    
-    .feed-worker {
         font-size: 10px;
-        padding: 1px 8px;
     }
 }
