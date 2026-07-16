@@ -1119,3 +1119,200 @@ body {
 .calendar-wrapper.feed-mode .feed-container {
     padding: 0 16px 8px 8px;
 }
+/* ============================================================
+   РЕЖИМ "ДЕНЬ" — ВИРТУАЛЬНЫЙ СПИСОК
+   ============================================================ */
+
+.feed-container {
+    scroll-behavior: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 8px 8px 8px;
+    max-height: 65vh;
+    overflow-y: auto;
+}
+
+.feed-item {
+    display: flex;
+    gap: 10px;
+    padding: 10px 12px;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.15s;
+    border-left: 3px solid transparent;
+    min-height: 44px;
+    align-items: flex-start;
+    margin: 1px 0;
+}
+
+.feed-item:hover {
+    background: #f8faf8;
+}
+
+.feed-item.today {
+    border-left-color: #2d7d46;
+    background: #f5faf6;
+}
+
+.feed-item.selected {
+    border-left-color: #2d7d46;
+    background: #e8f5e9;
+}
+
+/* Левая часть — дата */
+.feed-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 52px;
+    padding-right: 8px;
+    border-right: 1px solid #e8eaed;
+    flex-shrink: 0;
+    padding-top: 2px;
+}
+
+.feed-date-full {
+    font-size: 12px;
+    font-weight: 600;
+    color: #1a1a1a;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.feed-item.today .feed-date-full {
+    color: #2d7d46;
+}
+
+.feed-today-badge {
+    font-size: 7px;
+    background: #2d7d46;
+    color: white;
+    padding: 0px 5px;
+    border-radius: 8px;
+    margin-top: 1px;
+    font-weight: 700;
+}
+
+/* Правая часть — объекты (исправлено: вертикальное расположение) */
+.feed-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+    padding-top: 2px;
+}
+
+.feed-site {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 4px 0;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.feed-site:last-child {
+    border-bottom: none;
+}
+
+.feed-site-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+}
+
+.feed-workers {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    padding-left: 4px;
+}
+
+.feed-worker {
+    font-size: 12px;
+    color: #555;
+    background: #f0f0f0;
+    padding: 2px 10px;
+    border-radius: 12px;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.feed-worker .hours {
+    font-size: 10px;
+    color: #999;
+    font-weight: 400;
+}
+
+.feed-empty {
+    color: #ccc;
+    font-size: 12px;
+    padding: 2px 0;
+}
+
+/* ============================================================
+   РАЗДЕЛИТЕЛЬ МЕСЯЦЕВ
+   ============================================================ */
+
+.feed-month-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 0 4px 0;
+    position: relative;
+}
+
+.feed-month-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #e8eaed;
+    transform: translateY(-50%);
+}
+
+.feed-month-label {
+    background: white;
+    padding: 0 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #999;
+    text-transform: uppercase;
+    position: relative;
+    z-index: 1;
+}
+
+/* ============================================================
+   МЕДИА-ЗАПРОСЫ ДЛЯ МАЛЕНЬКИХ ЭКРАНОВ
+   ============================================================ */
+
+@media (max-width: 400px) {
+    .feed-item {
+        padding: 8px 8px;
+        gap: 6px;
+        min-height: 38px;
+    }
+    
+    .feed-date {
+        min-width: 44px;
+        padding-right: 6px;
+    }
+    
+    .feed-date-full {
+        font-size: 10px;
+    }
+    
+    .feed-site-name {
+        font-size: 12px;
+    }
+    
+    .feed-worker {
+        font-size: 10px;
+        padding: 1px 6px;
+    }
+}
