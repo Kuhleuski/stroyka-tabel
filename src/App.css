@@ -298,7 +298,7 @@ body {
 }
 
 /* ============================================================
-   РЕЖИМ "ДЕНЬ" — ВИРТУАЛЬНЫЙ СПИСОК
+   РЕЖИМ "ДЕНЬ" — ВИРТУАЛЬНЫЙ СПИСОК (ФИНАЛЬНАЯ ВЕРСИЯ)
    ============================================================ */
 
 .feed-container {
@@ -307,30 +307,21 @@ body {
     padding: 0 8px 8px 8px;
     max-height: 65vh;
     overflow-y: auto;
-    animation: feedFadeIn 0.25s ease;
-}
-
-@keyframes feedFadeIn {
-    0% { opacity: 0; transform: translateY(6px); }
-    100% { opacity: 1; transform: translateY(0); }
 }
 
 .feed-item {
     display: flex;
-    gap: 10px;
-    padding: 10px 12px;
+    gap: 12px;
+    padding: 12px 10px;
     background: white;
     border-radius: 8px;
     cursor: pointer;
     transition: 0.15s;
     border-left: 3px solid transparent;
-    min-height: 44px;
-    align-items: flex-start;
+    min-height: 48px;
+    align-items: stretch;
     margin: 1px 0;
-}
-
-.feed-item:hover {
-    background: #f8faf8;
+    width: 100%;
 }
 
 .feed-item.today {
@@ -347,16 +338,15 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
-    min-width: 52px;
-    padding-right: 8px;
+    justify-content: center;
+    min-width: 56px;
+    padding-right: 10px;
     border-right: 1px solid #e8eaed;
     flex-shrink: 0;
-    padding-top: 2px;
 }
 
 .feed-date-full {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     color: #1a1a1a;
     line-height: 1.2;
@@ -373,7 +363,7 @@ body {
     color: white;
     padding: 0px 5px;
     border-radius: 8px;
-    margin-top: 1px;
+    margin-top: 2px;
     font-weight: 700;
 }
 
@@ -383,15 +373,13 @@ body {
     flex-direction: column;
     gap: 6px;
     min-width: 0;
-    padding-top: 2px;
+    padding: 2px 0;
 }
 
 .feed-site {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: 4px 0;
-    border-bottom: 1px solid #f5f5f5;
+    display: block;
+    padding: 2px 0;
+    border-bottom: 1px solid #f0f0f0;
 }
 
 .feed-site:last-child {
@@ -402,13 +390,15 @@ body {
     font-size: 13px;
     font-weight: 500;
     color: #333;
+    display: inline-block;
+    margin-bottom: 2px;
 }
 
 .feed-workers {
     display: flex;
-    gap: 4px;
     flex-wrap: wrap;
-    padding-left: 4px;
+    gap: 4px;
+    margin-top: 2px;
 }
 
 .feed-worker {
@@ -431,8 +421,8 @@ body {
 
 .feed-empty {
     color: #ccc;
-    font-size: 12px;
-    padding: 2px 0;
+    font-size: 13px;
+    padding: 4px 0;
 }
 
 /* ============================================================
@@ -829,17 +819,17 @@ body {
 
     .feed-item {
         padding: 8px 8px;
-        gap: 6px;
-        min-height: 38px;
+        gap: 8px;
+        min-height: 40px;
     }
     
     .feed-date {
-        min-width: 44px;
+        min-width: 46px;
         padding-right: 6px;
     }
     
     .feed-date-full {
-        font-size: 10px;
+        font-size: 11px;
     }
     
     .feed-site-name {
@@ -848,6 +838,6 @@ body {
     
     .feed-worker {
         font-size: 10px;
-        padding: 1px 6px;
+        padding: 1px 8px;
     }
 }
