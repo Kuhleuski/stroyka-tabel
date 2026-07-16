@@ -85,8 +85,8 @@ export function Calendar({
     const [hasRestored, setHasRestored] = useState(false)
 
     // === КОНСТАНТЫ: 5 лет назад + 3 года вперёд = 8 лет ===
-    const YEARS_BACK = 5
-    const YEARS_FORWARD = 3
+    const YEARS_BACK = 10
+    const YEARS_FORWARD = 10
 
     // === ГЕНЕРАЦИЯ ДНЕЙ ===
     const generateDays = useCallback((centerDate) => {
