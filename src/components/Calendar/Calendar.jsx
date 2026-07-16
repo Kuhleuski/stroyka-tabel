@@ -14,12 +14,17 @@ const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelec
     const dayName = dayNames[day.date.getDay()]
     const dateStr = `${String(day.date.getDate()).padStart(2, '0')}.${String(day.date.getMonth() + 1).padStart(2, '0')} ${dayName}`
     
+    // Группируем по объектам с часами
     const sitesMap = {}
     dayShifts.forEach(s => {
         if (!sitesMap[s.site_name]) {
             sitesMap[s.site_name] = []
         }
-        sitesMap[s.site_name].push(s.worker_name)
+        sitesMap[s.site_name].push({
+            name: s.worker_name,
+            hours: s.hours,
+            status: s.status
+        })
     })
     
     return (
@@ -40,7 +45,10 @@ const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelec
                             <div className="feed-site-name">📍 {siteName}</div>
                             <div className="feed-workers">
                                 {workers.map((w, idx) => (
-                                    <span key={idx} className="feed-worker">👷 {w}</span>
+                                    <span key={idx} className="feed-worker">
+                                        👷 {w.name}
+                                        <span className="hours">{w.hours}ч</span>
+                                    </span>
                                 ))}
                             </div>
                         </div>
@@ -85,8 +93,8 @@ export function Calendar({
     const [hasRestored, setHasRestored] = useState(false)
 
     // === КОНСТАНТЫ: 5 лет назад + 3 года вперёд = 8 лет ===
-    const YEARS_BACK = 10
-    const YEARS_FORWARD = 10
+    const YEARS_BACK = 5
+    const YEARS_FORWARD = 3
 
     // === ГЕНЕРАЦИЯ ДНЕЙ ===
     const generateDays = useCallback((centerDate) => {
