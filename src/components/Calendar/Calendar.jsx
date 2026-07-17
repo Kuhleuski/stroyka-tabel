@@ -26,17 +26,16 @@ const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelec
         })
     })
     
-    // Формируем HTML: каждый объект с новой строки
-    let contentHtml = ''
+    // Строим простую HTML-строку с табличной структурой
+    let rowsHtml = ''
     if (hasWork) {
-        const lines = []
-        Object.entries(sitesMap).forEach(([siteName, workers]) => {
+        const siteEntries = Object.entries(sitesMap)
+        siteEntries.forEach(([siteName, workers]) => {
             const workersStr = workers.map(w => `${w.name}(${w.hours}ч)`).join(' ')
-            lines.push(`📍${siteName}: ${workersStr}`)
+            rowsHtml += `<div class="feed-site-row">📍 ${siteName}: ${workersStr}</div>`
         })
-        contentHtml = lines.join('<br>')
     } else {
-        contentHtml = '— нет смен'
+        rowsHtml = `<div class="feed-site-row feed-empty">— нет смен</div>`
     }
     
     return (
@@ -45,14 +44,13 @@ const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelec
             onClick={() => onDayClick(day.date)}
             data-date={day.date.toISOString().split('T')[0]}
         >
-            <div className="feed-date">
+            <div className="feed-date-block">
                 <div className="feed-date-full">{dateStr}</div>
                 {today && <div className="feed-today-badge">Сегодня</div>}
             </div>
-            <div 
-                className={`feed-content ${hasWork ? 'has-work' : 'empty'}`}
-                dangerouslySetInnerHTML={{ __html: contentHtml }}
-            />
+            <div className="feed-info-block">
+                {rowsHtml}
+            </div>
         </div>
     )
 }
