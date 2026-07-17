@@ -308,9 +308,7 @@ body {
 }
 
 .feed-item {
-    display: table;
-    width: 100%;
-    padding: 6px 8px;
+    padding: 8px 10px;
     margin-bottom: 2px;
     background: white;
     border-radius: 6px;
@@ -326,56 +324,6 @@ body {
 .feed-item.selected {
     border-left-color: #2d7d46;
     background: #e8f5e9;
-}
-
-.feed-date-block {
-    display: table-cell;
-    vertical-align: middle;
-    width: 60px;
-    padding-right: 10px;
-    text-align: center;
-    border-right: 1px solid #e8eaed;
-}
-
-.feed-date-full {
-    font-size: 12px;
-    font-weight: 600;
-    color: #1a1a1a;
-}
-
-.feed-item.today .feed-date-full {
-    color: #2d7d46;
-}
-
-.feed-today-badge {
-    font-size: 7px;
-    background: #2d7d46;
-    color: white;
-    padding: 0px 5px;
-    border-radius: 8px;
-    font-weight: 700;
-}
-
-.feed-info-block {
-    display: table-cell;
-    vertical-align: middle;
-    padding-left: 10px;
-}
-
-.feed-site-row {
-    font-size: 12px;
-    color: #333;
-    padding: 2px 0;
-    line-height: 1.4;
-    border-bottom: 1px solid #f5f5f5;
-}
-
-.feed-site-row:last-child {
-    border-bottom: none;
-}
-
-.feed-empty {
-    color: #ccc;
 }
 
 /* ============================================================
@@ -766,18 +714,5 @@ body {
     
     .calendar-wrapper {
         padding: 12px;
-    }
-
-    .feed-date-block {
-        width: 50px;
-        padding-right: 6px;
-    }
-    
-    .feed-date-full {
-        font-size: 10px;
-    }
-    
-    .feed-site-row {
-        font-size: 11px;
     }
 }
