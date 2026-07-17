@@ -303,7 +303,7 @@ body {
 
 .feed-container {
     padding: 0 8px 8px 8px;
-    max-height: 65vh;
+    /* max-height: 65vh; */
     overflow-y: auto;
 }
 
@@ -317,7 +317,7 @@ body {
 }
 
 .feed-item.today {
-    border-left-color: #2d7d46;
+    /* border-left-color: #2d7d46; */
     background: #f5faf6;
 }
 
@@ -344,7 +344,7 @@ body {
     top: 50%;
     left: 0;
     right: 0;
-    height: 1px;
+    height: 0px;
     background: #e8eaed;
     transform: translateY(-50%);
 }
