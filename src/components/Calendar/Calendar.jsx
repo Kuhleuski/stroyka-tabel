@@ -26,7 +26,7 @@ const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelec
         })
     })
     
-    // Строим простую HTML-строку с табличной структурой
+    // Формируем HTML с каждой строкой
     let rowsHtml = ''
     if (hasWork) {
         const siteEntries = Object.entries(sitesMap)
@@ -48,9 +48,10 @@ const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelec
                 <div className="feed-date-full">{dateStr}</div>
                 {today && <div className="feed-today-badge">Сегодня</div>}
             </div>
-            <div className="feed-info-block">
-                {rowsHtml}
-            </div>
+            <div 
+                className="feed-info-block"
+                dangerouslySetInnerHTML={{ __html: rowsHtml }}
+            />
         </div>
     )
 }
