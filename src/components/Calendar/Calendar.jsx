@@ -56,7 +56,7 @@ const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelec
                                     color: '#333', 
                                     padding: '2px 0',
                                     lineHeight: '1.5',
-                                    borderBottom: '1px solid #f0f0f0',
+                                    borderBottom: '0px solid #f0f0f0',
                                     wordBreak: 'break-word'
                                 }}>
                                     📍 {siteName}: {workersStr}
