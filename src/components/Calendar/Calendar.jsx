@@ -26,32 +26,48 @@ const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelec
         })
     })
     
-    // Формируем HTML с каждой строкой
-    let rowsHtml = ''
-    if (hasWork) {
-        const siteEntries = Object.entries(sitesMap)
-        siteEntries.forEach(([siteName, workers]) => {
-            const workersStr = workers.map(w => `${w.name}(${w.hours}ч)`).join(' ')
-            rowsHtml += `<div class="feed-site-row">📍 ${siteName}: ${workersStr}</div>`
-        })
-    } else {
-        rowsHtml = `<div class="feed-site-row feed-empty">— нет смен</div>`
-    }
-    
     return (
         <div 
             className={`feed-item ${today ? 'today' : ''} ${selected ? 'selected' : ''}`}
             onClick={() => onDayClick(day.date)}
             data-date={day.date.toISOString().split('T')[0]}
+            style={{ display: 'block', width: '100%' }}
         >
-            <div className="feed-date-block">
-                <div className="feed-date-full">{dateStr}</div>
-                {today && <div className="feed-today-badge">Сегодня</div>}
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                <div style={{ 
+                    minWidth: '52px', 
+                    paddingRight: '8px', 
+                    borderRight: '1px solid #e8eaed',
+                    textAlign: 'center',
+                    flexShrink: 0
+                }}>
+                    <div style={{ fontSize: '12px', fontWeight: '600', color: today ? '#2d7d46' : '#1a1a1a' }}>
+                        {dateStr}
+                    </div>
+                    {today && <div style={{ fontSize: '7px', background: '#2d7d46', color: 'white', padding: '0px 5px', borderRadius: '8px', fontWeight: '700', marginTop: '2px' }}>Сегодня</div>}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                    {hasWork ? (
+                        Object.entries(sitesMap).map(([siteName, workers]) => {
+                            const workersStr = workers.map(w => `${w.name}(${w.hours}ч)`).join(' ')
+                            return (
+                                <div key={siteName} style={{ 
+                                    fontSize: '12px', 
+                                    color: '#333', 
+                                    padding: '2px 0',
+                                    lineHeight: '1.5',
+                                    borderBottom: '1px solid #f0f0f0',
+                                    wordBreak: 'break-word'
+                                }}>
+                                    📍 {siteName}: {workersStr}
+                                </div>
+                            )
+                        })
+                    ) : (
+                        <div style={{ fontSize: '12px', color: '#ccc', padding: '2px 0' }}>— нет смен</div>
+                    )}
+                </div>
             </div>
-            <div 
-                className="feed-info-block"
-                dangerouslySetInnerHTML={{ __html: rowsHtml }}
-            />
         </div>
     )
 }
@@ -144,11 +160,21 @@ export function Calendar({
     const getItemHeight = useCallback((index) => {
         const day = allDays[index]
         if (!day) return 44
-        if (index === 0) return 44 + 20
+        const dayShifts = shifts.filter(s => s.work_date === day.date.toISOString().split('T')[0])
+        // Высота зависит от количества объектов
+        const rows = dayShifts.length > 0 ? Object.keys(dayShifts.reduce((acc, s) => {
+            acc[s.site_name] = true
+            return acc
+        }, {})).length : 1
+        const baseHeight = 36
+        const rowHeight = 24
+        const dividerHeight = 20
+        // Проверяем, нужен ли разделитель
+        if (index === 0) return baseHeight + rows * rowHeight + dividerHeight
         const prevDay = allDays[index - 1]
         const hasDivider = day.month !== prevDay.month || day.year !== prevDay.year
-        return hasDivider ? 44 + 20 : 44
-    }, [allDays])
+        return baseHeight + rows * rowHeight + (hasDivider ? dividerHeight : 0)
+    }, [allDays, shifts])
 
     const virtualizer = useVirtualizer({
         count: allDays.length,
