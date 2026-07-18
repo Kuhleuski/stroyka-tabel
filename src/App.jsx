@@ -1,15 +1,22 @@
 import { useState } from 'react'
 import { useShifts } from './hooks/useShifts'
+import { useAuth, AuthProvider } from './context/AuthContext'
 import { Header } from './components/Layout/Header'
 import { BottomNav } from './components/Layout/BottomNav'
 import { MainPage } from './pages/MainPage'
 import { SitesPage } from './pages/SitesPage'
 import { WorkersPage } from './pages/WorkersPage'
+import { LoginPage } from './pages/LoginPage'
 import './App.css'
 
-function App() {
+function AppContent() {
     const [currentPage, setCurrentPage] = useState('main')
     const { shifts, loading, error } = useShifts()
+    const { user, login, logout } = useAuth()
+
+    if (!user) {
+        return <LoginPage onLogin={login} />
+    }
 
     if (error) {
         return (
@@ -34,12 +41,20 @@ function App() {
 
     return (
         <div className="app">
-            <Header />
+            <Header onLogout={logout} />
             <div className="container">
                 {renderPage()}
             </div>
             <BottomNav currentPage={currentPage} onNavigate={setCurrentPage} />
         </div>
+    )
+}
+
+function App() {
+    return (
+        <AuthProvider>
+            <AppContent />
+        </AuthProvider>
     )
 }
 
