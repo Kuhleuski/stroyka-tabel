@@ -5,7 +5,7 @@ import { WorkerDetailPage } from './WorkerDetailPage'
 import { addWorker, deleteWorker } from '../services/supabase'
 import { useWorkers } from '../hooks/useWorkers'
 
-export function WorkersPage() {
+export function WorkersPage({ shifts }) {
     const [showAddForm, setShowAddForm] = useState(false)
     const [selectedWorker, setSelectedWorker] = useState(null)
     const [scrollPosition, setScrollPosition] = useState(0)
@@ -65,6 +65,7 @@ export function WorkersPage() {
                 worker={selectedWorker}
                 onClose={handleCloseDetail}
                 onDelete={handleDelete}
+                shifts={shifts}
             />
         )
     }
