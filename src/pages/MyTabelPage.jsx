@@ -4,15 +4,15 @@ import { useAuth } from '../context/AuthContext'
 export function MyTabelPage({ shifts }) {
     const { user } = useAuth()
     const [currentDate, setCurrentDate] = useState(new Date())
-    const [selectedDate, setSelectedDate] = useState(new Date())
-    const [viewMode, setViewMode] = useState('week') // 'week' | 'year'
+    const [selectedDate, setSelectedDate] = useState(null)
+    const [showDayDetail, setShowDayDetail] = useState(false)
+    const [dayNote, setDayNote] = useState('')
 
     const roleLabels = {
         admin: 'Администратор',
         worker: 'Работник'
     }
 
-    // Получаем дни недели для текущей даты
     const getWeekDays = (date) => {
         const day = date.getDay()
         const diff = date.getDate() - day + (day === 0 ? -6 : 1)
@@ -36,15 +36,15 @@ export function MyTabelPage({ shifts }) {
         setCurrentDate(newDate)
     }
 
-    const changeYear = (direction) => {
-        const newDate = new Date(currentDate)
-        newDate.setFullYear(newDate.getFullYear() + direction)
-        setCurrentDate(newDate)
-    }
-
     const handleDayClick = (date) => {
         setSelectedDate(date)
-        // TODO: открыть детали дня
+        setShowDayDetail(true)
+        setDayNote('')
+    }
+
+    const handleCloseDetail = () => {
+        setShowDayDetail(false)
+        setSelectedDate(null)
     }
 
     const formatDate = (date) => {
@@ -58,7 +58,6 @@ export function MyTabelPage({ shifts }) {
     const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
     const monthNames = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек']
 
-    // Цвета для объектов (пока заглушка)
     const siteColors = {
         'Здравушка': '#2d7d46',
         'КХП': '#1a6b8a',
@@ -69,17 +68,15 @@ export function MyTabelPage({ shifts }) {
     }
 
     const getSiteColor = (siteName) => {
-        return siteColors[siteName] || '#999'
+        return siteColors[siteName] || '#2d7d46'
     }
 
-    // Получаем смены для конкретного дня
     const getDayShifts = (date) => {
         const dateStr = date.toISOString().split('T')[0]
         if (!shifts) return []
         return shifts.filter(s => s.work_date === dateStr && s.worker_name === user.name)
     }
 
-    // Генерация мини-календаря для месяца
     const getMonthDays = (year, month) => {
         const firstDay = new Date(year, month, 1)
         const daysInMonth = new Date(year, month + 1, 0).getDate()
@@ -126,6 +123,55 @@ export function MyTabelPage({ shifts }) {
                date.getFullYear() === today.getFullYear()
     }
 
+    const selectedDayShifts = selectedDate ? getDayShifts(selectedDate) : []
+
+    // Детальный просмотр дня
+    if (showDayDetail && selectedDate) {
+        return (
+            <div className="my-tabel-page">
+                <div className="my-tabel-header">
+                    <button className="my-tabel-back-btn" onClick={handleCloseDetail}>
+                        ← Назад
+                    </button>
+                    <span className="my-tabel-detail-title">
+                        {formatDate(selectedDate)}
+                    </span>
+                </div>
+
+                <div className="my-tabel-detail-content">
+                    <div className="my-tabel-detail-shifts">
+                        <div className="my-tabel-detail-label">📍 Объекты</div>
+                        {selectedDayShifts.length > 0 ? (
+                            selectedDayShifts.map((s, idx) => (
+                                <div key={idx} className="my-tabel-detail-shift-item">
+                                    <span 
+                                        className="my-tabel-detail-shift-dot"
+                                        style={{ background: getSiteColor(s.site_name) }}
+                                    />
+                                    <span className="my-tabel-detail-shift-site">{s.site_name}</span>
+                                    <span className="my-tabel-detail-shift-hours">{s.hours} ч.</span>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="my-tabel-detail-empty">В этот день не работал</div>
+                        )}
+                    </div>
+
+                    <div className="my-tabel-detail-note">
+                        <div className="my-tabel-detail-label">📝 Заметки</div>
+                        <textarea
+                            className="my-tabel-detail-textarea"
+                            value={dayNote}
+                            onChange={(e) => setDayNote(e.target.value)}
+                            placeholder="Добавьте заметку..."
+                            rows={3}
+                        />
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     return (
         <div className="my-tabel-page">
             <div className="my-tabel-header">
@@ -144,13 +190,11 @@ export function MyTabelPage({ shifts }) {
             <div className="my-tabel-week-section">
                 <div className="my-tabel-week-nav">
                     <div className="my-tabel-nav-group">
-                        <button className="my-tabel-nav-btn" onClick={() => changeYear(-1)}>⟪</button>
                         <button className="my-tabel-nav-btn" onClick={() => changeWeek(-1)}>‹</button>
                         <span className="my-tabel-week-label">
                             {weekDays[0].getDate()} {monthNames[weekDays[0].getMonth()]} – {weekDays[6].getDate()} {monthNames[weekDays[6].getMonth()]} {weekDays[0].getFullYear()}
                         </span>
                         <button className="my-tabel-nav-btn" onClick={() => changeWeek(1)}>›</button>
-                        <button className="my-tabel-nav-btn" onClick={() => changeYear(1)}>⟫</button>
                     </div>
                     <button 
                         className="my-tabel-today-btn"
@@ -164,6 +208,7 @@ export function MyTabelPage({ shifts }) {
                     {weekDays.map((day, index) => {
                         const dayShifts = getDayShifts(day)
                         const hasShifts = dayShifts.length > 0
+                        const today = isToday(day)
                         const isSelected = selectedDate && 
                             day.getDate() === selectedDate.getDate() &&
                             day.getMonth() === selectedDate.getMonth() &&
@@ -172,7 +217,7 @@ export function MyTabelPage({ shifts }) {
                         return (
                             <div 
                                 key={index}
-                                className={`my-tabel-week-day ${isToday(day) ? 'today' : ''} ${isSelected ? 'selected' : ''} ${hasShifts ? 'has-shifts' : ''}`}
+                                className={`my-tabel-week-day ${today ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
                                 onClick={() => handleDayClick(day)}
                             >
                                 <div className="my-tabel-week-day-name">{dayNames[index]}</div>
@@ -205,15 +250,18 @@ export function MyTabelPage({ shifts }) {
                             <div key={d} className="my-tabel-mini-label">{d}</div>
                         ))}
                         {prevPrevMonthDays.map((day, idx) => (
-                            <div key={idx} className="my-tabel-mini-cell empty">
+                            <div key={idx} className={`my-tabel-mini-cell ${day.hasShifts ? 'has-shifts' : 'empty'}`}>
                                 {!day.empty && (
                                     <>
                                         <span className="my-tabel-mini-day">{day.day}</span>
-                                        {day.hasShifts && (
+                                        {day.hasShifts && day.siteColors.length > 0 && (
                                             <div className="my-tabel-mini-dots">
-                                                {day.siteColors.map((color, i) => (
+                                                {day.siteColors.slice(0, 3).map((color, i) => (
                                                     <span key={i} className="my-tabel-mini-dot" style={{ background: color }} />
                                                 ))}
+                                                {day.siteColors.length > 3 && (
+                                                    <span className="my-tabel-mini-dot-more">+{day.siteColors.length - 3}</span>
+                                                )}
                                             </div>
                                         )}
                                     </>
@@ -232,15 +280,18 @@ export function MyTabelPage({ shifts }) {
                             <div key={d} className="my-tabel-mini-label">{d}</div>
                         ))}
                         {prevMonthDays.map((day, idx) => (
-                            <div key={idx} className="my-tabel-mini-cell empty">
+                            <div key={idx} className={`my-tabel-mini-cell ${day.hasShifts ? 'has-shifts' : 'empty'}`}>
                                 {!day.empty && (
                                     <>
                                         <span className="my-tabel-mini-day">{day.day}</span>
-                                        {day.hasShifts && (
+                                        {day.hasShifts && day.siteColors.length > 0 && (
                                             <div className="my-tabel-mini-dots">
-                                                {day.siteColors.map((color, i) => (
+                                                {day.siteColors.slice(0, 3).map((color, i) => (
                                                     <span key={i} className="my-tabel-mini-dot" style={{ background: color }} />
                                                 ))}
+                                                {day.siteColors.length > 3 && (
+                                                    <span className="my-tabel-mini-dot-more">+{day.siteColors.length - 3}</span>
+                                                )}
                                             </div>
                                         )}
                                     </>
@@ -263,11 +314,14 @@ export function MyTabelPage({ shifts }) {
                                 {!day.empty && (
                                     <>
                                         <span className="my-tabel-mini-day">{day.day}</span>
-                                        {day.hasShifts && (
+                                        {day.hasShifts && day.siteColors.length > 0 && (
                                             <div className="my-tabel-mini-dots">
-                                                {day.siteColors.map((color, i) => (
+                                                {day.siteColors.slice(0, 3).map((color, i) => (
                                                     <span key={i} className="my-tabel-mini-dot" style={{ background: color }} />
                                                 ))}
+                                                {day.siteColors.length > 3 && (
+                                                    <span className="my-tabel-mini-dot-more">+{day.siteColors.length - 3}</span>
+                                                )}
                                             </div>
                                         )}
                                     </>
