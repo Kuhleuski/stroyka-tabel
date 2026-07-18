@@ -60,18 +60,32 @@ export async function addSite(name, address) {
 
 // НОВАЯ ФУНКЦИЯ — удаление объекта
 export async function deleteSite(siteId) {
-    const url = `${SUPABASE_URL}/rest/v1/sites?id=eq.${siteId}&apikey=${SUPABASE_ANON_KEY}`
-    const response = await fetch(url, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json'
+    try {
+        const url = `${SUPABASE_URL}/rest/v1/sites?id=eq.${siteId}&apikey=${SUPABASE_ANON_KEY}`
+        
+        console.log('🔍 Удаление объекта:', siteId)
+        
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            }
+        })
+        
+        console.log('📡 Статус удаления:', response.status)
+        
+        if (!response.ok) {
+            const errorText = await response.text()
+            console.error('❌ Ошибка удаления:', errorText)
+            throw new Error(`Ошибка удаления: ${response.status} ${errorText}`)
         }
-    })
-    
-    if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(`Ошибка удаления: ${response.status} ${errorText}`)
+        
+        const result = await response.json()
+        console.log('✅ Удалено:', result)
+        return true
+    } catch (error) {
+        console.error('❌ Ошибка в deleteSite:', error)
+        throw error
     }
-    
-    return true
 }
