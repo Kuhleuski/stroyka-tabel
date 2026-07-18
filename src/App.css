@@ -1119,3 +1119,262 @@ body {
         opacity: 1;
     }
 }
+
+/* ============================================================
+   СТРАНИЦА "ДОБАВИТЬ РАБОТНИКА"
+   ============================================================ */
+
+.add-worker-page {
+    animation: fadeIn 0.25s ease;
+}
+
+.add-worker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 4px 16px 4px;
+    border-bottom: 2px solid #e8eaed;
+    margin-bottom: 24px;
+}
+
+.add-worker-back {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: #2d7d46;
+    cursor: pointer;
+    padding: 8px 4px;
+    font-weight: 500;
+    font-family: inherit;
+}
+
+.add-worker-back:hover {
+    opacity: 0.7;
+}
+
+.add-worker-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.add-worker-save {
+    background: #2d7d46;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: 0.2s;
+}
+
+.add-worker-save:hover:not(:disabled) {
+    background: #1e6b3a;
+}
+
+.add-worker-save:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.add-worker-form {
+    padding: 0 4px;
+}
+
+.add-worker-error {
+    background: #ffebee;
+    color: #c62828;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+.add-worker-field {
+    margin-bottom: 20px;
+}
+
+.add-worker-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 6px;
+}
+
+.add-worker-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 16px;
+    font-family: inherit;
+    transition: 0.2s;
+    background: white;
+}
+
+.add-worker-input:focus {
+    outline: none;
+    border-color: #2d7d46;
+}
+
+.add-worker-hint {
+    font-size: 13px;
+    color: #999;
+    margin-top: 8px;
+}
+
+/* ============================================================
+   КНОПКА "ДОБАВИТЬ РАБОТНИКА"
+   ============================================================ */
+
+.add-worker-btn {
+    background: #2d7d46;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    margin-top: 12px;
+    transition: 0.2s;
+    box-shadow: 0 2px 8px rgba(45, 125, 70, 0.25);
+}
+
+.add-worker-btn:hover {
+    background: #1e6b3a;
+    transform: scale(1.02);
+}
+
+.add-worker-btn:active {
+    transform: scale(0.97);
+}
+
+/* ============================================================
+   КОНТЕЙНЕР ДЛЯ СПИСКА РАБОТНИКОВ
+   ============================================================ */
+
+.workers-list-container {
+    overflow-y: auto;
+    max-height: 70vh;
+}
+
+/* ============================================================
+   СТРАНИЦА ДЕТАЛЕЙ РАБОТНИКА
+   ============================================================ */
+
+.worker-detail-page {
+    animation: fadeIn 0.25s ease;
+}
+
+.worker-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 4px 16px 4px;
+    border-bottom: 2px solid #e8eaed;
+    margin-bottom: 24px;
+}
+
+.worker-detail-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.worker-detail-close {
+    background: #2d7d46;
+    border: none;
+    font-size: 28px;
+    font-weight: 400;
+    color: white;
+    cursor: pointer;
+    padding: 4px 14px;
+    border-radius: 30px;
+    transition: 0.2s;
+    line-height: 1.4;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(45, 125, 70, 0.3);
+}
+
+.worker-detail-close:hover {
+    background: #1e6b3a;
+    transform: scale(1.05);
+}
+
+.worker-detail-close:active {
+    transform: scale(0.95);
+}
+
+.worker-detail-content {
+    padding: 0 4px;
+}
+
+.worker-detail-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.worker-detail-field:last-of-type {
+    border-bottom: none;
+}
+
+.worker-detail-label {
+    font-size: 13px;
+    color: #999;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.worker-detail-value {
+    font-size: 17px;
+    color: #1a1a1a;
+    font-weight: 500;
+}
+
+.worker-detail-hint {
+    margin-top: 20px;
+    padding: 16px;
+    background: #f5f5f5;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #999;
+    text-align: center;
+}
+
+.worker-detail-delete {
+    width: 100%;
+    padding: 14px;
+    margin-top: 24px;
+    background: #ffebee;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: 0.2s;
+}
+
+.worker-detail-delete:hover {
+    background: #ffcdd2;
+}
+
+.worker-detail-delete:active {
+    transform: scale(0.98);
+}
