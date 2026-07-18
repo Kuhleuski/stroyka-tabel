@@ -7,10 +7,12 @@ import { MainPage } from './pages/MainPage'
 import { SitesPage } from './pages/SitesPage'
 import { WorkersPage } from './pages/WorkersPage'
 import { LoginPage } from './pages/LoginPage'
+import { SettingsPage } from './pages/SettingsPage'
 import './App.css'
 
 function AppContent() {
     const [currentPage, setCurrentPage] = useState('main')
+    const [showSettings, setShowSettings] = useState(false)
     const { shifts, loading, error } = useShifts()
     const { user, login, logout } = useAuth()
 
@@ -28,6 +30,20 @@ function AppContent() {
         )
     }
 
+    if (showSettings) {
+        return (
+            <div className="app">
+                <Header onLogout={logout} onSettings={() => setShowSettings(true)} />
+                <div className="container">
+                    <SettingsPage 
+                        onClose={() => setShowSettings(false)}
+                        onLogout={logout}
+                    />
+                </div>
+            </div>
+        )
+    }
+
     const renderPage = () => {
         switch (currentPage) {
             case 'sites':
@@ -41,7 +57,7 @@ function AppContent() {
 
     return (
         <div className="app">
-            <Header onLogout={logout} />
+            <Header onLogout={logout} onSettings={() => setShowSettings(true)} />
             <div className="container">
                 {renderPage()}
             </div>
