@@ -990,3 +990,132 @@ body {
     color: #999;
     text-align: center;
 }
+/* ============================================================
+   КНОПКА УДАЛЕНИЯ НА СТРАНИЦЕ ДЕТАЛЕЙ
+   ============================================================ */
+
+.site-detail-delete {
+    width: 100%;
+    padding: 14px;
+    margin-top: 24px;
+    background: #ffebee;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: 0.2s;
+}
+
+.site-detail-delete:hover {
+    background: #ffcdd2;
+}
+
+.site-detail-delete:active {
+    transform: scale(0.98);
+}
+
+/* ============================================================
+   МОДАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ
+   ============================================================ */
+
+.confirm-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
+}
+
+.confirm-modal {
+    background: white;
+    border-radius: 20px;
+    padding: 32px 28px 24px;
+    max-width: 340px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.25s ease;
+}
+
+.confirm-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.confirm-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+}
+
+.confirm-text {
+    font-size: 15px;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+.confirm-text strong {
+    color: #1a1a1a;
+}
+
+.confirm-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.confirm-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: 0.2s;
+}
+
+.confirm-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.confirm-btn.cancel {
+    background: #f0f0f0;
+    color: #666;
+}
+
+.confirm-btn.cancel:hover:not(:disabled) {
+    background: #e0e0e0;
+}
+
+.confirm-btn.delete {
+    background: #c62828;
+    color: white;
+}
+
+.confirm-btn.delete:hover:not(:disabled) {
+    background: #b71c1c;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
