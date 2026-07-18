@@ -862,3 +862,131 @@ body {
     color: #999;
     margin-top: 8px;
 }
+/* ============================================================
+   КНОПКА "ДОБАВИТЬ ОБЪЕКТ"
+   ============================================================ */
+
+.add-site-btn {
+    background: #2d7d46;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    margin-top: 12px;
+    transition: 0.2s;
+    box-shadow: 0 2px 8px rgba(45, 125, 70, 0.25);
+}
+
+.add-site-btn:hover {
+    background: #1e6b3a;
+    transform: scale(1.02);
+}
+
+.add-site-btn:active {
+    transform: scale(0.97);
+}
+
+/* ============================================================
+   КОНТЕЙНЕР ДЛЯ СПИСКА ОБЪЕКТОВ (сохранение позиции)
+   ============================================================ */
+
+.sites-list-container {
+    overflow-y: auto;
+    max-height: 70vh;
+}
+
+/* ============================================================
+   СТРАНИЦА ДЕТАЛЕЙ ОБЪЕКТА
+   ============================================================ */
+
+.site-detail-page {
+    animation: fadeIn 0.25s ease;
+}
+
+.site-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 4px 16px 4px;
+    border-bottom: 2px solid #e8eaed;
+    margin-bottom: 24px;
+}
+
+.site-detail-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.site-detail-close {
+    background: #2d7d46;
+    border: none;
+    font-size: 28px;
+    font-weight: 400;
+    color: white;
+    cursor: pointer;
+    padding: 4px 14px;
+    border-radius: 30px;
+    transition: 0.2s;
+    line-height: 1.4;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(45, 125, 70, 0.3);
+}
+
+.site-detail-close:hover {
+    background: #1e6b3a;
+    transform: scale(1.05);
+}
+
+.site-detail-close:active {
+    transform: scale(0.95);
+}
+
+.site-detail-content {
+    padding: 0 4px;
+}
+
+.site-detail-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.site-detail-field:last-of-type {
+    border-bottom: none;
+}
+
+.site-detail-label {
+    font-size: 13px;
+    color: #999;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.site-detail-value {
+    font-size: 17px;
+    color: #1a1a1a;
+    font-weight: 500;
+}
+
+.site-detail-hint {
+    margin-top: 20px;
+    padding: 16px;
+    background: #f5f5f5;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #999;
+    text-align: center;
+}
