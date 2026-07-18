@@ -11,11 +11,14 @@ import { SalaryPage } from './pages/SalaryPage'
 import { ExtraPage } from './pages/ExtraPage'
 import { LoginPage } from './pages/LoginPage'
 import { SettingsPage } from './pages/SettingsPage'
+import { NotificationsPage } from './pages/NotificationsPage'
 import './App.css'
 
 function AppContent() {
     const [currentPage, setCurrentPage] = useState('calendar')
     const [showSettings, setShowSettings] = useState(false)
+    const [showNotifications, setShowNotifications] = useState(false)
+    const [unreadCount, setUnreadCount] = useState(1)
     const { shifts, loading, error } = useShifts()
     const { user, login, logout } = useAuth()
 
@@ -33,15 +36,41 @@ function AppContent() {
         )
     }
 
+    const handleOpenNotifications = () => {
+        setShowNotifications(true)
+        setUnreadCount(0)
+    }
+
     if (showSettings) {
         return (
             <div className="app">
-                <Header onLogout={logout} onSettings={() => setShowSettings(true)} />
+                <Header 
+                    onLogout={logout} 
+                    onSettings={() => setShowSettings(true)}
+                    onNotifications={handleOpenNotifications}
+                    unreadCount={unreadCount}
+                />
                 <div className="container">
                     <SettingsPage 
                         onClose={() => setShowSettings(false)}
                         onLogout={logout}
                     />
+                </div>
+            </div>
+        )
+    }
+
+    if (showNotifications) {
+        return (
+            <div className="app">
+                <Header 
+                    onLogout={logout} 
+                    onSettings={() => setShowSettings(true)}
+                    onNotifications={handleOpenNotifications}
+                    unreadCount={unreadCount}
+                />
+                <div className="container">
+                    <NotificationsPage onClose={() => setShowNotifications(false)} />
                 </div>
             </div>
         )
@@ -68,7 +97,12 @@ function AppContent() {
 
     return (
         <div className="app">
-            <Header onLogout={logout} onSettings={() => setShowSettings(true)} />
+            <Header 
+                onLogout={logout} 
+                onSettings={() => setShowSettings(true)}
+                onNotifications={handleOpenNotifications}
+                unreadCount={unreadCount}
+            />
             <div className="container">
                 {renderPage()}
             </div>
