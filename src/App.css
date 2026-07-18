@@ -67,7 +67,7 @@ body {
 }
 
 /* ============================================================
-   ШАПКА
+   ШАПКА — ФИНАЛЬНАЯ ВЕРСИЯ
    ============================================================ */
 
 .header {
@@ -88,8 +88,8 @@ body {
     gap: 10px;
 }
 
-.header-brand .logo {
-    font-size: 28px;
+.logo-icon {
+    flex-shrink: 0;
 }
 
 .header-brand .title {
@@ -98,16 +98,64 @@ body {
     color: #1a1a1a;
 }
 
-.header-brand .title span {
-    color: #2d7d46;
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
 }
 
-.header-version {
-    font-size: 12px;
-    color: #999;
+.header-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.header-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #2d7d46;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.header-user-name {
+    font-size: 17px;
+    font-weight: 600;
+    color: #1a1a1a;
+    white-space: nowrap;
+}
+
+.header-user-role {
+    display: none;
+}
+
+.header-settings-btn {
     background: #f0f0f0;
-    padding: 2px 10px;
-    border-radius: 12px;
+    border: none;
+    color: #555;
+    cursor: pointer;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+}
+
+.header-settings-btn:hover {
+    background: #e0e0e0;
+    color: #222;
 }
 
 /* ============================================================
@@ -298,12 +346,11 @@ body {
 }
 
 /* ============================================================
-   РЕЖИМ "ДЕНЬ" — ПРОСТАЯ ВЁРСТКА
+   РЕЖИМ "ДЕНЬ"
    ============================================================ */
 
 .feed-container {
     padding: 0 8px 8px 8px;
-    /* max-height: 65vh; */
     overflow-y: auto;
 }
 
@@ -317,7 +364,6 @@ body {
 }
 
 .feed-item.today {
-    /* border-left-color: #2d7d46; */
     background: #f5faf6;
 }
 
@@ -490,237 +536,6 @@ body {
     color: #666;
 }
 
-/* ============================================================
-   СТРАНИЦА "БРИГАДА"
-   ============================================================ */
-
-.worker-card {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.worker-card:active {
-    transform: scale(0.98);
-}
-
-.worker-card-avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    font-weight: 600;
-    color: white;
-    flex-shrink: 0;
-}
-
-.worker-card-info {
-    flex: 1;
-}
-
-.worker-card-name {
-    font-size: 16px;
-    font-weight: 500;
-}
-
-.worker-card-stats {
-    display: flex;
-    gap: 12px;
-    font-size: 13px;
-    color: #666;
-    margin-top: 4px;
-}
-
-/* ============================================================
-   ПУСТЫЕ СОСТОЯНИЯ
-   ============================================================ */
-
-.empty-state {
-    text-align: center;
-    padding: 40px 20px;
-}
-
-.empty-icon {
-    font-size: 48px;
-    margin-bottom: 12px;
-}
-
-.empty-text {
-    color: #999;
-    font-size: 16px;
-}
-
-/* ============================================================
-   НИЖНЯЯ НАВИГАЦИЯ
-   ============================================================ */
-
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    border-top: 1px solid #e8eaed;
-    display: flex;
-    justify-content: space-around;
-    padding: 8px 0 12px;
-    z-index: 20;
-    max-width: 500px;
-    margin: 0 auto;
-}
-
-.bottom-nav button {
-    background: none;
-    border: none;
-    padding: 8px 16px;
-    font-size: 11px;
-    color: #999;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    cursor: pointer;
-    transition: 0.2s;
-    font-weight: 500;
-    font-family: inherit;
-}
-
-.bottom-nav button .nav-icon {
-    font-size: 24px;
-}
-
-.bottom-nav button.active {
-    color: #2d7d46;
-}
-
-/* ============================================================
-   АНИМАЦИИ
-   ============================================================ */
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.card {
-    animation: fadeIn 0.3s ease;
-}
-
-/* ============================================================
-   ЭКРАН ДЕТАЛЬНОГО ПРОСМОТРА
-   ============================================================ */
-
-.detail-screen {
-    animation: fadeIn 0.3s ease;
-}
-
-.detail-screen-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 4px 16px 4px;
-    border-bottom: 2px solid #e8eaed;
-    margin-bottom: 16px;
-}
-
-.detail-screen-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: #1a1a1a;
-}
-
-.detail-screen-close {
-    background: #2d7d46;
-    border: none;
-    font-size: 28px;
-    font-weight: 400;
-    color: white;
-    cursor: pointer;
-    padding: 4px 14px;
-    border-radius: 30px;
-    transition: 0.2s;
-    line-height: 1.4;
-    min-width: 44px;
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 8px rgba(45, 125, 70, 0.3);
-}
-
-.detail-screen-close:hover {
-    background: #1e6b3a;
-    transform: scale(1.05);
-}
-
-.detail-screen-close:active {
-    transform: scale(0.95);
-}
-
-.detail-screen-content {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-/* ============================================================
-   ТАЙМЛАЙН
-   ============================================================ */
-
-.timeline-mini {
-    margin-top: 4px;
-}
-
-.timeline-mini-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 4px 8px 4px;
-    border-bottom: 2px solid #e8eaed;
-    margin-bottom: 12px;
-}
-
-.timeline-mini-date {
-    font-size: 16px;
-    font-weight: 600;
-    color: #1a1a1a;
-}
-
-.timeline-mini-count {
-    font-size: 13px;
-    color: #999;
-    background: #f0f0f0;
-    padding: 2px 12px;
-    border-radius: 12px;
-}
-
-/* ============================================================
-   МЕДИА-ЗАПРОСЫ
-   ============================================================ */
-
-@media (max-width: 400px) {
-    .container {
-        padding: 12px;
-    }
-    
-    .day-cell .day-number {
-        font-size: 14px;
-    }
-    
-    .calendar-wrapper {
-        padding: 12px;
-    }
-}
-
-/* ============================================================
-   СТРАНИЦА "ОБЪЕКТЫ" — КНОПКА ДОБАВЛЕНИЯ
-   ============================================================ */
-
 .page-header {
     display: flex;
     justify-content: space-between;
@@ -728,32 +543,34 @@ body {
     margin-bottom: 4px;
 }
 
-.add-site-button {
+.add-site-btn {
     background: #2d7d46;
     color: white;
     border: none;
-    font-size: 28px;
-    font-weight: 300;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+    font-family: inherit;
+    white-space: nowrap;
     margin-top: 12px;
-    box-shadow: 0 2px 8px rgba(45, 125, 70, 0.3);
     transition: 0.2s;
+    box-shadow: 0 2px 8px rgba(45, 125, 70, 0.25);
 }
 
-.add-site-button:hover {
+.add-site-btn:hover {
     background: #1e6b3a;
-    transform: scale(1.05);
+    transform: scale(1.02);
 }
 
-.add-site-button:active {
-    transform: scale(0.95);
+.add-site-btn:active {
+    transform: scale(0.97);
+}
+
+.sites-list-container {
+    overflow-y: auto;
+    max-height: 70vh;
 }
 
 /* ============================================================
@@ -862,43 +679,6 @@ body {
     color: #999;
     margin-top: 8px;
 }
-/* ============================================================
-   КНОПКА "ДОБАВИТЬ ОБЪЕКТ"
-   ============================================================ */
-
-.add-site-btn {
-    background: #2d7d46;
-    color: white;
-    border: none;
-    padding: 8px 18px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    font-family: inherit;
-    white-space: nowrap;
-    margin-top: 12px;
-    transition: 0.2s;
-    box-shadow: 0 2px 8px rgba(45, 125, 70, 0.25);
-}
-
-.add-site-btn:hover {
-    background: #1e6b3a;
-    transform: scale(1.02);
-}
-
-.add-site-btn:active {
-    transform: scale(0.97);
-}
-
-/* ============================================================
-   КОНТЕЙНЕР ДЛЯ СПИСКА ОБЪЕКТОВ (сохранение позиции)
-   ============================================================ */
-
-.sites-list-container {
-    overflow-y: auto;
-    max-height: 70vh;
-}
 
 /* ============================================================
    СТРАНИЦА ДЕТАЛЕЙ ОБЪЕКТА
@@ -990,9 +770,6 @@ body {
     color: #999;
     text-align: center;
 }
-/* ============================================================
-   КНОПКА УДАЛЕНИЯ НА СТРАНИЦЕ ДЕТАЛЕЙ
-   ============================================================ */
 
 .site-detail-delete {
     width: 100%;
@@ -1018,106 +795,84 @@ body {
 }
 
 /* ============================================================
-   МОДАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ
+   СТРАНИЦА "БРИГАДА"
    ============================================================ */
 
-.confirm-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.4);
-    z-index: 1000;
+.worker-card {
     display: flex;
     align-items: center;
-    justify-content: center;
-    animation: fadeIn 0.2s ease;
-}
-
-.confirm-modal {
-    background: white;
-    border-radius: 20px;
-    padding: 32px 28px 24px;
-    max-width: 340px;
-    width: 90%;
-    text-align: center;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    animation: slideUp 0.25s ease;
-}
-
-.confirm-icon {
-    font-size: 48px;
-    margin-bottom: 12px;
-}
-
-.confirm-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #1a1a1a;
-    margin-bottom: 8px;
-}
-
-.confirm-text {
-    font-size: 15px;
-    color: #555;
-    line-height: 1.5;
-    margin-bottom: 24px;
-}
-
-.confirm-text strong {
-    color: #1a1a1a;
-}
-
-.confirm-buttons {
-    display: flex;
-    gap: 10px;
-}
-
-.confirm-btn {
-    flex: 1;
-    padding: 12px;
-    border: none;
-    border-radius: 12px;
-    font-size: 15px;
-    font-weight: 600;
+    gap: 12px;
     cursor: pointer;
-    font-family: inherit;
     transition: 0.2s;
 }
 
-.confirm-btn:disabled {
-    opacity: 0.5;
-    cursor: default;
+.worker-card:active {
+    transform: scale(0.98);
 }
 
-.confirm-btn.cancel {
-    background: #f0f0f0;
-    color: #666;
-}
-
-.confirm-btn.cancel:hover:not(:disabled) {
-    background: #e0e0e0;
-}
-
-.confirm-btn.delete {
-    background: #c62828;
+.worker-card-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 600;
     color: white;
+    flex-shrink: 0;
 }
 
-.confirm-btn.delete:hover:not(:disabled) {
-    background: #b71c1c;
+.worker-card-info {
+    flex: 1;
 }
 
-@keyframes slideUp {
-    from {
-        transform: translateY(30px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+.worker-card-name {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.worker-card-stats {
+    display: flex;
+    gap: 12px;
+    font-size: 13px;
+    color: #666;
+    margin-top: 4px;
+}
+
+.worker-card-arrow {
+    color: #ccc;
+    font-size: 18px;
+}
+
+.add-worker-btn {
+    background: #2d7d46;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    margin-top: 12px;
+    transition: 0.2s;
+    box-shadow: 0 2px 8px rgba(45, 125, 70, 0.25);
+}
+
+.add-worker-btn:hover {
+    background: #1e6b3a;
+    transform: scale(1.02);
+}
+
+.add-worker-btn:active {
+    transform: scale(0.97);
+}
+
+.workers-list-container {
+    overflow-y: auto;
+    max-height: 70vh;
 }
 
 /* ============================================================
@@ -1228,44 +983,6 @@ body {
 }
 
 /* ============================================================
-   КНОПКА "ДОБАВИТЬ РАБОТНИКА"
-   ============================================================ */
-
-.add-worker-btn {
-    background: #2d7d46;
-    color: white;
-    border: none;
-    padding: 8px 18px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    font-family: inherit;
-    white-space: nowrap;
-    margin-top: 12px;
-    transition: 0.2s;
-    box-shadow: 0 2px 8px rgba(45, 125, 70, 0.25);
-}
-
-.add-worker-btn:hover {
-    background: #1e6b3a;
-    transform: scale(1.02);
-}
-
-.add-worker-btn:active {
-    transform: scale(0.97);
-}
-
-/* ============================================================
-   КОНТЕЙНЕР ДЛЯ СПИСКА РАБОТНИКОВ
-   ============================================================ */
-
-.workers-list-container {
-    overflow-y: auto;
-    max-height: 70vh;
-}
-
-/* ============================================================
    СТРАНИЦА ДЕТАЛЕЙ РАБОТНИКА
    ============================================================ */
 
@@ -1346,6 +1063,17 @@ body {
     font-weight: 500;
 }
 
+.worker-detail-calendar-section {
+    margin: 16px 0 8px 0;
+}
+
+.worker-detail-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+}
+
 .worker-detail-hint {
     margin-top: 20px;
     padding: 16px;
@@ -1382,17 +1110,6 @@ body {
 /* ============================================================
    КАЛЕНДАРЬ РАБОТНИКА
    ============================================================ */
-
-.worker-detail-calendar-section {
-    margin: 16px 0 8px 0;
-}
-
-.worker-detail-section-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #1a1a1a;
-    margin-bottom: 12px;
-}
 
 .worker-calendar {
     background: white;
@@ -1519,70 +1236,161 @@ body {
         font-size: 12px;
     }
 }
+
 /* ============================================================
-   ШАПКА — ОБНОВЛЁННАЯ
+   ПУСТЫЕ СОСТОЯНИЯ
    ============================================================ */
 
-.header {
-    background: white;
-    padding: 16px 20px;
-    border-bottom: 1px solid #e8eaed;
-    position: sticky;
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.empty-text {
+    color: #999;
+    font-size: 16px;
+}
+
+/* ============================================================
+   МОДАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ
+   ============================================================ */
+
+.confirm-overlay {
+    position: fixed;
     top: 0;
-    z-index: 10;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.header-brand {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1000;
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
 }
 
-.logo-icon {
-    flex-shrink: 0;
+.confirm-modal {
+    background: white;
+    border-radius: 20px;
+    padding: 32px 28px 24px;
+    max-width: 340px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.25s ease;
 }
 
-.header-brand .title {
+.confirm-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.confirm-title {
     font-size: 20px;
     font-weight: 700;
     color: #1a1a1a;
+    margin-bottom: 8px;
 }
 
-.header-actions {
+.confirm-text {
+    font-size: 15px;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+.confirm-text strong {
+    color: #1a1a1a;
+}
+
+.confirm-buttons {
     display: flex;
-    align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
 
-.header-login-btn {
-    background: none;
-    border: 1.5px solid #2d7d46;
-    color: #2d7d46;
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 500;
+.confirm-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
     cursor: pointer;
     font-family: inherit;
     transition: 0.2s;
-    white-space: nowrap;
 }
 
-.header-login-btn:hover {
-    background: #2d7d46;
+.confirm-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.confirm-btn.cancel {
+    background: #f0f0f0;
+    color: #666;
+}
+
+.confirm-btn.cancel:hover:not(:disabled) {
+    background: #e0e0e0;
+}
+
+.confirm-btn.delete {
+    background: #c62828;
     color: white;
 }
 
-.header-version {
-    font-size: 12px;
-    color: #999;
-    background: #f0f0f0;
-    padding: 2px 10px;
-    border-radius: 12px;
+.confirm-btn.delete:hover:not(:disabled) {
+    background: #b71c1c;
 }
+
+/* ============================================================
+   НИЖНЯЯ НАВИГАЦИЯ
+   ============================================================ */
+
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid #e8eaed;
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0 12px;
+    z-index: 20;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.bottom-nav button {
+    background: none;
+    border: none;
+    padding: 8px 16px;
+    font-size: 11px;
+    color: #999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    transition: 0.2s;
+    font-weight: 500;
+    font-family: inherit;
+}
+
+.bottom-nav button .nav-icon {
+    font-size: 24px;
+}
+
+.bottom-nav button.active {
+    color: #2d7d46;
+}
+
 /* ============================================================
    СТРАНИЦА ВХОДА
    ============================================================ */
@@ -1676,381 +1484,4 @@ body {
     padding: 14px;
     border-radius: 10px;
     font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    transition: 0.2s;
-    margin-top: 4px;
-}
-
-.login-btn:hover:not(:disabled) {
-    background: #1e6b3a;
-}
-
-.login-btn:disabled {
-    opacity: 0.5;
-    cursor: default;
-}
-
-.login-hint {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-    color: #bbb;
-    padding: 0 4px;
-}
-
-/* ============================================================
-   ШАПКА — ПОЛЬЗОВАТЕЛЬ
-   ============================================================ */
-
-.header-user {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    line-height: 1.2;
-}
-
-.header-user-name {
-    font-size: 15px;
-    font-weight: 600;
-    color: #1a1a1a;
-}
-
-.header-user-role {
-    font-size: 10px;
-    color: #999;
-    font-weight: 400;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-}
-
-.header-logout-btn {
-    background: none;
-    border: 1.5px solid #c62828;
-    color: #c62828;
-    padding: 4px 14px;
-    border-radius: 16px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    font-family: inherit;
-    transition: 0.2s;
-    white-space: nowrap;
-}
-
-.header-logout-btn:hover {
-    background: #c62828;
-    color: white;
-}
-/* ============================================================
-   ШАПКА — АВАТАРКА + ИМЯ
-   ============================================================ */
-
-.header-user {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.header-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: #2d7d46;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: 600;
-    flex-shrink: 0;
-}
-
-.header-user-name {
-    font-size: 15px;
-    font-weight: 600;
-    color: #1a1a1a;
-}
-
-.header-settings-btn {
-    background: none;
-    border: none;
-    color: #666;
-    cursor: pointer;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: 0.2s;
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-}
-
-.header-settings-btn:hover {
-    background: #f0f0f0;
-    color: #333;
-}
-
-/* ============================================================
-   СТРАНИЦА НАСТРОЕК
-   ============================================================ */
-
-.settings-page {
-    animation: fadeIn 0.25s ease;
-}
-
-.settings-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 4px 16px 4px;
-    border-bottom: 2px solid #e8eaed;
-    margin-bottom: 24px;
-}
-
-.settings-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #1a1a1a;
-}
-
-.settings-close {
-    background: #2d7d46;
-    border: none;
-    font-size: 28px;
-    font-weight: 400;
-    color: white;
-    cursor: pointer;
-    padding: 4px 14px;
-    border-radius: 30px;
-    transition: 0.2s;
-    line-height: 1.4;
-    min-width: 44px;
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 8px rgba(45, 125, 70, 0.3);
-}
-
-.settings-close:hover {
-    background: #1e6b3a;
-    transform: scale(1.05);
-}
-
-.settings-close:active {
-    transform: scale(0.95);
-}
-
-.settings-content {
-    padding: 0 4px;
-}
-
-.settings-avatar-large {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: #2d7d46;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 24px auto;
-}
-
-.settings-avatar-letter {
-    font-size: 36px;
-    font-weight: 700;
-    color: white;
-}
-
-.settings-field {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 12px 0;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.settings-field:last-of-type {
-    border-bottom: none;
-}
-
-.settings-label {
-    font-size: 13px;
-    color: #999;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-}
-
-.settings-value {
-    font-size: 17px;
-    color: #1a1a1a;
-    font-weight: 500;
-}
-
-.settings-logout-btn {
-    width: 100%;
-    padding: 14px;
-    margin-top: 32px;
-    background: #f5f5f5;
-    color: #333;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    font-family: inherit;
-    transition: 0.2s;
-}
-
-.settings-logout-btn:hover {
-    background: #e8e8e8;
-}
-
-.settings-logout-btn:active {
-    transform: scale(0.98);
-}
-/* ============================================================
-   ШАПКА — АВАТАРКА + ИМЯ (В ОДНУ ЛИНИЮ)
-   ============================================================ */
-
-.header-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.header-user {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.header-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: #2d7d46;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: 600;
-    flex-shrink: 0;
-}
-
-.header-user-name {
-    font-size: 15px;
-    font-weight: 600;
-    color: #1a1a1a;
-}
-
-.header-settings-btn {
-    background: #f0f0f0;
-    border: none;
-    color: #555;
-    cursor: pointer;
-    padding: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: 0.2s;
-    border-radius: 50%;
-    width: 34px;
-    height: 34px;
-    flex-shrink: 0;
-}
-
-.header-settings-btn:hover {
-    background: #e0e0e0;
-    color: #222;
-}
-
-/* ============================================================
-   СТРАНИЦА НАСТРОЕК — ЗАМЕТНАЯ КНОПКА ВЫХОДА
-   ============================================================ */
-
-.settings-logout-btn {
-    width: 100%;
-    padding: 14px;
-    margin-top: 32px;
-    background: #2d7d46;
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    transition: 0.2s;
-    box-shadow: 0 2px 8px rgba(45, 125, 70, 0.25);
-}
-
-.settings-logout-btn:hover {
-    background: #1e6b3a;
-    transform: scale(1.01);
-}
-
-.settings-logout-btn:active {
-    transform: scale(0.97);
-}
-/* ============================================================
-   ШАПКА — АВАТАРКА + ИМЯ В ОДНУ СТРОКУ
-   ============================================================ */
-
-.header-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.header-user {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.header-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: #2d7d46;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    font-weight: 600;
-    flex-shrink: 0;
-}
-
-.header-user-name {
-    font-size: 17px;
-    font-weight: 600;
-    color: #1a1a1a;
-}
-
-.header-settings-btn {
-    background: #f0f0f0;
-    border: none;
-    color: #555;
-    cursor: pointer;
-    padding: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: 0.2s;
-    border-radius: 50%;
-    width: 34px;
-    height: 34px;
-    flex-shrink: 0;
-}
-
-.header-settings-btn:hover {
-    background: #e0e0e0;
-    color: #222;
-}
+    font-weight
