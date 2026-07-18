@@ -20,7 +20,6 @@ export async function fetchShifts() {
     }
 }
 
-// НОВАЯ ФУНКЦИЯ — загрузка всех объектов
 export async function fetchSites() {
     try {
         const url = `${SUPABASE_URL}/rest/v1/sites?select=*&order=name.asc&apikey=${SUPABASE_ANON_KEY}`
@@ -57,4 +56,22 @@ export async function addSite(name, address) {
     }
     
     return await response.json()
+}
+
+// НОВАЯ ФУНКЦИЯ — удаление объекта
+export async function deleteSite(siteId) {
+    const url = `${SUPABASE_URL}/rest/v1/sites?id=eq.${siteId}&apikey=${SUPABASE_ANON_KEY}`
+    const response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    
+    if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`Ошибка удаления: ${response.status} ${errorText}`)
+    }
+    
+    return true
 }
