@@ -1759,3 +1759,296 @@ body {
 .extra-content {
     padding: 0 4px;
 }
+/* ============================================================
+   СТРАНИЦА "МОЙ ТАБЕЛЬ"
+   ============================================================ */
+
+.my-tabel-page {
+    animation: fadeIn 0.25s ease;
+    padding-bottom: 16px;
+}
+
+.my-tabel-header {
+    padding: 12px 0 16px 0;
+    border-bottom: 2px solid #e8eaed;
+    margin-bottom: 16px;
+}
+
+.my-tabel-user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.my-tabel-avatar-small {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #2d7d46;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.my-tabel-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.my-tabel-role {
+    font-size: 12px;
+    color: #999;
+}
+
+/* ============================================================
+   НЕДЕЛЯ
+   ============================================================ */
+
+.my-tabel-week-section {
+    background: white;
+    border-radius: 16px;
+    padding: 12px 16px 16px 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    margin-bottom: 16px;
+}
+
+.my-tabel-week-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.my-tabel-nav-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.my-tabel-nav-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    padding: 4px 8px;
+    cursor: pointer;
+    color: #666;
+    border-radius: 6px;
+    transition: 0.2s;
+    font-family: inherit;
+}
+
+.my-tabel-nav-btn:hover {
+    background: #f0f0f0;
+}
+
+.my-tabel-week-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1a1a1a;
+    padding: 0 8px;
+    min-width: 140px;
+    text-align: center;
+}
+
+.my-tabel-today-btn {
+    background: none;
+    border: 1px solid #2d7d46;
+    color: #2d7d46;
+    padding: 2px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: 0.2s;
+}
+
+.my-tabel-today-btn:hover {
+    background: #2d7d46;
+    color: white;
+}
+
+.my-tabel-week-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.my-tabel-week-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 4px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.15s;
+    border: 2px solid transparent;
+}
+
+.my-tabel-week-day:hover {
+    background: #f5f7f6;
+}
+
+.my-tabel-week-day.today {
+    border-color: #2d7d46;
+}
+
+.my-tabel-week-day.selected {
+    background: #2d7d46;
+}
+
+.my-tabel-week-day.selected .my-tabel-week-day-name,
+.my-tabel-week-day.selected .my-tabel-week-day-number {
+    color: white;
+}
+
+.my-tabel-week-day.today .my-tabel-week-day-number {
+    color: #2d7d46;
+    font-weight: 700;
+}
+
+.my-tabel-week-day.selected.today .my-tabel-week-day-number {
+    color: white;
+}
+
+.my-tabel-week-day-name {
+    font-size: 11px;
+    color: #999;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.my-tabel-week-day-number {
+    font-size: 18px;
+    font-weight: 500;
+    color: #1a1a1a;
+}
+
+.my-tabel-week-day-dots {
+    display: flex;
+    gap: 2px;
+    margin-top: 2px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.my-tabel-week-day-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+/* ============================================================
+   МИНИ-КАЛЕНДАРЬ НА 3 МЕСЯЦА
+   ============================================================ */
+
+.my-tabel-mini-calendar {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+}
+
+.my-tabel-mini-month {
+    background: white;
+    border-radius: 12px;
+    padding: 8px 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.my-tabel-mini-month.current {
+    border: 2px solid #2d7d46;
+}
+
+.my-tabel-mini-month-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #666;
+    text-align: center;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.my-tabel-mini-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+}
+
+.my-tabel-mini-label {
+    font-size: 8px;
+    color: #bbb;
+    text-align: center;
+    padding: 2px 0;
+    font-weight: 500;
+}
+
+.my-tabel-mini-cell {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-radius: 4px;
+}
+
+.my-tabel-mini-cell.empty {
+    opacity: 0.4;
+}
+
+.my-tabel-mini-cell.has-shifts {
+    background: #f5faf6;
+}
+
+.my-tabel-mini-day {
+    font-size: 9px;
+    font-weight: 400;
+    color: #333;
+}
+
+.my-tabel-mini-dots {
+    display: flex;
+    gap: 1px;
+    margin-top: 1px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.my-tabel-mini-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+}
+
+@media (max-width: 400px) {
+    .my-tabel-week-label {
+        font-size: 12px;
+        min-width: 100px;
+    }
+    
+    .my-tabel-week-day-number {
+        font-size: 15px;
+    }
+    
+    .my-tabel-mini-day {
+        font-size: 8px;
+    }
+    
+    .my-tabel-mini-dot {
+        width: 3px;
+        height: 3px;
+    }
+    
+    .my-tabel-mini-calendar {
+        gap: 4px;
+    }
+    
+    .my-tabel-mini-month {
+        padding: 4px 3px;
+    }
+}
