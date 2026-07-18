@@ -1484,4 +1484,148 @@ body {
     padding: 14px;
     border-radius: 10px;
     font-size: 16px;
-    font-weight
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: 0.2s;
+    margin-top: 4px;
+}
+
+.login-btn:hover:not(:disabled) {
+    background: #1e6b3a;
+}
+
+.login-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.login-hint {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #bbb;
+    padding: 0 4px;
+}
+/* ============================================================
+   СТРАНИЦА НАСТРОЕК
+   ============================================================ */
+
+.settings-page {
+    animation: fadeIn 0.25s ease;
+}
+
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 4px 16px 4px;
+    border-bottom: 2px solid #e8eaed;
+    margin-bottom: 24px;
+}
+
+.settings-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.settings-close {
+    background: #2d7d46;
+    border: none;
+    font-size: 28px;
+    font-weight: 400;
+    color: white;
+    cursor: pointer;
+    padding: 4px 14px;
+    border-radius: 30px;
+    transition: 0.2s;
+    line-height: 1.4;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(45, 125, 70, 0.3);
+}
+
+.settings-close:hover {
+    background: #1e6b3a;
+    transform: scale(1.05);
+}
+
+.settings-close:active {
+    transform: scale(0.95);
+}
+
+.settings-content {
+    padding: 0 4px;
+}
+
+.settings-avatar-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #2d7d46;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px auto;
+}
+
+.settings-avatar-letter {
+    font-size: 36px;
+    font-weight: 700;
+    color: white;
+}
+
+.settings-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.settings-field:last-of-type {
+    border-bottom: none;
+}
+
+.settings-label {
+    font-size: 13px;
+    color: #999;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.settings-value {
+    font-size: 17px;
+    color: #1a1a1a;
+    font-weight: 500;
+}
+
+.settings-logout-btn {
+    width: 100%;
+    padding: 14px;
+    margin-top: 32px;
+    background: #2d7d46;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: 0.2s;
+    box-shadow: 0 2px 8px rgba(45, 125, 70, 0.25);
+}
+
+.settings-logout-btn:hover {
+    background: #1e6b3a;
+    transform: scale(1.01);
+}
+
+.settings-logout-btn:active {
+    transform: scale(0.97);
+}
