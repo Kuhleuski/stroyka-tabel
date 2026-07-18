@@ -89,3 +89,58 @@ export async function deleteSite(siteId) {
         throw error
     }
 }
+
+export async function fetchWorkers() {
+    try {
+        const url = `${SUPABASE_URL}/rest/v1/workers?select=*&order=name.asc&apikey=${SUPABASE_ANON_KEY}`
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+        }
+        
+        return await response.json()
+    } catch (error) {
+        console.error('Ошибка загрузки работников:', error)
+        throw error
+    }
+}
+
+export async function addWorker(name) {
+    const url = `${SUPABASE_URL}/rest/v1/workers?apikey=${SUPABASE_ANON_KEY}`
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+        },
+        body: JSON.stringify([{ name }])
+    })
+    
+    if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`Ошибка добавления: ${response.status} ${errorText}`)
+    }
+    
+    return await response.json()
+}
+
+export async function deleteWorker(workerId) {
+    const url = `${SUPABASE_URL}/rest/v1/workers?id=eq.${workerId}&apikey=${SUPABASE_ANON_KEY}`
+    const response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    
+    if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`Ошибка удаления: ${response.status} ${errorText}`)
+    }
+    
+    return true
+}
