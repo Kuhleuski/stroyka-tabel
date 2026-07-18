@@ -1519,3 +1519,67 @@ body {
         font-size: 12px;
     }
 }
+/* ============================================================
+   ШАПКА — ОБНОВЛЁННАЯ
+   ============================================================ */
+
+.header {
+    background: white;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e8eaed;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-icon {
+    flex-shrink: 0;
+}
+
+.header-brand .title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-login-btn {
+    background: none;
+    border: 1.5px solid #2d7d46;
+    color: #2d7d46;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: 0.2s;
+    white-space: nowrap;
+}
+
+.header-login-btn:hover {
+    background: #2d7d46;
+    color: white;
+}
+
+.header-version {
+    font-size: 12px;
+    color: #999;
+    background: #f0f0f0;
+    padding: 2px 10px;
+    border-radius: 12px;
+}
