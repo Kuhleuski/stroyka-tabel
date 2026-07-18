@@ -26,5 +26,9 @@ export function useSites() {
         setSites(prev => [...prev, newSite])
     }
 
-    return { sites, loading, error, addSiteToState }
+    const removeSiteFromState = (siteId) => {
+        setSites(prev => prev.filter(s => s.id !== siteId))
+    }
+
+    return { sites, loading, error, addSiteToState, removeSiteFromState }
 }
