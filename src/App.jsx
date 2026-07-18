@@ -26,7 +26,7 @@ function App() {
             case 'sites':
                 return <SitesPage />
             case 'workers':
-                return <WorkersPage shifts={shifts} loading={loading} />
+                return <WorkersPage shifts={shifts} />
             default:
                 return <MainPage shifts={shifts} loading={loading} />
         }
