@@ -1,12 +1,12 @@
 import { useAuth } from '../../context/AuthContext'
 
-export function Header({ onLogout }) {
+export function Header({ onLogout, onSettings }) {
     const { user } = useAuth()
 
-    const handleLogoutClick = () => {
-        if (window.confirm('Вы уверены, что хотите выйти?')) {
-            onLogout()
-        }
+    if (!user) return null
+
+    const getInitial = (name) => {
+        return name.charAt(0).toUpperCase()
     }
 
     return (
@@ -33,24 +33,32 @@ export function Header({ onLogout }) {
                 <span className="title">Табель</span>
             </div>
             <div className="header-actions">
-                {user ? (
-                    <>
-                        <div className="header-user">
-                            <span className="header-user-name">{user.name}</span>
-                            {user.role === 'admin' && (
-                                <span className="header-user-role">Администратор</span>
-                            )}
-                        </div>
-                        <button 
-                            className="header-logout-btn"
-                            onClick={handleLogoutClick}
-                        >
-                            Выйти
-                        </button>
-                    </>
-                ) : (
-                    <span className="header-version">v1.0</span>
-                )}
+                <div className="header-user">
+                    <div className="header-avatar">
+                        {getInitial(user.name)}
+                    </div>
+                    <span className="header-user-name">{user.name}</span>
+                </div>
+                <button 
+                    className="header-settings-btn"
+                    onClick={onSettings}
+                    aria-label="Настройки"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="22"
+                        height="22"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
+                        <circle cx="12" cy="12" r="3" />
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                    </svg>
+                </button>
             </div>
         </header>
     )
