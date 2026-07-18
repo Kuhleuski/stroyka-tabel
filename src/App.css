@@ -716,3 +716,149 @@ body {
         padding: 12px;
     }
 }
+
+/* ============================================================
+   СТРАНИЦА "ОБЪЕКТЫ" — КНОПКА ДОБАВЛЕНИЯ
+   ============================================================ */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 4px;
+}
+
+.add-site-button {
+    background: #2d7d46;
+    color: white;
+    border: none;
+    font-size: 28px;
+    font-weight: 300;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 12px;
+    box-shadow: 0 2px 8px rgba(45, 125, 70, 0.3);
+    transition: 0.2s;
+}
+
+.add-site-button:hover {
+    background: #1e6b3a;
+    transform: scale(1.05);
+}
+
+.add-site-button:active {
+    transform: scale(0.95);
+}
+
+/* ============================================================
+   СТРАНИЦА "ДОБАВИТЬ ОБЪЕКТ"
+   ============================================================ */
+
+.add-site-page {
+    animation: fadeIn 0.25s ease;
+}
+
+.add-site-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 4px 16px 4px;
+    border-bottom: 2px solid #e8eaed;
+    margin-bottom: 24px;
+}
+
+.add-site-back {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: #2d7d46;
+    cursor: pointer;
+    padding: 8px 4px;
+    font-weight: 500;
+    font-family: inherit;
+}
+
+.add-site-back:hover {
+    opacity: 0.7;
+}
+
+.add-site-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.add-site-save {
+    background: #2d7d46;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: 0.2s;
+}
+
+.add-site-save:hover:not(:disabled) {
+    background: #1e6b3a;
+}
+
+.add-site-save:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.add-site-form {
+    padding: 0 4px;
+}
+
+.add-site-error {
+    background: #ffebee;
+    color: #c62828;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+.add-site-field {
+    margin-bottom: 20px;
+}
+
+.add-site-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 6px;
+}
+
+.add-site-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 16px;
+    font-family: inherit;
+    transition: 0.2s;
+    background: white;
+}
+
+.add-site-input:focus {
+    outline: none;
+    border-color: #2d7d46;
+}
+
+.add-site-hint {
+    font-size: 13px;
+    color: #999;
+    margin-top: 8px;
+}
