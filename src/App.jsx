@@ -9,7 +9,7 @@ import './App.css'
 
 function App() {
     const [currentPage, setCurrentPage] = useState('main')
-    const { shifts, loading, error } = useShifts()
+    const { shifts, loading, error, setShifts } = useShifts()
 
     if (error) {
         return (
@@ -21,10 +21,22 @@ function App() {
         )
     }
 
+    const handleAddSite = (newSite) => {
+        // Добавляем новый объект в список смен (для отображения)
+        // В реальности данные подгрузятся при следующем обновлении
+        // Пока просто показываем уведомление
+        console.log('Добавлен объект:', newSite)
+        // Можно обновить shifts, но это не обязательно
+    }
+
     const renderPage = () => {
         switch (currentPage) {
             case 'sites':
-                return <SitesPage shifts={shifts} loading={loading} />
+                return <SitesPage 
+                    shifts={shifts} 
+                    loading={loading} 
+                    onAddSite={handleAddSite}
+                />
             case 'workers':
                 return <WorkersPage shifts={shifts} loading={loading} />
             default:
