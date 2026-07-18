@@ -21,7 +21,7 @@ export function AddSitePage({ onSave, onCancel }) {
             await onSave(name.trim(), address.trim())
             setName('')
             setAddress('')
-            onCancel() // возвращаемся на список
+            onCancel()
         } catch (err) {
             setError(err.message || 'Ошибка при добавлении')
         } finally {
