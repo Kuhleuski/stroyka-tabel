@@ -15,7 +15,27 @@ export async function fetchShifts() {
         
         return await response.json()
     } catch (error) {
-        console.error('Ошибка загрузки:', error)
+        console.error('Ошибка загрузки смен:', error)
+        throw error
+    }
+}
+
+// НОВАЯ ФУНКЦИЯ — загрузка всех объектов
+export async function fetchSites() {
+    try {
+        const url = `${SUPABASE_URL}/rest/v1/sites?select=*&order=name.asc&apikey=${SUPABASE_ANON_KEY}`
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+        }
+        
+        return await response.json()
+    } catch (error) {
+        console.error('Ошибка загрузки объектов:', error)
         throw error
     }
 }
