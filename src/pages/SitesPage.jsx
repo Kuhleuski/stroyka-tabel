@@ -1,24 +1,21 @@
+import { useState } from 'react'
 import { SitesList } from '../components/Sites/SitesList'
 import { AddSitePage } from './AddSitePage'
-import { supabase } from '../services/supabase'
+import { addSite } from '../services/supabase'
 
 export function SitesPage({ shifts, loading, onAddSite }) {
     const [showAddForm, setShowAddForm] = useState(false)
 
     const handleSave = async (name, address) => {
-        const { data, error } = await supabase
-            .from('sites')
-            .insert([{ name, address }])
-            .select()
-        
-        if (error) throw error
-        
-        // Обновляем список объектов
-        if (onAddSite) {
-            onAddSite(data[0])
+        try {
+            const newSite = await addSite(name, address)
+            if (onAddSite) {
+                onAddSite(newSite[0])
+            }
+            setShowAddForm(false)
+        } catch (error) {
+            throw error
         }
-        
-        setShowAddForm(false)
     }
 
     if (loading) {
