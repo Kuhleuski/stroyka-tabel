@@ -1,4 +1,14 @@
-export function Header() {
+import { useAuth } from '../../context/AuthContext'
+
+export function Header({ onLogout }) {
+    const { user } = useAuth()
+
+    const handleLogoutClick = () => {
+        if (window.confirm('Вы уверены, что хотите выйти?')) {
+            onLogout()
+        }
+    }
+
     return (
         <header className="header">
             <div className="header-brand">
@@ -23,10 +33,24 @@ export function Header() {
                 <span className="title">Табель</span>
             </div>
             <div className="header-actions">
-                <button className="header-login-btn">
-                    Войти
-                </button>
-                
+                {user ? (
+                    <>
+                        <div className="header-user">
+                            <span className="header-user-name">{user.name}</span>
+                            {user.role === 'admin' && (
+                                <span className="header-user-role">Администратор</span>
+                            )}
+                        </div>
+                        <button 
+                            className="header-logout-btn"
+                            onClick={handleLogoutClick}
+                        >
+                            Выйти
+                        </button>
+                    </>
+                ) : (
+                    <span className="header-version">v1.0</span>
+                )}
             </div>
         </header>
     )
