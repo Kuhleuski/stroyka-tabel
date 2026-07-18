@@ -16,15 +16,17 @@ export function SiteDetailPage({ site, onClose, onDelete }) {
 
     const handleDelete = async () => {
         setDeleting(true)
+        console.log('🗑️ Начинаем удаление объекта:', site.id, site.name)
         try {
             await onDelete(site.id)
+            console.log('✅ Объект удалён, закрываем детали')
             onClose()
         } catch (error) {
-            console.error('Ошибка удаления:', error)
-            alert('Не удалось удалить объект')
+            console.error('❌ Ошибка удаления:', error)
+            alert(`Не удалось удалить объект: ${error.message}`)
+            setShowConfirm(false)
         } finally {
             setDeleting(false)
-            setShowConfirm(false)
         }
     }
 
@@ -59,16 +61,15 @@ export function SiteDetailPage({ site, onClose, onDelete }) {
                     Здесь будет статистика по объекту
                 </div>
 
-                {/* Кнопка удаления */}
                 <button 
                     className="site-detail-delete"
                     onClick={() => setShowConfirm(true)}
+                    disabled={deleting}
                 >
-                    🗑️ Удалить объект
+                    {deleting ? '⏳ Удаление...' : '🗑️ Удалить объект'}
                 </button>
             </div>
 
-            {/* Модальное окно подтверждения */}
             {showConfirm && (
                 <div className="confirm-overlay">
                     <div className="confirm-modal">
