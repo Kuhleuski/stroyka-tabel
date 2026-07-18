@@ -1378,3 +1378,144 @@ body {
 .worker-detail-delete:active {
     transform: scale(0.98);
 }
+
+/* ============================================================
+   КАЛЕНДАРЬ РАБОТНИКА
+   ============================================================ */
+
+.worker-detail-calendar-section {
+    margin: 16px 0 8px 0;
+}
+
+.worker-detail-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+}
+
+.worker-calendar {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.worker-calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.worker-calendar-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.worker-calendar-nav {
+    background: none;
+    border: none;
+    font-size: 20px;
+    padding: 4px 12px;
+    cursor: pointer;
+    color: #666;
+    transition: 0.2s;
+    font-family: inherit;
+}
+
+.worker-calendar-nav:hover {
+    background: #f0f0f0;
+    border-radius: 8px;
+}
+
+.worker-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.worker-calendar-label {
+    text-align: center;
+    font-size: 11px;
+    color: #999;
+    padding: 6px 0;
+    font-weight: 600;
+}
+
+.worker-calendar-cell {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.15s;
+    position: relative;
+    padding: 4px;
+    user-select: none;
+}
+
+.worker-calendar-cell.empty {
+    cursor: default;
+}
+
+.worker-calendar-day {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+}
+
+.worker-calendar-cell.today .worker-calendar-day {
+    color: #2d7d46;
+    font-weight: 700;
+}
+
+.worker-calendar-cell.selected {
+    background: #2d7d46;
+}
+
+.worker-calendar-cell.selected .worker-calendar-day {
+    color: white;
+}
+
+.worker-calendar-cell.has-shift {
+    background: #e8f5e9;
+}
+
+.worker-calendar-cell.has-shift.selected {
+    background: #2d7d46;
+}
+
+.worker-calendar-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #2d7d46;
+    margin-top: 1px;
+}
+
+.worker-calendar-cell.selected .worker-calendar-dot {
+    background: white;
+}
+
+.worker-calendar-stats {
+    margin-top: 12px;
+    padding: 10px 0 4px 0;
+    border-top: 1px solid #f0f0f0;
+    font-size: 13px;
+    color: #666;
+    text-align: center;
+}
+
+@media (max-width: 400px) {
+    .worker-calendar {
+        padding: 12px;
+    }
+    
+    .worker-calendar-day {
+        font-size: 12px;
+    }
+}
