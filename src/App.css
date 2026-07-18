@@ -1629,3 +1629,133 @@ body {
 .settings-logout-btn:active {
     transform: scale(0.97);
 }
+
+/* ============================================================
+   СТРАНИЦА "МОЙ ТАБЕЛЬ"
+   ============================================================ */
+
+.my-tabel-page {
+    animation: fadeIn 0.25s ease;
+}
+
+.my-tabel-header {
+    padding: 16px 0 12px 0;
+    border-bottom: 2px solid #e8eaed;
+    margin-bottom: 24px;
+}
+
+.my-tabel-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.my-tabel-content {
+    padding: 0 4px;
+}
+
+.my-tabel-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    text-align: center;
+}
+
+.my-tabel-avatar-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #2d7d46;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px auto;
+}
+
+.my-tabel-avatar-letter {
+    font-size: 36px;
+    font-weight: 700;
+    color: white;
+}
+
+.my-tabel-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.my-tabel-role {
+    font-size: 14px;
+    color: #999;
+    margin-top: 2px;
+}
+
+.my-tabel-divider {
+    height: 1px;
+    background: #e8eaed;
+    margin: 16px 0;
+}
+
+.my-tabel-info {
+    text-align: left;
+}
+
+.my-tabel-field {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.my-tabel-field:last-child {
+    border-bottom: none;
+}
+
+.my-tabel-label {
+    font-size: 14px;
+    color: #999;
+}
+
+.my-tabel-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1a1a1a;
+}
+
+.my-tabel-empty-state {
+    margin-top: 16px;
+    padding: 16px;
+    background: #f5f5f5;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #999;
+}
+
+/* ============================================================
+   СТРАНИЦЫ SALARY И EXTRA
+   ============================================================ */
+
+.salary-page,
+.extra-page {
+    animation: fadeIn 0.25s ease;
+}
+
+.salary-header,
+.extra-header {
+    padding: 16px 0 12px 0;
+    border-bottom: 2px solid #e8eaed;
+    margin-bottom: 24px;
+}
+
+.salary-title,
+.extra-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.salary-content,
+.extra-content {
+    padding: 0 4px;
+}
