@@ -50,7 +50,7 @@ function AppContent() {
     const renderPage = () => {
         switch (currentPage) {
             case 'my-tabel':
-                return <MyTabelPage />
+                return <MyTabelPage shifts={shifts} />
             case 'calendar':
                 return <MainPage shifts={shifts} loading={loading} />
             case 'sites':
