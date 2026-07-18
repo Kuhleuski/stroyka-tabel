@@ -26,7 +26,7 @@ export function Header() {
                 <button className="header-login-btn">
                     Войти
                 </button>
-                <span className="header-version">v1.0</span>
+                
             </div>
         </header>
     )
