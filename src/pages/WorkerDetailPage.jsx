@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { WorkerCalendar } from '../components/Workers/WorkerCalendar'
 
-export function WorkerDetailPage({ worker, onClose, onDelete }) {
+export function WorkerDetailPage({ worker, onClose, onDelete, shifts }) {
     const [showConfirm, setShowConfirm] = useState(false)
     const [deleting, setDeleting] = useState(false)
 
@@ -28,6 +29,9 @@ export function WorkerDetailPage({ worker, onClose, onDelete }) {
         }
     }
 
+    // Фильтруем смены только для этого работника
+    const workerShifts = shifts ? shifts.filter(s => s.worker_name === worker.name) : []
+
     return (
         <div className="worker-detail-page">
             <div className="worker-detail-header">
@@ -46,6 +50,15 @@ export function WorkerDetailPage({ worker, onClose, onDelete }) {
                 <div className="worker-detail-field">
                     <span className="worker-detail-label">Дата добавления</span>
                     <span className="worker-detail-value">{formatDate(worker.created_at)}</span>
+                </div>
+
+                {/* Календарь */}
+                <div className="worker-detail-calendar-section">
+                    <div className="worker-detail-section-title">📅 График работы</div>
+                    <WorkerCalendar 
+                        shifts={workerShifts} 
+                        workerName={worker.name}
+                    />
                 </div>
                 
                 <div className="worker-detail-hint">
