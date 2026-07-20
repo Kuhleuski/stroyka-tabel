@@ -14,11 +14,9 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     const [isReturning, setIsReturning] = useState(false)
     const [savedScrollTop, setSavedScrollTop] = useState(null)
     
-    // Состояния для формы добавления смены
     const [showAddShift, setShowAddShift] = useState(false)
     const [sites, setSites] = useState([])
     const [workers, setWorkers] = useState([])
-    const [isSaving, setIsSaving] = useState(false) // НОВОЕ: для прелоадера
     const { user } = useAuth()
 
     useEffect(() => {
@@ -44,7 +42,6 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     }
 
     const handleDayClick = (date, mode) => {
-        // Запоминаем точную позицию скролла
         if (mode === 'feed') {
             const container = document.querySelector('.feed-container')
             if (container) {
@@ -77,39 +74,45 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         setIsReturning(false)
     }
 
-    // Обработчик клика по дате в календаре (для добавления смены)
     const handleDateSelect = (date) => {
         setSelectedDate(date)
     }
 
-    // Обработчик открытия формы добавления смены
     const handleOpenAddShift = (date) => {
         setSelectedDate(date)
         setShowAddShift(true)
     }
 
-    // Обработчик успешного добавления смены — С ПРЕЛОАДЕРОМ
     const handleShiftAdded = async () => {
-        setIsSaving(true) // ПОКАЗЫВАЕМ ПРЕЛОАДЕР
-        
         // Обновляем данные смен
         if (refetchShifts) {
             await refetchShifts()
         }
-        // Обновляем работников и объекты
         await loadSitesAndWorkers()
         
         // Закрываем форму
         setShowAddShift(false)
         
-        // Принудительно обновляем детальный режим
+        // Обновляем детальный режим
         const currentDate = detailDate || selectedDate
         setDetailDate(null)
         setTimeout(() => {
             setDetailDate(currentDate)
             setIsDetailOpen(true)
-            setIsSaving(false) // СКРЫВАЕМ ПРЕЛОАДЕР
-        }, 300)
+        }, 50)
+    }
+
+    // Если открыта форма добавления смены — показываем её как экран
+    if (showAddShift) {
+        return (
+            <AddShiftForm
+                selectedDate={selectedDate}
+                onClose={() => setShowAddShift(false)}
+                onSuccess={handleShiftAdded}
+                sites={sites}
+                workers={workers}
+            />
+        )
     }
 
     return (
@@ -125,15 +128,13 @@ export function MainPage({ shifts, loading, refetchShifts }) {
                         </button>
                     </div>
                     
-                    {/* КНОПКА ДОБАВЛЕНИЯ СМЕНЫ ВНУТРИ ДЕТАЛЬНОГО РЕЖИМА */}
                     {user?.role === 'admin' && (
                         <div className="detail-add-shift-wrapper">
                             <button 
                                 className="detail-add-shift-btn"
                                 onClick={() => handleOpenAddShift(detailDate)}
-                                disabled={isSaving}
                             >
-                                {isSaving ? '⏳ Сохраняем...' : '➕ Добавить смену на этот день'}
+                                ➕ Добавить смену на этот день
                             </button>
                         </div>
                     )}
@@ -166,17 +167,6 @@ export function MainPage({ shifts, loading, refetchShifts }) {
                         isFullscreen={false}
                     />
                 </>
-            )}
-
-            {/* Модальное окно добавления смены */}
-            {showAddShift && user?.role === 'admin' && (
-                <AddShiftForm
-                    selectedDate={selectedDate}
-                    onClose={() => setShowAddShift(false)}
-                    onSuccess={handleShiftAdded}
-                    sites={sites}
-                    workers={workers}
-                />
             )}
         </>
     )
