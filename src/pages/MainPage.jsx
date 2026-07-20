@@ -16,7 +16,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     const [workers, setWorkers] = useState([])
     
     const [showSavingScreen, setShowSavingScreen] = useState(false)
-    const [updateKey, setUpdateKey] = useState(0)  // ← ДЛЯ ПРИНУДИТЕЛЬНОГО ОБНОВЛЕНИЯ
+    const [updateKey, setUpdateKey] = useState(0)
     const { user } = useAuth()
 
     useEffect(() => {
@@ -59,24 +59,20 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     }
 
     const handleShiftAdded = async () => {
-        // 1. Показываем экран сохранения
         setShowSavingScreen(true)
         setShowAddShift(false)
         
-        // 2. Обновляем данные
         if (refetchShifts) {
             await refetchShifts()
         }
         await loadSitesAndWorkers()
         
-        // 3. Ждем 1 секунду для красоты
         await new Promise(resolve => setTimeout(resolve, 1000))
         
-        // 4. Закрываем экран сохранения
         setShowSavingScreen(false)
         
-        // 5. Принудительно обновляем Timeline
-        setUpdateKey(prev => prev + 1)  // ← МЕНЯЕМ КЛЮЧ
+        // ПРОСТО ОБНОВЛЯЕМ КЛЮЧ, НЕ ТРОГАЕМ ДАТУ!
+        setUpdateKey(prev => prev + 1)
     }
 
     // Экран сохранения
@@ -105,14 +101,12 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         )
     }
 
-    // Если selectedDate null (страховка)
     if (!selectedDate) {
         return <div className="loading-text">⏳ Загрузка...</div>
     }
 
     return (
         <>
-            {/* Календарь */}
             <Calendar
                 shifts={shifts}
                 selectedDate={selectedDate}
@@ -124,9 +118,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
                 savedScrollTop={savedScrollTop}
             />
 
-            {/* Детальная информация под календарем */}
             <div className="detail-under-calendar">
-                {/* Шапка с датой и кнопкой */}
                 <div className="detail-under-header">
                     <span className="detail-under-date">
                         📅 {selectedDate.getDate()} {['Января','Февраля','Марта','Апреля','Мая','Июня','Июля','Августа','Сентября','Октября','Ноября','Декабря'][selectedDate.getMonth()]} {selectedDate.getFullYear()}
@@ -141,9 +133,8 @@ export function MainPage({ shifts, loading, refetchShifts }) {
                     )}
                 </div>
 
-                {/* Список смен — КЛЮЧ МЕНЯЕТСЯ ПРИ СОХРАНЕНИИ */}
                 <Timeline 
-                    key={updateKey}  // ← ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ
+                    key={updateKey}
                     shifts={shifts} 
                     date={selectedDate} 
                     onClose={null}
