@@ -109,6 +109,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         <>
             <Calendar
                 shifts={shifts}
+                sites={sites}  // ← ПЕРЕДАЕМ SITES В КАЛЕНДАРЬ!
                 selectedDate={selectedDate}
                 onDateSelect={handleDayClick}
                 onDayClick={handleDayClick}
@@ -138,7 +139,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
                     date={selectedDate} 
                     onClose={null}
                     isFullscreen={false}
-                    hideHeader={true}  // ← новый пропс
+                    hideHeader={true}
                 />
             </div>
         </>
