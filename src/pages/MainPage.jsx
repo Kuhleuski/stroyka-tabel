@@ -51,17 +51,10 @@ export function MainPage({ shifts, loading, refetchShifts }) {
             }
         }
         
-        // Сначала закрываем, чтобы сбросить состояние
-        setIsDetailOpen(false)
-        setDetailDate(null)
-        
-        // Сразу открываем с новой датой
-        setTimeout(() => {
-            setDetailDate(date)
-            setReturnMode(mode)
-            setIsReturning(false)
-            setIsDetailOpen(true)
-        }, 10)
+        setDetailDate(date)
+        setReturnMode(mode)
+        setIsReturning(false)
+        setIsDetailOpen(true)
     }
 
     const handleCloseDetail = () => {
@@ -105,9 +98,9 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         
         setShowSavingScreen(false)
         
+        // Просто обновляем детальный режим
         const currentDate = detailDate || selectedDate
         setDetailDate(null)
-        
         setTimeout(() => {
             setDetailDate(currentDate)
             setIsDetailOpen(true)
@@ -166,7 +159,6 @@ export function MainPage({ shifts, loading, refetchShifts }) {
                     
                     <div className="detail-screen-content">
                         <Timeline 
-                            key={detailDate.toISOString()}  // ← КЛЮЧЕВОЕ ИЗМЕНЕНИЕ!
                             shifts={shifts} 
                             date={detailDate} 
                             onClose={handleCloseDetail}
