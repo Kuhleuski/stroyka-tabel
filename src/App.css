@@ -2461,3 +2461,33 @@ body {
 .detail-add-button:active {
     transform: translateY(0);
 }
+
+/* ============================================================
+   ПАЛИТРА ЦВЕТОВ
+   ============================================================ */
+
+.color-palette {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.color-btn {
+    width: 100%;
+    aspect-ratio: 1;
+    border: 3px solid transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 0;
+}
+
+.color-btn:hover {
+    transform: scale(1.1);
+}
+
+.color-btn.active {
+    border-color: #1a1a1a;
+    box-shadow: 0 0 0 2px white, 0 0 0 4px #1a1a1a;
+}
