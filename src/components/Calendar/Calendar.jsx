@@ -103,11 +103,9 @@ export function Calendar({
     const [shouldShowToday, setShouldShowToday] = useState(true)
     const [hasRestored, setHasRestored] = useState(false)
 
-    // === КОНСТАНТЫ: 5 лет назад + 3 года вперёд = 8 лет ===
     const YEARS_BACK = 5
     const YEARS_FORWARD = 3
 
-    // === ГЕНЕРАЦИЯ ДНЕЙ ===
     const generateDays = useCallback((centerDate) => {
         const days = []
         const startDate = new Date(centerDate)
@@ -161,7 +159,6 @@ export function Calendar({
         const day = allDays[index]
         if (!day) return 44
         const dayShifts = shifts.filter(s => s.work_date === day.date.toISOString().split('T')[0])
-        // Высота зависит от количества объектов
         const rows = dayShifts.length > 0 ? Object.keys(dayShifts.reduce((acc, s) => {
             acc[s.site_name] = true
             return acc
@@ -169,7 +166,6 @@ export function Calendar({
         const baseHeight = 36
         const rowHeight = 24
         const dividerHeight = 20
-        // Проверяем, нужен ли разделитель
         if (index === 0) return baseHeight + rows * rowHeight + dividerHeight
         const prevDay = allDays[index - 1]
         const hasDivider = day.month !== prevDay.month || day.year !== prevDay.year
@@ -214,7 +210,7 @@ export function Calendar({
         }, 100)
     }, [mode, allDays, isReturning, savedScrollTop, hasRestored])
 
-    // === ПОКАЗАТЬ СЕГОДНЯ ПО ЦЕНТРУ (только при первом переходе) ===
+    // === ПОКАЗАТЬ СЕГОДНЯ ПО ЦЕНТРУ ===
     useEffect(() => {
         if (mode !== 'feed' || allDays.length === 0) return
         if (!shouldShowToday || isReturning) return
@@ -236,7 +232,7 @@ export function Calendar({
         }
     }, [mode, allDays, shouldShowToday, isReturning, virtualizer, hasRestored])
 
-    // === СБРОС ФЛАГОВ ПРИ ПЕРЕКЛЮЧЕНИИ ===
+    // === СБРОС ФЛАГОВ ===
     useEffect(() => {
         if (mode !== 'feed') {
             setShouldShowToday(true)
@@ -244,7 +240,7 @@ export function Calendar({
         }
     }, [mode])
 
-    // === СОХРАНЯЕМ ИНДЕКС ПРИ СКРОЛЛЕ ===
+    // === СОХРАНЯЕМ ИНДЕКС ===
     const handleScroll = useCallback(() => {
         if (!virtualizerRef.current || isRestoring.current) return
         
@@ -284,19 +280,22 @@ export function Calendar({
         }
     }
 
+    // ============================================================
+    // ИСПРАВЛЕННАЯ ФУНКЦИЯ changeMonth
+    // ============================================================
     const changeMonth = (direction) => {
         const newDate = new Date(displayDate)
         if (mode === 'month') {
             newDate.setMonth(newDate.getMonth() + direction)
+            setDisplayDate(newDate)
+            // НЕ ВЫЗЫВАЕМ onDateSelect при смене месяца
         } else if (mode === 'feed') {
             const centerDate = new Date(displayDate)
             centerDate.setDate(centerDate.getDate() + direction * 30)
             initFeed(centerDate)
-            onDateSelect(new Date(selectedDate))
-            return
+            setDisplayDate(centerDate)
+            // НЕ ВЫЗЫВАЕМ onDateSelect при смене месяца
         }
-        setDisplayDate(newDate)
-        onDateSelect(new Date(selectedDate))
     }
 
     const handlePrev = () => changeMonth(-1)
