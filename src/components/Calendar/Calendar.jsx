@@ -102,33 +102,25 @@ const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
     
     // Строим CSS для четких секций (как пицца)
     let backgroundStyle = {}
-    let numberColor = '#333'
+    let numberColor = '#1a1a1a'  // ← ВСЕГДА ЧЕРНЫЙ
     
     if (hasWork && !showPlus) {
         const count = displayColors.length
         
         if (count === 1) {
-            // 1 цвет — весь квадрат
             backgroundStyle = { backgroundColor: displayColors[0] }
-            numberColor = '#fff'
         } else if (count === 2) {
-            // 2 цвета — разделить по диагонали
             backgroundStyle = { 
                 background: `conic-gradient(from 0deg, ${displayColors[0]} 0deg, ${displayColors[0]} 180deg, ${displayColors[1]} 180deg, ${displayColors[1]} 360deg)`
             }
-            numberColor = '#fff'
         } else if (count === 3) {
-            // 3 цвета — разделить на 3 части
             backgroundStyle = { 
                 background: `conic-gradient(from 0deg, ${displayColors[0]} 0deg, ${displayColors[0]} 120deg, ${displayColors[1]} 120deg, ${displayColors[1]} 240deg, ${displayColors[2]} 240deg, ${displayColors[2]} 360deg)`
             }
-            numberColor = '#fff'
         } else if (count === 4) {
-            // 4 цвета — разделить на 4 части
             backgroundStyle = { 
                 background: `conic-gradient(from 0deg, ${displayColors[0]} 0deg, ${displayColors[0]} 90deg, ${displayColors[1]} 90deg, ${displayColors[1]} 180deg, ${displayColors[2]} 180deg, ${displayColors[2]} 270deg, ${displayColors[3]} 270deg, ${displayColors[3]} 360deg)`
             }
-            numberColor = '#fff'
         }
     } else if (hasWork && showPlus) {
         // Больше 4 объектов — показываем первые 4 цвета секциями + плюсик
@@ -148,7 +140,6 @@ const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
         } else if (count === 1) {
             backgroundStyle = { backgroundColor: displayColors[0] }
         }
-        numberColor = '#fff'
     }
 
     return (
@@ -159,7 +150,7 @@ const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
         >
             <div className="day-number" style={{ color: numberColor }}>{day.day}</div>
             {hasWork && showPlus && (
-                <div className="day-plus" style={{ color: 'white' }}>+</div>
+                <div className="day-plus" style={{ color: '#1a1a1a' }}>+</div>  {/* ← тоже черный */}
             )}
             {dayShifts.length > 0 && !hasWork && (
                 <div className="day-count">{dayShifts.length}</div>
