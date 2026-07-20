@@ -335,9 +335,12 @@ export function Calendar({
 
     return (
         <>
-            <div className="view-mode-wrapper">
-                <ViewModeButtons mode={mode} onChange={handleModeChange} />
-            </div>
+            {/* Временно скрыто — чипсы переключения режимов */}
+{/* 
+<div className="view-mode-wrapper">
+    <ViewModeButtons mode={mode} onChange={handleModeChange} />
+</div>
+*/}
 
             <div className={`calendar-wrapper ${mode === 'feed' ? 'feed-mode' : ''}`}>
                 <div className="calendar-header">
