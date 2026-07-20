@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { ViewModeButtons } from './ViewModeButtons'
 import { MONTHS, getMonthDays } from '../../utils/dateHelpers'
 
 // Компонент одного дня в ленте
@@ -82,8 +81,75 @@ const MonthDivider = ({ month, year }) => {
     )
 }
 
+// ============================================================
+// КОМПОНЕНТ ДНЯ С ЦВЕТАМИ
+// ============================================================
+const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
+    // Получаем уникальные site_id из смен за этот день
+    const siteIds = [...new Set(dayShifts.map(s => s.site_id))]
+    
+    // Получаем цвета для каждого объекта
+    const colors = siteIds
+        .map(id => {
+            const site = sites.find(s => s.id === id)
+            return site ? site.color : null
+        })
+        .filter(c => c !== null)
+    
+    const hasWork = colors.length > 0
+    const showPlus = colors.length > 4
+    const displayColors = colors.slice(0, 4)
+    
+    // Строим градиент для фона (максимум 4 цвета)
+    let backgroundStyle = {}
+    if (hasWork && !showPlus) {
+        if (displayColors.length === 1) {
+            backgroundStyle = { backgroundColor: displayColors[0] }
+        } else {
+            const gradientColors = displayColors.join(', ')
+            backgroundStyle = { 
+                background: `linear-gradient(135deg, ${gradientColors})`,
+                backgroundSize: '100% 100%'
+            }
+        }
+    } else if (hasWork && showPlus) {
+        // Если больше 4 объектов — показываем первые 4 цвета как градиент
+        const gradientColors = displayColors.join(', ')
+        backgroundStyle = { 
+            background: `linear-gradient(135deg, ${gradientColors})`,
+            backgroundSize: '100% 100%'
+        }
+    }
+
+    // Стиль для числа (белое на цветном фоне)
+    const numberStyle = (hasWork && !showPlus && displayColors.length > 0) ? { color: 'white' } : {}
+    const dotStyle = hasWork && !showPlus && displayColors.length > 0 ? { background: 'white' } : {}
+
+    return (
+        <div
+            className={`day-cell ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
+            onClick={onClick}
+            style={backgroundStyle}
+        >
+            <div className="day-number" style={numberStyle}>{day.day}</div>
+            {hasWork && (
+                <>
+                    <div className="day-dot" style={dotStyle}></div>
+                    {showPlus && (
+                        <div className="day-plus" style={{ color: 'white' }}>+</div>
+                    )}
+                </>
+            )}
+            {dayShifts.length > 0 && !hasWork && (
+                <div className="day-count">{dayShifts.length}</div>
+            )}
+        </div>
+    )
+}
+
 export function Calendar({ 
     shifts, 
+    sites = [],  // ← ПОЛУЧАЕМ SITES
     selectedDate, 
     onDateSelect, 
     onDayClick,
@@ -185,7 +251,6 @@ export function Calendar({
         const initialDate = selectedDate || new Date()
         setDisplayDate(initialDate)
         initFeed(initialDate)
-        // НЕ ВЫЗЫВАЕМ onDateSelect!
     }, [])
 
     // ОБНОВЛЕНИЕ ПРИ ИЗМЕНЕНИИ selectedDate ИЗВНЕ
@@ -306,7 +371,6 @@ export function Calendar({
         if (onModeChange) {
             onModeChange(newMode, null)
         }
-        // ПРИ СМЕНЕ РЕЖИМА НЕ СБРАСЫВАЕМ ДАТУ!
         if (selectedDate) {
             setDisplayDate(selectedDate)
             if (newMode === 'feed') {
@@ -336,11 +400,11 @@ export function Calendar({
     return (
         <>
             {/* Временно скрыто — чипсы переключения режимов */}
-{/* 
-<div className="view-mode-wrapper">
-    <ViewModeButtons mode={mode} onChange={handleModeChange} />
-</div>
-*/}
+            {/* 
+            <div className="view-mode-wrapper">
+                <ViewModeButtons mode={mode} onChange={handleModeChange} />
+            </div>
+            */}
 
             <div className={`calendar-wrapper ${mode === 'feed' ? 'feed-mode' : ''}`}>
                 <div className="calendar-header">
@@ -405,38 +469,33 @@ export function Calendar({
                         </div>
                     </div>
                 ) : (
-                    <>
-                        <div className="calendar-grid">
-                            {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
-                                <div key={day} className="day-label">{day}</div>
-                            ))}
-                            
-                            {getMonthDays(displayDate.getFullYear(), displayDate.getMonth()).map((day, index) => {
-                                if (day.empty) {
-                                    return <div key={`empty-${index}`} className="day-cell empty"></div>
-                                }
+                    <div className="calendar-grid">
+                        {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
+                            <div key={day} className="day-label">{day}</div>
+                        ))}
+                        
+                        {getMonthDays(displayDate.getFullYear(), displayDate.getMonth()).map((day, index) => {
+                            if (day.empty) {
+                                return <div key={`empty-${index}`} className="day-cell empty"></div>
+                            }
 
-                                const dayShifts = getDayShifts(day.date)
-                                const hasWork = dayShifts.length > 0
-                                const today = isToday(day.date)
-                                const selected = isSelected(day.date)
+                            const dayShifts = getDayShifts(day.date)
+                            const today = isToday(day.date)
+                            const selected = isSelected(day.date)
 
-                                return (
-                                    <div
-                                        key={index}
-                                        className={`day-cell ${today ? 'today' : ''} ${selected ? 'selected' : ''} ${hasWork ? 'has-work' : ''}`}
-                                        onClick={() => handleDayClick(day.date)}
-                                    >
-                                        <div className="day-number">{day.day}</div>
-                                        {hasWork && <div className="day-dot"></div>}
-                                        {dayShifts.length > 0 && (
-                                            <div className="day-count">{dayShifts.length}</div>
-                                        )}
-                                    </div>
-                                )
-                            })}
-                        </div>
-                    </>
+                            return (
+                                <DayCell
+                                    key={index}
+                                    day={day}
+                                    dayShifts={dayShifts}
+                                    isToday={today}
+                                    isSelected={selected}
+                                    sites={sites}
+                                    onClick={() => handleDayClick(day.date)}
+                                />
+                            )
+                        })}
+                    </div>
                 )}
             </div>
         </>
