@@ -20,7 +20,9 @@ function AppContent() {
     const [showNotifications, setShowNotifications] = useState(false)
     const [unreadCount, setUnreadCount] = useState(1)
     
-    // ✅ ДОБАВЛЯЕМ refetch!
+    // ⬇️ ПЕРЕНЕСЛИ selectedDate СЮДА!
+    const [selectedDate, setSelectedDate] = useState(new Date())
+    
     const { shifts, loading, error, refetch } = useShifts()
     const { user, login, logout } = useAuth()
 
@@ -83,8 +85,15 @@ function AppContent() {
             case 'my-tabel':
                 return <MyTabelPage shifts={shifts} />
             case 'calendar':
-                // ✅ ПЕРЕДАЕМ refetchShifts!
-                return <MainPage shifts={shifts} loading={loading} refetchShifts={refetch} />
+                return (
+                    <MainPage 
+                        shifts={shifts} 
+                        loading={loading} 
+                        refetchShifts={refetch}
+                        selectedDate={selectedDate}
+                        setSelectedDate={setSelectedDate}
+                    />
+                )
             case 'sites':
                 return <SitesPage />
             case 'workers':
@@ -94,8 +103,15 @@ function AppContent() {
             case 'extra':
                 return <ExtraPage />
             default:
-                // ✅ ПЕРЕДАЕМ refetchShifts!
-                return <MainPage shifts={shifts} loading={loading} refetchShifts={refetch} />
+                return (
+                    <MainPage 
+                        shifts={shifts} 
+                        loading={loading} 
+                        refetchShifts={refetch}
+                        selectedDate={selectedDate}
+                        setSelectedDate={setSelectedDate}
+                    />
+                )
         }
     }
 
