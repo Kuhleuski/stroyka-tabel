@@ -92,13 +92,10 @@ export function Calendar({
     isReturning,
     savedScrollTop
 }) {
-    console.log('🔴 Calendar рендерится, selectedDate пропс:', selectedDate?.toISOString?.())
-    
     const [mode, setMode] = useState(externalMode || 'month')
-    const [displayDate, setDisplayDate] = useState(new Date())
+    const [displayDate, setDisplayDate] = useState(selectedDate || new Date())
     const [allDays, setAllDays] = useState([])
     const containerRef = useRef(null)
-    const isFirstRender = useRef(true)
     const isRestoring = useRef(false)
     const virtualizerRef = useRef(null)
     const [shouldShowToday, setShouldShowToday] = useState(true)
@@ -183,23 +180,23 @@ export function Calendar({
         }
     })
 
-    // === ИНИЦИАЛИЗАЦИЯ ===
-useEffect(() => {
-    // ТОЛЬКО ЕСЛИ selectedDate НЕ ПЕРЕДАН ИЗ ВНЕ
-    if (isFirstRender.current && !selectedDate) {
-        isFirstRender.current = false
-        const today = new Date()
-        onDateSelect(today)
-        setDisplayDate(today)
-        initFeed(today)
-    } else if (isFirstRender.current && selectedDate) {
-        // ЕСЛИ ДАТА УЖЕ ЕСТЬ — ИСПОЛЬЗУЕМ ЕЕ
-        isFirstRender.current = false
-        onDateSelect(selectedDate)
-        setDisplayDate(selectedDate)
-        initFeed(selectedDate)
-    }
-}, [initFeed, onDateSelect, selectedDate])
+    // ИНИЦИАЛИЗАЦИЯ FEED ПРИ ПЕРВОМ РЕНДЕРЕ
+    useEffect(() => {
+        const initialDate = selectedDate || new Date()
+        setDisplayDate(initialDate)
+        initFeed(initialDate)
+        // НЕ ВЫЗЫВАЕМ onDateSelect!
+    }, [])
+
+    // ОБНОВЛЕНИЕ ПРИ ИЗМЕНЕНИИ selectedDate ИЗВНЕ
+    useEffect(() => {
+        if (selectedDate) {
+            setDisplayDate(selectedDate)
+            if (mode === 'feed') {
+                initFeed(selectedDate)
+            }
+        }
+    }, [selectedDate, mode])
 
     // === ВОССТАНОВЛЕНИЕ ПОЗИЦИИ ===
     useEffect(() => {
@@ -305,25 +302,29 @@ useEffect(() => {
     const handleNext = () => changeMonth(1)
 
     const handleModeChange = (newMode) => {
-        console.log('🟣 Смена режима:', newMode)
         setMode(newMode)
         if (onModeChange) {
             onModeChange(newMode, null)
         }
-        const today = new Date()
-        console.log('🟣 При смене режима устанавливаем СЕГОДНЯ:', today.toISOString())
-        onDateSelect(today)
-        setDisplayDate(today)
-        isRestoring.current = false
-        
-        if (newMode === 'feed') {
-            initFeed(today)
-            setShouldShowToday(true)
+        // ПРИ СМЕНЕ РЕЖИМА НЕ СБРАСЫВАЕМ ДАТУ!
+        if (selectedDate) {
+            setDisplayDate(selectedDate)
+            if (newMode === 'feed') {
+                initFeed(selectedDate)
+            }
+        } else {
+            const today = new Date()
+            onDateSelect(today)
+            setDisplayDate(today)
+            if (newMode === 'feed') {
+                initFeed(today)
+            }
         }
+        setShouldShowToday(true)
+        isRestoring.current = false
     }
 
     const handleDayClick = (date) => {
-        console.log('🟣 Клик в календаре по:', date.toISOString())
         onDateSelect(date)
         if (onDayClick) {
             onDayClick(date, mode)
