@@ -98,7 +98,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         
         setShowSavingScreen(false)
         
-        // Обновляем детальный режим
+        // Просто обновляем
         const currentDate = detailDate || selectedDate
         setDetailDate(null)
         setTimeout(() => {
@@ -107,7 +107,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         }, 50)
     }
 
-    // Если открыт экран сохранения
+    // Экран сохранения
     if (showSavingScreen) {
         return (
             <div className="saving-screen">
@@ -120,7 +120,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         )
     }
 
-    // Если открыта форма добавления смены
+    // Форма добавления смены
     if (showAddShift) {
         return (
             <AddShiftForm
@@ -133,9 +133,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         )
     }
 
-    // ============================================================
-    // ДЕТАЛЬНЫЙ РЕЖИМ — ВЕСЬ ЭКРАН (как в "Мой табель")
-    // ============================================================
+    // Детальный режим (весь экран)
     if (isDetailOpen && detailDate) {
         return (
             <div className="detail-screen">
@@ -171,9 +169,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         )
     }
 
-    // ============================================================
-    // ОСНОВНОЙ ЭКРАН — КАЛЕНДАРЬ
-    // ============================================================
+    // Календарь
     return (
         <>
             <Calendar
