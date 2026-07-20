@@ -20,7 +20,6 @@ export async function fetchShifts() {
     }
 }
 
-// НОВАЯ ФУНКЦИЯ — добавление смены
 export async function addShift(shiftData) {
     try {
         const url = `${SUPABASE_URL}/rest/v1/shifts?apikey=${SUPABASE_ANON_KEY}`
@@ -70,7 +69,7 @@ export async function fetchSites() {
     }
 }
 
-export async function addSite(name, address) {
+export async function addSite(name, address, color) {
     const url = `${SUPABASE_URL}/rest/v1/sites?apikey=${SUPABASE_ANON_KEY}`
     const response = await fetch(url, {
         method: 'POST',
@@ -78,7 +77,7 @@ export async function addSite(name, address) {
             'Content-Type': 'application/json',
             'Prefer': 'return=representation'
         },
-        body: JSON.stringify([{ name, address }])
+        body: JSON.stringify([{ name, address, color }])
     })
     
     if (!response.ok) {
