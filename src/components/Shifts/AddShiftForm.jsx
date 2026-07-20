@@ -1,14 +1,12 @@
 import React, { useState } from 'react'
-import { X } from 'lucide-react'
+import { ArrowLeft, Check } from 'lucide-react'
 import { addShift } from '../../services/supabase'
 
 export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers }) => {
-  // Состояния: какой объект выбран, какие работники выбраны
   const [selectedSite, setSelectedSite] = useState('')
   const [selectedWorkers, setSelectedWorkers] = useState([])
   const [loading, setLoading] = useState(false)
 
-  // Переключатель для работника (вкл/выкл)
   const handleWorkerToggle = (workerId) => {
     setSelectedWorkers(prev =>
       prev.includes(workerId)
@@ -17,7 +15,6 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
     )
   }
 
-  // Кнопка "Выбрать всех" / "Снять всех"
   const handleSelectAll = () => {
     if (selectedWorkers.length === workers.length) {
       setSelectedWorkers([])
@@ -26,11 +23,9 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
     }
   }
 
-  // Сохранение смены
   const handleSubmit = async (e) => {
     e.preventDefault()
     
-    // Проверки
     if (!selectedSite) {
       alert('Выберите объект')
       return
@@ -42,7 +37,6 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
 
     setLoading(true)
     try {
-      // Для каждого выбранного работника создаём смену
       const shiftPromises = selectedWorkers.map(workerId => 
         addShift({
           worker_id: workerId,
@@ -54,7 +48,7 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
       )
       
       await Promise.all(shiftPromises)
-      onSuccess() // Закрываем форму и обновляем данные
+      onSuccess()
     } catch (error) {
       console.error('Ошибка:', error)
       alert('Не удалось создать смену')
@@ -63,7 +57,6 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
     }
   }
 
-  // Красивое отображение даты
   const formatDate = (date) => {
     if (!date) return ''
     const months = ['Января','Февраля','Марта','Апреля','Мая','Июня','Июля','Августа','Сентября','Октября','Ноября','Декабря']
@@ -71,92 +64,91 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
   }
 
   return (
-    <div className="add-shift-overlay" onClick={onClose}>
-      <div className="add-shift-modal" onClick={(e) => e.stopPropagation()}>
-        {/* Заголовок */}
-        <div className="modal-header">
-          <h2>➕ Добавить смену</h2>
-          <button onClick={onClose} className="close-btn">
-            <X size={24} />
-          </button>
+    <div className="shift-form-screen">
+      {/* Шапка */}
+      <div className="shift-form-header">
+        <button onClick={onClose} className="shift-form-back">
+          <ArrowLeft size={24} />
+          <span>Назад</span>
+        </button>
+        <span className="shift-form-title">Новая смена</span>
+        <button 
+          type="submit" 
+          form="shift-form"
+          className="shift-form-save"
+          disabled={loading}
+        >
+          {loading ? '...' : <Check size={24} />}
+        </button>
+      </div>
+
+      {/* Форма */}
+      <form id="shift-form" onSubmit={handleSubmit} className="shift-form-body">
+        {/* Дата */}
+        <div className="shift-form-field">
+          <label className="shift-form-label">📅 Дата</label>
+          <input 
+            type="text" 
+            value={formatDate(selectedDate)}
+            disabled
+            className="shift-form-input shift-form-input-disabled"
+          />
         </div>
 
-        <form onSubmit={handleSubmit}>
-          {/* Дата (только для просмотра) */}
-          <div className="form-group">
-            <label>📅 Дата</label>
-            <input 
-              type="text" 
-              value={formatDate(selectedDate)}
-              disabled
-              className="date-display"
-            />
-          </div>
+        {/* Выбор объекта */}
+        <div className="shift-form-field">
+          <label className="shift-form-label">🏗️ Объект</label>
+          <select 
+            value={selectedSite}
+            onChange={(e) => setSelectedSite(e.target.value)}
+            className="shift-form-select"
+            required
+          >
+            <option value="">Выберите объект</option>
+            {sites.map(site => (
+              <option key={site.id} value={site.id}>
+                {site.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          {/* Выбор объекта */}
-          <div className="form-group">
-            <label>🏗️ Объект</label>
-            <select 
-              value={selectedSite}
-              onChange={(e) => setSelectedSite(e.target.value)}
-              className="site-select"
-              required
-            >
-              <option value="">-- Выберите объект --</option>
-              {sites.map(site => (
-                <option key={site.id} value={site.id}>
-                  {site.name}
-                </option>
-              ))}
-            </select>
+        {/* Выбор работников */}
+        <div className="shift-form-field">
+          <div className="shift-form-workers-header">
+            <label className="shift-form-label">👷 Работники</label>
+            {workers.length > 0 && (
+              <button 
+                type="button" 
+                onClick={handleSelectAll}
+                className="shift-form-select-all"
+              >
+                {selectedWorkers.length === workers.length ? 'Снять всех' : 'Выбрать всех'}
+              </button>
+            )}
           </div>
-
-          {/* Выбор работников */}
-          <div className="form-group">
-            <div className="workers-header">
-              <label>👷 Работники</label>
-              {workers.length > 0 && (
-                <button 
-                  type="button" 
-                  onClick={handleSelectAll}
-                  className="select-all-btn"
-                >
-                  {selectedWorkers.length === workers.length ? 'Снять всех' : 'Выбрать всех'}
-                </button>
-              )}
-            </div>
-            <div className="workers-list">
-              {workers.length === 0 ? (
-                <div className="empty-workers">
-                  <p>Нет добавленных работников</p>
-                  <span>Добавьте в разделе "Бригада"</span>
-                </div>
-              ) : (
-                workers.map(worker => (
-                  <label key={worker.id} className="worker-item">
-                    <input
-                      type="checkbox"
-                      checked={selectedWorkers.includes(worker.id)}
-                      onChange={() => handleWorkerToggle(worker.id)}
-                    />
-                    <span>{worker.name}</span>
-                  </label>
-                ))
-              )}
-            </div>
+          
+          <div className="shift-form-workers-list">
+            {workers.length === 0 ? (
+              <div className="shift-form-empty">
+                <p>Нет добавленных работников</p>
+                <span>Добавьте в разделе "Бригада"</span>
+              </div>
+            ) : (
+              workers.map(worker => (
+                <label key={worker.id} className="shift-form-worker-item">
+                  <input
+                    type="checkbox"
+                    checked={selectedWorkers.includes(worker.id)}
+                    onChange={() => handleWorkerToggle(worker.id)}
+                  />
+                  <span>{worker.name}</span>
+                </label>
+              ))
+            )}
           </div>
-
-          {/* Кнопки */}
-          <div className="form-actions">
-            <button type="button" onClick={onClose} className="cancel-btn">
-              Отмена
-            </button>
-            <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? '⏳ Сохранение...' : '✅ Сохранить'}
-            </button>
-          </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   )
 }
