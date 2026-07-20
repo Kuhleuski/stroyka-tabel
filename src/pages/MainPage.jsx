@@ -87,15 +87,23 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         setShowAddShift(true)
     }
 
-    // Обработчик успешного добавления смены
+    // Обработчик успешного добавления смены — ОБНОВЛЕНО
     const handleShiftAdded = async () => {
         setShowAddShift(false)
         // Обновляем данные смен
         if (refetchShifts) {
             await refetchShifts()
         }
-        // Обновляем работников и объекты (на случай если они изменились)
+        // Обновляем работников и объекты
         await loadSitesAndWorkers()
+        
+        // Принудительно обновляем детальный режим
+        const currentDate = detailDate || selectedDate
+        setDetailDate(null)
+        setTimeout(() => {
+            setDetailDate(currentDate)
+            setIsDetailOpen(true)
+        }, 50)
     }
 
     return (
