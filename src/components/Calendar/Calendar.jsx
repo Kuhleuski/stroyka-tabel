@@ -189,16 +189,17 @@ export function Calendar({
         }
     })
 
-    // === ИНИЦИАЛИЗАЦИЯ ===
-    useEffect(() => {
-        if (isFirstRender.current) {
-            isFirstRender.current = false
-            const today = new Date()
-            onDateSelect(today)
-            setDisplayDate(today)
-            initFeed(today)
-        }
-    }, [initFeed, onDateSelect])
+   // === ИНИЦИАЛИЗАЦИЯ ===
+useEffect(() => {
+    if (isFirstRender.current) {
+        isFirstRender.current = false
+        // ИСПОЛЬЗУЕМ selectedDate ИЗ ПРОПСОВ, ЕСЛИ ОН ЕСТЬ
+        const initialDate = selectedDate || new Date()
+        onDateSelect(initialDate)
+        setDisplayDate(initialDate)
+        initFeed(initialDate)
+    }
+}, [initFeed, onDateSelect, selectedDate])
 
     // === ВОССТАНОВЛЕНИЕ ПОЗИЦИИ ===
     useEffect(() => {
