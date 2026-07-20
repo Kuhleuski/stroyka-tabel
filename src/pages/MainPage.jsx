@@ -18,6 +18,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     const [showAddShift, setShowAddShift] = useState(false)
     const [sites, setSites] = useState([])
     const [workers, setWorkers] = useState([])
+    const [isSaving, setIsSaving] = useState(false) // НОВОЕ: для прелоадера
     const { user } = useAuth()
 
     useEffect(() => {
@@ -87,9 +88,10 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         setShowAddShift(true)
     }
 
-    // Обработчик успешного добавления смены — ОБНОВЛЕНО
+    // Обработчик успешного добавления смены — С ПРЕЛОАДЕРОМ
     const handleShiftAdded = async () => {
-        setShowAddShift(false)
+        setIsSaving(true) // ПОКАЗЫВАЕМ ПРЕЛОАДЕР
+        
         // Обновляем данные смен
         if (refetchShifts) {
             await refetchShifts()
@@ -97,13 +99,17 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         // Обновляем работников и объекты
         await loadSitesAndWorkers()
         
+        // Закрываем форму
+        setShowAddShift(false)
+        
         // Принудительно обновляем детальный режим
         const currentDate = detailDate || selectedDate
         setDetailDate(null)
         setTimeout(() => {
             setDetailDate(currentDate)
             setIsDetailOpen(true)
-        }, 50)
+            setIsSaving(false) // СКРЫВАЕМ ПРЕЛОАДЕР
+        }, 300)
     }
 
     return (
@@ -125,8 +131,9 @@ export function MainPage({ shifts, loading, refetchShifts }) {
                             <button 
                                 className="detail-add-shift-btn"
                                 onClick={() => handleOpenAddShift(detailDate)}
+                                disabled={isSaving}
                             >
-                                ➕ Добавить смену на этот день
+                                {isSaving ? '⏳ Сохраняем...' : '➕ Добавить смену на этот день'}
                             </button>
                         </div>
                     )}
