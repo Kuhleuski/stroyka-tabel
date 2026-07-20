@@ -11,9 +11,9 @@ export function SitesPage({ onAddSite }) {
     const [scrollPosition, setScrollPosition] = useState(0)
     const { sites, loading, error, addSiteToState, removeSiteFromState } = useSites()
 
-    const handleSave = async (name, address) => {
+    const handleSave = async (name, address, color) => {
         try {
-            const newSite = await addSite(name, address)
+            const newSite = await addSite(name, address, color)
             const siteData = newSite[0] || newSite
             addSiteToState(siteData)
             if (onAddSite) {
