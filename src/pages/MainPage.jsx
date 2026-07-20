@@ -96,19 +96,21 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         }
         await loadSitesAndWorkers()
         
-        // 3. Закрываем экран сохранения и обновляем детальный режим ОДНИМ ДЕЙСТВИЕМ
-        const currentDate = detailDate || selectedDate
+        // 3. Ждем 1 секунду для плавности
+        await new Promise(resolve => setTimeout(resolve, 1000))
         
-        // Закрываем всё
+        // 4. Закрываем экран сохранения
         setShowSavingScreen(false)
+        
+        // 5. Обновляем детальный режим
+        const currentDate = detailDate || selectedDate
         setIsDetailOpen(false)
         setDetailDate(null)
         
-        // И открываем заново
         setTimeout(() => {
             setDetailDate(currentDate)
             setIsDetailOpen(true)
-        }, 150)
+        }, 200)
     }
 
     // Если открыт экран сохранения
@@ -117,7 +119,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
             <div className="saving-screen">
                 <div className="saving-content">
                     <div className="saving-spinner"></div>
-                    <h2 className="saving-title">Сохраняем смену...</h2>
+                    <h2 className="saving-title">Сохраняем смену</h2>
                     <p className="saving-text">Пожалуйста, подождите</p>
                 </div>
             </div>
