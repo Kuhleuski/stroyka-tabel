@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { ViewModeButtons } from './ViewModeButtons'
 import { MONTHS, getMonthDays } from '../../utils/dateHelpers'
+import { Plus } from 'lucide-react'
 
 // Компонент одного дня в ленте
 const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelected, isToday }) => {
@@ -91,7 +92,9 @@ export function Calendar({
     mode: externalMode,
     onModeChange,
     isReturning,
-    savedScrollTop
+    savedScrollTop,
+    onAddShift, // НОВЫЙ ПРОП
+    isAdmin    // НОВЫЙ ПРОП
 }) {
     const [mode, setMode] = useState(externalMode || 'month')
     const [displayDate, setDisplayDate] = useState(new Date())
@@ -325,6 +328,14 @@ export function Calendar({
         }
     }
 
+    // Обработчик открытия формы добавления смены
+    const handleAddShiftClick = (e) => {
+        e.stopPropagation() // Останавливаем всплытие, чтобы не сработал клик по дню
+        if (onAddShift) {
+            onAddShift(selectedDate)
+        }
+    }
+
     const feedKey = `feed-${mode}-${allDays.length}`
 
     return (
@@ -396,36 +407,50 @@ export function Calendar({
                         </div>
                     </div>
                 ) : (
-                    <div className="calendar-grid">
-                        {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
-                            <div key={day} className="day-label">{day}</div>
-                        ))}
-                        
-                        {getMonthDays(displayDate.getFullYear(), displayDate.getMonth()).map((day, index) => {
-                            if (day.empty) {
-                                return <div key={`empty-${index}`} className="day-cell empty"></div>
-                            }
+                    <>
+                        {/* Кнопка добавления смены для режима "Месяц" */}
+                        {isAdmin && selectedDate && (
+                            <div className="calendar-date-actions">
+                                <span className="selected-date-display">
+                                    📅 {selectedDate.getDate()} {['Января','Февраля','Марта','Апреля','Мая','Июня','Июля','Августа','Сентября','Октября','Ноября','Декабря'][selectedDate.getMonth()]} {selectedDate.getFullYear()}
+                                </span>
+                                <button className="add-shift-btn" onClick={handleAddShiftClick}>
+                                    <Plus size={18} />
+                                    Добавить смену
+                                </button>
+                            </div>
+                        )}
+                        <div className="calendar-grid">
+                            {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
+                                <div key={day} className="day-label">{day}</div>
+                            ))}
+                            
+                            {getMonthDays(displayDate.getFullYear(), displayDate.getMonth()).map((day, index) => {
+                                if (day.empty) {
+                                    return <div key={`empty-${index}`} className="day-cell empty"></div>
+                                }
 
-                            const dayShifts = getDayShifts(day.date)
-                            const hasWork = dayShifts.length > 0
-                            const today = isToday(day.date)
-                            const selected = isSelected(day.date)
+                                const dayShifts = getDayShifts(day.date)
+                                const hasWork = dayShifts.length > 0
+                                const today = isToday(day.date)
+                                const selected = isSelected(day.date)
 
-                            return (
-                                <div
-                                    key={index}
-                                    className={`day-cell ${today ? 'today' : ''} ${selected ? 'selected' : ''} ${hasWork ? 'has-work' : ''}`}
-                                    onClick={() => handleDayClick(day.date)}
-                                >
-                                    <div className="day-number">{day.day}</div>
-                                    {hasWork && <div className="day-dot"></div>}
-                                    {dayShifts.length > 0 && (
-                                        <div className="day-count">{dayShifts.length}</div>
-                                    )}
-                                </div>
-                            )
-                        })}
-                    </div>
+                                return (
+                                    <div
+                                        key={index}
+                                        className={`day-cell ${today ? 'today' : ''} ${selected ? 'selected' : ''} ${hasWork ? 'has-work' : ''}`}
+                                        onClick={() => handleDayClick(day.date)}
+                                    >
+                                        <div className="day-number">{day.day}</div>
+                                        {hasWork && <div className="day-dot"></div>}
+                                        {dayShifts.length > 0 && (
+                                            <div className="day-count">{dayShifts.length}</div>
+                                        )}
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </>
                 )}
             </div>
         </>
