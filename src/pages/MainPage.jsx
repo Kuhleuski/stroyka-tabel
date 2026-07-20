@@ -6,19 +6,9 @@ import { fetchSites, fetchWorkers } from '../services/supabase'
 import { useAuth } from '../context/AuthContext'
 
 export function MainPage({ shifts, loading, refetchShifts }) {
-    // === ДАТА ХРАНИТСЯ В sessionStorage ===
-    const getStoredDate = () => {
-        const stored = sessionStorage.getItem('mainPageSelectedDate')
-        if (stored) {
-            const date = new Date(stored)
-            if (!isNaN(date.getTime())) {
-                return date
-            }
-        }
-        return new Date()
-    }
-
-    const [selectedDate, setSelectedDate] = useState(getStoredDate())
+    console.log('🔵 MainPage рендерится')
+    
+    const [selectedDate, setSelectedDate] = useState(new Date())
     const [calendarMode, setCalendarMode] = useState('month')
     const [isReturning, setIsReturning] = useState(false)
     const [savedScrollTop, setSavedScrollTop] = useState(null)
@@ -31,12 +21,11 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     const [updateKey, setUpdateKey] = useState(0)
     const { user } = useAuth()
 
-    // Сохраняем дату в sessionStorage при каждом изменении
-    useEffect(() => {
-        sessionStorage.setItem('mainPageSelectedDate', selectedDate.toISOString())
-    }, [selectedDate])
+    console.log('🔵 selectedDate в MainPage:', selectedDate?.toISOString?.())
 
     useEffect(() => {
+        console.log('🟢 useEffect MainPage (mount)')
+        setSelectedDate(new Date())
         loadSitesAndWorkers()
     }, [])
 
@@ -58,6 +47,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     }
 
     const handleDayClick = (date) => {
+        console.log('🟢 Клик по дню в MainPage:', date.toISOString())
         setSelectedDate(date)
     }
 
@@ -70,15 +60,19 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     }
 
     const handleOpenAddShift = (date) => {
+        console.log('🟡 Открываем форму добавления для даты:', date.toISOString())
         setSelectedDate(date)
         setShowAddShift(true)
     }
 
     const handleShiftAdded = async () => {
+        console.log('🟡 Начинаем сохранение, текущая дата:', selectedDate?.toISOString())
+        
         setShowSavingScreen(true)
         setShowAddShift(false)
         
         if (refetchShifts) {
+            console.log('🟡 Обновляем смены...')
             await refetchShifts()
         }
         await loadSitesAndWorkers()
@@ -87,7 +81,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         
         setShowSavingScreen(false)
         
-        // ДАТА НЕ ТРОГАЕТСЯ!
+        console.log('🟡 Сохранение завершено, дата:', selectedDate?.toISOString())
         setUpdateKey(prev => prev + 1)
     }
 
