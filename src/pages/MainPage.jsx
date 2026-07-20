@@ -13,6 +13,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     const [calendarMode, setCalendarMode] = useState('month')
     const [isReturning, setIsReturning] = useState(false)
     const [savedScrollTop, setSavedScrollTop] = useState(null)
+    const [isDetailLoading, setIsDetailLoading] = useState(false) // НОВОЕ
     
     const [showAddShift, setShowAddShift] = useState(false)
     const [sites, setSites] = useState([])
@@ -51,10 +52,18 @@ export function MainPage({ shifts, loading, refetchShifts }) {
             }
         }
         
+        // ПОКАЗЫВАЕМ ПРЕЛОАДЕР
+        setIsDetailLoading(true)
+        
         setDetailDate(date)
         setReturnMode(mode)
         setIsReturning(false)
         setIsDetailOpen(true)
+        
+        // СКРЫВАЕМ ПРЕЛОАДЕР ЧЕРЕЗ 300ms
+        setTimeout(() => {
+            setIsDetailLoading(false)
+        }, 300)
     }
 
     const handleCloseDetail = () => {
@@ -62,6 +71,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         setDetailDate(null)
         setCalendarMode(returnMode)
         setIsReturning(true)
+        setIsDetailLoading(false)
     }
 
     const handleModeChange = (mode) => {
@@ -84,46 +94,28 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         setSelectedDate(date)
         setShowAddShift(true)
     }
-const handleShiftAdded = async () => {
-    console.log('🟢 1. Начинаем сохранение')
-    
-    setShowSavingScreen(true)
-    setShowAddShift(false)
-    
-    console.log('🟢 2. Экран сохранения показан')
-    
-    if (refetchShifts) {
-        console.log('🟢 3. Обновляем смены...')
-        await refetchShifts()
-        console.log('🟢 3.1 Количество смен после обновления:', shifts.length)  // ← НОВЫЙ ЛОГ
+
+    const handleShiftAdded = async () => {
+        setShowSavingScreen(true)
+        setShowAddShift(false)
+        
+        if (refetchShifts) {
+            await refetchShifts()
+        }
+        await loadSitesAndWorkers()
+        
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        setShowSavingScreen(false)
+        
+        const currentDate = detailDate || selectedDate
+        setDetailDate(null)
+        
+        setTimeout(() => {
+            setDetailDate(currentDate)
+            setIsDetailOpen(true)
+        }, 50)
     }
-    await loadSitesAndWorkers()
-    console.log('🟢 4. Данные обновлены')
-    
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    console.log('🟢 5. Пауза прошла')
-    
-    setShowSavingScreen(false)
-    console.log('🟢 6. Экран сохранения закрыт')
-    
-    const currentDate = detailDate || selectedDate
-    console.log('🟢 7. Текущая дата:', currentDate)
-    console.log('🟢 8. isDetailOpen до:', isDetailOpen)
-    
-    // ПРИНУДИТЕЛЬНО ОБНОВЛЯЕМ
-    const dateStr = currentDate.toISOString().split('T')[0]
-    const dayShifts = shifts.filter(s => s.work_date === dateStr)
-    console.log('🟢 8.1 Смен за этот день:', dayShifts.length)  // ← НОВЫЙ ЛОГ
-    
-    setDetailDate(null)
-    
-    setTimeout(() => {
-        console.log('🟢 9. Открываем детальный режим')
-        setDetailDate(currentDate)
-        setIsDetailOpen(true)
-        console.log('🟢 10. isDetailOpen после:', true)
-    }, 50)
-}
 
     // Если открыт экран сохранения
     if (showSavingScreen) {
@@ -176,12 +168,19 @@ const handleShiftAdded = async () => {
                     )}
                     
                     <div className="detail-screen-content">
-                        <Timeline 
-                            shifts={shifts} 
-                            date={detailDate} 
-                            onClose={handleCloseDetail}
-                            isFullscreen={true}
-                        />
+                        {isDetailLoading ? (
+                            <div className="detail-loading">
+                                <div className="detail-spinner"></div>
+                                <p>Загрузка...</p>
+                            </div>
+                        ) : (
+                            <Timeline 
+                                shifts={shifts} 
+                                date={detailDate} 
+                                onClose={handleCloseDetail}
+                                isFullscreen={true}
+                            />
+                        )}
                     </div>
                 </div>
             ) : (
