@@ -82,7 +82,7 @@ const MonthDivider = ({ month, year }) => {
 }
 
 // ============================================================
-// КОМПОНЕНТ ДНЯ С ЦВЕТАМИ
+// КОМПОНЕНТ ДНЯ С ЦВЕТАМИ (ЧЕТКИЕ СЕКЦИИ)
 // ============================================================
 const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
     // Получаем уникальные site_id из смен за этот день
@@ -100,30 +100,56 @@ const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
     const showPlus = colors.length > 4
     const displayColors = colors.slice(0, 4)
     
-    // Строим градиент для фона (максимум 4 цвета)
+    // Строим CSS для четких секций (как пицца)
     let backgroundStyle = {}
+    let numberColor = '#333'
+    
     if (hasWork && !showPlus) {
-        if (displayColors.length === 1) {
+        const count = displayColors.length
+        
+        if (count === 1) {
+            // 1 цвет — весь квадрат
             backgroundStyle = { backgroundColor: displayColors[0] }
-        } else {
-            const gradientColors = displayColors.join(', ')
+            numberColor = '#fff'
+        } else if (count === 2) {
+            // 2 цвета — разделить по диагонали
             backgroundStyle = { 
-                background: `linear-gradient(135deg, ${gradientColors})`,
-                backgroundSize: '100% 100%'
+                background: `conic-gradient(from 0deg, ${displayColors[0]} 0deg, ${displayColors[0]} 180deg, ${displayColors[1]} 180deg, ${displayColors[1]} 360deg)`
             }
+            numberColor = '#fff'
+        } else if (count === 3) {
+            // 3 цвета — разделить на 3 части
+            backgroundStyle = { 
+                background: `conic-gradient(from 0deg, ${displayColors[0]} 0deg, ${displayColors[0]} 120deg, ${displayColors[1]} 120deg, ${displayColors[1]} 240deg, ${displayColors[2]} 240deg, ${displayColors[2]} 360deg)`
+            }
+            numberColor = '#fff'
+        } else if (count === 4) {
+            // 4 цвета — разделить на 4 части
+            backgroundStyle = { 
+                background: `conic-gradient(from 0deg, ${displayColors[0]} 0deg, ${displayColors[0]} 90deg, ${displayColors[1]} 90deg, ${displayColors[1]} 180deg, ${displayColors[2]} 180deg, ${displayColors[2]} 270deg, ${displayColors[3]} 270deg, ${displayColors[3]} 360deg)`
+            }
+            numberColor = '#fff'
         }
     } else if (hasWork && showPlus) {
-        // Если больше 4 объектов — показываем первые 4 цвета как градиент
-        const gradientColors = displayColors.join(', ')
-        backgroundStyle = { 
-            background: `linear-gradient(135deg, ${gradientColors})`,
-            backgroundSize: '100% 100%'
+        // Больше 4 объектов — показываем первые 4 цвета секциями + плюсик
+        const count = displayColors.length
+        if (count === 4) {
+            backgroundStyle = { 
+                background: `conic-gradient(from 0deg, ${displayColors[0]} 0deg, ${displayColors[0]} 90deg, ${displayColors[1]} 90deg, ${displayColors[1]} 180deg, ${displayColors[2]} 180deg, ${displayColors[2]} 270deg, ${displayColors[3]} 270deg, ${displayColors[3]} 360deg)`
+            }
+        } else if (count === 3) {
+            backgroundStyle = { 
+                background: `conic-gradient(from 0deg, ${displayColors[0]} 0deg, ${displayColors[0]} 120deg, ${displayColors[1]} 120deg, ${displayColors[1]} 240deg, ${displayColors[2]} 240deg, ${displayColors[2]} 360deg)`
+            }
+        } else if (count === 2) {
+            backgroundStyle = { 
+                background: `conic-gradient(from 0deg, ${displayColors[0]} 0deg, ${displayColors[0]} 180deg, ${displayColors[1]} 180deg, ${displayColors[1]} 360deg)`
+            }
+        } else if (count === 1) {
+            backgroundStyle = { backgroundColor: displayColors[0] }
         }
+        numberColor = '#fff'
     }
-
-    // Стиль для числа (белое на цветном фоне)
-    const numberStyle = (hasWork && !showPlus && displayColors.length > 0) ? { color: 'white' } : {}
-    const dotStyle = hasWork && !showPlus && displayColors.length > 0 ? { background: 'white' } : {}
 
     return (
         <div
@@ -131,14 +157,9 @@ const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
             onClick={onClick}
             style={backgroundStyle}
         >
-            <div className="day-number" style={numberStyle}>{day.day}</div>
-            {hasWork && (
-                <>
-                    <div className="day-dot" style={dotStyle}></div>
-                    {showPlus && (
-                        <div className="day-plus" style={{ color: 'white' }}>+</div>
-                    )}
-                </>
+            <div className="day-number" style={{ color: numberColor }}>{day.day}</div>
+            {hasWork && showPlus && (
+                <div className="day-plus" style={{ color: 'white' }}>+</div>
             )}
             {dayShifts.length > 0 && !hasWork && (
                 <div className="day-count">{dayShifts.length}</div>
@@ -149,7 +170,7 @@ const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
 
 export function Calendar({ 
     shifts, 
-    sites = [],  // ← ПОЛУЧАЕМ SITES
+    sites = [],
     selectedDate, 
     onDateSelect, 
     onDayClick,
