@@ -15,16 +15,17 @@ import { NotificationsPage } from './pages/NotificationsPage'
 import './App.css'
 
 function AppContent() {
+    console.log('⚫ AppContent рендерится')
+    
     const [currentPage, setCurrentPage] = useState('calendar')
     const [showSettings, setShowSettings] = useState(false)
     const [showNotifications, setShowNotifications] = useState(false)
     const [unreadCount, setUnreadCount] = useState(1)
     
-    // ⬇️ ПЕРЕНЕСЛИ selectedDate СЮДА!
-    const [selectedDate, setSelectedDate] = useState(new Date())
-    
     const { shifts, loading, error, refetch } = useShifts()
     const { user, login, logout } = useAuth()
+
+    console.log('⚫ AppContent: shifts.length =', shifts.length)
 
     if (!user) {
         return <LoginPage onLogin={login} />
@@ -81,19 +82,12 @@ function AppContent() {
     }
 
     const renderPage = () => {
+        console.log('⚪ renderPage: currentPage =', currentPage)
         switch (currentPage) {
             case 'my-tabel':
                 return <MyTabelPage shifts={shifts} />
             case 'calendar':
-                return (
-                    <MainPage 
-                        shifts={shifts} 
-                        loading={loading} 
-                        refetchShifts={refetch}
-                        selectedDate={selectedDate}
-                        setSelectedDate={setSelectedDate}
-                    />
-                )
+                return <MainPage shifts={shifts} loading={loading} refetchShifts={refetch} />
             case 'sites':
                 return <SitesPage />
             case 'workers':
@@ -103,15 +97,7 @@ function AppContent() {
             case 'extra':
                 return <ExtraPage />
             default:
-                return (
-                    <MainPage 
-                        shifts={shifts} 
-                        loading={loading} 
-                        refetchShifts={refetch}
-                        selectedDate={selectedDate}
-                        setSelectedDate={setSelectedDate}
-                    />
-                )
+                return <MainPage shifts={shifts} loading={loading} refetchShifts={refetch} />
         }
     }
 
