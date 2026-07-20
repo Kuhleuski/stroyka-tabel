@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { ViewModeButtons } from './ViewModeButtons'
 import { MONTHS, getMonthDays } from '../../utils/dateHelpers'
-import { Plus } from 'lucide-react'
 
 // Компонент одного дня в ленте
 const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelected, isToday }) => {
@@ -92,9 +91,7 @@ export function Calendar({
     mode: externalMode,
     onModeChange,
     isReturning,
-    savedScrollTop,
-    onAddShift, // НОВЫЙ ПРОП
-    isAdmin    // НОВЫЙ ПРОП
+    savedScrollTop
 }) {
     const [mode, setMode] = useState(externalMode || 'month')
     const [displayDate, setDisplayDate] = useState(new Date())
@@ -328,14 +325,6 @@ export function Calendar({
         }
     }
 
-    // Обработчик открытия формы добавления смены
-    const handleAddShiftClick = (e) => {
-        e.stopPropagation() // Останавливаем всплытие, чтобы не сработал клик по дню
-        if (onAddShift) {
-            onAddShift(selectedDate)
-        }
-    }
-
     const feedKey = `feed-${mode}-${allDays.length}`
 
     return (
@@ -408,18 +397,6 @@ export function Calendar({
                     </div>
                 ) : (
                     <>
-                        {/* Кнопка добавления смены для режима "Месяц" */}
-                        {isAdmin && selectedDate && (
-                            <div className="calendar-date-actions">
-                                <span className="selected-date-display">
-                                    📅 {selectedDate.getDate()} {['Января','Февраля','Марта','Апреля','Мая','Июня','Июля','Августа','Сентября','Октября','Ноября','Декабря'][selectedDate.getMonth()]} {selectedDate.getFullYear()}
-                                </span>
-                                <button className="add-shift-btn" onClick={handleAddShiftClick}>
-                                    <Plus size={18} />
-                                    Добавить смену
-                                </button>
-                            </div>
-                        )}
                         <div className="calendar-grid">
                             {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
                                 <div key={day} className="day-label">{day}</div>
