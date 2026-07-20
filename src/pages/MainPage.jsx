@@ -5,13 +5,20 @@ import { AddShiftForm } from '../components/Shifts/AddShiftForm'
 import { fetchSites, fetchWorkers } from '../services/supabase'
 import { useAuth } from '../context/AuthContext'
 
-export function MainPage({ 
-    shifts, 
-    loading, 
-    refetchShifts,
-    selectedDate,      // ← ПРИХОДИТ ИЗ App.jsx
-    setSelectedDate    // ← ПРИХОДИТ ИЗ App.jsx
-}) {
+export function MainPage({ shifts, loading, refetchShifts }) {
+    // === ДАТА ХРАНИТСЯ В sessionStorage ===
+    const getStoredDate = () => {
+        const stored = sessionStorage.getItem('mainPageSelectedDate')
+        if (stored) {
+            const date = new Date(stored)
+            if (!isNaN(date.getTime())) {
+                return date
+            }
+        }
+        return new Date()
+    }
+
+    const [selectedDate, setSelectedDate] = useState(getStoredDate())
     const [calendarMode, setCalendarMode] = useState('month')
     const [isReturning, setIsReturning] = useState(false)
     const [savedScrollTop, setSavedScrollTop] = useState(null)
@@ -24,8 +31,12 @@ export function MainPage({
     const [updateKey, setUpdateKey] = useState(0)
     const { user } = useAuth()
 
+    // Сохраняем дату в sessionStorage при каждом изменении
     useEffect(() => {
-        // Убираем setSelectedDate(new Date()) — теперь дата приходит из App.jsx
+        sessionStorage.setItem('mainPageSelectedDate', selectedDate.toISOString())
+    }, [selectedDate])
+
+    useEffect(() => {
         loadSitesAndWorkers()
     }, [])
 
@@ -47,7 +58,7 @@ export function MainPage({
     }
 
     const handleDayClick = (date) => {
-        setSelectedDate(date)  // ← Обновляем дату через пропс
+        setSelectedDate(date)
     }
 
     const handleModeChange = (mode) => {
@@ -76,12 +87,10 @@ export function MainPage({
         
         setShowSavingScreen(false)
         
-        // ДАТУ НЕ ТРОГАЕМ! Она уже правильная в App.jsx
-        // Просто обновляем Timeline
+        // ДАТА НЕ ТРОГАЕТСЯ!
         setUpdateKey(prev => prev + 1)
     }
 
-    // Экран сохранения
     if (showSavingScreen) {
         return (
             <div className="saving-screen">
@@ -94,7 +103,6 @@ export function MainPage({
         )
     }
 
-    // Форма добавления смены
     if (showAddShift) {
         return (
             <AddShiftForm
