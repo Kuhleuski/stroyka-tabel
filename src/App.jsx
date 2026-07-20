@@ -19,7 +19,9 @@ function AppContent() {
     const [showSettings, setShowSettings] = useState(false)
     const [showNotifications, setShowNotifications] = useState(false)
     const [unreadCount, setUnreadCount] = useState(1)
-    const { shifts, loading, error } = useShifts()
+    
+    // ✅ ДОБАВЛЯЕМ refetch!
+    const { shifts, loading, error, refetch } = useShifts()
     const { user, login, logout } = useAuth()
 
     if (!user) {
@@ -81,7 +83,8 @@ function AppContent() {
             case 'my-tabel':
                 return <MyTabelPage shifts={shifts} />
             case 'calendar':
-                return <MainPage shifts={shifts} loading={loading} />
+                // ✅ ПЕРЕДАЕМ refetchShifts!
+                return <MainPage shifts={shifts} loading={loading} refetchShifts={refetch} />
             case 'sites':
                 return <SitesPage />
             case 'workers':
@@ -91,7 +94,8 @@ function AppContent() {
             case 'extra':
                 return <ExtraPage />
             default:
-                return <MainPage shifts={shifts} loading={loading} />
+                // ✅ ПЕРЕДАЕМ refetchShifts!
+                return <MainPage shifts={shifts} loading={loading} refetchShifts={refetch} />
         }
     }
 
