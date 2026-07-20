@@ -100,45 +100,60 @@ const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
     const showPlus = colors.length > 4
     const displayColors = colors.slice(0, 4)
     
-    // Строим CSS для четких секций (как пицца)
+    // Строим CSS для четких секций
     let backgroundStyle = {}
-    let numberColor = '#1a1a1a'  
+    let numberColor = '#1a1a1a'
+    let isSelectedStyle = {}
     
     if (hasWork && !showPlus) {
         const count = displayColors.length
         
+        // Если день выбран — делаем цвета прозрачнее
+        const alpha = isSelected ? '80' : 'FF'
+        const colorsWithAlpha = displayColors.map(c => c + alpha)
+        
         if (count === 1) {
-            backgroundStyle = { backgroundColor: displayColors[0] }
+            backgroundStyle = { backgroundColor: colorsWithAlpha[0] }
         } else if (count === 2) {
             backgroundStyle = { 
-                background: `conic-gradient(from 0deg, ${displayColors[0]} 0deg, ${displayColors[0]} 180deg, ${displayColors[1]} 180deg, ${displayColors[1]} 360deg)`
+                background: `conic-gradient(from 0deg, ${colorsWithAlpha[0]} 0deg, ${colorsWithAlpha[0]} 180deg, ${colorsWithAlpha[1]} 180deg, ${colorsWithAlpha[1]} 360deg)`
             }
         } else if (count === 3) {
             backgroundStyle = { 
-                background: `conic-gradient(from 0deg, ${displayColors[0]} 0deg, ${displayColors[0]} 120deg, ${displayColors[1]} 120deg, ${displayColors[1]} 240deg, ${displayColors[2]} 240deg, ${displayColors[2]} 360deg)`
+                background: `conic-gradient(from 0deg, ${colorsWithAlpha[0]} 0deg, ${colorsWithAlpha[0]} 120deg, ${colorsWithAlpha[1]} 120deg, ${colorsWithAlpha[1]} 240deg, ${colorsWithAlpha[2]} 240deg, ${colorsWithAlpha[2]} 360deg)`
             }
         } else if (count === 4) {
             backgroundStyle = { 
-                background: `conic-gradient(from 0deg, ${displayColors[0]} 0deg, ${displayColors[0]} 90deg, ${displayColors[1]} 90deg, ${displayColors[1]} 180deg, ${displayColors[2]} 180deg, ${displayColors[2]} 270deg, ${displayColors[3]} 270deg, ${displayColors[3]} 360deg)`
+                background: `conic-gradient(from 0deg, ${colorsWithAlpha[0]} 0deg, ${colorsWithAlpha[0]} 90deg, ${colorsWithAlpha[1]} 90deg, ${colorsWithAlpha[1]} 180deg, ${colorsWithAlpha[2]} 180deg, ${colorsWithAlpha[2]} 270deg, ${colorsWithAlpha[3]} 270deg, ${colorsWithAlpha[3]} 360deg)`
             }
         }
     } else if (hasWork && showPlus) {
-        // Больше 4 объектов — показываем первые 4 цвета секциями + плюсик
         const count = displayColors.length
+        const alpha = isSelected ? '80' : 'FF'
+        const colorsWithAlpha = displayColors.map(c => c + alpha)
+        
         if (count === 4) {
             backgroundStyle = { 
-                background: `conic-gradient(from 0deg, ${displayColors[0]} 0deg, ${displayColors[0]} 90deg, ${displayColors[1]} 90deg, ${displayColors[1]} 180deg, ${displayColors[2]} 180deg, ${displayColors[2]} 270deg, ${displayColors[3]} 270deg, ${displayColors[3]} 360deg)`
+                background: `conic-gradient(from 0deg, ${colorsWithAlpha[0]} 0deg, ${colorsWithAlpha[0]} 90deg, ${colorsWithAlpha[1]} 90deg, ${colorsWithAlpha[1]} 180deg, ${colorsWithAlpha[2]} 180deg, ${colorsWithAlpha[2]} 270deg, ${colorsWithAlpha[3]} 270deg, ${colorsWithAlpha[3]} 360deg)`
             }
         } else if (count === 3) {
             backgroundStyle = { 
-                background: `conic-gradient(from 0deg, ${displayColors[0]} 0deg, ${displayColors[0]} 120deg, ${displayColors[1]} 120deg, ${displayColors[1]} 240deg, ${displayColors[2]} 240deg, ${displayColors[2]} 360deg)`
+                background: `conic-gradient(from 0deg, ${colorsWithAlpha[0]} 0deg, ${colorsWithAlpha[0]} 120deg, ${colorsWithAlpha[1]} 120deg, ${colorsWithAlpha[1]} 240deg, ${colorsWithAlpha[2]} 240deg, ${colorsWithAlpha[2]} 360deg)`
             }
         } else if (count === 2) {
             backgroundStyle = { 
-                background: `conic-gradient(from 0deg, ${displayColors[0]} 0deg, ${displayColors[0]} 180deg, ${displayColors[1]} 180deg, ${displayColors[1]} 360deg)`
+                background: `conic-gradient(from 0deg, ${colorsWithAlpha[0]} 0deg, ${colorsWithAlpha[0]} 180deg, ${colorsWithAlpha[1]} 180deg, ${colorsWithAlpha[1]} 360deg)`
             }
         } else if (count === 1) {
-            backgroundStyle = { backgroundColor: displayColors[0] }
+            backgroundStyle = { backgroundColor: colorsWithAlpha[0] }
+        }
+    }
+    
+    // Если день выбран — добавляем зеленую рамку
+    if (isSelected) {
+        isSelectedStyle = {
+            border: '3px solid #2d7d46',
+            boxShadow: '0 0 0 1px white, 0 0 0 4px #2d7d46'
         }
     }
 
@@ -146,11 +161,11 @@ const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
         <div
             className={`day-cell ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
             onClick={onClick}
-            style={backgroundStyle}
+            style={{ ...backgroundStyle, ...isSelectedStyle }}
         >
             <div className="day-number" style={{ color: numberColor }}>{day.day}</div>
             {hasWork && showPlus && (
-                <div className="day-plus" style={{ color: '#1a1a1a' }}>+</div>  
+                <div className="day-plus" style={{ color: '#1a1a1a' }}>+</div>
             )}
             {dayShifts.length > 0 && !hasWork && (
                 <div className="day-count">{dayShifts.length}</div>
