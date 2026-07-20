@@ -84,36 +84,36 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         setSelectedDate(date)
         setShowAddShift(true)
     }
-
-   const handleShiftAdded = async () => {
+const handleShiftAdded = async () => {
     console.log('🟢 1. Начинаем сохранение')
     
-    // 1. Показываем экран сохранения
     setShowSavingScreen(true)
     setShowAddShift(false)
     
     console.log('🟢 2. Экран сохранения показан')
     
-    // 2. Обновляем данные
     if (refetchShifts) {
         console.log('🟢 3. Обновляем смены...')
         await refetchShifts()
+        console.log('🟢 3.1 Количество смен после обновления:', shifts.length)  // ← НОВЫЙ ЛОГ
     }
     await loadSitesAndWorkers()
     console.log('🟢 4. Данные обновлены')
     
-    // 3. Ждем 1 секунду для плавности
     await new Promise(resolve => setTimeout(resolve, 1000))
     console.log('🟢 5. Пауза прошла')
     
-    // 4. Закрываем экран сохранения
     setShowSavingScreen(false)
     console.log('🟢 6. Экран сохранения закрыт')
     
-    // 5. Обновляем детальный режим
     const currentDate = detailDate || selectedDate
     console.log('🟢 7. Текущая дата:', currentDate)
     console.log('🟢 8. isDetailOpen до:', isDetailOpen)
+    
+    // ПРИНУДИТЕЛЬНО ОБНОВЛЯЕМ
+    const dateStr = currentDate.toISOString().split('T')[0]
+    const dayShifts = shifts.filter(s => s.work_date === dateStr)
+    console.log('🟢 8.1 Смен за этот день:', dayShifts.length)  // ← НОВЫЙ ЛОГ
     
     setDetailDate(null)
     
