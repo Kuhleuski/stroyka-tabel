@@ -2707,3 +2707,38 @@ body {
     text-align: center;
   }
 }
+/* Кнопка добавления смены в детальном режиме */
+.detail-add-shift-wrapper {
+    padding: 12px 16px;
+    background: #f0f7f2;
+    border-bottom: 1px solid #e0e8e2;
+    display: flex;
+    justify-content: center;
+}
+
+.detail-add-shift-btn {
+    background: #2d7d46;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    justify-content: center;
+}
+
+.detail-add-shift-btn:hover {
+    background: #236835;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(45, 125, 70, 0.3);
+}
+
+.detail-add-shift-btn:active {
+    transform: translateY(0);
+}
