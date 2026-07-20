@@ -20,6 +20,37 @@ export async function fetchShifts() {
     }
 }
 
+// НОВАЯ ФУНКЦИЯ — добавление смены
+export async function addShift(shiftData) {
+    try {
+        const url = `${SUPABASE_URL}/rest/v1/shifts?apikey=${SUPABASE_ANON_KEY}`
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            },
+            body: JSON.stringify([{
+                worker_id: shiftData.worker_id,
+                site_id: shiftData.site_id,
+                work_date: shiftData.work_date,
+                hours: shiftData.hours || 8,
+                status: shiftData.status || 'pending'
+            }])
+        })
+        
+        if (!response.ok) {
+            const errorText = await response.text()
+            throw new Error(`Ошибка добавления смены: ${response.status} ${errorText}`)
+        }
+        
+        return await response.json()
+    } catch (error) {
+        console.error('Ошибка в addShift:', error)
+        throw error
+    }
+}
+
 export async function fetchSites() {
     try {
         const url = `${SUPABASE_URL}/rest/v1/sites?select=*&order=name.asc&apikey=${SUPABASE_ANON_KEY}`
@@ -58,7 +89,6 @@ export async function addSite(name, address) {
     return await response.json()
 }
 
-// НОВАЯ ФУНКЦИЯ — удаление объекта
 export async function deleteSite(siteId) {
     try {
         const url = `${SUPABASE_URL}/rest/v1/sites?id=eq.${siteId}&apikey=${SUPABASE_ANON_KEY}`
