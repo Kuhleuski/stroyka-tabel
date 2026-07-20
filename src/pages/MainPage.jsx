@@ -85,34 +85,45 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         setShowAddShift(true)
     }
 
-    const handleShiftAdded = async () => {
-        // 1. Показываем экран сохранения
-        setShowSavingScreen(true)
-        setShowAddShift(false)
-        
-        // 2. Обновляем данные
-        if (refetchShifts) {
-            await refetchShifts()
-        }
-        await loadSitesAndWorkers()
-        
-        // 3. Ждем 1 секунду для плавности
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        
-        // 4. Закрываем экран сохранения
-        setShowSavingScreen(false)
-        
-        // 5. ОБНОВЛЯЕМ ДЕТАЛЬНЫЙ РЕЖИМ БЕЗ ЗАКРЫТИЯ!
-        // Просто обновляем detailDate, чтобы перерисовать контент
-        const currentDate = detailDate || selectedDate
-        setDetailDate(null)
-        
-        // Сразу открываем с той же датой
-        setTimeout(() => {
-            setDetailDate(currentDate)
-            setIsDetailOpen(true)
-        }, 50)
+   const handleShiftAdded = async () => {
+    console.log('🟢 1. Начинаем сохранение')
+    
+    // 1. Показываем экран сохранения
+    setShowSavingScreen(true)
+    setShowAddShift(false)
+    
+    console.log('🟢 2. Экран сохранения показан')
+    
+    // 2. Обновляем данные
+    if (refetchShifts) {
+        console.log('🟢 3. Обновляем смены...')
+        await refetchShifts()
     }
+    await loadSitesAndWorkers()
+    console.log('🟢 4. Данные обновлены')
+    
+    // 3. Ждем 1 секунду для плавности
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    console.log('🟢 5. Пауза прошла')
+    
+    // 4. Закрываем экран сохранения
+    setShowSavingScreen(false)
+    console.log('🟢 6. Экран сохранения закрыт')
+    
+    // 5. Обновляем детальный режим
+    const currentDate = detailDate || selectedDate
+    console.log('🟢 7. Текущая дата:', currentDate)
+    console.log('🟢 8. isDetailOpen до:', isDetailOpen)
+    
+    setDetailDate(null)
+    
+    setTimeout(() => {
+        console.log('🟢 9. Открываем детальный режим')
+        setDetailDate(currentDate)
+        setIsDetailOpen(true)
+        console.log('🟢 10. isDetailOpen после:', true)
+    }, 50)
+}
 
     // Если открыт экран сохранения
     if (showSavingScreen) {
