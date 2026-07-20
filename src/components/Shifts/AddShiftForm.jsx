@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { X } from 'lucide-react'
 import { addShift } from '../../services/supabase'
 
 export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers }) => {
+  // Состояния: какой объект выбран, какие работники выбраны
   const [selectedSite, setSelectedSite] = useState('')
   const [selectedWorkers, setSelectedWorkers] = useState([])
   const [loading, setLoading] = useState(false)
 
+  // Переключатель для работника (вкл/выкл)
   const handleWorkerToggle = (workerId) => {
     setSelectedWorkers(prev =>
       prev.includes(workerId)
@@ -15,6 +17,7 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
     )
   }
 
+  // Кнопка "Выбрать всех" / "Снять всех"
   const handleSelectAll = () => {
     if (selectedWorkers.length === workers.length) {
       setSelectedWorkers([])
@@ -23,8 +26,11 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
     }
   }
 
+  // Сохранение смены
   const handleSubmit = async (e) => {
     e.preventDefault()
+    
+    // Проверки
     if (!selectedSite) {
       alert('Выберите объект')
       return
@@ -36,28 +42,28 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
 
     setLoading(true)
     try {
-      // Создаем смену для каждого выбранного работника
+      // Для каждого выбранного работника создаём смену
       const shiftPromises = selectedWorkers.map(workerId => 
         addShift({
           worker_id: workerId,
           site_id: selectedSite,
-          work_date: selectedDate.toISOString().split('T')[0], // Формат YYYY-MM-DD
+          work_date: selectedDate.toISOString().split('T')[0],
           hours: 8,
           status: 'pending'
         })
       )
       
       await Promise.all(shiftPromises)
-      onSuccess()
+      onSuccess() // Закрываем форму и обновляем данные
     } catch (error) {
-      console.error('Ошибка при создании смены:', error)
+      console.error('Ошибка:', error)
       alert('Не удалось создать смену')
     } finally {
       setLoading(false)
     }
   }
 
-  // Форматируем дату
+  // Красивое отображение даты
   const formatDate = (date) => {
     if (!date) return ''
     const months = ['Января','Февраля','Марта','Апреля','Мая','Июня','Июля','Августа','Сентября','Октября','Ноября','Декабря']
@@ -67,14 +73,16 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
   return (
     <div className="add-shift-overlay" onClick={onClose}>
       <div className="add-shift-modal" onClick={(e) => e.stopPropagation()}>
+        {/* Заголовок */}
         <div className="modal-header">
-          <h2>Добавить смену</h2>
+          <h2>➕ Добавить смену</h2>
           <button onClick={onClose} className="close-btn">
             <X size={24} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit}>
+          {/* Дата (только для просмотра) */}
           <div className="form-group">
             <label>📅 Дата</label>
             <input 
@@ -85,6 +93,7 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
             />
           </div>
 
+          {/* Выбор объекта */}
           <div className="form-group">
             <label>🏗️ Объект</label>
             <select 
@@ -93,7 +102,7 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
               className="site-select"
               required
             >
-              <option value="">Выберите объект</option>
+              <option value="">-- Выберите объект --</option>
               {sites.map(site => (
                 <option key={site.id} value={site.id}>
                   {site.name}
@@ -102,6 +111,7 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
             </select>
           </div>
 
+          {/* Выбор работников */}
           <div className="form-group">
             <div className="workers-header">
               <label>👷 Работники</label>
@@ -111,7 +121,7 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
                   onClick={handleSelectAll}
                   className="select-all-btn"
                 >
-                  {selectedWorkers.length === workers.length ? 'Снять все' : 'Выбрать всех'}
+                  {selectedWorkers.length === workers.length ? 'Снять всех' : 'Выбрать всех'}
                 </button>
               )}
             </div>
@@ -119,7 +129,7 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
               {workers.length === 0 ? (
                 <div className="empty-workers">
                   <p>Нет добавленных работников</p>
-                  <span className="hint">Добавьте работников в разделе "Бригада"</span>
+                  <span>Добавьте в разделе "Бригада"</span>
                 </div>
               ) : (
                 workers.map(worker => (
@@ -136,12 +146,13 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
             </div>
           </div>
 
+          {/* Кнопки */}
           <div className="form-actions">
             <button type="button" onClick={onClose} className="cancel-btn">
               Отмена
             </button>
             <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? 'Сохранение...' : 'Сохранить'}
+              {loading ? '⏳ Сохранение...' : '✅ Сохранить'}
             </button>
           </div>
         </form>
