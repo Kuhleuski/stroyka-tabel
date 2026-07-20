@@ -17,6 +17,11 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     const [showAddShift, setShowAddShift] = useState(false)
     const [sites, setSites] = useState([])
     const [workers, setWorkers] = useState([])
+    
+    // Состояния для плавного сохранения
+    const [isSaving, setIsSaving] = useState(false)
+    const [showSavingScreen, setShowSavingScreen] = useState(false)
+    
     const { user } = useAuth()
 
     useEffect(() => {
@@ -84,30 +89,53 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     }
 
     const handleShiftAdded = async () => {
-        // Обновляем данные смен
-        if (refetchShifts) {
-            await refetchShifts()
-        }
-        await loadSitesAndWorkers()
-        
-        // Закрываем форму
+        // 1. Показываем экран сохранения
+        setShowSavingScreen(true)
+        setIsSaving(true)
         setShowAddShift(false)
         
-        // ОБНОВЛЯЕМ ДЕТАЛЬНЫЙ РЕЖИМ - сохраняем дату и переоткрываем
-        const currentDate = detailDate || selectedDate
-        
-        // Закрываем детальный режим
-        setIsDetailOpen(false)
-        setDetailDate(null)
-        
-        // Небольшая задержка и открываем заново
-        setTimeout(() => {
-            setDetailDate(currentDate)
-            setIsDetailOpen(true)
-        }, 100)
+        // 2. Обновляем данные с задержкой для плавности
+        setTimeout(async () => {
+            // Обновляем смены
+            if (refetchShifts) {
+                await refetchShifts()
+            }
+            await loadSitesAndWorkers()
+            
+            // 3. Плавно скрываем экран сохранения
+            setIsSaving(false)
+            
+            // 4. Небольшая задержка перед обновлением детального режима
+            setTimeout(() => {
+                setShowSavingScreen(false)
+                
+                // 5. Обновляем детальный режим
+                const currentDate = detailDate || selectedDate
+                setIsDetailOpen(false)
+                setDetailDate(null)
+                
+                setTimeout(() => {
+                    setDetailDate(currentDate)
+                    setIsDetailOpen(true)
+                }, 100)
+            }, 300)
+        }, 400)
     }
 
-    // Если открыта форма добавления смены — показываем её как экран
+    // Если открыт экран сохранения
+    if (showSavingScreen) {
+        return (
+            <div className="saving-screen">
+                <div className="saving-content">
+                    <div className="saving-spinner"></div>
+                    <h2 className="saving-title">Сохраняем смену...</h2>
+                    <p className="saving-text">Пожалуйста, подождите</p>
+                </div>
+            </div>
+        )
+    }
+
+    // Если открыта форма добавления смены
     if (showAddShift) {
         return (
             <AddShiftForm
