@@ -52,7 +52,6 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
     } catch (error) {
       console.error('Ошибка:', error)
       alert('Не удалось создать смену')
-    } finally {
       setLoading(false)
     }
   }
@@ -148,6 +147,15 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
             )}
           </div>
         </div>
+
+        {/* КНОПКА СОХРАНИТЬ ВНИЗУ */}
+        <button 
+          type="submit" 
+          className="shift-form-bottom-btn"
+          disabled={loading}
+        >
+          {loading ? '⏳ Сохранение...' : '✅ Сохранить смену'}
+        </button>
       </form>
     </div>
   )
