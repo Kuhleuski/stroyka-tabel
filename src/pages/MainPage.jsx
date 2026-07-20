@@ -74,13 +74,9 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         // 4. Закрываем экран сохранения
         setShowSavingScreen(false)
         
-        // 5. ДАТА УЖЕ ВЫБРАНА! Просто обновляем ее (триггерим перерендер)
-        //    Можно сделать так: установить ту же дату заново
+        // 5. Обновляем дату без установки в null
         const currentDate = new Date(selectedDate)
-        setSelectedDate(null)
-        setTimeout(() => {
-            setSelectedDate(currentDate)
-        }, 50)
+        setSelectedDate(currentDate)
     }
 
     // Экран сохранения
@@ -107,6 +103,11 @@ export function MainPage({ shifts, loading, refetchShifts }) {
                 workers={workers}
             />
         )
+    }
+
+    // Если selectedDate null (страховка)
+    if (!selectedDate) {
+        return <div className="loading-text">⏳ Загрузка...</div>
     }
 
     return (
@@ -142,7 +143,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
 
                 {/* Список смен */}
                 <Timeline 
-                    key={selectedDate.toISOString()}  // ← КЛЮЧ ДЛЯ ОБНОВЛЕНИЯ
+                    key={selectedDate.toISOString()}
                     shifts={shifts} 
                     date={selectedDate} 
                     onClose={null}
