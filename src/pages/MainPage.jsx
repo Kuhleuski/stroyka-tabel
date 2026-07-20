@@ -13,7 +13,6 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     const [calendarMode, setCalendarMode] = useState('month')
     const [isReturning, setIsReturning] = useState(false)
     const [savedScrollTop, setSavedScrollTop] = useState(null)
-    const [isDetailLoading, setIsDetailLoading] = useState(false) // НОВОЕ
     
     const [showAddShift, setShowAddShift] = useState(false)
     const [sites, setSites] = useState([])
@@ -52,18 +51,17 @@ export function MainPage({ shifts, loading, refetchShifts }) {
             }
         }
         
-        // ПОКАЗЫВАЕМ ПРЕЛОАДЕР
-        setIsDetailLoading(true)
+        // Сначала закрываем, чтобы сбросить состояние
+        setIsDetailOpen(false)
+        setDetailDate(null)
         
-        setDetailDate(date)
-        setReturnMode(mode)
-        setIsReturning(false)
-        setIsDetailOpen(true)
-        
-        // СКРЫВАЕМ ПРЕЛОАДЕР ЧЕРЕЗ 300ms
+        // Сразу открываем с новой датой
         setTimeout(() => {
-            setIsDetailLoading(false)
-        }, 300)
+            setDetailDate(date)
+            setReturnMode(mode)
+            setIsReturning(false)
+            setIsDetailOpen(true)
+        }, 10)
     }
 
     const handleCloseDetail = () => {
@@ -71,7 +69,6 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         setDetailDate(null)
         setCalendarMode(returnMode)
         setIsReturning(true)
-        setIsDetailLoading(false)
     }
 
     const handleModeChange = (mode) => {
@@ -168,19 +165,13 @@ export function MainPage({ shifts, loading, refetchShifts }) {
                     )}
                     
                     <div className="detail-screen-content">
-                        {isDetailLoading ? (
-                            <div className="detail-loading">
-                                <div className="detail-spinner"></div>
-                                <p>Загрузка...</p>
-                            </div>
-                        ) : (
-                            <Timeline 
-                                shifts={shifts} 
-                                date={detailDate} 
-                                onClose={handleCloseDetail}
-                                isFullscreen={true}
-                            />
-                        )}
+                        <Timeline 
+                            key={detailDate.toISOString()}  // ← КЛЮЧЕВОЕ ИЗМЕНЕНИЕ!
+                            shifts={shifts} 
+                            date={detailDate} 
+                            onClose={handleCloseDetail}
+                            isFullscreen={true}
+                        />
                     </div>
                 </div>
             ) : (
