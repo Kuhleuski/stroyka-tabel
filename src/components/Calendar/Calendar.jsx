@@ -186,7 +186,7 @@ export function Calendar({
         }
     })
 
-    // === ИНИЦИАЛИЗАЦИЯ (ТОЛЬКО ПРИ ПЕРВОМ РЕНДЕРЕ) ===
+    // === ИНИЦИАЛИЗАЦИЯ ===
     useEffect(() => {
         if (isFirstRender.current) {
             isFirstRender.current = false
@@ -196,16 +196,6 @@ export function Calendar({
             initFeed(today)
         }
     }, [initFeed, onDateSelect])
-
-    // === ОБНОВЛЕНИЕ ПРИ ИЗМЕНЕНИИ selectedDate ИЗВНЕ (БЕЗ СБРОСА) ===
-    useEffect(() => {
-        if (!isFirstRender.current && selectedDate) {
-            setDisplayDate(selectedDate)
-            if (mode === 'feed') {
-                initFeed(selectedDate)
-            }
-        }
-    }, [selectedDate, mode, initFeed])
 
     // === ВОССТАНОВЛЕНИЕ ПОЗИЦИИ ===
     useEffect(() => {
