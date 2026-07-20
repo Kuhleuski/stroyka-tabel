@@ -93,13 +93,18 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         // Закрываем форму
         setShowAddShift(false)
         
-        // Обновляем детальный режим
+        // ОБНОВЛЯЕМ ДЕТАЛЬНЫЙ РЕЖИМ - сохраняем дату и переоткрываем
         const currentDate = detailDate || selectedDate
+        
+        // Закрываем детальный режим
+        setIsDetailOpen(false)
         setDetailDate(null)
+        
+        // Небольшая задержка и открываем заново
         setTimeout(() => {
             setDetailDate(currentDate)
             setIsDetailOpen(true)
-        }, 50)
+        }, 100)
     }
 
     // Если открыта форма добавления смены — показываем её как экран
