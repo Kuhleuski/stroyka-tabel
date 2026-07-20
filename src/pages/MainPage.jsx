@@ -6,8 +6,6 @@ import { fetchSites, fetchWorkers } from '../services/supabase'
 import { useAuth } from '../context/AuthContext'
 
 export function MainPage({ shifts, loading, refetchShifts }) {
-    console.log('🔵 MainPage рендерится')
-    
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [calendarMode, setCalendarMode] = useState('month')
     const [isReturning, setIsReturning] = useState(false)
@@ -21,10 +19,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     const [updateKey, setUpdateKey] = useState(0)
     const { user } = useAuth()
 
-    console.log('🔵 selectedDate в MainPage:', selectedDate?.toISOString?.())
-
     useEffect(() => {
-        console.log('🟢 useEffect MainPage (mount)')
         setSelectedDate(new Date())
         loadSitesAndWorkers()
     }, [])
@@ -47,7 +42,6 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     }
 
     const handleDayClick = (date) => {
-        console.log('🟢 Клик по дню в MainPage:', date.toISOString())
         setSelectedDate(date)
     }
 
@@ -60,19 +54,15 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     }
 
     const handleOpenAddShift = (date) => {
-        console.log('🟡 Открываем форму добавления для даты:', date.toISOString())
         setSelectedDate(date)
         setShowAddShift(true)
     }
 
     const handleShiftAdded = async () => {
-        console.log('🟡 Начинаем сохранение, текущая дата:', selectedDate?.toISOString())
-        
         setShowSavingScreen(true)
         setShowAddShift(false)
         
         if (refetchShifts) {
-            console.log('🟡 Обновляем смены...')
             await refetchShifts()
         }
         await loadSitesAndWorkers()
@@ -80,8 +70,6 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         await new Promise(resolve => setTimeout(resolve, 1000))
         
         setShowSavingScreen(false)
-        
-        console.log('🟡 Сохранение завершено, дата:', selectedDate?.toISOString())
         setUpdateKey(prev => prev + 1)
     }
 
@@ -113,6 +101,10 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         return <div className="loading-text">⏳ Загрузка...</div>
     }
 
+    // Форматируем дату для кнопки
+    const monthNames = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']
+    const buttonDate = `${selectedDate.getDate()} ${monthNames[selectedDate.getMonth()]}`
+
     return (
         <>
             <Calendar
@@ -127,26 +119,26 @@ export function MainPage({ shifts, loading, refetchShifts }) {
             />
 
             <div className="detail-under-calendar">
-                <div className="detail-under-header">
-                    <span className="detail-under-date">
-                        📅 {selectedDate.getDate()} {['Января','Февраля','Марта','Апреля','Мая','Июня','Июля','Августа','Сентября','Октября','Ноября','Декабря'][selectedDate.getMonth()]} {selectedDate.getFullYear()}
-                    </span>
-                    {user?.role === 'admin' && (
+                {/* Кнопка добавления смены — без даты слева */}
+                {user?.role === 'admin' && (
+                    <div className="detail-add-button-wrapper">
                         <button 
-                            className="detail-under-add-btn"
+                            className="detail-add-button"
                             onClick={() => handleOpenAddShift(selectedDate)}
                         >
-                            ➕ Добавить смену
+                            ➕ Добавить смену на {buttonDate}
                         </button>
-                    )}
-                </div>
-
+                    </div>
+                )}
+                
+                {/* Список смен — без дублирования даты и счетчика */}
                 <Timeline 
                     key={updateKey}
                     shifts={shifts} 
                     date={selectedDate} 
                     onClose={null}
                     isFullscreen={false}
+                    hideHeader={true}  // ← новый пропс
                 />
             </div>
         </>
