@@ -18,10 +18,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     const [sites, setSites] = useState([])
     const [workers, setWorkers] = useState([])
     
-    // Состояния для плавного сохранения
-    const [isSaving, setIsSaving] = useState(false)
     const [showSavingScreen, setShowSavingScreen] = useState(false)
-    
     const { user } = useAuth()
 
     useEffect(() => {
@@ -91,35 +88,33 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     const handleShiftAdded = async () => {
         // 1. Показываем экран сохранения
         setShowSavingScreen(true)
-        setIsSaving(true)
         setShowAddShift(false)
         
-        // 2. Обновляем данные с задержкой для плавности
-        setTimeout(async () => {
-            // Обновляем смены
-            if (refetchShifts) {
-                await refetchShifts()
-            }
-            await loadSitesAndWorkers()
-            
-            // 3. Плавно скрываем экран сохранения
-            setIsSaving(false)
-            
-            // 4. Небольшая задержка перед обновлением детального режима
-            setTimeout(() => {
-                setShowSavingScreen(false)
-                
-                // 5. Обновляем детальный режим
-                const currentDate = detailDate || selectedDate
-                setIsDetailOpen(false)
-                setDetailDate(null)
-                
-                setTimeout(() => {
-                    setDetailDate(currentDate)
-                    setIsDetailOpen(true)
-                }, 100)
-            }, 300)
-        }, 400)
+        // 2. Ждем 400ms для плавности
+        await new Promise(resolve => setTimeout(resolve, 400))
+        
+        // 3. Обновляем данные
+        if (refetchShifts) {
+            await refetchShifts()
+        }
+        await loadSitesAndWorkers()
+        
+        // 4. Ждем еще 300ms
+        await new Promise(resolve => setTimeout(resolve, 300))
+        
+        // 5. Закрываем экран сохранения
+        setShowSavingScreen(false)
+        
+        // 6. Обновляем детальный режим
+        const currentDate = detailDate || selectedDate
+        setIsDetailOpen(false)
+        setDetailDate(null)
+        
+        // 7. Открываем детальный режим с новыми данными
+        setTimeout(() => {
+            setDetailDate(currentDate)
+            setIsDetailOpen(true)
+        }, 150)
     }
 
     // Если открыт экран сохранения
