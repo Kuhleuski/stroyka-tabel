@@ -79,11 +79,6 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     // Обработчик клика по дате в календаре (для добавления смены)
     const handleDateSelect = (date) => {
         setSelectedDate(date)
-        // Если админ и не в детальном режиме - показываем кнопку добавить
-        if (user?.role === 'admin' && !isDetailOpen) {
-            // Показываем кнопку через кастомное событие или состояние
-            // Мы добавим кнопку в календарь через пропс
-        }
     }
 
     // Обработчик открытия формы добавления смены
@@ -115,6 +110,19 @@ export function MainPage({ shifts, loading, refetchShifts }) {
                             ✕
                         </button>
                     </div>
+                    
+                    {/* КНОПКА ДОБАВЛЕНИЯ СМЕНЫ ВНУТРИ ДЕТАЛЬНОГО РЕЖИМА */}
+                    {user?.role === 'admin' && (
+                        <div className="detail-add-shift-wrapper">
+                            <button 
+                                className="detail-add-shift-btn"
+                                onClick={() => handleOpenAddShift(detailDate)}
+                            >
+                                ➕ Добавить смену на этот день
+                            </button>
+                        </div>
+                    )}
+                    
                     <div className="detail-screen-content">
                         <Timeline 
                             shifts={shifts} 
@@ -135,8 +143,6 @@ export function MainPage({ shifts, loading, refetchShifts }) {
                         onModeChange={handleModeChange}
                         isReturning={isReturning}
                         savedScrollTop={savedScrollTop}
-                        onAddShift={handleOpenAddShift} // НОВЫЙ ПРОП
-                        isAdmin={user?.role === 'admin'} // НОВЫЙ ПРОП
                     />
                     <Timeline 
                         shifts={shifts} 
