@@ -2997,3 +2997,27 @@ body {
         padding: 8px 10px;
     }
 }
+/* Кнопка сохранения внизу */
+.shift-form-bottom-btn {
+    width: 100%;
+    padding: 14px;
+    margin-top: 12px;
+    background: #2d7d46;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: 0.2s;
+}
+
+.shift-form-bottom-btn:hover:not(:disabled) {
+    background: #1e6b3a;
+}
+
+.shift-form-bottom-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
