@@ -5,8 +5,13 @@ import { AddShiftForm } from '../components/Shifts/AddShiftForm'
 import { fetchSites, fetchWorkers } from '../services/supabase'
 import { useAuth } from '../context/AuthContext'
 
-export function MainPage({ shifts, loading, refetchShifts }) {
-    const [selectedDate, setSelectedDate] = useState(new Date())
+export function MainPage({ 
+    shifts, 
+    loading, 
+    refetchShifts,
+    selectedDate,      // ← ПРИХОДИТ ИЗ App.jsx
+    setSelectedDate    // ← ПРИХОДИТ ИЗ App.jsx
+}) {
     const [calendarMode, setCalendarMode] = useState('month')
     const [isReturning, setIsReturning] = useState(false)
     const [savedScrollTop, setSavedScrollTop] = useState(null)
@@ -20,7 +25,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     const { user } = useAuth()
 
     useEffect(() => {
-        setSelectedDate(new Date())
+        // Убираем setSelectedDate(new Date()) — теперь дата приходит из App.jsx
         loadSitesAndWorkers()
     }, [])
 
@@ -42,7 +47,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     }
 
     const handleDayClick = (date) => {
-        setSelectedDate(date)
+        setSelectedDate(date)  // ← Обновляем дату через пропс
     }
 
     const handleModeChange = (mode) => {
@@ -71,7 +76,8 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         
         setShowSavingScreen(false)
         
-        // ПРОСТО ОБНОВЛЯЕМ КЛЮЧ, НЕ ТРОГАЕМ ДАТУ!
+        // ДАТУ НЕ ТРОГАЕМ! Она уже правильная в App.jsx
+        // Просто обновляем Timeline
         setUpdateKey(prev => prev + 1)
     }
 
