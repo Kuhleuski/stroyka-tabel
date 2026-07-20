@@ -83,7 +83,7 @@ const MonthDivider = ({ month, year }) => {
 }
 
 export function Calendar({ 
-    shifts: externalShifts, 
+    shifts, 
     selectedDate, 
     onDateSelect, 
     onDayClick,
@@ -92,6 +92,8 @@ export function Calendar({
     isReturning,
     savedScrollTop
 }) {
+    console.log('🔴 Calendar рендерится, selectedDate пропс:', selectedDate?.toISOString?.())
+    
     const [mode, setMode] = useState(externalMode || 'month')
     const [displayDate, setDisplayDate] = useState(new Date())
     const [allDays, setAllDays] = useState([])
@@ -101,12 +103,6 @@ export function Calendar({
     const virtualizerRef = useRef(null)
     const [shouldShowToday, setShouldShowToday] = useState(true)
     const [hasRestored, setHasRestored] = useState(false)
-    
-    // === ФИКСИРУЕМ shifts через useRef, чтобы не пересоздавать компонент ===
-    const shiftsRef = useRef(externalShifts)
-    useEffect(() => {
-        shiftsRef.current = externalShifts
-    }, [externalShifts])
 
     const YEARS_BACK = 5
     const YEARS_FORWARD = 3
@@ -141,11 +137,10 @@ export function Calendar({
         setHasRestored(false)
     }, [generateDays])
 
-    // Используем shifts из ref, чтобы не пересоздавать функцию при изменении shifts
     const getDayShifts = useCallback((date) => {
         const dateStr = date.toISOString().split('T')[0]
-        return shiftsRef.current.filter(s => s.work_date === dateStr)
-    }, [])
+        return shifts.filter(s => s.work_date === dateStr)
+    }, [shifts])
 
     const isToday = useCallback((date) => {
         const today = new Date()
@@ -161,11 +156,10 @@ export function Calendar({
                date.getFullYear() === selectedDate.getFullYear()
     }, [selectedDate])
 
-    // Используем shifts из ref для вычисления высоты
     const getItemHeight = useCallback((index) => {
         const day = allDays[index]
         if (!day) return 44
-        const dayShifts = shiftsRef.current.filter(s => s.work_date === day.date.toISOString().split('T')[0])
+        const dayShifts = shifts.filter(s => s.work_date === day.date.toISOString().split('T')[0])
         const rows = dayShifts.length > 0 ? Object.keys(dayShifts.reduce((acc, s) => {
             acc[s.site_name] = true
             return acc
@@ -177,7 +171,7 @@ export function Calendar({
         const prevDay = allDays[index - 1]
         const hasDivider = day.month !== prevDay.month || day.year !== prevDay.year
         return baseHeight + rows * rowHeight + (hasDivider ? dividerHeight : 0)
-    }, [allDays])
+    }, [allDays, shifts])
 
     const virtualizer = useVirtualizer({
         count: allDays.length,
@@ -189,17 +183,18 @@ export function Calendar({
         }
     })
 
-   // === ИНИЦИАЛИЗАЦИЯ ===
-useEffect(() => {
-    if (isFirstRender.current) {
-        isFirstRender.current = false
-        // ИСПОЛЬЗУЕМ selectedDate ИЗ ПРОПСОВ, ЕСЛИ ОН ЕСТЬ
-        const initialDate = selectedDate || new Date()
-        onDateSelect(initialDate)
-        setDisplayDate(initialDate)
-        initFeed(initialDate)
-    }
-}, [initFeed, onDateSelect, selectedDate])
+    // === ИНИЦИАЛИЗАЦИЯ ===
+    useEffect(() => {
+        console.log('🟠 useEffect инициализации, isFirstRender:', isFirstRender.current)
+        if (isFirstRender.current) {
+            isFirstRender.current = false
+            const today = new Date()
+            console.log('🟠 Устанавливаем дату в календаре на СЕГОДНЯ:', today.toISOString())
+            onDateSelect(today)
+            setDisplayDate(today)
+            initFeed(today)
+        }
+    }, [initFeed, onDateSelect])
 
     // === ВОССТАНОВЛЕНИЕ ПОЗИЦИИ ===
     useEffect(() => {
@@ -305,11 +300,13 @@ useEffect(() => {
     const handleNext = () => changeMonth(1)
 
     const handleModeChange = (newMode) => {
+        console.log('🟣 Смена режима:', newMode)
         setMode(newMode)
         if (onModeChange) {
             onModeChange(newMode, null)
         }
         const today = new Date()
+        console.log('🟣 При смене режима устанавливаем СЕГОДНЯ:', today.toISOString())
         onDateSelect(today)
         setDisplayDate(today)
         isRestoring.current = false
@@ -321,6 +318,7 @@ useEffect(() => {
     }
 
     const handleDayClick = (date) => {
+        console.log('🟣 Клик в календаре по:', date.toISOString())
         onDateSelect(date)
         if (onDayClick) {
             onDayClick(date, mode)
@@ -385,7 +383,7 @@ useEffect(() => {
                                         )}
                                         <FeedItem
                                             day={day}
-                                            shifts={shiftsRef.current}
+                                            shifts={shifts}
                                             selectedDate={selectedDate}
                                             onDayClick={handleDayClick}
                                             getDayShifts={getDayShifts}
