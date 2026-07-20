@@ -14,7 +14,6 @@ const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelec
     const dayName = dayNames[day.date.getDay()]
     const dateStr = `${String(day.date.getDate()).padStart(2, '0')}.${String(day.date.getMonth() + 1).padStart(2, '0')} ${dayName}`
     
-    // Группируем по объектам
     const sitesMap = {}
     dayShifts.forEach(s => {
         if (!sitesMap[s.site_name]) {
@@ -84,7 +83,7 @@ const MonthDivider = ({ month, year }) => {
 }
 
 export function Calendar({ 
-    shifts, 
+    shifts: externalShifts, 
     selectedDate, 
     onDateSelect, 
     onDayClick,
@@ -102,6 +101,12 @@ export function Calendar({
     const virtualizerRef = useRef(null)
     const [shouldShowToday, setShouldShowToday] = useState(true)
     const [hasRestored, setHasRestored] = useState(false)
+    
+    // === ФИКСИРУЕМ shifts через useRef, чтобы не пересоздавать компонент ===
+    const shiftsRef = useRef(externalShifts)
+    useEffect(() => {
+        shiftsRef.current = externalShifts
+    }, [externalShifts])
 
     const YEARS_BACK = 5
     const YEARS_FORWARD = 3
@@ -136,10 +141,11 @@ export function Calendar({
         setHasRestored(false)
     }, [generateDays])
 
+    // Используем shifts из ref, чтобы не пересоздавать функцию при изменении shifts
     const getDayShifts = useCallback((date) => {
         const dateStr = date.toISOString().split('T')[0]
-        return shifts.filter(s => s.work_date === dateStr)
-    }, [shifts])
+        return shiftsRef.current.filter(s => s.work_date === dateStr)
+    }, [])
 
     const isToday = useCallback((date) => {
         const today = new Date()
@@ -155,10 +161,11 @@ export function Calendar({
                date.getFullYear() === selectedDate.getFullYear()
     }, [selectedDate])
 
+    // Используем shifts из ref для вычисления высоты
     const getItemHeight = useCallback((index) => {
         const day = allDays[index]
         if (!day) return 44
-        const dayShifts = shifts.filter(s => s.work_date === day.date.toISOString().split('T')[0])
+        const dayShifts = shiftsRef.current.filter(s => s.work_date === day.date.toISOString().split('T')[0])
         const rows = dayShifts.length > 0 ? Object.keys(dayShifts.reduce((acc, s) => {
             acc[s.site_name] = true
             return acc
@@ -170,7 +177,7 @@ export function Calendar({
         const prevDay = allDays[index - 1]
         const hasDivider = day.month !== prevDay.month || day.year !== prevDay.year
         return baseHeight + rows * rowHeight + (hasDivider ? dividerHeight : 0)
-    }, [allDays, shifts])
+    }, [allDays])
 
     const virtualizer = useVirtualizer({
         count: allDays.length,
@@ -280,21 +287,16 @@ export function Calendar({
         }
     }
 
-    // ============================================================
-    // ИСПРАВЛЕННАЯ ФУНКЦИЯ changeMonth
-    // ============================================================
     const changeMonth = (direction) => {
         const newDate = new Date(displayDate)
         if (mode === 'month') {
             newDate.setMonth(newDate.getMonth() + direction)
             setDisplayDate(newDate)
-            // НЕ ВЫЗЫВАЕМ onDateSelect при смене месяца
         } else if (mode === 'feed') {
             const centerDate = new Date(displayDate)
             centerDate.setDate(centerDate.getDate() + direction * 30)
             initFeed(centerDate)
             setDisplayDate(centerDate)
-            // НЕ ВЫЗЫВАЕМ onDateSelect при смене месяца
         }
     }
 
@@ -382,7 +384,7 @@ export function Calendar({
                                         )}
                                         <FeedItem
                                             day={day}
-                                            shifts={shifts}
+                                            shifts={shiftsRef.current}
                                             selectedDate={selectedDate}
                                             onDayClick={handleDayClick}
                                             getDayShifts={getDayShifts}
