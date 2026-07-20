@@ -16,6 +16,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     const [workers, setWorkers] = useState([])
     
     const [showSavingScreen, setShowSavingScreen] = useState(false)
+    const [updateKey, setUpdateKey] = useState(0)  // ← ДЛЯ ПРИНУДИТЕЛЬНОГО ОБНОВЛЕНИЯ
     const { user } = useAuth()
 
     useEffect(() => {
@@ -74,9 +75,8 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         // 4. Закрываем экран сохранения
         setShowSavingScreen(false)
         
-        // 5. Обновляем дату без установки в null
-        const currentDate = new Date(selectedDate)
-        setSelectedDate(currentDate)
+        // 5. Принудительно обновляем Timeline
+        setUpdateKey(prev => prev + 1)  // ← МЕНЯЕМ КЛЮЧ
     }
 
     // Экран сохранения
@@ -141,9 +141,9 @@ export function MainPage({ shifts, loading, refetchShifts }) {
                     )}
                 </div>
 
-                {/* Список смен */}
+                {/* Список смен — КЛЮЧ МЕНЯЕТСЯ ПРИ СОХРАНЕНИИ */}
                 <Timeline 
-                    key={selectedDate.toISOString()}
+                    key={updateKey}  // ← ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ
                     shifts={shifts} 
                     date={selectedDate} 
                     onClose={null}
