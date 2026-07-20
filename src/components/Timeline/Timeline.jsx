@@ -1,43 +1,8 @@
-import { fetchSites, fetchWorkers } from '../../services/supabase'
-import { useState, useEffect } from 'react'
-
-export function Timeline({ shifts, date, onClose, isFullscreen }) {
-    const [sites, setSites] = useState([])
-    const [workers, setWorkers] = useState([])
-    
-    // Загружаем объекты и работников
-    useEffect(() => {
-        const loadData = async () => {
-            try {
-                const [sitesData, workersData] = await Promise.all([
-                    fetchSites(),
-                    fetchWorkers()
-                ])
-                setSites(sitesData || [])
-                setWorkers(workersData || [])
-            } catch (error) {
-                console.error('Ошибка загрузки данных:', error)
-            }
-        }
-        loadData()
-    }, [])
-
+export function Timeline({ shifts, date, onClose, isFullscreen, hideHeader }) {
     if (!date) return null
 
     const dateStr = date.toISOString().split('T')[0]
     const dayShifts = shifts.filter(s => s.work_date === dateStr)
-
-    // Функция для получения имени объекта по ID
-    const getSiteName = (siteId) => {
-        const site = sites.find(s => s.id === siteId)
-        return site ? site.name : 'Неизвестный объект'
-    }
-
-    // Функция для получения имени работника по ID
-    const getWorkerName = (workerId) => {
-        const worker = workers.find(w => w.id === workerId)
-        return worker ? worker.name : 'Неизвестный работник'
-    }
 
     const renderContent = () => {
         if (dayShifts.length === 0) {
@@ -55,13 +20,12 @@ export function Timeline({ shifts, date, onClose, isFullscreen }) {
             const siteId = s.site_id
             if (!sitesMap[siteId]) {
                 sitesMap[siteId] = { 
-                    siteName: getSiteName(siteId),
+                    siteName: s.site_name,
                     workers: new Set() 
                 }
             }
-            // Добавляем работника через worker_id
-            if (s.worker_id) {
-                sitesMap[siteId].workers.add(getWorkerName(s.worker_id))
+            if (s.worker_name) {
+                sitesMap[siteId].workers.add(s.worker_name)
             }
         })
 
@@ -82,8 +46,8 @@ export function Timeline({ shifts, date, onClose, isFullscreen }) {
         ))
     }
 
-    // Если isFullscreen — просто контент без шапки
-    if (isFullscreen) {
+    // Если hideHeader === true — НЕ ПОКАЗЫВАЕМ шапку с датой и счетчиком
+    if (isFullscreen || hideHeader) {
         return <>{renderContent()}</>
     }
 
