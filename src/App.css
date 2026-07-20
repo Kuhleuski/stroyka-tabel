@@ -2377,3 +2377,53 @@ body {
     font-size: 15px;
     margin: 0;
 }
+/* ============================================================
+   ДЕТАЛЬНАЯ ИНФОРМАЦИЯ ПОД КАЛЕНДАРЕМ
+   ============================================================ */
+
+.detail-under-calendar {
+    background: white;
+    border-radius: 16px;
+    padding: 16px;
+    margin-top: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.detail-under-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e8eaed;
+    margin-bottom: 12px;
+}
+
+.detail-under-date {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.detail-under-add-btn {
+    background: #2d7d46;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+.detail-under-add-btn:hover {
+    background: #236835;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(45, 125, 70, 0.3);
+}
+
+.detail-under-add-btn:active {
+    transform: translateY(0);
+}
