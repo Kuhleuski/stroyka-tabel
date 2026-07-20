@@ -14,17 +14,13 @@ export function Timeline({ shifts, date, onClose, isFullscreen }) {
             )
         }
 
+        // Группируем по объектам, собираем уникальных работников
         const sitesMap = {}
         dayShifts.forEach(s => {
             if (!sitesMap[s.site_name]) {
-                sitesMap[s.site_name] = { workers: [], totalHours: 0 }
+                sitesMap[s.site_name] = { workers: new Set() }
             }
-            sitesMap[s.site_name].workers.push({
-                name: s.worker_name,
-                hours: parseFloat(s.hours),
-                status: s.status
-            })
-            sitesMap[s.site_name].totalHours += parseFloat(s.hours)
+            sitesMap[s.site_name].workers.add(s.worker_name)
         })
 
         return Object.entries(sitesMap).map(([siteName, data]) => (
@@ -32,16 +28,11 @@ export function Timeline({ shifts, date, onClose, isFullscreen }) {
                 <div className="card-header">
                     <span className="card-icon">📍</span>
                     <span className="card-title">{siteName}</span>
-                    <span className="card-badge">{data.totalHours} ч.</span>
                 </div>
                 <div className="card-body">
-                    {data.workers.map((w, idx) => (
+                    {Array.from(data.workers).map((workerName, idx) => (
                         <div key={idx} className="worker-chip">
-                            <span className="worker-chip-name">{w.name}</span>
-                            <span className="worker-chip-hours">{w.hours} ч.</span>
-                            <span className={`badge ${w.status === 'confirmed' ? 'confirmed' : 'pending'}`}>
-                                {w.status === 'confirmed' ? '✅ Подтверждено' : '⏳ Ожидает'}
-                            </span>
+                            <span className="worker-chip-name">{workerName}</span>
                         </div>
                     ))}
                 </div>
