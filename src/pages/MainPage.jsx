@@ -90,27 +90,21 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         setShowSavingScreen(true)
         setShowAddShift(false)
         
-        // 2. Ждем 400ms для плавности
-        await new Promise(resolve => setTimeout(resolve, 400))
-        
-        // 3. Обновляем данные
+        // 2. Обновляем данные
         if (refetchShifts) {
             await refetchShifts()
         }
         await loadSitesAndWorkers()
         
-        // 4. Ждем еще 300ms
-        await new Promise(resolve => setTimeout(resolve, 300))
-        
-        // 5. Закрываем экран сохранения
-        setShowSavingScreen(false)
-        
-        // 6. Обновляем детальный режим
+        // 3. Закрываем экран сохранения и обновляем детальный режим ОДНИМ ДЕЙСТВИЕМ
         const currentDate = detailDate || selectedDate
+        
+        // Закрываем всё
+        setShowSavingScreen(false)
         setIsDetailOpen(false)
         setDetailDate(null)
         
-        // 7. Открываем детальный режим с новыми данными
+        // И открываем заново
         setTimeout(() => {
             setDetailDate(currentDate)
             setIsDetailOpen(true)
