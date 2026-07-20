@@ -102,7 +102,7 @@ const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
     
     // Строим CSS для четких секций (как пицца)
     let backgroundStyle = {}
-    let numberColor = '#1a1a1a'  // ← ВСЕГДА ЧЕРНЫЙ
+    let numberColor = '#1a1a1a'  
     
     if (hasWork && !showPlus) {
         const count = displayColors.length
@@ -150,7 +150,7 @@ const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
         >
             <div className="day-number" style={{ color: numberColor }}>{day.day}</div>
             {hasWork && showPlus && (
-                <div className="day-plus" style={{ color: '#1a1a1a' }}>+</div>  {/* ← тоже черный */}
+                <div className="day-plus" style={{ color: '#1a1a1a' }}>+</div>  
             )}
             {dayShifts.length > 0 && !hasWork && (
                 <div className="day-count">{dayShifts.length}</div>
