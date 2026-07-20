@@ -102,15 +102,16 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         // 4. Закрываем экран сохранения
         setShowSavingScreen(false)
         
-        // 5. Обновляем детальный режим
+        // 5. ОБНОВЛЯЕМ ДЕТАЛЬНЫЙ РЕЖИМ БЕЗ ЗАКРЫТИЯ!
+        // Просто обновляем detailDate, чтобы перерисовать контент
         const currentDate = detailDate || selectedDate
-        setIsDetailOpen(false)
         setDetailDate(null)
         
+        // Сразу открываем с той же датой
         setTimeout(() => {
             setDetailDate(currentDate)
             setIsDetailOpen(true)
-        }, 200)
+        }, 50)
     }
 
     // Если открыт экран сохранения
