@@ -2770,3 +2770,8 @@ body {
 .detail-screen-close:active {
     transform: scale(0.95);
 }
+/* Прелоадер для кнопки */
+.detail-add-shift-btn:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
