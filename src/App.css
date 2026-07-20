@@ -2427,3 +2427,37 @@ body {
 .detail-under-add-btn:active {
     transform: translateY(0);
 }
+/* ============================================================
+   НОВАЯ КНОПКА ДОБАВЛЕНИЯ СМЕНЫ
+   ============================================================ */
+
+.detail-add-button-wrapper {
+    padding: 12px 0 16px 0;
+    border-bottom: 1px solid #e8eaed;
+    margin-bottom: 16px;
+}
+
+.detail-add-button {
+    width: 100%;
+    padding: 14px;
+    background: #2d7d46;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(45, 125, 70, 0.25);
+}
+
+.detail-add-button:hover {
+    background: #236835;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(45, 125, 70, 0.35);
+}
+
+.detail-add-button:active {
+    transform: translateY(0);
+}
