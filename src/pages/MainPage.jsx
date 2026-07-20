@@ -58,17 +58,29 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     }
 
     const handleShiftAdded = async () => {
+        // 1. Показываем экран сохранения
         setShowSavingScreen(true)
         setShowAddShift(false)
         
+        // 2. Обновляем данные
         if (refetchShifts) {
             await refetchShifts()
         }
         await loadSitesAndWorkers()
         
+        // 3. Ждем 1 секунду для красоты
         await new Promise(resolve => setTimeout(resolve, 1000))
         
+        // 4. Закрываем экран сохранения
         setShowSavingScreen(false)
+        
+        // 5. ДАТА УЖЕ ВЫБРАНА! Просто обновляем ее (триггерим перерендер)
+        //    Можно сделать так: установить ту же дату заново
+        const currentDate = new Date(selectedDate)
+        setSelectedDate(null)
+        setTimeout(() => {
+            setSelectedDate(currentDate)
+        }, 50)
     }
 
     // Экран сохранения
@@ -130,6 +142,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
 
                 {/* Список смен */}
                 <Timeline 
+                    key={selectedDate.toISOString()}  // ← КЛЮЧ ДЛЯ ОБНОВЛЕНИЯ
                     shifts={shifts} 
                     date={selectedDate} 
                     onClose={null}
