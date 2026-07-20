@@ -98,7 +98,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         
         setShowSavingScreen(false)
         
-        // Просто обновляем детальный режим
+        // Обновляем детальный режим
         const currentDate = detailDate || selectedDate
         setDetailDate(null)
         setTimeout(() => {
@@ -133,59 +133,65 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         )
     }
 
-    return (
-        <>
-            {isDetailOpen && detailDate ? (
-                <div className="detail-screen">
-                    <div className="detail-screen-header">
-                        <span className="detail-screen-title">
-                            📅 {detailDate.getDate()} {['Января','Февраля','Марта','Апреля','Мая','Июня','Июля','Августа','Сентября','Октября','Ноября','Декабря'][detailDate.getMonth()]} {detailDate.getFullYear()}
-                        </span>
-                        <button className="detail-screen-close" onClick={handleCloseDetail}>
-                            ✕
+    // ============================================================
+    // ДЕТАЛЬНЫЙ РЕЖИМ — ВЕСЬ ЭКРАН (как в "Мой табель")
+    // ============================================================
+    if (isDetailOpen && detailDate) {
+        return (
+            <div className="detail-screen">
+                <div className="detail-screen-header">
+                    <span className="detail-screen-title">
+                        📅 {detailDate.getDate()} {['Января','Февраля','Марта','Апреля','Мая','Июня','Июля','Августа','Сентября','Октября','Ноября','Декабря'][detailDate.getMonth()]} {detailDate.getFullYear()}
+                    </span>
+                    <button className="detail-screen-close" onClick={handleCloseDetail}>
+                        ✕
+                    </button>
+                </div>
+                
+                {user?.role === 'admin' && (
+                    <div className="detail-add-shift-wrapper">
+                        <button 
+                            className="detail-add-shift-btn"
+                            onClick={() => handleOpenAddShift(detailDate)}
+                        >
+                            ➕ Добавить смену на этот день
                         </button>
                     </div>
-                    
-                    {user?.role === 'admin' && (
-                        <div className="detail-add-shift-wrapper">
-                            <button 
-                                className="detail-add-shift-btn"
-                                onClick={() => handleOpenAddShift(detailDate)}
-                            >
-                                ➕ Добавить смену на этот день
-                            </button>
-                        </div>
-                    )}
-                    
-                    <div className="detail-screen-content">
-                        <Timeline 
-                            shifts={shifts} 
-                            date={detailDate} 
-                            onClose={handleCloseDetail}
-                            isFullscreen={true}
-                        />
-                    </div>
-                </div>
-            ) : (
-                <>
-                    <Calendar
-                        shifts={shifts}
-                        selectedDate={selectedDate}
-                        onDateSelect={handleDateSelect}
-                        onDayClick={handleDayClick}
-                        mode={calendarMode}
-                        onModeChange={handleModeChange}
-                        isReturning={isReturning}
-                        savedScrollTop={savedScrollTop}
-                    />
+                )}
+                
+                <div className="detail-screen-content">
                     <Timeline 
                         shifts={shifts} 
-                        date={selectedDate} 
-                        onClose={null}
-                        isFullscreen={false}
+                        date={detailDate} 
+                        onClose={handleCloseDetail}
+                        isFullscreen={true}
                     />
-                </>
-            )}
+                </div>
+            </div>
+        )
+    }
+
+    // ============================================================
+    // ОСНОВНОЙ ЭКРАН — КАЛЕНДАРЬ
+    // ============================================================
+    return (
+        <>
+            <Calendar
+                shifts={shifts}
+                selectedDate={selectedDate}
+                onDateSelect={handleDateSelect}
+                onDayClick={handleDayClick}
+                mode={calendarMode}
+                onModeChange={handleModeChange}
+                isReturning={isReturning}
+                savedScrollTop={savedScrollTop}
+            />
+            <Timeline 
+                shifts={shifts} 
+                date={selectedDate} 
+                onClose={null}
+                isFullscreen={false}
+            />
         </>
     )
 }
