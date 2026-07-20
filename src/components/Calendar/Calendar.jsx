@@ -184,17 +184,22 @@ export function Calendar({
     })
 
     // === ИНИЦИАЛИЗАЦИЯ ===
-    useEffect(() => {
-        console.log('🟠 useEffect инициализации, isFirstRender:', isFirstRender.current)
-        if (isFirstRender.current) {
-            isFirstRender.current = false
-            const today = new Date()
-            console.log('🟠 Устанавливаем дату в календаре на СЕГОДНЯ:', today.toISOString())
-            onDateSelect(today)
-            setDisplayDate(today)
-            initFeed(today)
-        }
-    }, [initFeed, onDateSelect])
+useEffect(() => {
+    // ТОЛЬКО ЕСЛИ selectedDate НЕ ПЕРЕДАН ИЗ ВНЕ
+    if (isFirstRender.current && !selectedDate) {
+        isFirstRender.current = false
+        const today = new Date()
+        onDateSelect(today)
+        setDisplayDate(today)
+        initFeed(today)
+    } else if (isFirstRender.current && selectedDate) {
+        // ЕСЛИ ДАТА УЖЕ ЕСТЬ — ИСПОЛЬЗУЕМ ЕЕ
+        isFirstRender.current = false
+        onDateSelect(selectedDate)
+        setDisplayDate(selectedDate)
+        initFeed(selectedDate)
+    }
+}, [initFeed, onDateSelect, selectedDate])
 
     // === ВОССТАНОВЛЕНИЕ ПОЗИЦИИ ===
     useEffect(() => {
