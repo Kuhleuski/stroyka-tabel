@@ -17,6 +17,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     
     const [showSavingScreen, setShowSavingScreen] = useState(false)
     const [updateKey, setUpdateKey] = useState(0)
+    const [isRefreshing, setIsRefreshing] = useState(false)  // ← НОВОЕ
     const { user } = useAuth()
 
     // ИНИЦИАЛИЗАЦИЯ ПРИ ПЕРВОМ ОТКРЫТИИ
@@ -25,23 +26,34 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         setSelectedDate(today)
         loadSitesAndWorkers()
         
-        // Обновляем смены при первом открытии
         if (refetchShifts) {
             refetchShifts()
         }
     }, [])
 
-    // === НОВЫЙ ЭФФЕКТ: при монтировании обновляем данные ===
+    // === ВОЗВРАТ НА КАЛЕНДАРЬ — обновляем данные и показываем прелоадер ===
     useEffect(() => {
-        // При возврате на календарь обновляем смены и дату
-        const today = new Date()
-        setSelectedDate(today)
-        
-        if (refetchShifts) {
-            refetchShifts()
+        const refreshData = async () => {
+            setIsRefreshing(true)
+            
+            // Обновляем дату на сегодня
+            const today = new Date()
+            setSelectedDate(today)
+            
+            // Загружаем свежие данные
+            if (refetchShifts) {
+                await refetchShifts()
+            }
+            await loadSitesAndWorkers()
+            
+            // Обновляем Timeline
+            setUpdateKey(prev => prev + 1)
+            
+            setIsRefreshing(false)
         }
-        loadSitesAndWorkers()
-    }, [])  // пустой массив = срабатывает при монтировании/возврате
+        
+        refreshData()
+    }, [])  // ← срабатывает при монтировании/возврате
 
     const loadSitesAndWorkers = async () => {
         try {
@@ -150,14 +162,20 @@ export function MainPage({ shifts, loading, refetchShifts }) {
                     </div>
                 )}
                 
-                <Timeline 
-                    key={updateKey}
-                    shifts={shifts} 
-                    date={selectedDate} 
-                    onClose={null}
-                    isFullscreen={false}
-                    hideHeader={true}
-                />
+                {isRefreshing ? (
+                    <div className="loading-text" style={{ padding: '20px' }}>
+                        ⏳ Обновление...
+                    </div>
+                ) : (
+                    <Timeline 
+                        key={updateKey}
+                        shifts={shifts} 
+                        date={selectedDate} 
+                        onClose={null}
+                        isFullscreen={false}
+                        hideHeader={true}
+                    />
+                )}
             </div>
         </>
     )
