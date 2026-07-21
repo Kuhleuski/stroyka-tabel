@@ -88,9 +88,9 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                         opacity: isReady ? 1 : 0,
                         transform: isReady ? 'translateY(0)' : 'translateY(8px)',
                         transition: 'opacity 0.3s ease, transform 0.3s ease',
-                        borderLeft: `5px solid ${color}`,
+                        borderLeft: `8px solid ${color}`,  // ← БЫЛО 5px, СТАЛО 8px
                         borderRadius: '12px',
-                        paddingLeft: '12px'
+                        paddingLeft: '14px'  // ← ЧУТЬ БОЛЬШЕ ОТСТУП
                     }}
                 >
                     <div className="card-header" style={{ marginBottom: '6px' }}>
