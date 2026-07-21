@@ -15,14 +15,18 @@ import { NotificationsPage } from './pages/NotificationsPage'
 import './App.css'
 
 function AppContent() {
+    console.log('🏠 AppContent рендерится')
+    
     const [currentPage, setCurrentPage] = useState('calendar')
     const [showSettings, setShowSettings] = useState(false)
     const [showNotifications, setShowNotifications] = useState(false)
     const [unreadCount, setUnreadCount] = useState(1)
-    const [pageKey, setPageKey] = useState(0)  // ← НОВОЕ
+    const [pageKey, setPageKey] = useState(0)
     
     const { shifts, loading, error, refetch } = useShifts()
     const { user, login, logout } = useAuth()
+
+    console.log('🏠 shifts.length в AppContent:', shifts.length)
 
     if (!user) {
         return <LoginPage onLogin={login} />
@@ -44,11 +48,18 @@ function AppContent() {
     }
 
     const handleNavigate = (page) => {
+        console.log('🔄 handleNavigate:', page)
         setCurrentPage(page)
-        // Если переходим на календарь — обновляем ключ и данные
+        
         if (page === 'calendar') {
-            setPageKey(prev => prev + 1)
-            refetch()  // ← ПРИНУДИТЕЛЬНО ОБНОВЛЯЕМ ДАННЫЕ
+            console.log('🔄 Переход на календарь: обновляем данные')
+            setPageKey(prev => {
+                const newKey = prev + 1
+                console.log('🔄 pageKey:', newKey)
+                return newKey
+            })
+            console.log('🔄 Вызываем refetch()')
+            refetch()
         }
     }
 
@@ -88,6 +99,7 @@ function AppContent() {
     }
 
     const renderPage = () => {
+        console.log('📄 renderPage:', currentPage, 'pageKey:', pageKey)
         switch (currentPage) {
             case 'my-tabel':
                 return <MyTabelPage key={`my-tabel-${pageKey}`} shifts={shifts} />
