@@ -4,6 +4,7 @@ import { AddWorkerPage } from './AddWorkerPage'
 import { WorkerDetailPage } from './WorkerDetailPage'
 import { addWorker, deleteWorker } from '../services/supabase'
 import { useWorkers } from '../hooks/useWorkers'
+import { Plus } from 'lucide-react'
 
 // === ПЛОСКАЯ ИКОНКА ДЛЯ ЗАГОЛОВКА ===
 const WorkersIcon = () => (
@@ -55,6 +56,10 @@ export function WorkersPage({ shifts }) {
         }, 50)
     }
 
+    const handleOpenAddForm = () => {
+        setShowAddForm(true)
+    }
+
     if (loading) {
         return <div className="loading-text">⏳ Загрузка...</div>
     }
@@ -101,15 +106,25 @@ export function WorkersPage({ shifts }) {
                 </div>
                 <button 
                     className="add-worker-btn"
-                    onClick={() => setShowAddForm(true)}
+                    onClick={handleOpenAddForm}
                 >
                     + Добавить работника
                 </button>
             </div>
+
             <WorkersList 
                 workers={workers} 
                 onWorkerClick={handleWorkerClick}
             />
+
+            {/* ПЛАВАЮЩАЯ КНОПКА (FAB) — дублирует "Добавить работника" */}
+            <button 
+                className="fab-add-worker"
+                onClick={handleOpenAddForm}
+                aria-label="Добавить работника"
+            >
+                <Plus size={28} strokeWidth={2.5} />
+            </button>
         </>
     )
 }
