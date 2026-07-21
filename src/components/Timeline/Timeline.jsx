@@ -66,4 +66,35 @@ export function Timeline({ shifts, date, onClose, isFullscreen, hideHeader }) {
         return Object.entries(sitesMap).map(([siteId, data]) => (
             <div key={siteId} className="card">
                 <div className="card-header">
-                    <span className="card-icon">📍</span
+                    <span className="card-icon">📍</span>
+                    <span className="card-title">{data.siteName}</span>
+                </div>
+                <div className="card-body">
+                    {Array.from(data.workers).map((workerName, idx) => (
+                        <div key={idx} className="worker-chip">
+                            <span className="worker-chip-name">{workerName}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        ))
+    }
+
+    if (isFullscreen || hideHeader) {
+        return <>{renderContent()}</>
+    }
+
+    return (
+        <div className="timeline-mini">
+            <div className="timeline-mini-header">
+                <span className="timeline-mini-date">
+                    {date.getDate()} {['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'][date.getMonth()]} {date.getFullYear()}
+                </span>
+                <span className="timeline-mini-count">
+                    {dayShifts.length} {dayShifts.length === 1 ? 'смена' : 'смен'}
+                </span>
+            </div>
+            {renderContent()}
+        </div>
+    )
+}
