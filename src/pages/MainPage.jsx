@@ -133,9 +133,6 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         return <div className="loading-text">⏳ Загрузка...</div>
     }
 
-    const monthNames = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']
-    const buttonDate = `${selectedDate.getDate()} ${monthNames[selectedDate.getMonth()]}`
-
     return (
         <>
             <Calendar
@@ -151,18 +148,6 @@ export function MainPage({ shifts, loading, refetchShifts }) {
             />
 
             <div className="detail-under-calendar">
-                {/* Кнопка под календарем */}
-                {user?.role === 'admin' && (
-                    <div className="detail-add-button-wrapper">
-                        <button 
-                            className="detail-add-button"
-                            onClick={() => handleOpenAddShift(selectedDate)}
-                        >
-                            ➕ Добавить смену на {buttonDate}
-                        </button>
-                    </div>
-                )}
-                
                 <Timeline 
                     key={updateKey}
                     shifts={shifts} 
