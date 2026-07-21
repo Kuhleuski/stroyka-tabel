@@ -2,6 +2,15 @@ import React, { useState } from 'react'
 import { ArrowLeft, Check } from 'lucide-react'
 import { addShift } from '../../services/supabase'
 
+// === ФУНКЦИЯ ДЛЯ ЛОКАЛЬНОЙ ДАТЫ ===
+const formatDateLocal = (date) => {
+    if (!date) return ''
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+}
+
 export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers }) => {
   const [selectedSite, setSelectedSite] = useState('')
   const [selectedWorkers, setSelectedWorkers] = useState([])
@@ -37,11 +46,15 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
 
     setLoading(true)
     try {
+      // === ИСПРАВЛЕНО: используем локальную дату ===
+      const localDate = formatDateLocal(selectedDate)
+      console.log('📅 Сохраняем смену на дату:', localDate)
+      
       const shiftPromises = selectedWorkers.map(workerId => 
         addShift({
           worker_id: workerId,
           site_id: selectedSite,
-          work_date: selectedDate.toISOString().split('T')[0],
+          work_date: localDate,  // ← ИСПРАВЛЕНО!
           hours: 8,
           status: 'pending'
         })
