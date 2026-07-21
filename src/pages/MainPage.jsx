@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Calendar } from '../components/Calendar/Calendar'
 import { Timeline } from '../components/Timeline/Timeline'
 import { AddShiftForm } from '../components/Shifts/AddShiftForm'
@@ -17,36 +17,13 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     
     const [showSavingScreen, setShowSavingScreen] = useState(false)
     const [updateKey, setUpdateKey] = useState(0)
-    const [isRefreshing, setIsRefreshing] = useState(false)
     const { user } = useAuth()
-    
-    const isFirstMount = useRef(true)
-    const hasLoadedRef = useRef(false)
-    const prevShiftsLength = useRef(0)
 
-    // ИНИЦИАЛИЗАЦИЯ ПРИ ПЕРВОМ ОТКРЫТИИ
     useEffect(() => {
-        if (isFirstMount.current) {
-            isFirstMount.current = false
-            const today = new Date()
-            setSelectedDate(today)
-            loadSitesAndWorkers()
-            
-            if (refetchShifts) {
-                refetchShifts()
-            }
-        }
+        const today = new Date()
+        setSelectedDate(today)
+        loadSitesAndWorkers()
     }, [])
-
-    // === ОБНОВЛЕНИЕ КОГДА shifts МЕНЯЮТСЯ ===
-    useEffect(() => {
-        // Если смены изменились и мы не в процессе загрузки
-        if (shifts.length !== prevShiftsLength.current) {
-            prevShiftsLength.current = shifts.length
-            // Обновляем Timeline
-            setUpdateKey(prev => prev + 1)
-        }
-    }, [shifts])
 
     const loadSitesAndWorkers = async () => {
         try {
