@@ -2579,3 +2579,23 @@ body {
         right: calc(50% - 250px + 24px);
     }
 }
+
+/* Стили для поля загрузки фото */
+.add-worker-input[type="file"] {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.add-worker-input[type="file"]::-webkit-file-upload-button {
+    background: #2d7d46;
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.add-worker-input[type="file"]::-webkit-file-upload-button:hover {
+    background: #236835;
+}
