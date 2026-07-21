@@ -3614,3 +3614,141 @@ body {
         padding-left: 34px;
     }
 }
+/* ============================================================
+   СПИСОК ОБЪЕКТОВ
+   ============================================================ */
+
+.sites-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.site-card-row {
+    background: white;
+    border-radius: 12px;
+    padding: 16px 18px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.site-card-row:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.site-card-row:active {
+    transform: scale(0.98);
+}
+
+/* === ВЕРХНЯЯ ЧАСТЬ === */
+.site-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.site-card-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+/* === ЦВЕТНОЙ КРУГ (увеличенный в 2 раза) === */
+.site-color-dot {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: inline-block;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.site-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* === СТАТУС (зеленый прямоугольник) === */
+.site-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 14px 4px 10px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+/* === АДРЕС === */
+.site-address {
+    font-size: 13px;
+    color: #888;
+    margin-top: 4px;
+    padding-left: 68px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* === АДАПТИВ === */
+@media (max-width: 480px) {
+    .site-card-row {
+        padding: 14px 16px;
+    }
+    
+    .site-color-dot {
+        width: 44px;
+        height: 44px;
+    }
+    
+    .site-name {
+        font-size: 14px;
+    }
+    
+    .site-status-badge {
+        font-size: 11px;
+        padding: 3px 10px 3px 8px;
+    }
+    
+    .status-dot {
+        width: 6px;
+        height: 6px;
+    }
+    
+    .site-address {
+        font-size: 12px;
+        padding-left: 56px;
+    }
+}
+
+@media (max-width: 380px) {
+    .site-color-dot {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .site-address {
+        padding-left: 48px;
+    }
+}
