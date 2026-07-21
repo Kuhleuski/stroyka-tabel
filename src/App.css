@@ -3225,3 +3225,61 @@ body {
         font-size: 20px;
     }
 }
+/* ============================================================
+   ПЛАВАЮЩАЯ КНОПКА ДОБАВЛЕНИЯ (FAB) — ДЛЯ БРИГАДЫ
+   ============================================================ */
+
+.fab-add-worker {
+    position: fixed;
+    bottom: 90px;
+    right: 24px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #2d7d46;
+    color: white;
+    border: none;
+    box-shadow: 0 4px 16px rgba(45, 125, 70, 0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    z-index: 15;
+    padding: 0;
+}
+
+.fab-add-worker:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 24px rgba(45, 125, 70, 0.5);
+}
+
+.fab-add-worker:active {
+    transform: scale(0.92);
+}
+
+.fab-add-worker svg {
+    color: white;
+}
+
+/* Адаптив для маленьких экранов */
+@media (max-width: 400px) {
+    .fab-add-worker {
+        width: 52px;
+        height: 52px;
+        bottom: 80px;
+        right: 16px;
+    }
+    
+    .fab-add-worker svg {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+/* Если экран шире 500px — кнопка привязана к центру */
+@media (min-width: 500px) {
+    .fab-add-worker {
+        right: calc(50% - 250px + 24px);
+    }
+}
