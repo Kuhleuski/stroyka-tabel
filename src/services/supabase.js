@@ -141,7 +141,7 @@ export async function fetchWorkers() {
     }
 }
 
-// === ЗАГРУЗКА ФОТО В STORAGE С ЛОГАМИ ===
+// === ИСПРАВЛЕННАЯ ЗАГРУЗКА ФОТО ===
 export async function uploadAvatar(file, workerId) {
     console.log('📸 uploadAvatar: НАЧАЛО')
     console.log('📸 workerId:', workerId)
@@ -155,12 +155,13 @@ export async function uploadAvatar(file, workerId) {
         const filePath = `avatars/${fileName}`
         console.log('📸 filePath:', filePath)
 
+        // === ИСПРАВЛЕННЫЙ СПОСОБ ===
         const url = `${SUPABASE_URL}/storage/v1/object/avatars/${filePath}`
-        console.log('📸 URL для загрузки:', url)
         
         const response = await fetch(url, {
             method: 'POST',
             headers: {
+                'apikey': SUPABASE_ANON_KEY,
                 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
             },
             body: file
