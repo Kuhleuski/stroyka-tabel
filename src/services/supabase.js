@@ -138,23 +138,92 @@ export async function fetchWorkers() {
     }
 }
 
-export async function addWorker(name) {
-    const url = `${SUPABASE_URL}/rest/v1/workers?apikey=${SUPABASE_ANON_KEY}`
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Prefer': 'return=representation'
-        },
-        body: JSON.stringify([{ name }])
-    })
-    
-    if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(`Ошибка добавления: ${response.status} ${errorText}`)
+// === НОВАЯ ФУНКЦИЯ: ЗАГРУЗКА ФОТО В STORAGE ===
+export async function uploadAvatar(file, workerId) {
+    try {
+        // Уникальное имя файла
+        const fileExt = file.name.split('.').pop()
+        const fileName = `${workerId}-${Date.now()}.${fileExt}`
+        const filePath = `avatars/${fileName}`
+
+        // Загружаем в Storage
+        const formData = new FormData()
+        formData.append('file', file)
+
+        const url = `${SUPABASE_URL}/storage/v1/object/avatars/${filePath}`
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            },
+            body: file
+        })
+        
+        if (!response.ok) {
+            const errorText = await response.text()
+            throw new Error(`Ошибка загрузки фото: ${response.status} ${errorText}`)
+        }
+
+        // Получаем публичную ссылку
+        const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/avatars/${filePath}`
+        return publicUrl
+    } catch (error) {
+        console.error('Ошибка загрузки фото:', error)
+        throw error
     }
-    
-    return await response.json()
+}
+
+export async function addWorker(name, avatarFile = null) {
+    try {
+        // Сначала создаем работника
+        const url = `${SUPABASE_URL}/rest/v1/workers?apikey=${SUPABASE_ANON_KEY}`
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            },
+            body: JSON.stringify([{ name }])
+        })
+        
+        if (!response.ok) {
+            const errorText = await response.text()
+            throw new Error(`Ошибка добавления: ${response.status} ${errorText}`)
+        }
+        
+        const result = await response.json()
+        const newWorker = result[0] || result
+        
+        // Если есть фото — загружаем и обновляем запись
+        if (avatarFile && newWorker.id) {
+            try {
+                const avatarUrl = await uploadAvatar(avatarFile, newWorker.id)
+                
+                // Обновляем запись с URL фото
+                const updateUrl = `${SUPABASE_URL}/rest/v1/workers?id=eq.${newWorker.id}&apikey=${SUPABASE_ANON_KEY}`
+                const updateResponse = await fetch(updateUrl, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify({ avatar_url: avatarUrl })
+                })
+                
+                if (updateResponse.ok) {
+                    const updatedResult = await updateResponse.json()
+                    return updatedResult[0] || updatedResult
+                }
+            } catch (uploadError) {
+                console.error('Фото не загружено, но работник создан:', uploadError)
+            }
+        }
+        
+        return newWorker
+    } catch (error) {
+        console.error('Ошибка в addWorker:', error)
+        throw error
+    }
 }
 
 export async function deleteWorker(workerId) {
