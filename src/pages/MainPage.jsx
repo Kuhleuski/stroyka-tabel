@@ -18,10 +18,11 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     const [showSavingScreen, setShowSavingScreen] = useState(false)
     const [updateKey, setUpdateKey] = useState(0)
     const [isRefreshing, setIsRefreshing] = useState(false)
-    const [refreshTrigger, setRefreshTrigger] = useState(0)  // ← НОВОЕ
     const { user } = useAuth()
     
     const isFirstMount = useRef(true)
+    const hasLoadedRef = useRef(false)
+    const prevShiftsLength = useRef(0)
 
     // ИНИЦИАЛИЗАЦИЯ ПРИ ПЕРВОМ ОТКРЫТИИ
     useEffect(() => {
@@ -37,38 +38,15 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         }
     }, [])
 
-    // === ВОЗВРАТ НА КАЛЕНДАРЬ — ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ ===
+    // === ОБНОВЛЕНИЕ КОГДА shifts МЕНЯЮТСЯ ===
     useEffect(() => {
-        // Этот эффект срабатывает при каждом монтировании (возврате)
-        const refreshData = async () => {
-            setIsRefreshing(true)
-            
-            // Принудительно обновляем ключ календаря
-            setRefreshTrigger(prev => prev + 1)
-            
-            // Обновляем дату на сегодня
-            const today = new Date()
-            setSelectedDate(today)
-            
-            // Загружаем свежие данные
-            if (refetchShifts) {
-                await refetchShifts()
-            }
-            await loadSitesAndWorkers()
-            
+        // Если смены изменились и мы не в процессе загрузки
+        if (shifts.length !== prevShiftsLength.current) {
+            prevShiftsLength.current = shifts.length
             // Обновляем Timeline
             setUpdateKey(prev => prev + 1)
-            
-            setIsRefreshing(false)
         }
-        
-        refreshData()
-        
-        // Очистка при размонтировании
-        return () => {
-            setIsRefreshing(false)
-        }
-    }, [])  // пустой массив = срабатывает при монтировании
+    }, [shifts])
 
     const loadSitesAndWorkers = async () => {
         try {
@@ -153,7 +131,6 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     return (
         <>
             <Calendar
-                key={refreshTrigger}  // ← ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ КАЛЕНДАРЯ
                 shifts={shifts}
                 sites={sites}
                 selectedDate={selectedDate}
@@ -177,20 +154,14 @@ export function MainPage({ shifts, loading, refetchShifts }) {
                     </div>
                 )}
                 
-                {isRefreshing ? (
-                    <div className="loading-text" style={{ padding: '20px' }}>
-                        ⏳ Обновление...
-                    </div>
-                ) : (
-                    <Timeline 
-                        key={updateKey}
-                        shifts={shifts} 
-                        date={selectedDate} 
-                        onClose={null}
-                        isFullscreen={false}
-                        hideHeader={true}
-                    />
-                )}
+                <Timeline 
+                    key={updateKey}
+                    shifts={shifts} 
+                    date={selectedDate} 
+                    onClose={null}
+                    isFullscreen={false}
+                    hideHeader={true}
+                />
             </div>
         </>
     )
