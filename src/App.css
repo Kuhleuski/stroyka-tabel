@@ -2501,3 +2501,23 @@ body {
     color: white;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
+/* Плавное появление карточек в Timeline */
+.timeline-card {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Опционально: плавное появление для всего контента */
+.timeline-content {
+    animation: fadeInUp 0.3s ease forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
