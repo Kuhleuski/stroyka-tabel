@@ -34,18 +34,14 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
         return site && site.address ? site.address : null
     }
 
-    // ===== ИСПРАВЛЕННАЯ ФУНКЦИЯ =====
     const getWorkerName = (workerId) => {
         if (!workerId) return 'Неизвестный работник'
-        // Ищем по ID (число или строка)
         const worker = workers.find(w => w.id === workerId || w.id === Number(workerId))
         return worker ? worker.name : 'Неизвестный работник'
     }
 
-    // ===== ДОБАВЛЯЕМ ПРОВЕРКУ ДЛЯ АВАТАРКИ =====
     const getWorkerAvatarData = (workerName) => {
         if (!workerName) return null
-        // Ищем работника по имени
         const worker = workers.find(w => w.name === workerName)
         return worker ? getAvatar(workerName) : null
     }
@@ -124,7 +120,7 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
 
                     <div style={{ 
                         display: 'flex', 
-                        gap: '12px', 
+                        gap: '14px', 
                         flexWrap: 'wrap',
                         alignItems: 'center'
                     }}>
@@ -148,14 +144,14 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                                     }}
                                 >
                                     <div style={{
-                                        width: '44px',
-                                        height: '44px',
+                                        width: '56px',
+                                        height: '56px',
                                         borderRadius: '50%',
                                         backgroundColor: hasPhoto ? 'transparent' : avatarColor,
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        fontSize: '18px',
+                                        fontSize: '20px',
                                         fontWeight: 600,
                                         color: 'white',
                                         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
@@ -188,7 +184,7 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                                         fontSize: '10px',
                                         color: '#555',
                                         textAlign: 'center',
-                                        maxWidth: '50px',
+                                        maxWidth: '56px',
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
                                         whiteSpace: 'nowrap'
