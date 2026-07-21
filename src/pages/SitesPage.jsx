@@ -6,7 +6,7 @@ import { addSite, deleteSite } from '../services/supabase'
 import { useSites } from '../hooks/useSites'
 import { Plus } from 'lucide-react'
 
-// === ПЛОСКАЯ ИКОНКА ДЛЯ ЗАГОЛОВКА ===
+// === ПЛОСКАЯ ИКОНКА ===
 const SitesIcon = () => (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '8px' }}>
         <path d="M12 2L2 7l10 5 10-5-10-5z"/>
@@ -41,7 +41,7 @@ export function SitesPage({ onAddSite }) {
     }
 
     const handleSiteClick = (site) => {
-        const container = document.querySelector('.sites-list-container')
+        const container = document.querySelector('.sites-grid')
         if (container) {
             setScrollPosition(container.scrollTop)
         }
@@ -51,7 +51,7 @@ export function SitesPage({ onAddSite }) {
     const handleCloseDetail = () => {
         setSelectedSite(null)
         setTimeout(() => {
-            const container = document.querySelector('.sites-list-container')
+            const container = document.querySelector('.sites-grid')
             if (container) {
                 container.scrollTop = scrollPosition
             }
@@ -113,14 +113,12 @@ export function SitesPage({ onAddSite }) {
                 </button>
             </div>
 
-            <div className="sites-list-container">
-                <SitesList 
-                    sites={sites} 
-                    onSiteClick={handleSiteClick}
-                />
-            </div>
+            <SitesList 
+                sites={sites} 
+                onSiteClick={handleSiteClick}
+            />
 
-            {/* ПЛАВАЮЩАЯ КНОПКА (FAB) — дублирует "Добавить объект" */}
+            {/* ПЛАВАЮЩАЯ КНОПКА (FAB) */}
             <button 
                 className="fab-add-site"
                 onClick={handleOpenAddForm}
