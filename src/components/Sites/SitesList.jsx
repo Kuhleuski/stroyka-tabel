@@ -15,48 +15,50 @@ export function SitesList({ sites, onSiteClick }) {
         )
     }
 
-    // Функция для получения статуса с цветом
-    const getStatusStyle = (status) => {
+    // Статусы с современным дизайном
+    const getStatus = (status) => {
         switch (status) {
             case 'в работе':
-                return { color: '#43A047', label: '🟢 В работе' }
+                return { label: 'В работе', color: '#2d7d46', dot: '●' }
             case 'завершен':
-                return { color: '#78909C', label: '⚪ Завершен' }
+                return { label: 'Завершен', color: '#78909C', dot: '●' }
             default:
-                return { color: '#FFB300', label: '🟡 Не указан' }
+                return { label: 'Не указан', color: '#FFB300', dot: '●' }
         }
     }
 
     return (
-        <>
+        <div className="sites-grid">
             {sortedSites.map((site) => {
-                const statusInfo = getStatusStyle(site.status)
+                const status = getStatus(site.status)
 
                 return (
                     <div 
                         key={site.id} 
-                        className="card site-card"
+                        className="site-card"
                         onClick={() => onSiteClick && onSiteClick(site)}
                     >
-                        <div className="site-card-header">
+                        <div className="site-card-top">
+                            <div className="site-card-left">
+                                <span 
+                                    className="site-color-dot"
+                                    style={{ backgroundColor: site.color || '#2d7d46' }}
+                                />
+                                <span className="site-name">{site.name}</span>
+                            </div>
                             <span 
-                                className="site-card-color"
-                                style={{ backgroundColor: site.color || '#2d7d46' }}
-                            />
-                            <span className="site-card-name">{site.name}</span>
-                            <span 
-                                className="site-card-status"
-                                style={{ color: statusInfo.color }}
+                                className="site-status"
+                                style={{ color: status.color }}
                             >
-                                {statusInfo.label}
+                                {status.dot} {status.label}
                             </span>
                         </div>
                         {site.address && (
-                            <div className="site-card-address">{site.address}</div>
+                            <div className="site-address">{site.address}</div>
                         )}
                     </div>
                 )
             })}
-        </>
+        </div>
     )
 }
