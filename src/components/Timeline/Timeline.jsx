@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { formatDateLocal } from '../../utils/dateHelpers'
-import { useAvatars } from '../../context/AvatarContext'  // ← НОВЫЙ ИМПОРТ
+import { useAvatars } from '../../context/AvatarContext'
 
 export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hideHeader }) {
     const [isReady, setIsReady] = useState(false)
-    const { getAvatar, getWorker, loading: avatarsLoading } = useAvatars()  // ← ИСПОЛЬЗУЕМ КОНТЕКСТ
+    const { getAvatar, getWorker, workers } = useAvatars()
 
     useEffect(() => {
         setTimeout(() => setIsReady(true), 100)
@@ -34,9 +34,20 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
         return site && site.address ? site.address : null
     }
 
+    // ===== ИСПРАВЛЕННАЯ ФУНКЦИЯ =====
     const getWorkerName = (workerId) => {
-        const worker = getWorker(workerId)
+        if (!workerId) return 'Неизвестный работник'
+        // Ищем по ID (число или строка)
+        const worker = workers.find(w => w.id === workerId || w.id === Number(workerId))
         return worker ? worker.name : 'Неизвестный работник'
+    }
+
+    // ===== ДОБАВЛЯЕМ ПРОВЕРКУ ДЛЯ АВАТАРКИ =====
+    const getWorkerAvatarData = (workerName) => {
+        if (!workerName) return null
+        // Ищем работника по имени
+        const worker = workers.find(w => w.name === workerName)
+        return worker ? getAvatar(workerName) : null
     }
 
     const getWorkerAvatar = (workerName) => {
@@ -73,7 +84,7 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
             }
             
             const workerName = s.worker_id ? getWorkerName(s.worker_id) : s.worker_name
-            if (workerName) {
+            if (workerName && workerName !== 'Неизвестный работник') {
                 sitesMap[siteId].workers.add(workerName)
             }
         })
@@ -118,7 +129,7 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                         alignItems: 'center'
                     }}>
                         {workerList.map((workerName, idx) => {
-                            const avatarData = getAvatar(workerName)  // ← ИЗ КЕША!
+                            const avatarData = getWorkerAvatarData(workerName)
                             const hasPhoto = !!avatarData
                             const avatarLetter = getWorkerAvatar(workerName)
                             const avatarColor = getWorkerColor(workerName)
