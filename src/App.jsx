@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useShifts } from './hooks/useShifts'
 import { useAuth, AuthProvider } from './context/AuthContext'
+import { AvatarProvider } from './context/AvatarContext'  // ← НОВЫЙ ИМПОРТ
 import { Header } from './components/Layout/Header'
 import { BottomNav } from './components/Layout/BottomNav'
 import { MainPage } from './pages/MainPage'
@@ -15,8 +16,6 @@ import { NotificationsPage } from './pages/NotificationsPage'
 import './App.css'
 
 function AppContent() {
-    console.log('🏠 AppContent рендерится')
-    
     const [currentPage, setCurrentPage] = useState('calendar')
     const [showSettings, setShowSettings] = useState(false)
     const [showNotifications, setShowNotifications] = useState(false)
@@ -25,8 +24,6 @@ function AppContent() {
     
     const { shifts, loading, error, refetch } = useShifts()
     const { user, login, logout } = useAuth()
-
-    console.log('🏠 shifts.length в AppContent:', shifts.length)
 
     if (!user) {
         return <LoginPage onLogin={login} />
@@ -48,17 +45,9 @@ function AppContent() {
     }
 
     const handleNavigate = (page) => {
-        console.log('🔄 handleNavigate:', page)
         setCurrentPage(page)
-        
         if (page === 'calendar') {
-            console.log('🔄 Переход на календарь: обновляем данные')
-            setPageKey(prev => {
-                const newKey = prev + 1
-                console.log('🔄 pageKey:', newKey)
-                return newKey
-            })
-            console.log('🔄 Вызываем refetch()')
+            setPageKey(prev => prev + 1)
             refetch()
         }
     }
@@ -99,7 +88,6 @@ function AppContent() {
     }
 
     const renderPage = () => {
-        console.log('📄 renderPage:', currentPage, 'pageKey:', pageKey)
         switch (currentPage) {
             case 'my-tabel':
                 return <MyTabelPage key={`my-tabel-${pageKey}`} shifts={shifts} />
@@ -137,7 +125,9 @@ function AppContent() {
 function App() {
     return (
         <AuthProvider>
-            <AppContent />
+            <AvatarProvider>  {/* ← ОБЕРНИ В AvatarProvider */}
+                <AppContent />
+            </AvatarProvider>
         </AuthProvider>
     )
 }

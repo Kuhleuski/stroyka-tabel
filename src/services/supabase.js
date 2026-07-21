@@ -1,6 +1,58 @@
 const SUPABASE_URL = 'https://yrgvyklwdroklpwjdcov.supabase.co'
 const SUPABASE_ANON_KEY = 'sb_publishable_0hMmVw7NmfaXuKg6jX8jLQ_maFdF0fT'
 
+// === ФУНКЦИЯ СЖАТИЯ ФОТО ДО 300x300 ===
+export const compressImage = (file, maxWidth = 300, maxHeight = 300, quality = 0.7) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(file)
+        reader.onload = (event) => {
+            const img = new Image()
+            img.src = event.target.result
+            img.onload = () => {
+                // Вычисляем новые размеры с сохранением пропорций
+                let width = img.width
+                let height = img.height
+                
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height = Math.round(height * (maxWidth / width))
+                        width = maxWidth
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width = Math.round(width * (maxHeight / height))
+                        height = maxHeight
+                    }
+                }
+
+                // Создаем canvas и рисуем сжатое изображение
+                const canvas = document.createElement('canvas')
+                canvas.width = width
+                canvas.height = height
+                const ctx = canvas.getContext('2d')
+                ctx.drawImage(img, 0, 0, width, height)
+
+                // Конвертируем в Base64 с качеством
+                const compressedBase64 = canvas.toDataURL('image/jpeg', quality)
+                resolve(compressedBase64)
+            }
+            img.onerror = (error) => reject(error)
+        }
+        reader.onerror = (error) => reject(error)
+    })
+}
+
+// === ФУНКЦИЯ КОНВЕРТАЦИИ ФАЙЛА В BASE64 (без сжатия) ===
+export const fileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(file)
+        reader.onload = () => resolve(reader.result)
+        reader.onerror = (error) => reject(error)
+    })
+}
+
 export async function fetchShifts() {
     try {
         const url = `${SUPABASE_URL}/rest/v1/shifts?select=*&order=work_date.desc&apikey=${SUPABASE_ANON_KEY}`
@@ -91,9 +143,7 @@ export async function addSite(name, address, color) {
 export async function deleteSite(siteId) {
     try {
         const url = `${SUPABASE_URL}/rest/v1/sites?id=eq.${siteId}&apikey=${SUPABASE_ANON_KEY}`
-        
         console.log('🔍 Удаление объекта:', siteId)
-        
         const response = await fetch(url, {
             method: 'DELETE',
             headers: {
@@ -101,15 +151,12 @@ export async function deleteSite(siteId) {
                 'Prefer': 'return=representation'
             }
         })
-        
         console.log('📡 Статус удаления:', response.status)
-        
         if (!response.ok) {
             const errorText = await response.text()
             console.error('❌ Ошибка удаления:', errorText)
             throw new Error(`Ошибка удаления: ${response.status} ${errorText}`)
         }
-        
         const result = await response.json()
         console.log('✅ Удалено:', result)
         return true
@@ -126,11 +173,9 @@ export async function fetchWorkers() {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         })
-        
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`)
         }
-        
         return await response.json()
     } catch (error) {
         console.error('Ошибка загрузки работников:', error)
@@ -138,23 +183,40 @@ export async function fetchWorkers() {
     }
 }
 
-export async function addWorker(name) {
-    const url = `${SUPABASE_URL}/rest/v1/workers?apikey=${SUPABASE_ANON_KEY}`
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Prefer': 'return=representation'
-        },
-        body: JSON.stringify([{ name }])
-    })
-    
-    if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(`Ошибка добавления: ${response.status} ${errorText}`)
+// === ДОБАВЛЕНИЕ РАБОТНИКА С СЖАТИЕМ ФОТО ===
+export async function addWorker(name, avatarFile = null) {
+    try {
+        let avatarBase64 = null
+        if (avatarFile) {
+            // Сжимаем фото до 300x300
+            console.log('📸 Сжимаем фото...')
+            avatarBase64 = await compressImage(avatarFile, 300, 300, 0.7)
+            console.log('📸 Фото сжато, длина:', avatarBase64.length)
+        }
+
+        const url = `${SUPABASE_URL}/rest/v1/workers?apikey=${SUPABASE_ANON_KEY}`
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            },
+            body: JSON.stringify([{ 
+                name, 
+                avatar: avatarBase64
+            }])
+        })
+        
+        if (!response.ok) {
+            const errorText = await response.text()
+            throw new Error(`Ошибка добавления: ${response.status} ${errorText}`)
+        }
+        
+        return await response.json()
+    } catch (error) {
+        console.error('Ошибка в addWorker:', error)
+        throw error
     }
-    
-    return await response.json()
 }
 
 export async function deleteWorker(workerId) {
@@ -165,11 +227,9 @@ export async function deleteWorker(workerId) {
             'Content-Type': 'application/json'
         }
     })
-    
     if (!response.ok) {
         const errorText = await response.text()
         throw new Error(`Ошибка удаления: ${response.status} ${errorText}`)
     }
-    
     return true
 }

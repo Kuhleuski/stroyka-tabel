@@ -11,9 +11,9 @@ export function WorkersPage({ shifts }) {
     const [scrollPosition, setScrollPosition] = useState(0)
     const { workers, loading, error, addWorkerToState, removeWorkerFromState } = useWorkers()
 
-    const handleSave = async (name) => {
+    const handleSave = async (name, avatarFile) => {
         try {
-            const newWorker = await addWorker(name)
+            const newWorker = await addWorker(name, avatarFile)
             const workerData = newWorker[0] || newWorker
             addWorkerToState(workerData)
             setShowAddForm(false)

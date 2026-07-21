@@ -1,23 +1,13 @@
 import { useEffect, useState } from 'react'
-import { fetchWorkers } from '../../services/supabase'
 import { formatDateLocal } from '../../utils/dateHelpers'
+import { useAvatars } from '../../context/AvatarContext'
 
 export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hideHeader }) {
-    const [workers, setWorkers] = useState([])
     const [isReady, setIsReady] = useState(false)
+    const { getAvatar, getWorker, workers } = useAvatars()
 
     useEffect(() => {
-        const loadWorkers = async () => {
-            try {
-                const workersData = await fetchWorkers()
-                setWorkers(workersData || [])
-            } catch (error) {
-                console.error('Ошибка загрузки работников:', error)
-            } finally {
-                setTimeout(() => setIsReady(true), 100)
-            }
-        }
-        loadWorkers()
+        setTimeout(() => setIsReady(true), 100)
     }, [])
 
     if (!date) return null
@@ -44,9 +34,20 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
         return site && site.address ? site.address : null
     }
 
+    // ===== ИСПРАВЛЕННАЯ ФУНКЦИЯ =====
     const getWorkerName = (workerId) => {
-        const worker = workers.find(w => w.id === workerId)
+        if (!workerId) return 'Неизвестный работник'
+        // Ищем по ID (число или строка)
+        const worker = workers.find(w => w.id === workerId || w.id === Number(workerId))
         return worker ? worker.name : 'Неизвестный работник'
+    }
+
+    // ===== ДОБАВЛЯЕМ ПРОВЕРКУ ДЛЯ АВАТАРКИ =====
+    const getWorkerAvatarData = (workerName) => {
+        if (!workerName) return null
+        // Ищем работника по имени
+        const worker = workers.find(w => w.name === workerName)
+        return worker ? getAvatar(workerName) : null
     }
 
     const getWorkerAvatar = (workerName) => {
@@ -55,7 +56,6 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
     }
 
     const getWorkerColor = (workerName) => {
-        // Генерируем цвет на основе имени (для аватарки)
         const colors = ['#E53935', '#D81B60', '#8E24AA', '#5E35B1', '#1E88E5', '#039BE5', '#00ACC1', '#00897B', '#43A047', '#7CB342', '#FDD835', '#FFB300', '#FB8C00', '#F4511E', '#6D4C41', '#78909C']
         const index = workerName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
         return colors[index % colors.length]
@@ -84,7 +84,7 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
             }
             
             const workerName = s.worker_id ? getWorkerName(s.worker_id) : s.worker_name
-            if (workerName) {
+            if (workerName && workerName !== 'Неизвестный работник') {
                 sitesMap[siteId].workers.add(workerName)
             }
         })
@@ -122,7 +122,6 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                         )}
                     </div>
 
-                    {/* АВАТАРКИ В РЯД */}
                     <div style={{ 
                         display: 'flex', 
                         gap: '12px', 
@@ -130,6 +129,8 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                         alignItems: 'center'
                     }}>
                         {workerList.map((workerName, idx) => {
+                            const avatarData = getWorkerAvatarData(workerName)
+                            const hasPhoto = !!avatarData
                             const avatarLetter = getWorkerAvatar(workerName)
                             const avatarColor = getWorkerColor(workerName)
 
@@ -146,12 +147,11 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                                         transition: `opacity 0.25s ease ${idx * 0.05}s, transform 0.25s ease ${idx * 0.05}s`
                                     }}
                                 >
-                                    {/* КРУГЛАЯ АВАТАРКА */}
                                     <div style={{
                                         width: '44px',
                                         height: '44px',
                                         borderRadius: '50%',
-                                        backgroundColor: avatarColor,
+                                        backgroundColor: hasPhoto ? 'transparent' : avatarColor,
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
@@ -159,13 +159,33 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                                         fontWeight: 600,
                                         color: 'white',
                                         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                                        flexShrink: 0
+                                        flexShrink: 0,
+                                        overflow: 'hidden',
+                                        border: hasPhoto ? '2px solid #e8eaed' : 'none'
                                     }}>
-                                        {avatarLetter}
+                                        {hasPhoto ? (
+                                            <img 
+                                                src={avatarData} 
+                                                alt={workerName}
+                                                loading="lazy"
+                                                style={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'cover',
+                                                    borderRadius: '50%'
+                                                }}
+                                                onError={(e) => {
+                                                    e.target.style.display = 'none'
+                                                    e.target.parentNode.style.backgroundColor = avatarColor
+                                                    e.target.parentNode.textContent = avatarLetter
+                                                }}
+                                            />
+                                        ) : (
+                                            avatarLetter
+                                        )}
                                     </div>
-                                    {/* ИМЯ ПОД АВАТАРКОЙ */}
                                     <span style={{
-                                        fontSize: '11px',
+                                        fontSize: '10px',
                                         color: '#555',
                                         textAlign: 'center',
                                         maxWidth: '50px',
