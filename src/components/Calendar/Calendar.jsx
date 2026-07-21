@@ -103,13 +103,14 @@ const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
     // Строим CSS для четких секций
     let backgroundStyle = {}
     let numberColor = '#1a1a1a'
+    let numberWeight = '500'
     let isSelectedStyle = {}
     
     if (hasWork && !showPlus) {
         const count = displayColors.length
         
-        // Если день выбран — делаем цвета прозрачнее
-        const alpha = isSelected ? '80' : 'FF'
+        // Если день выбран — делаем цвета очень прозрачными
+        const alpha = isSelected ? '30' : 'FF'
         const colorsWithAlpha = displayColors.map(c => c + alpha)
         
         if (count === 1) {
@@ -129,7 +130,7 @@ const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
         }
     } else if (hasWork && showPlus) {
         const count = displayColors.length
-        const alpha = isSelected ? '80' : 'FF'
+        const alpha = isSelected ? '30' : 'FF'
         const colorsWithAlpha = displayColors.map(c => c + alpha)
         
         if (count === 4) {
@@ -154,6 +155,7 @@ const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
         isSelectedStyle = {
             border: '3px solid #2d7d46'
         }
+        numberWeight = '900'  // жирный шрифт
     }
 
     return (
@@ -162,7 +164,7 @@ const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
             onClick={onClick}
             style={{ ...backgroundStyle, ...isSelectedStyle }}
         >
-            <div className="day-number" style={{ color: numberColor }}>{day.day}</div>
+            <div className="day-number" style={{ color: numberColor, fontWeight: numberWeight }}>{day.day}</div>
             {hasWork && showPlus && (
                 <div className="day-plus" style={{ color: '#1a1a1a' }}>+</div>
             )}
