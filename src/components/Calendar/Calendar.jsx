@@ -152,8 +152,7 @@ const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
     // Если день выбран — добавляем зеленую рамку
     if (isSelected) {
         isSelectedStyle = {
-            border: '3px solid #2d7d46',
-            boxShadow: '0 0 0 1px white, 0 0 0 4px #2d7d46'
+            border: '3px solid #2d7d46'
         }
     }
 
