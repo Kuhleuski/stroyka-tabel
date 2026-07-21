@@ -14,7 +14,6 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
             } catch (error) {
                 console.error('Ошибка загрузки работников:', error)
             } finally {
-                // Через 100ms после загрузки показываем контент
                 setTimeout(() => setIsReady(true), 100)
             }
         }
@@ -26,9 +25,23 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
     const dateStr = formatDateLocal(date)
     const dayShifts = shifts.filter(s => s.work_date === dateStr)
 
+    const getSite = (siteId) => {
+        return sites.find(s => s.id === siteId)
+    }
+
     const getSiteName = (siteId) => {
-        const site = sites.find(s => s.id === siteId)
+        const site = getSite(siteId)
         return site ? site.name : 'Неизвестный объект'
+    }
+
+    const getSiteColor = (siteId) => {
+        const site = getSite(siteId)
+        return site ? site.color : '#cccccc'
+    }
+
+    const getSiteAddress = (siteId) => {
+        const site = getSite(siteId)
+        return site && site.address ? site.address : null
     }
 
     const getWorkerName = (workerId) => {
@@ -52,6 +65,8 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
             if (!sitesMap[siteId]) {
                 sitesMap[siteId] = { 
                     siteName: s.site_id ? getSiteName(s.site_id) : s.site_name,
+                    siteColor: s.site_id ? getSiteColor(s.site_id) : '#cccccc',
+                    siteAddress: s.site_id ? getSiteAddress(s.site_id) : null,
                     workers: new Set() 
                 }
             }
@@ -62,37 +77,58 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
             }
         })
 
-        return Object.entries(sitesMap).map(([siteId, data]) => (
-            <div 
-                key={siteId} 
-                className="card timeline-card"
-                style={{
-                    opacity: isReady ? 1 : 0,
-                    transform: isReady ? 'translateY(0)' : 'translateY(8px)',
-                    transition: 'opacity 0.3s ease, transform 0.3s ease'
-                }}
-            >
-                <div className="card-header">
-                    <span className="card-icon">📍</span>
-                    <span className="card-title">{data.siteName}</span>
+        return Object.entries(sitesMap).map(([siteId, data]) => {
+            const color = data.siteColor
+
+            return (
+                <div 
+                    key={siteId} 
+                    className="card timeline-card"
+                    style={{
+                        opacity: isReady ? 1 : 0,
+                        transform: isReady ? 'translateY(0)' : 'translateY(8px)',
+                        transition: 'opacity 0.3s ease, transform 0.3s ease',
+                        borderLeft: `5px solid ${color}`,
+                        borderRadius: '12px',
+                        paddingLeft: '12px'
+                    }}
+                >
+                    <div className="card-header" style={{ marginBottom: '6px' }}>
+                        <span className="card-title" style={{ fontSize: '16px', fontWeight: 600 }}>
+                            {data.siteName}
+                        </span>
+                        {data.siteAddress && (
+                            <span style={{ 
+                                fontSize: '13px', 
+                                color: '#888', 
+                                marginLeft: '8px',
+                                fontWeight: 400
+                            }}>
+                                {data.siteAddress}
+                            </span>
+                        )}
+                    </div>
+                    <div className="card-body">
+                        {Array.from(data.workers).map((workerName, idx) => (
+                            <div 
+                                key={idx} 
+                                className="worker-chip"
+                                style={{
+                                    opacity: isReady ? 1 : 0,
+                                    transform: isReady ? 'translateX(0)' : 'translateX(-8px)',
+                                    transition: `opacity 0.25s ease ${idx * 0.05}s, transform 0.25s ease ${idx * 0.05}s`,
+                                    padding: '4px 0'
+                                }}
+                            >
+                                <span className="worker-chip-name" style={{ fontSize: '14px' }}>
+                                    {workerName}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-                <div className="card-body">
-                    {Array.from(data.workers).map((workerName, idx) => (
-                        <div 
-                            key={idx} 
-                            className="worker-chip"
-                            style={{
-                                opacity: isReady ? 1 : 0,
-                                transform: isReady ? 'translateX(0)' : 'translateX(-8px)',
-                                transition: `opacity 0.25s ease ${idx * 0.05}s, transform 0.25s ease ${idx * 0.05}s`
-                            }}
-                        >
-                            <span className="worker-chip-name">{workerName}</span>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        ))
+            )
+        })
     }
 
     if (isFullscreen || hideHeader) {
