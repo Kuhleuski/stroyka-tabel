@@ -150,17 +150,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
                 savedScrollTop={savedScrollTop}
             />
 
-            {/* ===== КНОПКА ДОБАВЛЕНИЯ СМЕНЫ ===== */}
-            {user?.role === 'admin' && (
-                <div className="detail-add-button-wrapper">
-                    <button 
-                        className="detail-add-button"
-                        onClick={() => handleOpenAddShift(selectedDate)}
-                    >
-                        ➕ Добавить смену на {buttonDate}
-                    </button>
-                </div>
-            )}
+            
 
             {/* ===== КАРТОЧКИ СМЕН (БЕЗ ОБЩЕГО КОНТЕЙНЕРА) ===== */}
             <div style={{ marginTop: '8px' }}>
