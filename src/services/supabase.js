@@ -1,6 +1,16 @@
 const SUPABASE_URL = 'https://yrgvyklwdroklpwjdcov.supabase.co'
 const SUPABASE_ANON_KEY = 'sb_publishable_0hMmVw7NmfaXuKg6jX8jLQ_maFdF0fT'
 
+// === ФУНКЦИЯ КОНВЕРТАЦИИ ФАЙЛА В BASE64 ===
+export const fileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(file)
+        reader.onload = () => resolve(reader.result)
+        reader.onerror = (error) => reject(error)
+    })
+}
+
 export async function fetchShifts() {
     try {
         const url = `${SUPABASE_URL}/rest/v1/shifts?select=*&order=work_date.desc&apikey=${SUPABASE_ANON_KEY}`
@@ -91,9 +101,7 @@ export async function addSite(name, address, color) {
 export async function deleteSite(siteId) {
     try {
         const url = `${SUPABASE_URL}/rest/v1/sites?id=eq.${siteId}&apikey=${SUPABASE_ANON_KEY}`
-        
         console.log('🔍 Удаление объекта:', siteId)
-        
         const response = await fetch(url, {
             method: 'DELETE',
             headers: {
@@ -101,15 +109,12 @@ export async function deleteSite(siteId) {
                 'Prefer': 'return=representation'
             }
         })
-        
         console.log('📡 Статус удаления:', response.status)
-        
         if (!response.ok) {
             const errorText = await response.text()
             console.error('❌ Ошибка удаления:', errorText)
             throw new Error(`Ошибка удаления: ${response.status} ${errorText}`)
         }
-        
         const result = await response.json()
         console.log('✅ Удалено:', result)
         return true
@@ -121,78 +126,30 @@ export async function deleteSite(siteId) {
 
 export async function fetchWorkers() {
     try {
-        console.log('📥 fetchWorkers: начат')
         const url = `${SUPABASE_URL}/rest/v1/workers?select=*&order=name.asc&apikey=${SUPABASE_ANON_KEY}`
         const response = await fetch(url, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         })
-        
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`)
         }
-        
-        const data = await response.json()
-        console.log('📥 fetchWorkers: загружено', data.length, 'работников')
-        return data
+        return await response.json()
     } catch (error) {
         console.error('Ошибка загрузки работников:', error)
         throw error
     }
 }
 
-// === ИСПРАВЛЕННАЯ ЗАГРУЗКА ФОТО ===
-export async function uploadAvatar(file, workerId) {
-    console.log('📸 uploadAvatar: НАЧАЛО')
-    console.log('📸 workerId:', workerId)
-    console.log('📸 file.name:', file?.name)
-    console.log('📸 file.size:', file?.size, 'байт')
-    console.log('📸 file.type:', file?.type)
-    
+// === ДОБАВЛЕНИЕ РАБОТНИКА С ФОТО (BASE64) ===
+export async function addWorker(name, avatarFile = null) {
     try {
-        const fileExt = file.name.split('.').pop()
-        const fileName = `${workerId}-${Date.now()}.${fileExt}`
-        const filePath = `avatars/${fileName}`
-        console.log('📸 filePath:', filePath)
-
-        // === ИСПРАВЛЕННЫЙ СПОСОБ ===
-        const url = `${SUPABASE_URL}/storage/v1/object/avatars/${filePath}`
-        
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'apikey': SUPABASE_ANON_KEY,
-                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-            },
-            body: file
-        })
-        
-        console.log('📸 Статус ответа:', response.status)
-        console.log('📸 Ответ OK?', response.ok)
-        
-        if (!response.ok) {
-            const errorText = await response.text()
-            console.error('❌ Ошибка загрузки фото:', errorText)
-            throw new Error(`Ошибка загрузки фото: ${response.status} ${errorText}`)
+        let avatarBase64 = null
+        if (avatarFile) {
+            avatarBase64 = await fileToBase64(avatarFile)
+            console.log('📸 Фото сконвертировано в Base64, длина:', avatarBase64.length)
         }
 
-        const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/avatars/${filePath}`
-        console.log('✅ Фото загружено! URL:', publicUrl)
-        return publicUrl
-    } catch (error) {
-        console.error('❌ uploadAvatar: ОШИБКА:', error)
-        throw error
-    }
-}
-
-export async function addWorker(name, avatarFile = null) {
-    console.log('👷 addWorker: НАЧАЛО')
-    console.log('👷 name:', name)
-    console.log('👷 avatarFile:', avatarFile ? avatarFile.name : 'null')
-    
-    try {
-        // Сначала создаем работника
-        console.log('👷 Создаем работника в таблице...')
         const url = `${SUPABASE_URL}/rest/v1/workers?apikey=${SUPABASE_ANON_KEY}`
         const response = await fetch(url, {
             method: 'POST',
@@ -200,62 +157,25 @@ export async function addWorker(name, avatarFile = null) {
                 'Content-Type': 'application/json',
                 'Prefer': 'return=representation'
             },
-            body: JSON.stringify([{ name }])
+            body: JSON.stringify([{ 
+                name, 
+                avatar: avatarBase64
+            }])
         })
         
         if (!response.ok) {
             const errorText = await response.text()
-            console.error('❌ Ошибка создания работника:', errorText)
             throw new Error(`Ошибка добавления: ${response.status} ${errorText}`)
         }
         
-        const result = await response.json()
-        const newWorker = result[0] || result
-        console.log('✅ Работник создан, ID:', newWorker.id)
-        
-        // Если есть фото — загружаем и обновляем запись
-        if (avatarFile && newWorker.id) {
-            console.log('📸 Начинаем загрузку фото для работника', newWorker.id)
-            try {
-                const avatarUrl = await uploadAvatar(avatarFile, newWorker.id)
-                console.log('📸 Фото загружено, URL:', avatarUrl)
-                
-                // Обновляем запись с URL фото
-                console.log('📝 Обновляем запись работника с фото...')
-                const updateUrl = `${SUPABASE_URL}/rest/v1/workers?id=eq.${newWorker.id}&apikey=${SUPABASE_ANON_KEY}`
-                const updateResponse = await fetch(updateUrl, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=representation'
-                    },
-                    body: JSON.stringify({ avatar_url: avatarUrl })
-                })
-                
-                if (updateResponse.ok) {
-                    const updatedResult = await updateResponse.json()
-                    console.log('✅ Работник обновлен с фото:', updatedResult)
-                    return updatedResult[0] || updatedResult
-                } else {
-                    console.error('❌ Ошибка обновления работника:', await updateResponse.text())
-                }
-            } catch (uploadError) {
-                console.error('❌ Фото не загружено, но работник создан:', uploadError)
-            }
-        } else {
-            console.log('👷 Фото не передано, работник создан без фото')
-        }
-        
-        console.log('👷 addWorker: ЗАВЕРШЕНО, возвращаем работника')
-        return newWorker
+        return await response.json()
     } catch (error) {
-        console.error('❌ Ошибка в addWorker:', error)
+        console.error('Ошибка в addWorker:', error)
         throw error
     }
 }
 
 export async function deleteWorker(workerId) {
-    console.log('🗑️ deleteWorker:', workerId)
     const url = `${SUPABASE_URL}/rest/v1/workers?id=eq.${workerId}&apikey=${SUPABASE_ANON_KEY}`
     const response = await fetch(url, {
         method: 'DELETE',
@@ -263,13 +183,9 @@ export async function deleteWorker(workerId) {
             'Content-Type': 'application/json'
         }
     })
-    
     if (!response.ok) {
         const errorText = await response.text()
-        console.error('❌ Ошибка удаления:', errorText)
         throw new Error(`Ошибка удаления: ${response.status} ${errorText}`)
     }
-    
-    console.log('✅ Работник удален')
     return true
 }
