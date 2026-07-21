@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { ArrowLeft, Check } from 'lucide-react'
 import { addShift } from '../../services/supabase'
+import { formatDateLocal } from '../../utils/dateHelpers'
 
 export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers }) => {
   const [selectedSite, setSelectedSite] = useState('')
@@ -37,11 +38,14 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
 
     setLoading(true)
     try {
+      const localDate = formatDateLocal(selectedDate)
+      console.log('📅 Сохраняем смену на дату:', localDate)
+      
       const shiftPromises = selectedWorkers.map(workerId => 
         addShift({
           worker_id: workerId,
           site_id: selectedSite,
-          work_date: selectedDate.toISOString().split('T')[0],
+          work_date: localDate,
           hours: 8,
           status: 'pending'
         })
@@ -64,7 +68,6 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
 
   return (
     <div className="shift-form-screen">
-      {/* Шапка */}
       <div className="shift-form-header">
         <button onClick={onClose} className="shift-form-back">
           <ArrowLeft size={24} />
@@ -81,9 +84,7 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
         </button>
       </div>
 
-      {/* Форма */}
       <form id="shift-form" onSubmit={handleSubmit} className="shift-form-body">
-        {/* Дата */}
         <div className="shift-form-field">
           <label className="shift-form-label">📅 Дата</label>
           <input 
@@ -94,7 +95,6 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
           />
         </div>
 
-        {/* Выбор объекта */}
         <div className="shift-form-field">
           <label className="shift-form-label">🏗️ Объект</label>
           <select 
@@ -112,7 +112,6 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
           </select>
         </div>
 
-        {/* Выбор работников */}
         <div className="shift-form-field">
           <div className="shift-form-workers-header">
             <label className="shift-form-label">👷 Работники</label>
@@ -148,7 +147,6 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
           </div>
         </div>
 
-        {/* КНОПКА СОХРАНИТЬ ВНИЗУ */}
         <button 
           type="submit" 
           className="shift-form-bottom-btn"

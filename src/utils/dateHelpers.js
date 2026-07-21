@@ -5,15 +5,39 @@ export const MONTHS = [
 
 export const DAYS_SHORT = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
 
-export function formatDate(date) {
-   return date.toISOString().split('T')[0]
+// ============================================================
+// ЕДИНАЯ ФУНКЦИЯ ФОРМАТИРОВАНИЯ ДАТЫ (ЛОКАЛЬНАЯ)
+// ============================================================
+
+/**
+ * Форматирует дату в строку YYYY-MM-DD (локальный формат)
+ */
+export const formatDateLocal = (date) => {
+   if (!date) return ''
+   const year = date.getFullYear()
+   const month = String(date.getMonth() + 1).padStart(2, '0')
+   const day = String(date.getDate()).padStart(2, '0')
+   return `${year}-${month}-${day}`
 }
 
+// ============================================================
+// ДЛЯ ОБРАТНОЙ СОВМЕСТИМОСТИ
+// ============================================================
+
+/**
+ * @deprecated Используйте formatDateLocal()
+ * Оставлено для совместимости с WorkerCalendar и другими компонентами
+ */
+export const formatDate = formatDateLocal
+
+// ============================================================
+// ФУНКЦИИ РАБОТЫ С ДАТАМИ
+// ============================================================
+
 export function isToday(date) {
+   if (!date) return false
    const today = new Date()
-   return date.getDate() === today.getDate() &&
-      date.getMonth() === today.getMonth() &&
-      date.getFullYear() === today.getFullYear()
+   return formatDateLocal(date) === formatDateLocal(today)
 }
 
 export function getMonthDays(year, month) {

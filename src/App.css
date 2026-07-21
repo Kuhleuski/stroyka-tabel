@@ -2501,3 +2501,81 @@ body {
     color: white;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
+/* Плавное появление карточек в Timeline */
+.timeline-card {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Опционально: плавное появление для всего контента */
+.timeline-content {
+    animation: fadeInUp 0.3s ease forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+/* ============================================================
+   ПЛАВАЮЩАЯ КНОПКА ДОБАВЛЕНИЯ (FAB)
+   ============================================================ */
+
+.fab-add-shift {
+    position: fixed;
+    bottom: 90px;
+    right: 24px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #2d7d46;
+    color: white;
+    border: none;
+    box-shadow: 0 4px 16px rgba(45, 125, 70, 0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    z-index: 15;
+    padding: 0;
+}
+
+.fab-add-shift:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 24px rgba(45, 125, 70, 0.5);
+}
+
+.fab-add-shift:active {
+    transform: scale(0.92);
+}
+
+.fab-add-shift svg {
+    color: white;
+}
+
+/* Адаптив для маленьких экранов */
+@media (max-width: 400px) {
+    .fab-add-shift {
+        width: 52px;
+        height: 52px;
+        bottom: 80px;
+        right: 16px;
+    }
+    
+    .fab-add-shift svg {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+/* Если экран шире 500px — кнопка привязана к центру */
+@media (min-width: 500px) {
+    .fab-add-shift {
+        right: calc(50% - 250px + 24px);
+    }
+}

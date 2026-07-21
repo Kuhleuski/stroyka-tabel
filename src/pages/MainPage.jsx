@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Calendar } from '../components/Calendar/Calendar'
 import { Timeline } from '../components/Timeline/Timeline'
 import { AddShiftForm } from '../components/Shifts/AddShiftForm'
 import { fetchSites, fetchWorkers } from '../services/supabase'
 import { useAuth } from '../context/AuthContext'
+import { formatDateLocal } from '../utils/dateHelpers'
+import { Plus } from 'lucide-react'
 
 export function MainPage({ shifts, loading, refetchShifts }) {
     const [selectedDate, setSelectedDate] = useState(new Date())
@@ -18,11 +20,40 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     const [showSavingScreen, setShowSavingScreen] = useState(false)
     const [updateKey, setUpdateKey] = useState(0)
     const { user } = useAuth()
+    
+    const isFirstMount = useRef(true)
+    const isDataLoaded = useRef(false)
+
+    const getShiftsForDate = (date) => {
+        if (!shifts || shifts.length === 0) return []
+        const dateStr = formatDateLocal(date)
+        return shifts.filter(s => s.work_date === dateStr)
+    }
 
     useEffect(() => {
-        setSelectedDate(new Date())
-        loadSitesAndWorkers()
+        if (isFirstMount.current) {
+            isFirstMount.current = false
+            const loadData = async () => {
+                const today = new Date()
+                setSelectedDate(today)
+                
+                if (refetchShifts) {
+                    await refetchShifts()
+                }
+                await loadSitesAndWorkers()
+                
+                setUpdateKey(prev => prev + 1)
+                isDataLoaded.current = true
+            }
+            loadData()
+        }
     }, [])
+
+    useEffect(() => {
+        if (isDataLoaded.current && shifts.length > 0) {
+            setUpdateKey(prev => prev + 1)
+        }
+    }, [shifts])
 
     const loadSitesAndWorkers = async () => {
         try {
@@ -43,6 +74,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
 
     const handleDayClick = (date) => {
         setSelectedDate(date)
+        setUpdateKey(prev => prev + 1)
     }
 
     const handleModeChange = (mode) => {
@@ -101,15 +133,11 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         return <div className="loading-text">⏳ Загрузка...</div>
     }
 
-    // Форматируем дату для кнопки
-    const monthNames = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']
-    const buttonDate = `${selectedDate.getDate()} ${monthNames[selectedDate.getMonth()]}`
-
     return (
         <>
             <Calendar
                 shifts={shifts}
-                sites={sites}  // ← ПЕРЕДАЕМ SITES В КАЛЕНДАРЬ!
+                sites={sites}
                 selectedDate={selectedDate}
                 onDateSelect={handleDayClick}
                 onDayClick={handleDayClick}
@@ -120,28 +148,27 @@ export function MainPage({ shifts, loading, refetchShifts }) {
             />
 
             <div className="detail-under-calendar">
-                {/* Кнопка добавления смены — без даты слева */}
-                {user?.role === 'admin' && (
-                    <div className="detail-add-button-wrapper">
-                        <button 
-                            className="detail-add-button"
-                            onClick={() => handleOpenAddShift(selectedDate)}
-                        >
-                            ➕ Добавить смену на {buttonDate}
-                        </button>
-                    </div>
-                )}
-                
-                {/* Список смен — без дублирования даты и счетчика */}
                 <Timeline 
                     key={updateKey}
                     shifts={shifts} 
+                    sites={sites}
                     date={selectedDate} 
                     onClose={null}
                     isFullscreen={false}
                     hideHeader={true}
                 />
             </div>
+
+            {/* ПЛАВАЮЩАЯ КНОПКА (FAB) — только для админа */}
+            {user?.role === 'admin' && (
+                <button 
+                    className="fab-add-shift"
+                    onClick={() => handleOpenAddShift(selectedDate)}
+                    aria-label="Добавить смену"
+                >
+                    <Plus size={28} strokeWidth={2.5} />
+                </button>
+            )}
         </>
     )
 }
