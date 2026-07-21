@@ -3377,3 +3377,132 @@ body {
         right: calc(50% - 250px + 24px);
     }
 }
+/* ============================================================
+   СЕТКА ОБЪЕКТОВ (КАРТОЧКИ ОДИНАКОВОГО РАЗМЕРА)
+   ============================================================ */
+
+.sites-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.site-card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 80px;
+    justify-content: center;
+}
+
+.site-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.site-card:active {
+    transform: scale(0.97);
+}
+
+/* === ВЕРХНЯЯ ЧАСТЬ КАРТОЧКИ === */
+.site-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.site-card-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+
+/* === ЦВЕТНОЙ КРУГ (увеличенный) === */
+.site-color-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: inline-block;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.site-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a1a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* === СТАТУС (современный) === */
+.site-status {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 2px 0;
+    letter-spacing: 0.2px;
+}
+
+.site-status .status-dot {
+    display: inline-block;
+    margin-right: 4px;
+}
+
+/* === АДРЕС === */
+.site-address {
+    font-size: 13px;
+    color: #888;
+    margin-top: 6px;
+    padding-left: 38px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* === АДАПТИВ === */
+@media (max-width: 480px) {
+    .sites-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    
+    .site-card {
+        padding: 14px;
+        min-height: 70px;
+    }
+    
+    .site-color-dot {
+        width: 22px;
+        height: 22px;
+    }
+    
+    .site-name {
+        font-size: 13px;
+    }
+    
+    .site-status {
+        font-size: 11px;
+    }
+    
+    .site-address {
+        font-size: 11px;
+        padding-left: 32px;
+    }
+}
+
+@media (max-width: 360px) {
+    .sites-grid {
+        grid-template-columns: 1fr;
+    }
+}
