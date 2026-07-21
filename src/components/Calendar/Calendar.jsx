@@ -1,14 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { MONTHS, getMonthDays } from '../../utils/dateHelpers'
-
-// === ФУНКЦИЯ ДЛЯ ЛОКАЛЬНОЙ ДАТЫ ===
-const formatDateLocal = (date) => {
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    return `${year}-${month}-${day}`
-}
+import { MONTHS, getMonthDays, formatDateLocal, isToday as isTodayUtil } from '../../utils/dateHelpers'
 
 // Компонент одного дня в ленте
 const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelected, isToday }) => {
@@ -93,10 +85,8 @@ const MonthDivider = ({ month, year }) => {
 // КОМПОНЕНТ ДНЯ С ЦВЕТАМИ (ЧЕТКИЕ СЕКЦИИ)
 // ============================================================
 const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
-    // Получаем уникальные site_id из смен за этот день
     const siteIds = [...new Set(dayShifts.map(s => s.site_id))]
     
-    // Получаем цвета для каждого объекта
     const colors = siteIds
         .map(id => {
             const site = sites.find(s => s.id === id)
@@ -108,7 +98,6 @@ const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
     const showPlus = colors.length > 4
     const displayColors = colors.slice(0, 4)
     
-    // Строим CSS для четких секций
     let backgroundStyle = {}
     let numberColor = '#1a1a1a'
     let numberWeight = '500'
@@ -116,8 +105,6 @@ const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
     
     if (hasWork && !showPlus) {
         const count = displayColors.length
-        
-        // Если день выбран — делаем цвета очень прозрачными
         const alpha = isSelected ? '30' : 'FF'
         const colorsWithAlpha = displayColors.map(c => c + alpha)
         
@@ -158,12 +145,11 @@ const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
         }
     }
     
-    // Если день выбран — добавляем зеленую рамку
     if (isSelected) {
         isSelectedStyle = {
             border: '3px solid #2d7d46'
         }
-        numberWeight = '900'  // жирный шрифт
+        numberWeight = '900'
     }
 
     return (
@@ -242,17 +228,12 @@ export function Calendar({
     }, [shifts])
 
     const isToday = useCallback((date) => {
-        const today = new Date()
-        return date.getDate() === today.getDate() &&
-               date.getMonth() === today.getMonth() &&
-               date.getFullYear() === today.getFullYear()
+        return isTodayUtil(date)
     }, [])
 
     const isSelected = useCallback((date) => {
         if (!selectedDate) return false
-        return date.getDate() === selectedDate.getDate() &&
-               date.getMonth() === selectedDate.getMonth() &&
-               date.getFullYear() === selectedDate.getFullYear()
+        return formatDateLocal(date) === formatDateLocal(selectedDate)
     }, [selectedDate])
 
     const getItemHeight = useCallback((index) => {
@@ -282,14 +263,12 @@ export function Calendar({
         }
     })
 
-    // ИНИЦИАЛИЗАЦИЯ FEED ПРИ ПЕРВОМ РЕНДЕРЕ
     useEffect(() => {
         const initialDate = selectedDate || new Date()
         setDisplayDate(initialDate)
         initFeed(initialDate)
     }, [])
 
-    // ОБНОВЛЕНИЕ ПРИ ИЗМЕНЕНИИ selectedDate ИЗВНЕ
     useEffect(() => {
         if (selectedDate) {
             setDisplayDate(selectedDate)
@@ -299,7 +278,6 @@ export function Calendar({
         }
     }, [selectedDate, mode])
 
-    // === ВОССТАНОВЛЕНИЕ ПОЗИЦИИ ===
     useEffect(() => {
         if (mode !== 'feed' || allDays.length === 0) return
         if (!isReturning || savedScrollTop === undefined || savedScrollTop === null || hasRestored) return
@@ -316,7 +294,6 @@ export function Calendar({
         }, 100)
     }, [mode, allDays, isReturning, savedScrollTop, hasRestored])
 
-    // === ПОКАЗАТЬ СЕГОДНЯ ПО ЦЕНТРУ ===
     useEffect(() => {
         if (mode !== 'feed' || allDays.length === 0) return
         if (!shouldShowToday || isReturning) return
@@ -338,7 +315,6 @@ export function Calendar({
         }
     }, [mode, allDays, shouldShowToday, isReturning, virtualizer, hasRestored])
 
-    // === СБРОС ФЛАГОВ ===
     useEffect(() => {
         if (mode !== 'feed') {
             setShouldShowToday(true)
@@ -346,7 +322,6 @@ export function Calendar({
         }
     }, [mode])
 
-    // === СОХРАНЯЕМ ИНДЕКС ===
     const handleScroll = useCallback(() => {
         if (!virtualizerRef.current || isRestoring.current) return
         
@@ -435,13 +410,6 @@ export function Calendar({
 
     return (
         <>
-            {/* Временно скрыто — чипсы переключения режимов */}
-            {/* 
-            <div className="view-mode-wrapper">
-                <ViewModeButtons mode={mode} onChange={handleModeChange} />
-            </div>
-            */}
-
             <div className={`calendar-wrapper ${mode === 'feed' ? 'feed-mode' : ''}`}>
                 <div className="calendar-header">
                     {mode !== 'feed' && (
