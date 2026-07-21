@@ -4,8 +4,8 @@ import { formatDateLocal } from '../../utils/dateHelpers'
 
 export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hideHeader }) {
     const [workers, setWorkers] = useState([])
+    const [isReady, setIsReady] = useState(false)
 
-    // Загружаем только работников (объекты уже пришли из пропсов)
     useEffect(() => {
         const loadWorkers = async () => {
             try {
@@ -13,6 +13,9 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                 setWorkers(workersData || [])
             } catch (error) {
                 console.error('Ошибка загрузки работников:', error)
+            } finally {
+                // Через 100ms после загрузки показываем контент
+                setTimeout(() => setIsReady(true), 100)
             }
         }
         loadWorkers()
@@ -23,16 +26,12 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
     const dateStr = formatDateLocal(date)
     const dayShifts = shifts.filter(s => s.work_date === dateStr)
 
-    // Функция для получения имени объекта (из пропсов)
     const getSiteName = (siteId) => {
-        if (!sites || sites.length === 0) return 'Загрузка...'
         const site = sites.find(s => s.id === siteId)
         return site ? site.name : 'Неизвестный объект'
     }
 
-    // Функция для получения имени работника
     const getWorkerName = (workerId) => {
-        if (!workers || workers.length === 0) return 'Загрузка...'
         const worker = workers.find(w => w.id === workerId)
         return worker ? worker.name : 'Неизвестный работник'
     }
@@ -64,14 +63,30 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
         })
 
         return Object.entries(sitesMap).map(([siteId, data]) => (
-            <div key={siteId} className="card">
+            <div 
+                key={siteId} 
+                className="card timeline-card"
+                style={{
+                    opacity: isReady ? 1 : 0,
+                    transform: isReady ? 'translateY(0)' : 'translateY(8px)',
+                    transition: 'opacity 0.3s ease, transform 0.3s ease'
+                }}
+            >
                 <div className="card-header">
                     <span className="card-icon">📍</span>
                     <span className="card-title">{data.siteName}</span>
                 </div>
                 <div className="card-body">
                     {Array.from(data.workers).map((workerName, idx) => (
-                        <div key={idx} className="worker-chip">
+                        <div 
+                            key={idx} 
+                            className="worker-chip"
+                            style={{
+                                opacity: isReady ? 1 : 0,
+                                transform: isReady ? 'translateX(0)' : 'translateX(-8px)',
+                                transition: `opacity 0.25s ease ${idx * 0.05}s, transform 0.25s ease ${idx * 0.05}s`
+                            }}
+                        >
                             <span className="worker-chip-name">{workerName}</span>
                         </div>
                     ))}
