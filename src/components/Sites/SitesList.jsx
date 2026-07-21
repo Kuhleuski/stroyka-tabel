@@ -15,7 +15,6 @@ export function SitesList({ sites, onSiteClick }) {
         )
     }
 
-    // Статусы с современным дизайном
     const getStatus = (status) => {
         switch (status) {
             case 'в работе':
@@ -28,14 +27,14 @@ export function SitesList({ sites, onSiteClick }) {
     }
 
     return (
-        <div className="sites-grid">
+        <div className="sites-list">
             {sortedSites.map((site) => {
                 const status = getStatus(site.status)
 
                 return (
                     <div 
                         key={site.id} 
-                        className="site-card"
+                        className="site-card-row"
                         onClick={() => onSiteClick && onSiteClick(site)}
                     >
                         <div className="site-card-top">
