@@ -15,17 +15,14 @@ import { NotificationsPage } from './pages/NotificationsPage'
 import './App.css'
 
 function AppContent() {
-    console.log('⚫ AppContent рендерится')
-    
     const [currentPage, setCurrentPage] = useState('calendar')
     const [showSettings, setShowSettings] = useState(false)
     const [showNotifications, setShowNotifications] = useState(false)
     const [unreadCount, setUnreadCount] = useState(1)
+    const [pageKey, setPageKey] = useState(0)  // ← НОВОЕ
     
     const { shifts, loading, error, refetch } = useShifts()
     const { user, login, logout } = useAuth()
-
-    console.log('⚫ AppContent: shifts.length =', shifts.length)
 
     if (!user) {
         return <LoginPage onLogin={login} />
@@ -44,6 +41,15 @@ function AppContent() {
     const handleOpenNotifications = () => {
         setShowNotifications(true)
         setUnreadCount(0)
+    }
+
+    const handleNavigate = (page) => {
+        setCurrentPage(page)
+        // Если переходим на календарь — обновляем ключ и данные
+        if (page === 'calendar') {
+            setPageKey(prev => prev + 1)
+            refetch()  // ← ПРИНУДИТЕЛЬНО ОБНОВЛЯЕМ ДАННЫЕ
+        }
     }
 
     if (showSettings) {
@@ -82,22 +88,21 @@ function AppContent() {
     }
 
     const renderPage = () => {
-        console.log('⚪ renderPage: currentPage =', currentPage)
         switch (currentPage) {
             case 'my-tabel':
-                return <MyTabelPage shifts={shifts} />
+                return <MyTabelPage key={`my-tabel-${pageKey}`} shifts={shifts} />
             case 'calendar':
-                return <MainPage shifts={shifts} loading={loading} refetchShifts={refetch} />
+                return <MainPage key={`calendar-${pageKey}`} shifts={shifts} loading={loading} refetchShifts={refetch} />
             case 'sites':
-                return <SitesPage />
+                return <SitesPage key={`sites-${pageKey}`} />
             case 'workers':
-                return <WorkersPage shifts={shifts} />
+                return <WorkersPage key={`workers-${pageKey}`} shifts={shifts} />
             case 'salary':
-                return <SalaryPage />
+                return <SalaryPage key={`salary-${pageKey}`} />
             case 'extra':
-                return <ExtraPage />
+                return <ExtraPage key={`extra-${pageKey}`} />
             default:
-                return <MainPage shifts={shifts} loading={loading} refetchShifts={refetch} />
+                return <MainPage key={`calendar-${pageKey}`} shifts={shifts} loading={loading} refetchShifts={refetch} />
         }
     }
 
@@ -112,7 +117,7 @@ function AppContent() {
             <div className="container">
                 {renderPage()}
             </div>
-            <BottomNav currentPage={currentPage} onNavigate={setCurrentPage} />
+            <BottomNav currentPage={currentPage} onNavigate={handleNavigate} />
         </div>
     )
 }
