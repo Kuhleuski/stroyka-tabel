@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-import { ArrowLeft, Check } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { addShift } from '../../services/supabase'
 import { formatDateLocal } from '../../utils/dateHelpers'
 
 export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers }) => {
-  const [selectedSite, setSelectedSite] = useState('')
+  const [selectedSite, setSelectedSite] = useState(null)
   const [selectedWorkers, setSelectedWorkers] = useState([])
   const [loading, setLoading] = useState(false)
 
@@ -22,6 +22,10 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
     } else {
       setSelectedWorkers(workers.map(w => w.id))
     }
+  }
+
+  const handleSiteSelect = (siteId) => {
+    setSelectedSite(prev => prev === siteId ? null : siteId)
   }
 
   const handleSubmit = async (e) => {
@@ -62,12 +66,31 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
 
   const formatDate = (date) => {
     if (!date) return ''
-    const months = ['Января','Февраля','Марта','Апреля','Мая','Июня','Июля','Августа','Сентября','Октября','Ноября','Декабря']
+    const months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']
     return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`
+  }
+
+  // === ФУНКЦИИ ДЛЯ АВАТАРОК ===
+  const getInitials = (name) => {
+    if (!name) return '?'
+    const parts = name.trim().split(' ')
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase()
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
+  }
+
+  const getAvatarColor = (name) => {
+    const colors = ['#E53935', '#D81B60', '#8E24AA', '#5E35B1', '#1E88E5', '#039BE5', '#00ACC1', '#00897B', '#43A047', '#7CB342', '#FDD835', '#FFB300', '#FB8C00', '#F4511E', '#6D4C41', '#78909C']
+    const index = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+    return colors[index % colors.length]
+  }
+
+  const isBase64Image = (str) => {
+    return str && str.startsWith('data:image')
   }
 
   return (
     <div className="shift-form-screen">
+      {/* Шапка */}
       <div className="shift-form-header">
         <button onClick={onClose} className="shift-form-back">
           <ArrowLeft size={24} />
@@ -80,41 +103,60 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
           className="shift-form-save"
           disabled={loading}
         >
-          {loading ? '...' : <Check size={24} />}
+          {loading ? '...' : 'Сохранить'}
         </button>
       </div>
 
       <form id="shift-form" onSubmit={handleSubmit} className="shift-form-body">
+        {/* ДАТА */}
         <div className="shift-form-field">
-          <label className="shift-form-label">📅 Дата</label>
-          <input 
-            type="text" 
-            value={formatDate(selectedDate)}
-            disabled
-            className="shift-form-input shift-form-input-disabled"
-          />
+          <label className="shift-form-label">
+            Создаём новую смену на <strong>{formatDate(selectedDate)}</strong>
+          </label>
         </div>
 
+        {/* ОБЪЕКТЫ */}
         <div className="shift-form-field">
-          <label className="shift-form-label">🏗️ Объект</label>
-          <select 
-            value={selectedSite}
-            onChange={(e) => setSelectedSite(e.target.value)}
-            className="shift-form-select"
-            required
-          >
-            <option value="">Выберите объект</option>
-            {sites.map(site => (
-              <option key={site.id} value={site.id}>
-                {site.name}
-              </option>
-            ))}
-          </select>
+          <label className="shift-form-label" style={{ fontSize: '16px', fontWeight: 600 }}>
+            Выберите объект:
+          </label>
+          <div className="shift-sites-grid">
+            {sites.length === 0 ? (
+              <div className="shift-form-empty">
+                <p>Нет добавленных объектов</p>
+                <span>Добавьте в разделе "Объекты"</span>
+              </div>
+            ) : (
+              sites.map(site => {
+                const isSelected = selectedSite === site.id
+                return (
+                  <div
+                    key={site.id}
+                    className={`shift-site-card ${isSelected ? 'selected' : ''}`}
+                    onClick={() => handleSiteSelect(site.id)}
+                    style={{
+                      backgroundColor: isSelected ? site.color : '#f5f7f6',
+                      borderColor: isSelected ? site.color : '#e8eaed',
+                      borderWidth: isSelected ? '3px' : '1px',
+                    }}
+                  >
+                    <div className="shift-site-name">{site.name}</div>
+                    {site.address && (
+                      <div className="shift-site-address">{site.address}</div>
+                    )}
+                  </div>
+                )
+              })
+            )}
+          </div>
         </div>
 
+        {/* РАБОТНИКИ */}
         <div className="shift-form-field">
           <div className="shift-form-workers-header">
-            <label className="shift-form-label">👷 Работники</label>
+            <label className="shift-form-label" style={{ fontSize: '16px', fontWeight: 600 }}>
+              Кто работал:
+            </label>
             {workers.length > 0 && (
               <button 
                 type="button" 
@@ -126,33 +168,68 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
             )}
           </div>
           
-          <div className="shift-form-workers-list">
+          <div className="shift-workers-grid">
             {workers.length === 0 ? (
               <div className="shift-form-empty">
                 <p>Нет добавленных работников</p>
                 <span>Добавьте в разделе "Бригада"</span>
               </div>
             ) : (
-              workers.map(worker => (
-                <label key={worker.id} className="shift-form-worker-item">
-                  <input
-                    type="checkbox"
-                    checked={selectedWorkers.includes(worker.id)}
-                    onChange={() => handleWorkerToggle(worker.id)}
-                  />
-                  <span>{worker.name}</span>
-                </label>
-              ))
+              workers.map(worker => {
+                const isSelected = selectedWorkers.includes(worker.id)
+                const hasPhoto = isBase64Image(worker.avatar)
+                const initials = getInitials(worker.name)
+                const avatarColor = getAvatarColor(worker.name)
+
+                return (
+                  <div
+                    key={worker.id}
+                    className={`shift-worker-card ${isSelected ? 'selected' : ''}`}
+                    onClick={() => handleWorkerToggle(worker.id)}
+                  >
+                    <div className="shift-worker-avatar" style={{
+                      backgroundColor: hasPhoto ? 'transparent' : avatarColor,
+                      border: hasPhoto ? '2px solid #e8eaed' : 'none',
+                      overflow: 'hidden'
+                    }}>
+                      {hasPhoto ? (
+                        <img 
+                          src={worker.avatar} 
+                          alt={worker.name}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            borderRadius: '50%'
+                          }}
+                          onError={(e) => {
+                            e.target.style.display = 'none'
+                            e.target.parentNode.style.backgroundColor = avatarColor
+                            e.target.parentNode.textContent = initials
+                          }}
+                        />
+                      ) : (
+                        initials
+                      )}
+                    </div>
+                    <div className="shift-worker-name">{worker.name}</div>
+                    {isSelected && (
+                      <div className="shift-worker-check">✓</div>
+                    )}
+                  </div>
+                )
+              })
             )}
           </div>
         </div>
 
+        {/* КНОПКА СОХРАНИТЬ */}
         <button 
           type="submit" 
           className="shift-form-bottom-btn"
           disabled={loading}
         >
-          {loading ? '⏳ Сохранение...' : '✅ Сохранить смену'}
+          {loading ? '⏳ Сохранение...' : 'Сохранить смену'}
         </button>
       </form>
     </div>
