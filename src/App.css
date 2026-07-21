@@ -2599,3 +2599,177 @@ body {
 .add-worker-input[type="file"]::-webkit-file-upload-button:hover {
     background: #236835;
 }
+
+/* ============================================================
+   СЕТКА ОБЪЕКТОВ В ФОРМЕ
+   ============================================================ */
+
+.shift-sites-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.shift-site-card {
+    padding: 12px 8px;
+    border-radius: 10px;
+    border: 1px solid #e8eaed;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.shift-site-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.shift-site-card.selected {
+    border-width: 3px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.shift-site-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a1a1a;
+    line-height: 1.3;
+}
+
+.shift-site-address {
+    font-size: 10px;
+    color: #888;
+    margin-top: 2px;
+    line-height: 1.2;
+}
+
+/* ============================================================
+   СЕТКА РАБОТНИКОВ В ФОРМЕ
+   ============================================================ */
+
+.shift-workers-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.shift-worker-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 4px;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #fafbfa;
+    position: relative;
+}
+
+.shift-worker-card:hover {
+    background: #f0f7f2;
+    transform: translateY(-2px);
+}
+
+.shift-worker-card.selected {
+    border-color: #2d7d46;
+    background: #e8f5e9;
+}
+
+.shift-worker-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+}
+
+.shift-worker-name {
+    font-size: 11px;
+    color: #333;
+    text-align: center;
+    margin-top: 4px;
+    max-width: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.shift-worker-check {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #2d7d46;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
+.shift-form-workers-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.shift-form-select-all {
+    background: none;
+    border: none;
+    color: #2d7d46;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-family: inherit;
+}
+
+.shift-form-select-all:hover {
+    background: #e8f5e9;
+    border-radius: 6px;
+}
+
+/* Адаптив для маленьких экранов */
+@media (max-width: 400px) {
+    .shift-sites-grid,
+    .shift-workers-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+    }
+    
+    .shift-site-card {
+        padding: 10px 6px;
+        min-height: 50px;
+    }
+    
+    .shift-site-name {
+        font-size: 11px;
+    }
+    
+    .shift-worker-avatar {
+        width: 38px;
+        height: 38px;
+        font-size: 15px;
+    }
+    
+    .shift-worker-name {
+        font-size: 10px;
+    }
+}
