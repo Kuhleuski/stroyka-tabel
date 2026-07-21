@@ -6,6 +6,10 @@ import { fetchSites, fetchWorkers } from '../services/supabase'
 import { useAuth } from '../context/AuthContext'
 
 export function MainPage({ shifts, loading, refetchShifts }) {
+    console.log('📅 MainPage рендерится')
+    console.log('📅 shifts.length:', shifts?.length || 0)
+    console.log('📅 loading:', loading)
+    
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [calendarMode, setCalendarMode] = useState('month')
     const [isReturning, setIsReturning] = useState(false)
@@ -21,22 +25,38 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     
     const isFirstMount = useRef(true)
     const isDataLoaded = useRef(false)
+    const prevShiftsLength = useRef(0)
+
+    // Функция для получения смен за конкретную дату
+    const getShiftsForDate = (date) => {
+        if (!shifts || shifts.length === 0) return []
+        const dateStr = date.toISOString().split('T')[0]
+        return shifts.filter(s => s.work_date === dateStr)
+    }
 
     // ЗАГРУЗКА ДАННЫХ ПРИ ПЕРВОМ ОТКРЫТИИ
     useEffect(() => {
+        console.log('📅 useEffect (первый рендер)')
         const loadData = async () => {
             const today = new Date()
+            console.log('📅 Сегодня:', today.toISOString().split('T')[0])
             setSelectedDate(today)
             
-            // Загружаем смены и объекты
+            // Загружаем смены
             if (refetchShifts) {
+                console.log('📅 Вызываем refetchShifts()')
                 await refetchShifts()
             }
             await loadSitesAndWorkers()
             
-            // Принудительно обновляем Timeline для сегодняшней даты
+            // Проверяем, есть ли смены на сегодня
+            const todayShifts = getShiftsForDate(today)
+            console.log('📅 Смен на сегодня после загрузки:', todayShifts.length)
+            
+            // Принудительно обновляем Timeline
             setUpdateKey(prev => prev + 1)
             isDataLoaded.current = true
+            console.log('📅 isDataLoaded = true, updateKey =', updateKey + 1)
         }
         
         if (isFirstMount.current) {
@@ -45,20 +65,33 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         }
     }, [])
 
-    // ОБНОВЛЕНИЕ ПРИ ИЗМЕНЕНИИ shifts (после сохранения или возврата)
+    // ОБНОВЛЕНИЕ ПРИ ИЗМЕНЕНИИ shifts
     useEffect(() => {
+        console.log('📅 useEffect (shifts changed), shifts.length:', shifts?.length || 0)
+        
         if (isDataLoaded.current && shifts.length > 0) {
-            // Если данные уже загружены и смены изменились — обновляем Timeline
-            setUpdateKey(prev => prev + 1)
+            const today = new Date()
+            const todayShifts = getShiftsForDate(today)
+            console.log('📅 Смен на сегодня при изменении shifts:', todayShifts.length)
+            
+            // Проверяем, изменилось ли количество смен
+            if (shifts.length !== prevShiftsLength.current) {
+                prevShiftsLength.current = shifts.length
+                console.log('📅 Количество смен изменилось, обновляем updateKey')
+                setUpdateKey(prev => prev + 1)
+            }
         }
     }, [shifts])
 
     const loadSitesAndWorkers = async () => {
+        console.log('📅 loadSitesAndWorkers начата')
         try {
             const [sitesData, workersData] = await Promise.all([
                 fetchSites(),
                 fetchWorkers()
             ])
+            console.log('📅 sites загружено:', sitesData?.length || 0)
+            console.log('📅 workers загружено:', workersData?.length || 0)
             setSites(sitesData || [])
             setWorkers(workersData || [])
         } catch (error) {
@@ -67,16 +100,23 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     }
 
     if (loading) {
+        console.log('📅 Показываем загрузку')
         return <div className="loading-text">⏳ Загрузка...</div>
     }
 
     const handleDayClick = (date) => {
+        const dateStr = date.toISOString().split('T')[0]
+        console.log('📅 handleDayClick:', dateStr)
         setSelectedDate(date)
+        
         // При клике на день — обновляем Timeline
+        const dayShifts = getShiftsForDate(date)
+        console.log('📅 Смен на выбранную дату:', dayShifts.length)
         setUpdateKey(prev => prev + 1)
     }
 
     const handleModeChange = (mode) => {
+        console.log('📅 handleModeChange:', mode)
         setCalendarMode(mode)
         if (mode !== 'feed') {
             setSavedScrollTop(null)
@@ -85,15 +125,18 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     }
 
     const handleOpenAddShift = (date) => {
+        console.log('📅 handleOpenAddShift:', date.toISOString().split('T')[0])
         setSelectedDate(date)
         setShowAddShift(true)
     }
 
     const handleShiftAdded = async () => {
+        console.log('📅 handleShiftAdded начат')
         setShowSavingScreen(true)
         setShowAddShift(false)
         
         if (refetchShifts) {
+            console.log('📅 вызываем refetchShifts()')
             await refetchShifts()
         }
         await loadSitesAndWorkers()
@@ -102,6 +145,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         
         setShowSavingScreen(false)
         setUpdateKey(prev => prev + 1)
+        console.log('📅 handleShiftAdded завершен, updateKey:', updateKey + 1)
     }
 
     if (showSavingScreen) {
@@ -134,6 +178,13 @@ export function MainPage({ shifts, loading, refetchShifts }) {
 
     const monthNames = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']
     const buttonDate = `${selectedDate.getDate()} ${monthNames[selectedDate.getMonth()]}`
+
+    // Проверяем смены на выбранную дату
+    const selectedDateStr = selectedDate.toISOString().split('T')[0]
+    const selectedDayShifts = shifts ? shifts.filter(s => s.work_date === selectedDateStr) : []
+    console.log(`📅 Рендерим календарь, selectedDate: ${selectedDateStr}`)
+    console.log(`📅 Смен на ${selectedDateStr}: ${selectedDayShifts.length}`)
+    console.log(`📅 updateKey: ${updateKey}`)
 
     return (
         <>
