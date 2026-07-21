@@ -49,6 +49,18 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
         return worker ? worker.name : 'Неизвестный работник'
     }
 
+    const getWorkerAvatar = (workerName) => {
+        if (!workerName) return '?'
+        return workerName.charAt(0).toUpperCase()
+    }
+
+    const getWorkerColor = (workerName) => {
+        // Генерируем цвет на основе имени (для аватарки)
+        const colors = ['#E53935', '#D81B60', '#8E24AA', '#5E35B1', '#1E88E5', '#039BE5', '#00ACC1', '#00897B', '#43A047', '#7CB342', '#FDD835', '#FFB300', '#FB8C00', '#F4511E', '#6D4C41', '#78909C']
+        const index = workerName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+        return colors[index % colors.length]
+    }
+
     const renderContent = () => {
         if (dayShifts.length === 0) {
             return (
@@ -79,6 +91,7 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
 
         return Object.entries(sitesMap).map(([siteId, data]) => {
             const color = data.siteColor
+            const workerList = Array.from(data.workers)
 
             return (
                 <div 
@@ -88,12 +101,12 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                         opacity: isReady ? 1 : 0,
                         transform: isReady ? 'translateY(0)' : 'translateY(8px)',
                         transition: 'opacity 0.3s ease, transform 0.3s ease',
-                        borderLeft: `15px solid ${color}`,  // ← БЫЛО 5px, СТАЛО 8px
+                        borderLeft: `8px solid ${color}`,
                         borderRadius: '12px',
-                        paddingLeft: '14px'  // ← ЧУТЬ БОЛЬШЕ ОТСТУП
+                        paddingLeft: '14px'
                     }}
                 >
-                    <div className="card-header" style={{ marginBottom: '6px' }}>
+                    <div className="card-header" style={{ marginBottom: '10px' }}>
                         <span className="card-title" style={{ fontSize: '16px', fontWeight: 600 }}>
                             {data.siteName}
                         </span>
@@ -108,23 +121,63 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                             </span>
                         )}
                     </div>
-                    <div className="card-body">
-                        {Array.from(data.workers).map((workerName, idx) => (
-                            <div 
-                                key={idx} 
-                                className="worker-chip"
-                                style={{
-                                    opacity: isReady ? 1 : 0,
-                                    transform: isReady ? 'translateX(0)' : 'translateX(-8px)',
-                                    transition: `opacity 0.25s ease ${idx * 0.05}s, transform 0.25s ease ${idx * 0.05}s`,
-                                    padding: '4px 0'
-                                }}
-                            >
-                                <span className="worker-chip-name" style={{ fontSize: '14px' }}>
-                                    {workerName}
-                                </span>
-                            </div>
-                        ))}
+
+                    {/* АВАТАРКИ В РЯД */}
+                    <div style={{ 
+                        display: 'flex', 
+                        gap: '12px', 
+                        flexWrap: 'wrap',
+                        alignItems: 'center'
+                    }}>
+                        {workerList.map((workerName, idx) => {
+                            const avatarLetter = getWorkerAvatar(workerName)
+                            const avatarColor = getWorkerColor(workerName)
+
+                            return (
+                                <div 
+                                    key={idx}
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        opacity: isReady ? 1 : 0,
+                                        transform: isReady ? 'scale(1)' : 'scale(0.8)',
+                                        transition: `opacity 0.25s ease ${idx * 0.05}s, transform 0.25s ease ${idx * 0.05}s`
+                                    }}
+                                >
+                                    {/* КРУГЛАЯ АВАТАРКА */}
+                                    <div style={{
+                                        width: '44px',
+                                        height: '44px',
+                                        borderRadius: '50%',
+                                        backgroundColor: avatarColor,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '18px',
+                                        fontWeight: 600,
+                                        color: 'white',
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                                        flexShrink: 0
+                                    }}>
+                                        {avatarLetter}
+                                    </div>
+                                    {/* ИМЯ ПОД АВАТАРКОЙ */}
+                                    <span style={{
+                                        fontSize: '11px',
+                                        color: '#555',
+                                        textAlign: 'center',
+                                        maxWidth: '50px',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap'
+                                    }}>
+                                        {workerName}
+                                    </span>
+                                </div>
+                            )
+                        })}
                     </div>
                 </div>
             )
