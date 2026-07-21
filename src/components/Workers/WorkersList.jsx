@@ -1,7 +1,9 @@
-import { useRef } from 'react'
+import { useRef, useMemo } from 'react'
+import { useAvatars } from '../../context/AvatarContext'  // ← НОВЫЙ ИМПОРТ
 
 export function WorkersList({ workers, onWorkerClick }) {
     const containerRef = useRef(null)
+    const { getAvatar, isBase64Image } = useAvatars()  // ← ИСПОЛЬЗУЕМ КОНТЕКСТ
 
     const getAvatarColor = (name) => {
         const colors = ['#E53935', '#D81B60', '#8E24AA', '#5E35B1', '#1E88E5', '#039BE5', '#00ACC1', '#00897B', '#43A047', '#7CB342', '#FDD835', '#FFB300', '#FB8C00', '#F4511E', '#6D4C41', '#78909C']
@@ -16,9 +18,19 @@ export function WorkersList({ workers, onWorkerClick }) {
         return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
     }
 
-    const isBase64Image = (str) => {
-        return str && str.startsWith('data:image')
-    }
+    // === КЕШИРОВАННЫЙ СПИСОК ===
+    const cachedWorkers = useMemo(() => {
+        return workers.map((worker) => {
+            const avatar = getAvatar(worker.name)
+            return {
+                ...worker,
+                hasPhoto: !!avatar,
+                avatarData: avatar,
+                initials: getInitials(worker.name),
+                avatarColor: getAvatarColor(worker.name)
+            }
+        })
+    }, [workers, getAvatar])
 
     if (workers.length === 0) {
         return (
@@ -31,10 +43,8 @@ export function WorkersList({ workers, onWorkerClick }) {
 
     return (
         <div ref={containerRef}>
-            {workers.map((worker) => {
-                const hasPhoto = isBase64Image(worker.avatar)
-                const initials = getInitials(worker.name)
-                const avatarColor = getAvatarColor(worker.name)
+            {cachedWorkers.map((worker) => {
+                const { hasPhoto, avatarData, initials, avatarColor } = worker
 
                 return (
                     <div 
@@ -59,8 +69,9 @@ export function WorkersList({ workers, onWorkerClick }) {
                         }}>
                             {hasPhoto ? (
                                 <img 
-                                    src={worker.avatar} 
+                                    src={avatarData} 
                                     alt={worker.name}
+                                    loading="lazy"
                                     style={{
                                         width: '100%',
                                         height: '100%',
