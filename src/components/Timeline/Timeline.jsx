@@ -55,10 +55,14 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
     }
 
     const getWorkerColor = (workerName) => {
-        // Генерируем цвет на основе имени (для аватарки)
         const colors = ['#E53935', '#D81B60', '#8E24AA', '#5E35B1', '#1E88E5', '#039BE5', '#00ACC1', '#00897B', '#43A047', '#7CB342', '#FDD835', '#FFB300', '#FB8C00', '#F4511E', '#6D4C41', '#78909C']
         const index = workerName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
         return colors[index % colors.length]
+    }
+
+    // === ПРОВЕРКА НА BASE64 ФОТО ===
+    const isBase64Image = (str) => {
+        return str && str.startsWith('data:image')
     }
 
     const renderContent = () => {
@@ -122,7 +126,7 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                         )}
                     </div>
 
-                    {/* АВАТАРКИ В РЯД */}
+                    {/* АВАТАРКИ В РЯД С ПОДДЕРЖКОЙ ФОТО */}
                     <div style={{ 
                         display: 'flex', 
                         gap: '12px', 
@@ -130,6 +134,9 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                         alignItems: 'center'
                     }}>
                         {workerList.map((workerName, idx) => {
+                            // Ищем работника по имени
+                            const worker = workers.find(w => w.name === workerName)
+                            const hasPhoto = worker && isBase64Image(worker.avatar)
                             const avatarLetter = getWorkerAvatar(workerName)
                             const avatarColor = getWorkerColor(workerName)
 
@@ -146,12 +153,12 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                                         transition: `opacity 0.25s ease ${idx * 0.05}s, transform 0.25s ease ${idx * 0.05}s`
                                     }}
                                 >
-                                    {/* КРУГЛАЯ АВАТАРКА */}
+                                    {/* КРУГЛАЯ АВАТАРКА С ФОТО ИЛИ БУКВОЙ */}
                                     <div style={{
                                         width: '44px',
                                         height: '44px',
                                         borderRadius: '50%',
-                                        backgroundColor: avatarColor,
+                                        backgroundColor: hasPhoto ? 'transparent' : avatarColor,
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
@@ -159,13 +166,34 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                                         fontWeight: 600,
                                         color: 'white',
                                         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                                        flexShrink: 0
+                                        flexShrink: 0,
+                                        overflow: 'hidden',
+                                        border: hasPhoto ? '2px solid #e8eaed' : 'none'
                                     }}>
-                                        {avatarLetter}
+                                        {hasPhoto ? (
+                                            <img 
+                                                src={worker.avatar} 
+                                                alt={workerName}
+                                                style={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'cover',
+                                                    borderRadius: '50%'
+                                                }}
+                                                onError={(e) => {
+                                                    // Если фото не загрузилось — показываем букву
+                                                    e.target.style.display = 'none'
+                                                    e.target.parentNode.style.backgroundColor = avatarColor
+                                                    e.target.parentNode.textContent = avatarLetter
+                                                }}
+                                            />
+                                        ) : (
+                                            avatarLetter
+                                        )}
                                     </div>
                                     {/* ИМЯ ПОД АВАТАРКОЙ */}
                                     <span style={{
-                                        fontSize: '11px',
+                                        fontSize: '10px',
                                         color: '#555',
                                         textAlign: 'center',
                                         maxWidth: '50px',
