@@ -3155,3 +3155,73 @@ body {
 .detail-add-button:active {
     transform: translateY(0);
 }
+/* ============================================================
+   СЕТКА РАБОТНИКОВ (3 в ряд)
+   ============================================================ */
+
+.workers-grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    padding: 4px 0;
+}
+
+.worker-grid-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 8px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.worker-grid-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.worker-grid-card:active {
+    transform: scale(0.97);
+}
+
+.worker-grid-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+    margin-bottom: 8px;
+}
+
+.worker-grid-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1a1a1a;
+    text-align: center;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Адаптив для маленьких экранов */
+@media (max-width: 420px) {
+    .workers-grid-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .worker-grid-avatar {
+        width: 56px;
+        height: 56px;
+        font-size: 20px;
+    }
+}
