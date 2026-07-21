@@ -1,7 +1,49 @@
 const SUPABASE_URL = 'https://yrgvyklwdroklpwjdcov.supabase.co'
 const SUPABASE_ANON_KEY = 'sb_publishable_0hMmVw7NmfaXuKg6jX8jLQ_maFdF0fT'
 
-// === ФУНКЦИЯ КОНВЕРТАЦИИ ФАЙЛА В BASE64 ===
+// === ФУНКЦИЯ СЖАТИЯ ФОТО ДО 300x300 ===
+export const compressImage = (file, maxWidth = 300, maxHeight = 300, quality = 0.7) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(file)
+        reader.onload = (event) => {
+            const img = new Image()
+            img.src = event.target.result
+            img.onload = () => {
+                // Вычисляем новые размеры с сохранением пропорций
+                let width = img.width
+                let height = img.height
+                
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height = Math.round(height * (maxWidth / width))
+                        width = maxWidth
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width = Math.round(width * (maxHeight / height))
+                        height = maxHeight
+                    }
+                }
+
+                // Создаем canvas и рисуем сжатое изображение
+                const canvas = document.createElement('canvas')
+                canvas.width = width
+                canvas.height = height
+                const ctx = canvas.getContext('2d')
+                ctx.drawImage(img, 0, 0, width, height)
+
+                // Конвертируем в Base64 с качеством
+                const compressedBase64 = canvas.toDataURL('image/jpeg', quality)
+                resolve(compressedBase64)
+            }
+            img.onerror = (error) => reject(error)
+        }
+        reader.onerror = (error) => reject(error)
+    })
+}
+
+// === ФУНКЦИЯ КОНВЕРТАЦИИ ФАЙЛА В BASE64 (без сжатия) ===
 export const fileToBase64 = (file) => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader()
@@ -141,13 +183,15 @@ export async function fetchWorkers() {
     }
 }
 
-// === ДОБАВЛЕНИЕ РАБОТНИКА С ФОТО (BASE64) ===
+// === ДОБАВЛЕНИЕ РАБОТНИКА С СЖАТИЕМ ФОТО ===
 export async function addWorker(name, avatarFile = null) {
     try {
         let avatarBase64 = null
         if (avatarFile) {
-            avatarBase64 = await fileToBase64(avatarFile)
-            console.log('📸 Фото сконвертировано в Base64, длина:', avatarBase64.length)
+            // Сжимаем фото до 300x300
+            console.log('📸 Сжимаем фото...')
+            avatarBase64 = await compressImage(avatarFile, 300, 300, 0.7)
+            console.log('📸 Фото сжато, длина:', avatarBase64.length)
         }
 
         const url = `${SUPABASE_URL}/rest/v1/workers?apikey=${SUPABASE_ANON_KEY}`
