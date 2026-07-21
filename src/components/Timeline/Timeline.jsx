@@ -1,25 +1,21 @@
 import { useEffect, useState } from 'react'
-import { fetchSites, fetchWorkers } from '../../services/supabase'
+import { fetchWorkers } from '../../services/supabase'
 import { formatDateLocal } from '../../utils/dateHelpers'
 
-export function Timeline({ shifts, date, onClose, isFullscreen, hideHeader }) {
-    const [sites, setSites] = useState([])
+export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hideHeader }) {
     const [workers, setWorkers] = useState([])
 
+    // Загружаем только работников (объекты уже пришли из пропсов)
     useEffect(() => {
-        const loadData = async () => {
+        const loadWorkers = async () => {
             try {
-                const [sitesData, workersData] = await Promise.all([
-                    fetchSites(),
-                    fetchWorkers()
-                ])
-                setSites(sitesData || [])
+                const workersData = await fetchWorkers()
                 setWorkers(workersData || [])
             } catch (error) {
-                console.error('Ошибка загрузки данных:', error)
+                console.error('Ошибка загрузки работников:', error)
             }
         }
-        loadData()
+        loadWorkers()
     }, [])
 
     if (!date) return null
@@ -27,12 +23,16 @@ export function Timeline({ shifts, date, onClose, isFullscreen, hideHeader }) {
     const dateStr = formatDateLocal(date)
     const dayShifts = shifts.filter(s => s.work_date === dateStr)
 
+    // Функция для получения имени объекта (из пропсов)
     const getSiteName = (siteId) => {
+        if (!sites || sites.length === 0) return 'Загрузка...'
         const site = sites.find(s => s.id === siteId)
         return site ? site.name : 'Неизвестный объект'
     }
 
+    // Функция для получения имени работника
     const getWorkerName = (workerId) => {
+        if (!workers || workers.length === 0) return 'Загрузка...'
         const worker = workers.find(w => w.id === workerId)
         return worker ? worker.name : 'Неизвестный работник'
     }
