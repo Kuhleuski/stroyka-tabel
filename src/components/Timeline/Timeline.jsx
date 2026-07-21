@@ -1,23 +1,13 @@
 import { useEffect, useState } from 'react'
-import { fetchWorkers } from '../../services/supabase'
 import { formatDateLocal } from '../../utils/dateHelpers'
+import { useAvatars } from '../../context/AvatarContext'  // ← НОВЫЙ ИМПОРТ
 
 export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hideHeader }) {
-    const [workers, setWorkers] = useState([])
     const [isReady, setIsReady] = useState(false)
+    const { getAvatar, getWorker, loading: avatarsLoading } = useAvatars()  // ← ИСПОЛЬЗУЕМ КОНТЕКСТ
 
     useEffect(() => {
-        const loadWorkers = async () => {
-            try {
-                const workersData = await fetchWorkers()
-                setWorkers(workersData || [])
-            } catch (error) {
-                console.error('Ошибка загрузки работников:', error)
-            } finally {
-                setTimeout(() => setIsReady(true), 100)
-            }
-        }
-        loadWorkers()
+        setTimeout(() => setIsReady(true), 100)
     }, [])
 
     if (!date) return null
@@ -45,7 +35,7 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
     }
 
     const getWorkerName = (workerId) => {
-        const worker = workers.find(w => w.id === workerId)
+        const worker = getWorker(workerId)
         return worker ? worker.name : 'Неизвестный работник'
     }
 
@@ -58,11 +48,6 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
         const colors = ['#E53935', '#D81B60', '#8E24AA', '#5E35B1', '#1E88E5', '#039BE5', '#00ACC1', '#00897B', '#43A047', '#7CB342', '#FDD835', '#FFB300', '#FB8C00', '#F4511E', '#6D4C41', '#78909C']
         const index = workerName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
         return colors[index % colors.length]
-    }
-
-    // === ПРОВЕРКА НА BASE64 ФОТО ===
-    const isBase64Image = (str) => {
-        return str && str.startsWith('data:image')
     }
 
     const renderContent = () => {
@@ -126,7 +111,6 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                         )}
                     </div>
 
-                    {/* АВАТАРКИ В РЯД С ПОДДЕРЖКОЙ ФОТО */}
                     <div style={{ 
                         display: 'flex', 
                         gap: '12px', 
@@ -134,9 +118,8 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                         alignItems: 'center'
                     }}>
                         {workerList.map((workerName, idx) => {
-                            // Ищем работника по имени
-                            const worker = workers.find(w => w.name === workerName)
-                            const hasPhoto = worker && isBase64Image(worker.avatar)
+                            const avatarData = getAvatar(workerName)  // ← ИЗ КЕША!
+                            const hasPhoto = !!avatarData
                             const avatarLetter = getWorkerAvatar(workerName)
                             const avatarColor = getWorkerColor(workerName)
 
@@ -153,7 +136,6 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                                         transition: `opacity 0.25s ease ${idx * 0.05}s, transform 0.25s ease ${idx * 0.05}s`
                                     }}
                                 >
-                                    {/* КРУГЛАЯ АВАТАРКА С ФОТО ИЛИ БУКВОЙ */}
                                     <div style={{
                                         width: '44px',
                                         height: '44px',
@@ -172,8 +154,9 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                                     }}>
                                         {hasPhoto ? (
                                             <img 
-                                                src={worker.avatar} 
+                                                src={avatarData} 
                                                 alt={workerName}
+                                                loading="lazy"
                                                 style={{
                                                     width: '100%',
                                                     height: '100%',
@@ -181,7 +164,6 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                                                     borderRadius: '50%'
                                                 }}
                                                 onError={(e) => {
-                                                    // Если фото не загрузилось — показываем букву
                                                     e.target.style.display = 'none'
                                                     e.target.parentNode.style.backgroundColor = avatarColor
                                                     e.target.parentNode.textContent = avatarLetter
@@ -191,7 +173,6 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                                             avatarLetter
                                         )}
                                     </div>
-                                    {/* ИМЯ ПОД АВАТАРКОЙ */}
                                     <span style={{
                                         fontSize: '10px',
                                         color: '#555',
