@@ -102,13 +102,13 @@ export function WorkersPage({ shifts }) {
                         <WorkersIcon />
                         Бригада
                     </div>
-                    <div className="page-subtitle">Все рабочие</div>
+                    <div className="page-subtitle">Все батраки</div>
                 </div>
                 <button 
                     className="add-worker-btn"
                     onClick={handleOpenAddForm}
                 >
-                    + Добавить работника
+                    + Добавить батрака
                 </button>
             </div>
 
