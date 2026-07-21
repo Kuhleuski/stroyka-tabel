@@ -15,14 +15,27 @@ export function SitesList({ sites, onSiteClick }) {
         )
     }
 
+    // Статусы с разными стилями
     const getStatus = (status) => {
         switch (status) {
             case 'в работе':
-                return { label: 'В работе', color: '#2d7d46', dot: '●' }
+                return { 
+                    label: 'В работе', 
+                    bgColor: '#2d7d46',
+                    dotColor: 'white'
+                }
             case 'завершен':
-                return { label: 'Завершен', color: '#78909C', dot: '●' }
+                return { 
+                    label: 'Завершен', 
+                    bgColor: '#e8eaed',
+                    dotColor: '#78909C'
+                }
             default:
-                return { label: 'Не указан', color: '#FFB300', dot: '●' }
+                return { 
+                    label: 'Не указан', 
+                    bgColor: '#f5f7f6',
+                    dotColor: '#FFB300'
+                }
         }
     }
 
@@ -46,10 +59,14 @@ export function SitesList({ sites, onSiteClick }) {
                                 <span className="site-name">{site.name}</span>
                             </div>
                             <span 
-                                className="site-status"
-                                style={{ color: status.color }}
+                                className="site-status-badge"
+                                style={{ 
+                                    backgroundColor: status.bgColor,
+                                    color: status.dotColor === 'white' ? 'white' : '#333'
+                                }}
                             >
-                                {status.dot} {status.label}
+                                <span className="status-dot" style={{ backgroundColor: status.dotColor }} />
+                                {status.label}
                             </span>
                         </div>
                         {site.address && (
