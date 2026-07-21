@@ -1,15 +1,12 @@
-export function SitesList({ shifts }) {
-    const sitesMap = {}
-    shifts.forEach(s => {
-        if (!sitesMap[s.site_name]) {
-            sitesMap[s.site_name] = { shifts: [], totalHours: 0, workers: new Set() }
-        }
-        sitesMap[s.site_name].shifts.push(s)
-        sitesMap[s.site_name].totalHours += parseFloat(s.hours)
-        sitesMap[s.site_name].workers.add(s.worker_name)
+export function SitesList({ sites, onSiteClick }) {
+    // Сортируем от новых к старым (по id или created_at)
+    const sortedSites = [...(sites || [])].sort((a, b) => {
+        const dateA = new Date(a.created_at || a.id)
+        const dateB = new Date(b.created_at || b.id)
+        return dateB - dateA // новые сначала
     })
 
-    if (Object.keys(sitesMap).length === 0) {
+    if (!sortedSites || sortedSites.length === 0) {
         return (
             <div className="card empty-state">
                 <div className="empty-icon">🏗️</div>
@@ -20,16 +17,21 @@ export function SitesList({ shifts }) {
 
     return (
         <>
-            {Object.entries(sitesMap).map(([name, data]) => (
-                <div key={name} className="card site-card">
+            {sortedSites.map((site) => (
+                <div 
+                    key={site.id} 
+                    className="card site-card"
+                    onClick={() => onSiteClick && onSiteClick(site)}
+                >
                     <div className="site-card-header">
                         <span className="site-card-icon">🏗️</span>
-                        <span className="site-card-name">{name}</span>
+                        <span className="site-card-name">{site.name}</span>
                     </div>
                     <div className="site-card-stats">
-                        <span>👷 {data.workers.size} рабочих</span>
-                        <span>📋 {data.shifts.length} смен</span>
-                        <span>⏱️ {data.totalHours} ч.</span>
+                        {site.address && (
+                            <span>📍 {site.address}</span>
+                        )}
+                        <span>📅 {new Date(site.created_at || site.id).toLocaleDateString()}</span>
                     </div>
                 </div>
             ))}

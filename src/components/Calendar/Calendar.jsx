@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { ViewModeButtons } from './ViewModeButtons'
 import { MONTHS, getMonthDays } from '../../utils/dateHelpers'
 
 // Компонент одного дня в ленте
@@ -19,7 +18,10 @@ const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelec
         if (!sitesMap[s.site_name]) {
             sitesMap[s.site_name] = []
         }
-        sitesMap[s.site_name].push(s.worker_name)
+        sitesMap[s.site_name].push({
+            name: s.worker_name,
+            hours: s.hours
+        })
     })
     
     return (
@@ -27,27 +29,42 @@ const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelec
             className={`feed-item ${today ? 'today' : ''} ${selected ? 'selected' : ''}`}
             onClick={() => onDayClick(day.date)}
             data-date={day.date.toISOString().split('T')[0]}
+            style={{ display: 'block', width: '100%' }}
         >
-            <div className="feed-date">
-                <div className="feed-date-full">{dateStr}</div>
-                {today && <div className="feed-today-badge">Сегодня</div>}
-            </div>
-            
-            <div className="feed-content">
-                {hasWork ? (
-                    Object.entries(sitesMap).map(([siteName, workers]) => (
-                        <div key={siteName} className="feed-site">
-                            <div className="feed-site-name">📍 {siteName}</div>
-                            <div className="feed-workers">
-                                {workers.map((w, idx) => (
-                                    <span key={idx} className="feed-worker">👷 {w}</span>
-                                ))}
-                            </div>
-                        </div>
-                    ))
-                ) : (
-                    <div className="feed-empty">— нет смен</div>
-                )}
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                <div style={{ 
+                    minWidth: '52px', 
+                    paddingRight: '8px', 
+                    borderRight: '1px solid #e8eaed',
+                    textAlign: 'center',
+                    flexShrink: 0
+                }}>
+                    <div style={{ fontSize: '12px', fontWeight: '600', color: today ? '#2d7d46' : '#1a1a1a' }}>
+                        {dateStr}
+                    </div>
+                    {today && <div style={{ fontSize: '7px', background: '#2d7d46', color: 'white', padding: '0px 5px', borderRadius: '8px', fontWeight: '700', marginTop: '2px' }}>Сегодня</div>}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                    {hasWork ? (
+                        Object.entries(sitesMap).map(([siteName, workers]) => {
+                            const workersStr = workers.map(w => `${w.name}(${w.hours}ч)`).join(' ')
+                            return (
+                                <div key={siteName} style={{ 
+                                    fontSize: '12px', 
+                                    color: '#333', 
+                                    padding: '2px 0',
+                                    lineHeight: '1.5',
+                                    borderBottom: '0px solid #f0f0f0',
+                                    wordBreak: 'break-word'
+                                }}>
+                                    📍 {siteName}: {workersStr}
+                                </div>
+                            )
+                        })
+                    ) : (
+                        <div style={{ fontSize: '12px', color: '#ccc', padding: '2px 0' }}>— нет смен</div>
+                    )}
+                </div>
             </div>
         </div>
     )
@@ -64,8 +81,103 @@ const MonthDivider = ({ month, year }) => {
     )
 }
 
+// ============================================================
+// КОМПОНЕНТ ДНЯ С ЦВЕТАМИ (ЧЕТКИЕ СЕКЦИИ)
+// ============================================================
+const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
+    // Получаем уникальные site_id из смен за этот день
+    const siteIds = [...new Set(dayShifts.map(s => s.site_id))]
+    
+    // Получаем цвета для каждого объекта
+    const colors = siteIds
+        .map(id => {
+            const site = sites.find(s => s.id === id)
+            return site ? site.color : null
+        })
+        .filter(c => c !== null)
+    
+    const hasWork = colors.length > 0
+    const showPlus = colors.length > 4
+    const displayColors = colors.slice(0, 4)
+    
+    // Строим CSS для четких секций
+    let backgroundStyle = {}
+    let numberColor = '#1a1a1a'
+    let numberWeight = '500'
+    let isSelectedStyle = {}
+    
+    if (hasWork && !showPlus) {
+        const count = displayColors.length
+        
+        // Если день выбран — делаем цвета очень прозрачными
+        const alpha = isSelected ? '30' : 'FF'
+        const colorsWithAlpha = displayColors.map(c => c + alpha)
+        
+        if (count === 1) {
+            backgroundStyle = { backgroundColor: colorsWithAlpha[0] }
+        } else if (count === 2) {
+            backgroundStyle = { 
+                background: `conic-gradient(from 0deg, ${colorsWithAlpha[0]} 0deg, ${colorsWithAlpha[0]} 180deg, ${colorsWithAlpha[1]} 180deg, ${colorsWithAlpha[1]} 360deg)`
+            }
+        } else if (count === 3) {
+            backgroundStyle = { 
+                background: `conic-gradient(from 0deg, ${colorsWithAlpha[0]} 0deg, ${colorsWithAlpha[0]} 120deg, ${colorsWithAlpha[1]} 120deg, ${colorsWithAlpha[1]} 240deg, ${colorsWithAlpha[2]} 240deg, ${colorsWithAlpha[2]} 360deg)`
+            }
+        } else if (count === 4) {
+            backgroundStyle = { 
+                background: `conic-gradient(from 0deg, ${colorsWithAlpha[0]} 0deg, ${colorsWithAlpha[0]} 90deg, ${colorsWithAlpha[1]} 90deg, ${colorsWithAlpha[1]} 180deg, ${colorsWithAlpha[2]} 180deg, ${colorsWithAlpha[2]} 270deg, ${colorsWithAlpha[3]} 270deg, ${colorsWithAlpha[3]} 360deg)`
+            }
+        }
+    } else if (hasWork && showPlus) {
+        const count = displayColors.length
+        const alpha = isSelected ? '30' : 'FF'
+        const colorsWithAlpha = displayColors.map(c => c + alpha)
+        
+        if (count === 4) {
+            backgroundStyle = { 
+                background: `conic-gradient(from 0deg, ${colorsWithAlpha[0]} 0deg, ${colorsWithAlpha[0]} 90deg, ${colorsWithAlpha[1]} 90deg, ${colorsWithAlpha[1]} 180deg, ${colorsWithAlpha[2]} 180deg, ${colorsWithAlpha[2]} 270deg, ${colorsWithAlpha[3]} 270deg, ${colorsWithAlpha[3]} 360deg)`
+            }
+        } else if (count === 3) {
+            backgroundStyle = { 
+                background: `conic-gradient(from 0deg, ${colorsWithAlpha[0]} 0deg, ${colorsWithAlpha[0]} 120deg, ${colorsWithAlpha[1]} 120deg, ${colorsWithAlpha[1]} 240deg, ${colorsWithAlpha[2]} 240deg, ${colorsWithAlpha[2]} 360deg)`
+            }
+        } else if (count === 2) {
+            backgroundStyle = { 
+                background: `conic-gradient(from 0deg, ${colorsWithAlpha[0]} 0deg, ${colorsWithAlpha[0]} 180deg, ${colorsWithAlpha[1]} 180deg, ${colorsWithAlpha[1]} 360deg)`
+            }
+        } else if (count === 1) {
+            backgroundStyle = { backgroundColor: colorsWithAlpha[0] }
+        }
+    }
+    
+    // Если день выбран — добавляем зеленую рамку
+    if (isSelected) {
+        isSelectedStyle = {
+            border: '3px solid #2d7d46'
+        }
+        numberWeight = '900'  // жирный шрифт
+    }
+
+    return (
+        <div
+            className={`day-cell ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
+            onClick={onClick}
+            style={{ ...backgroundStyle, ...isSelectedStyle }}
+        >
+            <div className="day-number" style={{ color: numberColor, fontWeight: numberWeight }}>{day.day}</div>
+            {hasWork && showPlus && (
+                <div className="day-plus" style={{ color: '#1a1a1a' }}>+</div>
+            )}
+            {dayShifts.length > 0 && !hasWork && (
+                <div className="day-count">{dayShifts.length}</div>
+            )}
+        </div>
+    )
+}
+
 export function Calendar({ 
     shifts, 
+    sites = [],
     selectedDate, 
     onDateSelect, 
     onDayClick,
@@ -75,20 +187,17 @@ export function Calendar({
     savedScrollTop
 }) {
     const [mode, setMode] = useState(externalMode || 'month')
-    const [displayDate, setDisplayDate] = useState(new Date())
+    const [displayDate, setDisplayDate] = useState(selectedDate || new Date())
     const [allDays, setAllDays] = useState([])
     const containerRef = useRef(null)
-    const isFirstRender = useRef(true)
     const isRestoring = useRef(false)
     const virtualizerRef = useRef(null)
     const [shouldShowToday, setShouldShowToday] = useState(true)
     const [hasRestored, setHasRestored] = useState(false)
 
-    // === КОНСТАНТЫ: 5 лет назад + 3 года вперёд = 8 лет ===
-    const YEARS_BACK = 10
-    const YEARS_FORWARD = 10
+    const YEARS_BACK = 5
+    const YEARS_FORWARD = 3
 
-    // === ГЕНЕРАЦИЯ ДНЕЙ ===
     const generateDays = useCallback((centerDate) => {
         const days = []
         const startDate = new Date(centerDate)
@@ -141,11 +250,19 @@ export function Calendar({
     const getItemHeight = useCallback((index) => {
         const day = allDays[index]
         if (!day) return 44
-        if (index === 0) return 44 + 20
+        const dayShifts = shifts.filter(s => s.work_date === day.date.toISOString().split('T')[0])
+        const rows = dayShifts.length > 0 ? Object.keys(dayShifts.reduce((acc, s) => {
+            acc[s.site_name] = true
+            return acc
+        }, {})).length : 1
+        const baseHeight = 36
+        const rowHeight = 24
+        const dividerHeight = 20
+        if (index === 0) return baseHeight + rows * rowHeight + dividerHeight
         const prevDay = allDays[index - 1]
         const hasDivider = day.month !== prevDay.month || day.year !== prevDay.year
-        return hasDivider ? 44 + 20 : 44
-    }, [allDays])
+        return baseHeight + rows * rowHeight + (hasDivider ? dividerHeight : 0)
+    }, [allDays, shifts])
 
     const virtualizer = useVirtualizer({
         count: allDays.length,
@@ -157,16 +274,22 @@ export function Calendar({
         }
     })
 
-    // === ИНИЦИАЛИЗАЦИЯ ===
+    // ИНИЦИАЛИЗАЦИЯ FEED ПРИ ПЕРВОМ РЕНДЕРЕ
     useEffect(() => {
-        if (isFirstRender.current) {
-            isFirstRender.current = false
-            const today = new Date()
-            onDateSelect(today)
-            setDisplayDate(today)
-            initFeed(today)
+        const initialDate = selectedDate || new Date()
+        setDisplayDate(initialDate)
+        initFeed(initialDate)
+    }, [])
+
+    // ОБНОВЛЕНИЕ ПРИ ИЗМЕНЕНИИ selectedDate ИЗВНЕ
+    useEffect(() => {
+        if (selectedDate) {
+            setDisplayDate(selectedDate)
+            if (mode === 'feed') {
+                initFeed(selectedDate)
+            }
         }
-    }, [initFeed, onDateSelect])
+    }, [selectedDate, mode])
 
     // === ВОССТАНОВЛЕНИЕ ПОЗИЦИИ ===
     useEffect(() => {
@@ -185,7 +308,7 @@ export function Calendar({
         }, 100)
     }, [mode, allDays, isReturning, savedScrollTop, hasRestored])
 
-    // === ПОКАЗАТЬ СЕГОДНЯ ПО ЦЕНТРУ (только при первом переходе) ===
+    // === ПОКАЗАТЬ СЕГОДНЯ ПО ЦЕНТРУ ===
     useEffect(() => {
         if (mode !== 'feed' || allDays.length === 0) return
         if (!shouldShowToday || isReturning) return
@@ -207,7 +330,7 @@ export function Calendar({
         }
     }, [mode, allDays, shouldShowToday, isReturning, virtualizer, hasRestored])
 
-    // === СБРОС ФЛАГОВ ПРИ ПЕРЕКЛЮЧЕНИИ ===
+    // === СБРОС ФЛАГОВ ===
     useEffect(() => {
         if (mode !== 'feed') {
             setShouldShowToday(true)
@@ -215,7 +338,7 @@ export function Calendar({
         }
     }, [mode])
 
-    // === СОХРАНЯЕМ ИНДЕКС ПРИ СКРОЛЛЕ ===
+    // === СОХРАНЯЕМ ИНДЕКС ===
     const handleScroll = useCallback(() => {
         if (!virtualizerRef.current || isRestoring.current) return
         
@@ -259,15 +382,13 @@ export function Calendar({
         const newDate = new Date(displayDate)
         if (mode === 'month') {
             newDate.setMonth(newDate.getMonth() + direction)
+            setDisplayDate(newDate)
         } else if (mode === 'feed') {
             const centerDate = new Date(displayDate)
             centerDate.setDate(centerDate.getDate() + direction * 30)
             initFeed(centerDate)
-            onDateSelect(new Date(selectedDate))
-            return
+            setDisplayDate(centerDate)
         }
-        setDisplayDate(newDate)
-        onDateSelect(new Date(selectedDate))
     }
 
     const handlePrev = () => changeMonth(-1)
@@ -278,15 +399,21 @@ export function Calendar({
         if (onModeChange) {
             onModeChange(newMode, null)
         }
-        const today = new Date()
-        onDateSelect(today)
-        setDisplayDate(today)
-        isRestoring.current = false
-        
-        if (newMode === 'feed') {
-            initFeed(today)
-            setShouldShowToday(true)
+        if (selectedDate) {
+            setDisplayDate(selectedDate)
+            if (newMode === 'feed') {
+                initFeed(selectedDate)
+            }
+        } else {
+            const today = new Date()
+            onDateSelect(today)
+            setDisplayDate(today)
+            if (newMode === 'feed') {
+                initFeed(today)
+            }
         }
+        setShouldShowToday(true)
+        isRestoring.current = false
     }
 
     const handleDayClick = (date) => {
@@ -300,9 +427,12 @@ export function Calendar({
 
     return (
         <>
+            {/* Временно скрыто — чипсы переключения режимов */}
+            {/* 
             <div className="view-mode-wrapper">
                 <ViewModeButtons mode={mode} onChange={handleModeChange} />
             </div>
+            */}
 
             <div className={`calendar-wrapper ${mode === 'feed' ? 'feed-mode' : ''}`}>
                 <div className="calendar-header">
@@ -378,22 +508,19 @@ export function Calendar({
                             }
 
                             const dayShifts = getDayShifts(day.date)
-                            const hasWork = dayShifts.length > 0
                             const today = isToday(day.date)
                             const selected = isSelected(day.date)
 
                             return (
-                                <div
+                                <DayCell
                                     key={index}
-                                    className={`day-cell ${today ? 'today' : ''} ${selected ? 'selected' : ''} ${hasWork ? 'has-work' : ''}`}
+                                    day={day}
+                                    dayShifts={dayShifts}
+                                    isToday={today}
+                                    isSelected={selected}
+                                    sites={sites}
                                     onClick={() => handleDayClick(day.date)}
-                                >
-                                    <div className="day-number">{day.day}</div>
-                                    {hasWork && <div className="day-dot"></div>}
-                                    {dayShifts.length > 0 && (
-                                        <div className="day-count">{dayShifts.length}</div>
-                                    )}
-                                </div>
+                                />
                             )
                         })}
                     </div>

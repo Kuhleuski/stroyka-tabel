@@ -1,8 +1,43 @@
-export function Timeline({ shifts, date, onClose, isFullscreen }) {
+import { useEffect, useState } from 'react'
+import { fetchSites, fetchWorkers } from '../../services/supabase'
+
+export function Timeline({ shifts, date, onClose, isFullscreen, hideHeader }) {
+    const [sites, setSites] = useState([])
+    const [workers, setWorkers] = useState([])
+
+    // Загружаем объекты и работников для получения имен по ID
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                const [sitesData, workersData] = await Promise.all([
+                    fetchSites(),
+                    fetchWorkers()
+                ])
+                setSites(sitesData || [])
+                setWorkers(workersData || [])
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error)
+            }
+        }
+        loadData()
+    }, [])
+
     if (!date) return null
 
     const dateStr = date.toISOString().split('T')[0]
     const dayShifts = shifts.filter(s => s.work_date === dateStr)
+
+    // Функция для получения имени объекта по ID
+    const getSiteName = (siteId) => {
+        const site = sites.find(s => s.id === siteId)
+        return site ? site.name : 'Неизвестный объект'
+    }
+
+    // Функция для получения имени работника по ID
+    const getWorkerName = (workerId) => {
+        const worker = workers.find(w => w.id === workerId)
+        return worker ? worker.name : 'Неизвестный работник'
+    }
 
     const renderContent = () => {
         if (dayShifts.length === 0) {
@@ -14,34 +49,35 @@ export function Timeline({ shifts, date, onClose, isFullscreen }) {
             )
         }
 
+        // Группируем по объектам через site_id
         const sitesMap = {}
         dayShifts.forEach(s => {
-            if (!sitesMap[s.site_name]) {
-                sitesMap[s.site_name] = { workers: [], totalHours: 0 }
+            // Используем site_id, если есть, иначе site_name (для старых данных)
+            const siteId = s.site_id || s.site_name
+            if (!sitesMap[siteId]) {
+                sitesMap[siteId] = { 
+                    siteName: s.site_id ? getSiteName(s.site_id) : s.site_name,
+                    workers: new Set() 
+                }
             }
-            sitesMap[s.site_name].workers.push({
-                name: s.worker_name,
-                hours: parseFloat(s.hours),
-                status: s.status
-            })
-            sitesMap[s.site_name].totalHours += parseFloat(s.hours)
+            
+            // Используем worker_id, если есть, иначе worker_name (для старых данных)
+            const workerName = s.worker_id ? getWorkerName(s.worker_id) : s.worker_name
+            if (workerName) {
+                sitesMap[siteId].workers.add(workerName)
+            }
         })
 
-        return Object.entries(sitesMap).map(([siteName, data]) => (
-            <div key={siteName} className="card">
+        return Object.entries(sitesMap).map(([siteId, data]) => (
+            <div key={siteId} className="card">
                 <div className="card-header">
                     <span className="card-icon">📍</span>
-                    <span className="card-title">{siteName}</span>
-                    <span className="card-badge">{data.totalHours} ч.</span>
+                    <span className="card-title">{data.siteName}</span>
                 </div>
                 <div className="card-body">
-                    {data.workers.map((w, idx) => (
+                    {Array.from(data.workers).map((workerName, idx) => (
                         <div key={idx} className="worker-chip">
-                            <span className="worker-chip-name">{w.name}</span>
-                            <span className="worker-chip-hours">{w.hours} ч.</span>
-                            <span className={`badge ${w.status === 'confirmed' ? 'confirmed' : 'pending'}`}>
-                                {w.status === 'confirmed' ? '✅ Подтверждено' : '⏳ Ожидает'}
-                            </span>
+                            <span className="worker-chip-name">{workerName}</span>
                         </div>
                     ))}
                 </div>
@@ -49,8 +85,8 @@ export function Timeline({ shifts, date, onClose, isFullscreen }) {
         ))
     }
 
-    // Если isFullscreen — просто контент без шапки (шапка уже есть в MainPage)
-    if (isFullscreen) {
+    // Если hideHeader === true — НЕ ПОКАЗЫВАЕМ шапку с датой и счетчиком
+    if (isFullscreen || hideHeader) {
         return <>{renderContent()}</>
     }
 
