@@ -164,6 +164,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
                 <Timeline 
                     key={updateKey}
                     shifts={shifts} 
+                    sites={sites}           // ← ПЕРЕДАЕМ SITES!
                     date={selectedDate} 
                     onClose={null}
                     isFullscreen={false}
