@@ -2,6 +2,14 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { MONTHS, getMonthDays } from '../../utils/dateHelpers'
 
+// === ФУНКЦИЯ ДЛЯ ЛОКАЛЬНОЙ ДАТЫ ===
+const formatDateLocal = (date) => {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+}
+
 // Компонент одного дня в ленте
 const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelected, isToday }) => {
     const dayShifts = getDayShifts(day.date)
@@ -28,7 +36,7 @@ const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelec
         <div 
             className={`feed-item ${today ? 'today' : ''} ${selected ? 'selected' : ''}`}
             onClick={() => onDayClick(day.date)}
-            data-date={day.date.toISOString().split('T')[0]}
+            data-date={formatDateLocal(day.date)}
             style={{ display: 'block', width: '100%' }}
         >
             <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
@@ -229,7 +237,7 @@ export function Calendar({
     }, [generateDays])
 
     const getDayShifts = useCallback((date) => {
-        const dateStr = date.toISOString().split('T')[0]
+        const dateStr = formatDateLocal(date)
         return shifts.filter(s => s.work_date === dateStr)
     }, [shifts])
 
@@ -250,7 +258,7 @@ export function Calendar({
     const getItemHeight = useCallback((index) => {
         const day = allDays[index]
         if (!day) return 44
-        const dayShifts = shifts.filter(s => s.work_date === day.date.toISOString().split('T')[0])
+        const dayShifts = shifts.filter(s => s.work_date === formatDateLocal(day.date))
         const rows = dayShifts.length > 0 ? Object.keys(dayShifts.reduce((acc, s) => {
             acc[s.site_name] = true
             return acc
@@ -315,9 +323,9 @@ export function Calendar({
         if (hasRestored) return
 
         const today = new Date()
-        const dateStr = today.toISOString().split('T')[0]
+        const dateStr = formatDateLocal(today)
         const index = allDays.findIndex(d => 
-            d.date.toISOString().split('T')[0] === dateStr
+            formatDateLocal(d.date) === dateStr
         )
         
         if (index !== -1) {
