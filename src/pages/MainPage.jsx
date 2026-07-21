@@ -5,6 +5,7 @@ import { AddShiftForm } from '../components/Shifts/AddShiftForm'
 import { fetchSites, fetchWorkers } from '../services/supabase'
 import { useAuth } from '../context/AuthContext'
 import { formatDateLocal } from '../utils/dateHelpers'
+import { Plus } from 'lucide-react'
 
 export function MainPage({ shifts, loading, refetchShifts }) {
     const [selectedDate, setSelectedDate] = useState(new Date())
@@ -150,6 +151,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
             />
 
             <div className="detail-under-calendar">
+                {/* Кнопка под календарем */}
                 {user?.role === 'admin' && (
                     <div className="detail-add-button-wrapper">
                         <button 
@@ -164,13 +166,24 @@ export function MainPage({ shifts, loading, refetchShifts }) {
                 <Timeline 
                     key={updateKey}
                     shifts={shifts} 
-                    sites={sites}           // ← ПЕРЕДАЕМ SITES!
+                    sites={sites}
                     date={selectedDate} 
                     onClose={null}
                     isFullscreen={false}
                     hideHeader={true}
                 />
             </div>
+
+            {/* ПЛАВАЮЩАЯ КНОПКА (FAB) — только для админа */}
+            {user?.role === 'admin' && (
+                <button 
+                    className="fab-add-shift"
+                    onClick={() => handleOpenAddShift(selectedDate)}
+                    aria-label="Добавить смену"
+                >
+                    <Plus size={28} strokeWidth={2.5} />
+                </button>
+            )}
         </>
     )
 }
