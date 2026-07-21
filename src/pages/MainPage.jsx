@@ -31,7 +31,9 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     const getShiftsForDate = (date) => {
         if (!shifts || shifts.length === 0) return []
         const dateStr = date.toISOString().split('T')[0]
-        return shifts.filter(s => s.work_date === dateStr)
+        const result = shifts.filter(s => s.work_date === dateStr)
+        console.log(`📅 getShiftsForDate(${dateStr}):`, result.length)
+        return result
     }
 
     // ЗАГРУЗКА ДАННЫХ ПРИ ПЕРВОМ ОТКРЫТИИ
@@ -49,14 +51,14 @@ export function MainPage({ shifts, loading, refetchShifts }) {
             }
             await loadSitesAndWorkers()
             
-            // Проверяем, есть ли смены на сегодня
-            const todayShifts = getShiftsForDate(today)
-            console.log('📅 Смен на сегодня после загрузки:', todayShifts.length)
-            
-            // Принудительно обновляем Timeline
-            setUpdateKey(prev => prev + 1)
-            isDataLoaded.current = true
-            console.log('📅 isDataLoaded = true, updateKey =', updateKey + 1)
+            // Проверяем смены на сегодня (уже после обновления shifts)
+            setTimeout(() => {
+                const todayShifts = getShiftsForDate(today)
+                console.log('📅 Смен на сегодня после загрузки:', todayShifts.length)
+                setUpdateKey(prev => prev + 1)
+                isDataLoaded.current = true
+                console.log('📅 isDataLoaded = true, updateKey =', updateKey + 1)
+            }, 100)
         }
         
         if (isFirstMount.current) {
@@ -74,12 +76,9 @@ export function MainPage({ shifts, loading, refetchShifts }) {
             const todayShifts = getShiftsForDate(today)
             console.log('📅 Смен на сегодня при изменении shifts:', todayShifts.length)
             
-            // Проверяем, изменилось ли количество смен
-            if (shifts.length !== prevShiftsLength.current) {
-                prevShiftsLength.current = shifts.length
-                console.log('📅 Количество смен изменилось, обновляем updateKey')
-                setUpdateKey(prev => prev + 1)
-            }
+            // Обновляем Timeline всегда при изменении shifts
+            setUpdateKey(prev => prev + 1)
+            prevShiftsLength.current = shifts.length
         }
     }, [shifts])
 
@@ -109,7 +108,6 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         console.log('📅 handleDayClick:', dateStr)
         setSelectedDate(date)
         
-        // При клике на день — обновляем Timeline
         const dayShifts = getShiftsForDate(date)
         console.log('📅 Смен на выбранную дату:', dayShifts.length)
         setUpdateKey(prev => prev + 1)
@@ -179,7 +177,6 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     const monthNames = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']
     const buttonDate = `${selectedDate.getDate()} ${monthNames[selectedDate.getMonth()]}`
 
-    // Проверяем смены на выбранную дату
     const selectedDateStr = selectedDate.toISOString().split('T')[0]
     const selectedDayShifts = shifts ? shifts.filter(s => s.work_date === selectedDateStr) : []
     console.log(`📅 Рендерим календарь, selectedDate: ${selectedDateStr}`)
