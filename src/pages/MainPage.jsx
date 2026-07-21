@@ -19,10 +19,29 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     const [updateKey, setUpdateKey] = useState(0)
     const { user } = useAuth()
 
+    // ИНИЦИАЛИЗАЦИЯ ПРИ ПЕРВОМ ОТКРЫТИИ
     useEffect(() => {
-        setSelectedDate(new Date())
+        const today = new Date()
+        setSelectedDate(today)
         loadSitesAndWorkers()
+        
+        // Обновляем смены при первом открытии
+        if (refetchShifts) {
+            refetchShifts()
+        }
     }, [])
+
+    // === НОВЫЙ ЭФФЕКТ: при монтировании обновляем данные ===
+    useEffect(() => {
+        // При возврате на календарь обновляем смены и дату
+        const today = new Date()
+        setSelectedDate(today)
+        
+        if (refetchShifts) {
+            refetchShifts()
+        }
+        loadSitesAndWorkers()
+    }, [])  // пустой массив = срабатывает при монтировании/возврате
 
     const loadSitesAndWorkers = async () => {
         try {
@@ -109,7 +128,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         <>
             <Calendar
                 shifts={shifts}
-                sites={sites}  // ← ПЕРЕДАЕМ SITES В КАЛЕНДАРЬ!
+                sites={sites}
                 selectedDate={selectedDate}
                 onDateSelect={handleDayClick}
                 onDayClick={handleDayClick}
@@ -120,7 +139,6 @@ export function MainPage({ shifts, loading, refetchShifts }) {
             />
 
             <div className="detail-under-calendar">
-                {/* Кнопка добавления смены — без даты слева */}
                 {user?.role === 'admin' && (
                     <div className="detail-add-button-wrapper">
                         <button 
@@ -132,7 +150,6 @@ export function MainPage({ shifts, loading, refetchShifts }) {
                     </div>
                 )}
                 
-                {/* Список смен — без дублирования даты и счетчика */}
                 <Timeline 
                     key={updateKey}
                     shifts={shifts} 
