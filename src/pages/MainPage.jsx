@@ -25,15 +25,21 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     
     const isFirstMount = useRef(true)
     const isDataLoaded = useRef(false)
-    const prevShiftsLength = useRef(0)
 
-    // Функция для получения смен за конкретную дату
+    // === ФУНКЦИЯ ДЛЯ ФОРМАТИРОВАНИЯ ДАТЫ В ЛОКАЛЬНЫЙ ФОРМАТ ===
+    const formatDateLocal = (date) => {
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+        return `${year}-${month}-${day}`
+    }
+
+    // === ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ СМЕН ЗА КОНКРЕТНУЮ ДАТУ ===
     const getShiftsForDate = (date) => {
         if (!shifts || shifts.length === 0) return []
-        const dateStr = date.toISOString().split('T')[0]
-        const result = shifts.filter(s => s.work_date === dateStr)
-        console.log(`📅 getShiftsForDate(${dateStr}):`, result.length)
-        return result
+        const dateStr = formatDateLocal(date)
+        console.log(`📅 getShiftsForDate(${dateStr}):`, shifts.filter(s => s.work_date === dateStr).length)
+        return shifts.filter(s => s.work_date === dateStr)
     }
 
     // ЗАГРУЗКА ДАННЫХ ПРИ ПЕРВОМ ОТКРЫТИИ
@@ -41,24 +47,21 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         console.log('📅 useEffect (первый рендер)')
         const loadData = async () => {
             const today = new Date()
-            console.log('📅 Сегодня:', today.toISOString().split('T')[0])
+            console.log('📅 Сегодня (локально):', formatDateLocal(today))
             setSelectedDate(today)
             
-            // Загружаем смены
             if (refetchShifts) {
                 console.log('📅 Вызываем refetchShifts()')
                 await refetchShifts()
             }
             await loadSitesAndWorkers()
             
-            // Проверяем смены на сегодня (уже после обновления shifts)
-            setTimeout(() => {
-                const todayShifts = getShiftsForDate(today)
-                console.log('📅 Смен на сегодня после загрузки:', todayShifts.length)
-                setUpdateKey(prev => prev + 1)
-                isDataLoaded.current = true
-                console.log('📅 isDataLoaded = true, updateKey =', updateKey + 1)
-            }, 100)
+            const todayShifts = getShiftsForDate(today)
+            console.log('📅 Смен на сегодня после загрузки:', todayShifts.length)
+            
+            setUpdateKey(prev => prev + 1)
+            isDataLoaded.current = true
+            console.log('📅 isDataLoaded = true, updateKey =', updateKey + 1)
         }
         
         if (isFirstMount.current) {
@@ -75,10 +78,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
             const today = new Date()
             const todayShifts = getShiftsForDate(today)
             console.log('📅 Смен на сегодня при изменении shifts:', todayShifts.length)
-            
-            // Обновляем Timeline всегда при изменении shifts
             setUpdateKey(prev => prev + 1)
-            prevShiftsLength.current = shifts.length
         }
     }, [shifts])
 
@@ -104,7 +104,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     }
 
     const handleDayClick = (date) => {
-        const dateStr = date.toISOString().split('T')[0]
+        const dateStr = formatDateLocal(date)
         console.log('📅 handleDayClick:', dateStr)
         setSelectedDate(date)
         
@@ -123,7 +123,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     }
 
     const handleOpenAddShift = (date) => {
-        console.log('📅 handleOpenAddShift:', date.toISOString().split('T')[0])
+        console.log('📅 handleOpenAddShift:', formatDateLocal(date))
         setSelectedDate(date)
         setShowAddShift(true)
     }
@@ -177,7 +177,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     const monthNames = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']
     const buttonDate = `${selectedDate.getDate()} ${monthNames[selectedDate.getMonth()]}`
 
-    const selectedDateStr = selectedDate.toISOString().split('T')[0]
+    const selectedDateStr = formatDateLocal(selectedDate)
     const selectedDayShifts = shifts ? shifts.filter(s => s.work_date === selectedDateStr) : []
     console.log(`📅 Рендерим календарь, selectedDate: ${selectedDateStr}`)
     console.log(`📅 Смен на ${selectedDateStr}: ${selectedDayShifts.length}`)
