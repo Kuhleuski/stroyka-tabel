@@ -96,28 +96,16 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
           <ArrowLeft size={24} />
           <span>Назад</span>
         </button>
-        <span className="shift-form-title">Новая смена</span>
-        <button 
-          type="submit" 
-          form="shift-form"
-          className="shift-form-save"
-          disabled={loading}
-        >
-          {loading ? '...' : 'Сохранить'}
-        </button>
+        <span className="shift-form-title">
+          Новая смена на {formatDate(selectedDate)}
+        </span>
+        {/* Кнопка сохранить в шапке УБРАНА */}
       </div>
 
       <form id="shift-form" onSubmit={handleSubmit} className="shift-form-body">
-        {/* ДАТА */}
-        <div className="shift-form-field">
-          <label className="shift-form-label">
-            Создаём новую смену на <strong>{formatDate(selectedDate)}</strong>
-          </label>
-        </div>
-
         {/* ОБЪЕКТЫ */}
-        <div className="shift-form-field">
-          <label className="shift-form-label" style={{ fontSize: '16px', fontWeight: 600 }}>
+        <div className="shift-form-field" style={{ marginBottom: '28px' }}>
+          <label className="shift-form-label" style={{ fontSize: '16px', fontWeight: 600, marginBottom: '12px' }}>
             Выберите объект:
           </label>
           <div className="shift-sites-grid">
@@ -130,17 +118,22 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
               sites.map(site => {
                 const isSelected = selectedSite === site.id
                 return (
-                  <div
-                    key={site.id}
-                    className={`shift-site-card ${isSelected ? 'selected' : ''}`}
-                    onClick={() => handleSiteSelect(site.id)}
-                    style={{
-                      backgroundColor: isSelected ? site.color : '#f5f7f6',
-                      borderColor: isSelected ? site.color : '#e8eaed',
-                      borderWidth: isSelected ? '3px' : '1px',
-                    }}
-                  >
-                    <div className="shift-site-name">{site.name}</div>
+                  <div key={site.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <div
+                      className={`shift-site-card ${isSelected ? 'selected' : ''}`}
+                      onClick={() => handleSiteSelect(site.id)}
+                      style={{
+                        backgroundColor: site.color || '#2d7d46',
+                        borderColor: isSelected ? '#2d7d46' : 'transparent',
+                        borderWidth: isSelected ? '3px' : '0px',
+                        position: 'relative'
+                      }}
+                    >
+                      <span className="shift-site-name">{site.name}</span>
+                      {isSelected && (
+                        <div className="shift-site-check">✓</div>
+                      )}
+                    </div>
                     {site.address && (
                       <div className="shift-site-address">{site.address}</div>
                     )}
@@ -152,8 +145,8 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
         </div>
 
         {/* РАБОТНИКИ */}
-        <div className="shift-form-field">
-          <div className="shift-form-workers-header">
+        <div className="shift-form-field" style={{ marginBottom: '28px' }}>
+          <div className="shift-form-workers-header" style={{ marginBottom: '12px' }}>
             <label className="shift-form-label" style={{ fontSize: '16px', fontWeight: 600 }}>
               Кто работал:
             </label>
@@ -190,7 +183,9 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
                     <div className="shift-worker-avatar" style={{
                       backgroundColor: hasPhoto ? 'transparent' : avatarColor,
                       border: hasPhoto ? '2px solid #e8eaed' : 'none',
-                      overflow: 'hidden'
+                      overflow: 'hidden',
+                      width: '52px',
+                      height: '52px'
                     }}>
                       {hasPhoto ? (
                         <img 
@@ -223,14 +218,23 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
           </div>
         </div>
 
-        {/* КНОПКА СОХРАНИТЬ */}
-        <button 
-          type="submit" 
-          className="shift-form-bottom-btn"
-          disabled={loading}
-        >
-          {loading ? '⏳ Сохранение...' : 'Сохранить смену'}
-        </button>
+        {/* КНОПКИ */}
+        <div className="shift-form-actions">
+          <button 
+            type="submit" 
+            className="shift-form-bottom-btn"
+            disabled={loading}
+          >
+            {loading ? '⏳ Сохранение...' : 'Сохранить смену'}
+          </button>
+          <button 
+            type="button" 
+            className="shift-form-cancel-btn"
+            onClick={onClose}
+          >
+            Отмена
+          </button>
+        </div>
       </form>
     </div>
   )
