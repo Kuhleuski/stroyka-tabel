@@ -6,6 +6,9 @@ import { fetchSites, fetchWorkers } from '../services/supabase'
 import { useAuth } from '../context/AuthContext'
 
 export function MainPage({ shifts, loading, refetchShifts }) {
+    console.log('📅 MainPage рендерится, shifts.length:', shifts?.length || 0)
+    console.log('📅 MainPage loading:', loading)
+    
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [calendarMode, setCalendarMode] = useState('month')
     const [isReturning, setIsReturning] = useState(false)
@@ -20,17 +23,30 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     const { user } = useAuth()
 
     useEffect(() => {
+        console.log('📅 useEffect MainPage (mount)')
         const today = new Date()
+        console.log('📅 Устанавливаем selectedDate:', today.toISOString().split('T')[0])
         setSelectedDate(today)
         loadSitesAndWorkers()
     }, [])
 
+    useEffect(() => {
+        console.log('📅 useEffect MainPage (shifts changed):', shifts?.length || 0)
+        if (shifts && shifts.length > 0) {
+            console.log('📅 shifts изменились, обновляем updateKey')
+            setUpdateKey(prev => prev + 1)
+        }
+    }, [shifts])
+
     const loadSitesAndWorkers = async () => {
+        console.log('📅 loadSitesAndWorkers начата')
         try {
             const [sitesData, workersData] = await Promise.all([
                 fetchSites(),
                 fetchWorkers()
             ])
+            console.log('📅 sites загружено:', sitesData?.length || 0)
+            console.log('📅 workers загружено:', workersData?.length || 0)
             setSites(sitesData || [])
             setWorkers(workersData || [])
         } catch (error) {
@@ -39,14 +55,17 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     }
 
     if (loading) {
+        console.log('📅 Показываем загрузку')
         return <div className="loading-text">⏳ Загрузка...</div>
     }
 
     const handleDayClick = (date) => {
+        console.log('📅 handleDayClick:', date.toISOString().split('T')[0])
         setSelectedDate(date)
     }
 
     const handleModeChange = (mode) => {
+        console.log('📅 handleModeChange:', mode)
         setCalendarMode(mode)
         if (mode !== 'feed') {
             setSavedScrollTop(null)
@@ -55,15 +74,18 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     }
 
     const handleOpenAddShift = (date) => {
+        console.log('📅 handleOpenAddShift:', date.toISOString().split('T')[0])
         setSelectedDate(date)
         setShowAddShift(true)
     }
 
     const handleShiftAdded = async () => {
+        console.log('📅 handleShiftAdded начат')
         setShowSavingScreen(true)
         setShowAddShift(false)
         
         if (refetchShifts) {
+            console.log('📅 вызываем refetchShifts()')
             await refetchShifts()
         }
         await loadSitesAndWorkers()
@@ -72,6 +94,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         
         setShowSavingScreen(false)
         setUpdateKey(prev => prev + 1)
+        console.log('📅 handleShiftAdded завершен, updateKey:', updateKey + 1)
     }
 
     if (showSavingScreen) {
@@ -104,6 +127,9 @@ export function MainPage({ shifts, loading, refetchShifts }) {
 
     const monthNames = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']
     const buttonDate = `${selectedDate.getDate()} ${monthNames[selectedDate.getMonth()]}`
+
+    console.log('📅 Рендерим календарь, selectedDate:', selectedDate.toISOString().split('T')[0])
+    console.log('📅 updateKey:', updateKey)
 
     return (
         <>
