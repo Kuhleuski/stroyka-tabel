@@ -4,6 +4,16 @@ import { AddSitePage } from './AddSitePage'
 import { SiteDetailPage } from './SiteDetailPage'
 import { addSite, deleteSite } from '../services/supabase'
 import { useSites } from '../hooks/useSites'
+import { Plus } from 'lucide-react'
+
+// === ПЛОСКАЯ ИКОНКА ===
+const SitesIcon = () => (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '8px' }}>
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+        <path d="M2 17l10 5 10-5"/>
+        <path d="M2 12l10 5 10-5"/>
+    </svg>
+)
 
 export function SitesPage({ onAddSite }) {
     const [showAddForm, setShowAddForm] = useState(false)
@@ -31,7 +41,7 @@ export function SitesPage({ onAddSite }) {
     }
 
     const handleSiteClick = (site) => {
-        const container = document.querySelector('.sites-list-container')
+        const container = document.querySelector('.sites-grid')
         if (container) {
             setScrollPosition(container.scrollTop)
         }
@@ -41,11 +51,15 @@ export function SitesPage({ onAddSite }) {
     const handleCloseDetail = () => {
         setSelectedSite(null)
         setTimeout(() => {
-            const container = document.querySelector('.sites-list-container')
+            const container = document.querySelector('.sites-grid')
             if (container) {
                 container.scrollTop = scrollPosition
             }
         }, 50)
+    }
+
+    const handleOpenAddForm = () => {
+        setShowAddForm(true)
     }
 
     if (loading) {
@@ -85,22 +99,33 @@ export function SitesPage({ onAddSite }) {
         <>
             <div className="page-header">
                 <div>
-                    <div className="page-title">🏢 Объекты</div>
-                    <div className="page-subtitle">Все стройплощадки</div>
+                    <div className="page-title">
+                        <SitesIcon />
+                        Объекты
+                    </div>
+                    <div className="page-subtitle">Все объекты</div>
                 </div>
                 <button 
                     className="add-site-btn"
-                    onClick={() => setShowAddForm(true)}
+                    onClick={handleOpenAddForm}
                 >
                     + Добавить объект
                 </button>
             </div>
-            <div className="sites-list-container">
-                <SitesList 
-                    sites={sites} 
-                    onSiteClick={handleSiteClick}
-                />
-            </div>
+
+            <SitesList 
+                sites={sites} 
+                onSiteClick={handleSiteClick}
+            />
+
+            {/* ПЛАВАЮЩАЯ КНОПКА (FAB) */}
+            <button 
+                className="fab-add-site"
+                onClick={handleOpenAddForm}
+                aria-label="Добавить объект"
+            >
+                <Plus size={28} strokeWidth={2.5} />
+            </button>
         </>
     )
 }

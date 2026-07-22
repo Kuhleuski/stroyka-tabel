@@ -133,6 +133,9 @@ export function MainPage({ shifts, loading, refetchShifts }) {
         return <div className="loading-text">⏳ Загрузка...</div>
     }
 
+    const monthNames = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']
+    const buttonDate = `${selectedDate.getDate()} ${monthNames[selectedDate.getMonth()]}`
+
     return (
         <>
             <Calendar
@@ -147,7 +150,10 @@ export function MainPage({ shifts, loading, refetchShifts }) {
                 savedScrollTop={savedScrollTop}
             />
 
-            <div className="detail-under-calendar">
+            
+
+            {/* ===== КАРТОЧКИ СМЕН (БЕЗ ОБЩЕГО КОНТЕЙНЕРА) ===== */}
+            <div style={{ marginTop: '8px' }}>
                 <Timeline 
                     key={updateKey}
                     shifts={shifts} 
@@ -159,7 +165,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
                 />
             </div>
 
-            {/* ПЛАВАЮЩАЯ КНОПКА (FAB) — только для админа */}
+            {/* ПЛАВАЮЩАЯ КНОПКА (FAB) */}
             {user?.role === 'admin' && (
                 <button 
                     className="fab-add-shift"

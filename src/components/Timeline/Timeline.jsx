@@ -34,18 +34,14 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
         return site && site.address ? site.address : null
     }
 
-    // ===== ИСПРАВЛЕННАЯ ФУНКЦИЯ =====
     const getWorkerName = (workerId) => {
         if (!workerId) return 'Неизвестный работник'
-        // Ищем по ID (число или строка)
         const worker = workers.find(w => w.id === workerId || w.id === Number(workerId))
         return worker ? worker.name : 'Неизвестный работник'
     }
 
-    // ===== ДОБАВЛЯЕМ ПРОВЕРКУ ДЛЯ АВАТАРКИ =====
     const getWorkerAvatarData = (workerName) => {
         if (!workerName) return null
-        // Ищем работника по имени
         const worker = workers.find(w => w.name === workerName)
         return worker ? getAvatar(workerName) : null
     }
@@ -101,20 +97,38 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                         opacity: isReady ? 1 : 0,
                         transform: isReady ? 'translateY(0)' : 'translateY(8px)',
                         transition: 'opacity 0.3s ease, transform 0.3s ease',
-                        borderLeft: `8px solid ${color}`,
                         borderRadius: '12px',
-                        paddingLeft: '14px'
+                        padding: '16px',
+                        backgroundColor: 'white',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                        marginBottom: '12px'
                     }}
                 >
-                    <div className="card-header" style={{ marginBottom: '10px' }}>
-                        <span className="card-title" style={{ fontSize: '16px', fontWeight: 600 }}>
+                    {/* Заголовок с цветным прямоугольником */}
+                    <div className="card-header" style={{ 
+                        marginBottom: '12px', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px',
+                        flexWrap: 'wrap'
+                    }}>
+                        <span style={{
+                            display: 'inline-block',
+                            backgroundColor: color,
+                            color: 'white',
+                            fontWeight: 700,
+                            fontSize: '15px',
+                            padding: '4px 14px',
+                            borderRadius: '8px',
+                            textShadow: '0 1px 4px rgba(0,0,0,0.3)',
+                            whiteSpace: 'nowrap'
+                        }}>
                             {data.siteName}
                         </span>
                         {data.siteAddress && (
                             <span style={{ 
                                 fontSize: '13px', 
                                 color: '#888', 
-                                marginLeft: '8px',
                                 fontWeight: 400
                             }}>
                                 {data.siteAddress}
@@ -122,9 +136,10 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                         )}
                     </div>
 
+                    {/* Аватарки работников */}
                     <div style={{ 
                         display: 'flex', 
-                        gap: '12px', 
+                        gap: '10px', 
                         flexWrap: 'wrap',
                         alignItems: 'center'
                     }}>
@@ -148,14 +163,14 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                                     }}
                                 >
                                     <div style={{
-                                        width: '44px',
-                                        height: '44px',
+                                        width: '60px',
+                                        height: '60px',
                                         borderRadius: '50%',
                                         backgroundColor: hasPhoto ? 'transparent' : avatarColor,
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        fontSize: '18px',
+                                        fontSize: '22px',
                                         fontWeight: 600,
                                         color: 'white',
                                         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
@@ -188,7 +203,7 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                                         fontSize: '10px',
                                         color: '#555',
                                         textAlign: 'center',
-                                        maxWidth: '50px',
+                                        maxWidth: '60px',
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
                                         whiteSpace: 'nowrap'
