@@ -1,0 +1,309 @@
+/* ============================================================
+   СТРАНИЦА "МОЙ ТАБЕЛЬ"
+   ============================================================ */
+
+.myTabelPage {
+    animation: fadeIn 0.25s ease;
+    padding-bottom: var(--spacing-lg);
+}
+
+.myTabelHeader {
+    padding: var(--spacing-md) 0 var(--spacing-lg) 0;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: var(--spacing-lg);
+}
+
+.myTabelTitle {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.myTabelUserInfo {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.myTabelAvatarSmall {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.myTabelName {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.myTabelRole {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+}
+
+.myTabelContent {
+    padding: 0 var(--spacing-xs);
+}
+
+/* ============================================================
+   НЕДЕЛЯ
+   ============================================================ */
+
+.myTabelWeekSection {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md) var(--spacing-lg) var(--spacing-lg) var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--spacing-lg);
+}
+
+.myTabelWeekNav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.myTabelNavGroup {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.myTabelNavBtn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    cursor: pointer;
+    color: var(--text-secondary);
+    border-radius: 6px;
+    transition: var(--transition-normal);
+    font-family: inherit;
+}
+
+.myTabelNavBtn:hover {
+    background: #f0f0f0;
+}
+
+.myTabelWeekLabel {
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    color: var(--text-primary);
+    padding: 0 var(--spacing-sm);
+    min-width: 140px;
+    text-align: center;
+}
+
+.myTabelTodayBtn {
+    background: none;
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
+    padding: 2px 12px;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: var(--transition-normal);
+}
+
+.myTabelTodayBtn:hover {
+    background: var(--color-primary);
+    color: white;
+}
+
+.myTabelWeekDays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--spacing-xs);
+}
+
+.myTabelWeekDay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-xs);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    border: 2px solid transparent;
+}
+
+.myTabelWeekDay:hover {
+    background: var(--bg-body);
+}
+
+.myTabelWeekDay.today {
+    border-color: var(--color-primary);
+}
+
+.myTabelWeekDay.selected {
+    background: var(--color-primary);
+}
+
+.myTabelWeekDay.selected .myTabelWeekDayName,
+.myTabelWeekDay.selected .myTabelWeekDayNumber {
+    color: white;
+}
+
+.myTabelWeekDay.today .myTabelWeekDayNumber {
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+.myTabelWeekDay.selected.today .myTabelWeekDayNumber {
+    color: white;
+}
+
+.myTabelWeekDayName {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.myTabelWeekDayNumber {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.myTabelWeekDayDots {
+    display: flex;
+    gap: 2px;
+    margin-top: 2px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.myTabelWeekDayDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+/* ============================================================
+   ДЕТАЛЬНЫЙ ПРОСМОТР ДНЯ
+   ============================================================ */
+
+.myTabelBackBtn {
+    background: none;
+    border: none;
+    font-size: var(--font-size-lg);
+    color: var(--color-primary);
+    cursor: pointer;
+    padding: var(--spacing-xs) 0;
+    font-weight: 500;
+    font-family: inherit;
+}
+
+.myTabelDetailTitle {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.myTabelDetailContent {
+    padding: 0 var(--spacing-xs);
+}
+
+.myTabelDetailShifts {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.myTabelDetailLabel {
+    font-size: var(--font-size-md);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.myTabelDetailShiftItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.myTabelDetailShiftItem:last-child {
+    border-bottom: none;
+}
+
+.myTabelDetailShiftDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.myTabelDetailShiftSite {
+    flex: 1;
+    font-size: var(--font-size-md);
+    color: var(--text-primary);
+}
+
+.myTabelDetailShiftHours {
+    font-size: 13px;
+    color: var(--text-light);
+}
+
+.myTabelDetailEmpty {
+    padding: var(--spacing-md) 0;
+    color: var(--text-muted);
+    font-size: var(--font-size-md);
+    text-align: center;
+}
+
+.myTabelDetailNote {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.myTabelDetailTextarea {
+    width: 100%;
+    padding: 10px var(--spacing-md);
+    border: 1.5px solid var(--border-input);
+    border-radius: 10px;
+    font-size: var(--font-size-md);
+    font-family: inherit;
+    resize: vertical;
+    transition: var(--transition-normal);
+    background: var(--bg-input);
+    color: var(--text-primary);
+}
+
+.myTabelDetailTextarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+/* ============================================================
+   АДАПТИВ
+   ============================================================ */
+
+@media (max-width: 400px) {
+    .myTabelWeekLabel {
+        font-size: var(--font-size-sm);
+        min-width: 100px;
+    }
+    
+    .myTabelWeekDayNumber {
+        font-size: 15px;
+    }
+}
