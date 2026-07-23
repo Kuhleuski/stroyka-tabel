@@ -1,14 +1,14 @@
 /* ============================================================
-   ГЛОБАЛЬНЫЕ СТИЛИ
+   ГЛОБАЛЬНЫЕ СТИЛИ (не модульные)
    ============================================================ */
 
-* {
+:global(*) {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-body {
+:global(body) {
     font-family: var(--font-family);
     background: var(--bg-body);
     color: var(--text-primary);
@@ -16,12 +16,12 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
-.app {
+:global(.app) {
     max-width: var(--max-width);
     margin: 0 auto;
 }
 
-.container {
+:global(.container) {
     padding: var(--spacing-lg);
 }
 
@@ -151,13 +151,13 @@ body {
    ============================================================ */
 
 @media (max-width: 640px) {
-    .container {
+    :global(.container) {
         padding: var(--spacing-md);
     }
 }
 
 @media (max-width: 400px) {
-    .headerBrand .title {
+    :global(.header-brand .title) {
         font-size: 17px;
     }
 }
