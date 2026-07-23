@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { MONTHS, getMonthDays, formatDateLocal, isToday as isTodayUtil } from '../../utils/dateHelpers'
+import styles from '../../styles/calendar.module.css'
 
 // Компонент одного дня в ленте
 const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelected, isToday }) => {
@@ -26,7 +27,7 @@ const FeedItem = ({ day, shifts, selectedDate, onDayClick, getDayShifts, isSelec
     
     return (
         <div 
-            className={`feed-item ${today ? 'today' : ''} ${selected ? 'selected' : ''}`}
+            className={`${styles.feedItem} ${today ? styles.today : ''} ${selected ? styles.selected : ''}`}
             onClick={() => onDayClick(day.date)}
             data-date={formatDateLocal(day.date)}
             style={{ display: 'block', width: '100%' }}
@@ -75,8 +76,8 @@ const MonthDivider = ({ month, year }) => {
     const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
                         'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
     return (
-        <div className="feed-month-divider">
-            <span className="feed-month-label">{monthNames[month]} {year}</span>
+        <div className={styles.feedMonthDivider}>
+            <span className={styles.feedMonthLabel}>{monthNames[month]} {year}</span>
         </div>
     )
 }
@@ -154,16 +155,16 @@ const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
 
     return (
         <div
-            className={`day-cell ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
+            className={`${styles.dayCell} ${isToday ? styles.today : ''} ${isSelected ? styles.selected : ''}`}
             onClick={onClick}
             style={{ ...backgroundStyle, ...isSelectedStyle }}
         >
-            <div className="day-number" style={{ color: numberColor, fontWeight: numberWeight }}>{day.day}</div>
+            <div className={styles.dayNumber} style={{ color: numberColor, fontWeight: numberWeight }}>{day.day}</div>
             {hasWork && showPlus && (
-                <div className="day-plus" style={{ color: '#1a1a1a' }}>+</div>
+                <div className={styles.dayPlus} style={{ color: '#1a1a1a' }}>+</div>
             )}
             {dayShifts.length > 0 && !hasWork && (
-                <div className="day-count">{dayShifts.length}</div>
+                <div className={styles.dayCount}>{dayShifts.length}</div>
             )}
         </div>
     )
@@ -410,17 +411,17 @@ export function Calendar({
 
     return (
         <>
-            <div className={`calendar-wrapper ${mode === 'feed' ? 'feed-mode' : ''}`}>
-                <div className="calendar-header">
+            <div className={`${styles.calendarWrapper} ${mode === 'feed' ? styles.feedMode : ''}`}>
+                <div className={styles.calendarHeader}>
                     {mode !== 'feed' && (
                         <>
-                            <button className="calendar-nav-btn" onClick={handlePrev}>‹</button>
-                            <span className="month-title">{getTitle(displayDate)}</span>
-                            <button className="calendar-nav-btn" onClick={handleNext}>›</button>
+                            <button className={styles.calendarNavBtn} onClick={handlePrev}>‹</button>
+                            <span className={styles.monthTitle}>{getTitle(displayDate)}</span>
+                            <button className={styles.calendarNavBtn} onClick={handleNext}>›</button>
                         </>
                     )}
                     {mode === 'feed' && (
-                        <span className="month-title" style={{ visibility: 'hidden' }}>—</span>
+                        <span className={styles.monthTitle} style={{ visibility: 'hidden' }}>—</span>
                     )}
                 </div>
                 
@@ -428,7 +429,7 @@ export function Calendar({
                     <div 
                         key={feedKey}
                         ref={containerRef}
-                        className="feed-container"
+                        className={styles.feedContainer}
                         style={{ height: '65vh', overflowY: 'auto' }}
                     >
                         <div
@@ -473,14 +474,14 @@ export function Calendar({
                         </div>
                     </div>
                 ) : (
-                    <div className="calendar-grid">
+                    <div className={styles.calendarGrid}>
                         {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
-                            <div key={day} className="day-label">{day}</div>
+                            <div key={day} className={styles.dayLabel}>{day}</div>
                         ))}
                         
                         {getMonthDays(displayDate.getFullYear(), displayDate.getMonth()).map((day, index) => {
                             if (day.empty) {
-                                return <div key={`empty-${index}`} className="day-cell empty"></div>
+                                return <div key={`empty-${index}`} className={`${styles.dayCell} ${styles.empty}`}></div>
                             }
 
                             const dayShifts = getDayShifts(day.date)
