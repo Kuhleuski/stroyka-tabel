@@ -5,6 +5,9 @@ import { SiteDetailPage } from './SiteDetailPage'
 import { addSite, deleteSite } from '../services/supabase'
 import { useSites } from '../hooks/useSites'
 import { Plus } from 'lucide-react'
+import styles from '../styles/sites.module.css'
+import globalsStyles from '../styles/globals.module.css'
+import compStyles from '../styles/components.module.css'
 
 // === ПЛОСКАЯ ИКОНКА ===
 const SitesIcon = () => (
@@ -63,15 +66,15 @@ export function SitesPage({ onAddSite }) {
     }
 
     if (loading) {
-        return <div className="loading-text">⏳ Загрузка...</div>
+        return <div className={globalsStyles.loadingText}>⏳ Загрузка...</div>
     }
 
     if (error) {
         return (
-            <div className="error-container">
-                <div className="error-icon">❌</div>
-                <div className="error-text">Ошибка загрузки объектов</div>
-                <div className="error-detail">{error}</div>
+            <div className={globalsStyles.errorContainer}>
+                <div className={globalsStyles.errorIcon}>❌</div>
+                <div className={globalsStyles.errorText}>Ошибка загрузки объектов</div>
+                <div className={globalsStyles.errorDetail}>{error}</div>
             </div>
         )
     }
@@ -97,16 +100,16 @@ export function SitesPage({ onAddSite }) {
 
     return (
         <>
-            <div className="page-header">
+            <div className={styles.pageHeader}>
                 <div>
-                    <div className="page-title">
+                    <div className={styles.pageTitle}>
                         <SitesIcon />
                         Объекты
                     </div>
-                    <div className="page-subtitle">Все объекты</div>
+                    <div className={styles.pageSubtitle}>Все объекты</div>
                 </div>
                 <button 
-                    className="add-site-btn"
+                    className={styles.addSiteBtn}
                     onClick={handleOpenAddForm}
                 >
                     + Добавить объект
@@ -120,7 +123,7 @@ export function SitesPage({ onAddSite }) {
 
             {/* ПЛАВАЮЩАЯ КНОПКА (FAB) */}
             <button 
-                className="fab-add-site"
+                className={styles.fabAddSite}
                 onClick={handleOpenAddForm}
                 aria-label="Добавить объект"
             >
