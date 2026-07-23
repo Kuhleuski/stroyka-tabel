@@ -13,7 +13,6 @@ import { ExtraPage } from './pages/ExtraPage'
 import { LoginPage } from './pages/LoginPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { NotificationsPage } from './pages/NotificationsPage'
-import globalsStyles from './styles/globals.module.css'
 import layoutStyles from './styles/layout.module.css'
 import compStyles from './styles/components.module.css'
 
