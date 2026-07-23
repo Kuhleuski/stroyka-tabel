@@ -890,3 +890,42 @@
         font-size: var(--font-size-sm);
     }
 }
+/* ============================================================
+   ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ
+   ============================================================ */
+
+.themeToggleWrapper {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.themeToggleBtn {
+    flex: 1;
+    padding: 8px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.25s ease;
+}
+
+.themeToggleBtn:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+}
+
+.themeToggleBtn.active {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+.themeToggleBtn:active {
+    transform: scale(0.97);
+}
