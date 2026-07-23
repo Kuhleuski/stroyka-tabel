@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { formatDateLocal } from '../../utils/dateHelpers'
 import { useAvatars } from '../../context/AvatarContext'
+import styles from '../../styles/timeline.module.css'
 
 export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hideHeader }) {
     const [isReady, setIsReady] = useState(false)
@@ -60,9 +61,9 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
     const renderContent = () => {
         if (dayShifts.length === 0) {
             return (
-                <div className="card empty-state">
-                    <div className="empty-icon">📭</div>
-                    <div className="empty-text">В этот день никто не работал</div>
+                <div className={styles.emptyState}>
+                    <div className={styles.emptyIcon}>📭</div>
+                    <div className={styles.emptyText}>В этот день никто не работал</div>
                 </div>
             )
         }
@@ -92,7 +93,7 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
             return (
                 <div 
                     key={siteId} 
-                    className="card timeline-card"
+                    className={styles.timelineCard}
                     style={{
                         opacity: isReady ? 1 : 0,
                         transform: isReady ? 'translateY(0)' : 'translateY(8px)',
@@ -105,7 +106,7 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
                     }}
                 >
                     {/* Заголовок с цветным прямоугольником */}
-                    <div className="card-header" style={{ 
+                    <div className={styles.cardHeader} style={{ 
                         marginBottom: '12px', 
                         display: 'flex', 
                         alignItems: 'center', 
@@ -224,12 +225,12 @@ export function Timeline({ shifts, sites = [], date, onClose, isFullscreen, hide
     }
 
     return (
-        <div className="timeline-mini">
-            <div className="timeline-mini-header">
-                <span className="timeline-mini-date">
+        <div className={styles.timelineMini}>
+            <div className={styles.timelineMiniHeader}>
+                <span className={styles.timelineMiniDate}>
                     {date.getDate()} {['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'][date.getMonth()]} {date.getFullYear()}
                 </span>
-                <span className="timeline-mini-count">
+                <span className={styles.timelineMiniCount}>
                     {dayShifts.length} {dayShifts.length === 1 ? 'смена' : 'смен'}
                 </span>
             </div>
