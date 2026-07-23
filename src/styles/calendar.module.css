@@ -1,0 +1,278 @@
+/* ============================================================
+   КНОПКИ ПЕРЕКЛЮЧЕНИЯ РЕЖИМОВ
+   ============================================================ */
+
+.viewModeWrapper {
+    padding: 0 0 var(--spacing-md) 0;
+    margin-bottom: var(--spacing-xs);
+}
+
+.viewModeButtons {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: flex-start;
+}
+
+.viewModeBtn {
+    padding: var(--spacing-sm) var(--spacing-xl);
+    border: 1.5px solid #e0e0e0;
+    background: white;
+    border-radius: 24px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #666;
+    cursor: pointer;
+    transition: var(--transition-normal);
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+.viewModeBtn.active {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+.viewModeBtn:hover:not(.active) {
+    background: var(--bg-body);
+}
+
+/* ============================================================
+   КАЛЕНДАРЬ
+   ============================================================ */
+
+.calendarWrapper {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.calendarWrapper.feedMode {
+    background: var(--bg-card);
+    border-radius: 0;
+    padding: 0 0 0 var(--spacing-sm);
+    margin: 0 -16px 0 -16px;
+    box-shadow: none;
+    width: calc(100% + 32px);
+}
+
+.calendarWrapper.feedMode .calendarHeader {
+    padding: var(--spacing-md) var(--spacing-lg) 0 var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+}
+
+.calendarWrapper.feedMode .feedContainer {
+    padding: 0 var(--spacing-lg) var(--spacing-sm) var(--spacing-sm);
+}
+
+.calendarHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.calendarHeader .monthTitle {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.calendarNavBtn {
+    background: none;
+    border: none;
+    font-size: 28px;
+    font-weight: 300;
+    padding: var(--spacing-xs) var(--spacing-lg);
+    cursor: pointer;
+    border-radius: 10px;
+    transition: var(--transition-normal);
+    font-family: inherit;
+    line-height: 1;
+    color: var(--text-primary);
+}
+
+.calendarNavBtn:hover {
+    background: #f0f0f0;
+}
+
+/* ============================================================
+   РЕЖИМ "МЕСЯЦ"
+   ============================================================ */
+
+.calendarGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--spacing-xs);
+}
+
+.dayLabel {
+    text-align: center;
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    padding: 6px 0;
+    font-weight: 600;
+}
+
+.dayCell {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    position: relative;
+    padding: var(--spacing-xs);
+    user-select: none;
+}
+
+.dayCell.empty {
+    cursor: default;
+}
+
+.dayCell .dayNumber {
+    font-size: var(--font-size-lg);
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.dayCell.today .dayNumber {
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+.dayCell.selected {
+    background: var(--color-primary);
+}
+
+.dayCell.selected .dayNumber {
+    color: white;
+}
+
+.dayCell.hasWork {
+    background: var(--color-primary-bg);
+}
+
+.dayCell.hasWork.selected {
+    background: var(--color-primary);
+}
+
+.dayCell .dayDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    margin-top: 2px;
+}
+
+.dayCell.selected .dayDot {
+    background: white;
+}
+
+.dayCell .dayCount {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: 9px;
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+.dayCell.selected .dayCount {
+    color: white;
+}
+
+.dayPlus {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================================
+   РЕЖИМ "ДЕНЬ"
+   ============================================================ */
+
+.feedContainer {
+    padding: 0 var(--spacing-sm) var(--spacing-sm) var(--spacing-sm);
+    overflow-y: auto;
+}
+
+.feedItem {
+    padding: var(--spacing-sm) 10px;
+    margin-bottom: 2px;
+    background: var(--bg-card);
+    border-radius: 6px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+}
+
+.feedItem.today {
+    background: #f5faf6;
+}
+
+.feedItem.selected {
+    border-left-color: var(--color-primary);
+    background: var(--color-primary-light);
+}
+
+/* ============================================================
+   РАЗДЕЛИТЕЛЬ МЕСЯЦЕВ
+   ============================================================ */
+
+.feedMonthDivider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-sm) 0 var(--spacing-xs) 0;
+    position: relative;
+}
+
+.feedMonthDivider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 0px;
+    background: var(--border-color);
+    transform: translateY(-50%);
+}
+
+.feedMonthLabel {
+    background: var(--bg-card);
+    padding: 0 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    position: relative;
+    z-index: 1;
+}
+
+/* ============================================================
+   АДАПТИВ КАЛЕНДАРЯ
+   ============================================================ */
+
+@media (max-width: 640px) {
+    .calendarWrapper {
+        padding: var(--spacing-md);
+    }
+}
+
+@media (max-width: 400px) {
+    .viewModeBtn {
+        padding: 6px 14px;
+        font-size: 13px;
+    }
+    
+    .dayCell .dayNumber {
+        font-size: var(--font-size-md);
+    }
+}
