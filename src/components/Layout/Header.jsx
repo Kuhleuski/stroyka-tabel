@@ -1,4 +1,5 @@
 import { useAuth } from '../../context/AuthContext'
+import styles from '../../styles/layout.module.css'
 
 export function Header({ onLogout, onSettings, onNotifications, unreadCount }) {
     const { user } = useAuth()
@@ -12,8 +13,8 @@ export function Header({ onLogout, onSettings, onNotifications, unreadCount }) {
     const isAdmin = user?.role === 'admin'
 
     return (
-        <header className="header">
-            <div className="header-brand">
+        <header className={styles.header}>
+            <div className={styles.headerBrand}>
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="28"
@@ -24,7 +25,7 @@ export function Header({ onLogout, onSettings, onNotifications, unreadCount }) {
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="logo-icon"
+                    className={styles.logoIcon}
                 >
                     <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
                     <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
@@ -32,13 +33,13 @@ export function Header({ onLogout, onSettings, onNotifications, unreadCount }) {
                     <line x1="8" y1="15" x2="16" y2="15" />
                     <line x1="8" y1="19" x2="12" y2="19" />
                 </svg>
-                <span className="title">Табель</span>
+                <span className={styles.title}>Табель</span>
             </div>
-            <div className="header-actions">
+            <div className={styles.headerActions}>
                 {/* Уведомления только для админа */}
                 {isAdmin && (
                     <button 
-                        className="header-notifications-btn"
+                        className={styles.headerNotificationsBtn}
                         onClick={onNotifications}
                         aria-label="Уведомления"
                     >
@@ -57,18 +58,18 @@ export function Header({ onLogout, onSettings, onNotifications, unreadCount }) {
                             <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                         </svg>
                         {unreadCount > 0 && (
-                            <span className="header-notifications-badge">{unreadCount}</span>
+                            <span className={styles.headerNotificationsBadge}>{unreadCount}</span>
                         )}
                     </button>
                 )}
-                <div className="header-user">
-                    <div className="header-avatar">
+                <div className={styles.headerUser}>
+                    <div className={styles.headerAvatar}>
                         {getInitial(user.name)}
                     </div>
-                    <span className="header-user-name">{user.name}</span>
+                    <span className={styles.headerUserName}>{user.name}</span>
                 </div>
                 <button 
-                    className="header-settings-btn"
+                    className={styles.headerSettingsBtn}
                     onClick={onSettings}
                     aria-label="Настройки"
                 >
