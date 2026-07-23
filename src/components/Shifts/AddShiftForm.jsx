@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { addShift } from '../../services/supabase'
 import { formatDateLocal } from '../../utils/dateHelpers'
+import styles from '../../styles/shifts.module.css'
 
 export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers }) => {
   const [selectedSite, setSelectedSite] = useState(null)
@@ -89,28 +90,28 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
   }
 
   return (
-    <div className="shift-form-screen">
+    <div className={styles.shiftFormScreen}>
       {/* Шапка */}
-      <div className="shift-form-header">
-        <button onClick={onClose} className="shift-form-back">
+      <div className={styles.shiftFormHeader}>
+        <button onClick={onClose} className={styles.shiftFormBack}>
           <ArrowLeft size={24} />
           <span>Назад</span>
         </button>
-        <span className="shift-form-title" style={{ flex: 1, textAlign: 'center' }}>
+        <span className={styles.shiftFormTitle} style={{ flex: 1, textAlign: 'center' }}>
           Новая смена на {formatDate(selectedDate)}
         </span>
         <div style={{ width: '60px' }} /> {/* Пустой блок для баланса */}
       </div>
 
-      <form id="shift-form" onSubmit={handleSubmit} className="shift-form-body">
+      <form id="shift-form" onSubmit={handleSubmit} className={styles.shiftFormBody}>
         {/* БЛОК: ОБЪЕКТЫ */}
-        <div className="shift-form-block">
-          <label className="shift-form-label" style={{ fontSize: '16px', fontWeight: 600, marginBottom: '12px' }}>
+        <div className={styles.shiftFormBlock}>
+          <label className={styles.shiftFormLabel} style={{ fontSize: '16px', fontWeight: 600, marginBottom: '12px' }}>
             Выберите объект:
           </label>
-          <div className="shift-sites-grid">
+          <div className={styles.shiftSitesGrid}>
             {sites.length === 0 ? (
-              <div className="shift-form-empty">
+              <div className={styles.shiftFormEmpty}>
                 <p>Нет добавленных объектов</p>
                 <span>Добавьте в разделе "Объекты"</span>
               </div>
@@ -120,7 +121,7 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
                 return (
                   <div key={site.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
                     <div
-                      className={`shift-site-card ${isSelected ? 'selected' : ''}`}
+                      className={`${styles.shiftSiteCard} ${isSelected ? styles.selected : ''}`}
                       onClick={() => handleSiteSelect(site.id)}
                       style={{
                         backgroundColor: site.color || '#2d7d46',
@@ -130,13 +131,13 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
                         width: '100%'
                       }}
                     >
-                      <span className="shift-site-name">{site.name}</span>
+                      <span className={styles.shiftSiteName}>{site.name}</span>
                       {isSelected && (
-                        <div className="shift-site-check">✓</div>
+                        <div className={styles.shiftSiteCheck}>✓</div>
                       )}
                     </div>
                     {site.address && (
-                      <div className="shift-site-address">{site.address}</div>
+                      <div className={styles.shiftSiteAddress}>{site.address}</div>
                     )}
                   </div>
                 )
@@ -146,25 +147,25 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
         </div>
 
         {/* БЛОК: РАБОТНИКИ */}
-        <div className="shift-form-block">
-          <div className="shift-form-workers-header" style={{ marginBottom: '12px' }}>
-            <label className="shift-form-label" style={{ fontSize: '16px', fontWeight: 600 }}>
+        <div className={styles.shiftFormBlock}>
+          <div className={styles.shiftFormWorkersHeader} style={{ marginBottom: '12px' }}>
+            <label className={styles.shiftFormLabel} style={{ fontSize: '16px', fontWeight: 600 }}>
               Кто работал:
             </label>
             {workers.length > 0 && (
               <button 
                 type="button" 
                 onClick={handleSelectAll}
-                className="shift-form-select-all"
+                className={styles.shiftFormSelectAll}
               >
                 {selectedWorkers.length === workers.length ? 'Снять всех' : 'Выбрать всех'}
               </button>
             )}
           </div>
           
-          <div className="shift-workers-grid">
+          <div className={styles.shiftWorkersGrid}>
             {workers.length === 0 ? (
-              <div className="shift-form-empty">
+              <div className={styles.shiftFormEmpty}>
                 <p>Нет добавленных работников</p>
                 <span>Добавьте в разделе "Бригада"</span>
               </div>
@@ -178,13 +179,13 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
                 return (
                   <div
                     key={worker.id}
-                    className={`shift-worker-card ${isSelected ? 'selected' : ''}`}
+                    className={`${styles.shiftWorkerCard} ${isSelected ? styles.selected : ''}`}
                     onClick={() => handleWorkerToggle(worker.id)}
                     style={{
                       borderColor: isSelected ? 'transparent' : 'transparent',
                     }}
                   >
-                    <div className="shift-worker-avatar" style={{
+                    <div className={styles.shiftWorkerAvatar} style={{
                       backgroundColor: hasPhoto ? 'transparent' : avatarColor,
                       border: hasPhoto ? '2px solid #e8eaed' : 'none',
                       overflow: 'hidden',
@@ -211,9 +212,9 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
                         initials
                       )}
                     </div>
-                    <div className="shift-worker-name">{worker.name}</div>
+                    <div className={styles.shiftWorkerName}>{worker.name}</div>
                     {isSelected && (
-                      <div className="shift-worker-check">✓</div>
+                      <div className={styles.shiftWorkerCheck}>✓</div>
                     )}
                   </div>
                 )
@@ -223,17 +224,17 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
         </div>
 
         {/* КНОПКИ */}
-        <div className="shift-form-actions">
+        <div className={styles.shiftFormActions}>
           <button 
             type="submit" 
-            className="shift-form-bottom-btn"
+            className={styles.shiftFormBottomBtn}
             disabled={loading}
           >
             {loading ? '⏳ Сохранение...' : 'Сохранить смену'}
           </button>
           <button 
             type="button" 
-            className="shift-form-cancel-btn"
+            className={styles.shiftFormCancelBtn}
             onClick={onClose}
           >
             Отмена
