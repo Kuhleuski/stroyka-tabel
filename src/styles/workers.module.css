@@ -1,0 +1,207 @@
+/* ============================================================
+   СТРАНИЦА БРИГАДЫ
+   ============================================================ */
+
+.addWorkerBtn {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: var(--spacing-sm) 18px;
+    border-radius: 20px;
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    margin-top: var(--spacing-md);
+    transition: var(--transition-normal);
+    box-shadow: var(--shadow-primary);
+}
+
+.addWorkerBtn:hover {
+    background: var(--color-primary-hover);
+    transform: scale(1.02);
+}
+
+.addWorkerBtn:active {
+    transform: scale(0.97);
+}
+
+/* ============================================================
+   СЕТКА РАБОТНИКОВ (3 в ряд)
+   ============================================================ */
+
+.workersGridContainer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-lg);
+    padding: var(--spacing-xs) 0;
+}
+
+.workerGridCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--spacing-lg) var(--spacing-sm);
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.workerGridCard:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.workerGridCard:active {
+    transform: scale(0.97);
+}
+
+.workerGridAvatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+    margin-bottom: var(--spacing-sm);
+}
+
+.workerGridName {
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    color: var(--text-primary);
+    text-align: center;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ============================================================
+   СТАРЫЙ СПИСОК РАБОТНИКОВ (если используется)
+   ============================================================ */
+
+.workerCard {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    cursor: pointer;
+    transition: var(--transition-normal);
+}
+
+.workerCard:active {
+    transform: scale(0.98);
+}
+
+.workerCardAvatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+}
+
+.workerCardInfo {
+    flex: 1;
+}
+
+.workerCardName {
+    font-size: var(--font-size-lg);
+    font-weight: 500;
+}
+
+.workerCardStats {
+    display: flex;
+    gap: var(--spacing-md);
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: var(--spacing-xs);
+}
+
+.workerCardArrow {
+    color: #ccc;
+    font-size: 18px;
+}
+
+/* ============================================================
+   ПЛАВАЮЩАЯ КНОПКА ДЛЯ БРИГАДЫ
+   ============================================================ */
+
+.fabAddWorker {
+    position: fixed;
+    bottom: 90px;
+    right: 24px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 16px rgba(45, 125, 70, 0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    z-index: var(--z-fab);
+    padding: 0;
+}
+
+.fabAddWorker:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 24px rgba(45, 125, 70, 0.5);
+}
+
+.fabAddWorker:active {
+    transform: scale(0.92);
+}
+
+.fabAddWorker svg {
+    color: white;
+}
+
+/* === АДАПТИВ === */
+@media (max-width: 420px) {
+    .workersGridContainer {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-md);
+    }
+    
+    .workerGridAvatar {
+        width: 56px;
+        height: 56px;
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 400px) {
+    .fabAddWorker {
+        width: 52px;
+        height: 52px;
+        bottom: 80px;
+        right: 16px;
+    }
+    
+    .fabAddWorker svg {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+@media (min-width: 500px) {
+    .fabAddWorker {
+        right: calc(50% - 250px + 24px);
+    }
+}
