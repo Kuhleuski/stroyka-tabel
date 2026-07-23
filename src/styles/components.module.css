@@ -1,0 +1,931 @@
+/* ============================================================
+   МОДАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ
+   ============================================================ */
+
+.confirmOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: var(--z-modal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
+}
+
+.confirmModal {
+    background: var(--bg-card);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-2xl) 28px var(--spacing-xl);
+    max-width: 340px;
+    width: 90%;
+    text-align: center;
+    box-shadow: var(--shadow-xl);
+    animation: slideUp 0.25s ease;
+}
+
+.confirmIcon {
+    font-size: 48px;
+    margin-bottom: var(--spacing-md);
+}
+
+.confirmTitle {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.confirmText {
+    font-size: 15px;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: var(--spacing-xl);
+}
+
+.confirmText strong {
+    color: var(--text-primary);
+}
+
+.confirmButtons {
+    display: flex;
+    gap: 10px;
+}
+
+.confirmBtn {
+    flex: 1;
+    padding: var(--spacing-md);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: var(--transition-normal);
+}
+
+.confirmBtn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.confirmBtn.cancel {
+    background: #f0f0f0;
+    color: var(--text-secondary);
+}
+
+.confirmBtn.cancel:hover:not(:disabled) {
+    background: #e0e0e0;
+}
+
+.confirmBtn.delete {
+    background: #c62828;
+    color: white;
+}
+
+.confirmBtn.delete:hover:not(:disabled) {
+    background: #b71c1c;
+}
+
+/* ============================================================
+   ПАЛИТРА ЦВЕТОВ
+   ============================================================ */
+
+.colorPalette {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-xs);
+}
+
+.colorBtn {
+    width: 100%;
+    aspect-ratio: 1;
+    border: 3px solid transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    padding: 0;
+}
+
+.colorBtn:hover {
+    transform: scale(1.1);
+}
+
+.colorBtn.active {
+    border-color: var(--text-primary);
+    box-shadow: 0 0 0 2px white, 0 0 0 4px var(--text-primary);
+}
+
+/* ============================================================
+   ДЕТАЛЬНЫЙ РЕЖИМ
+   ============================================================ */
+
+.detailScreen {
+    background: var(--bg-body);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding-bottom: var(--spacing-xl);
+    animation: detailSlideUp 0.3s ease;
+}
+
+.detailScreenHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+    min-height: 56px;
+}
+
+.detailScreenTitle {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.detailScreenClose {
+    background: var(--color-primary);
+    border: none;
+    font-size: 28px;
+    font-weight: 400;
+    color: white;
+    cursor: pointer;
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: 30px;
+    transition: var(--transition-normal);
+    line-height: 1.4;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-primary);
+}
+
+.detailScreenClose:hover {
+    background: var(--color-primary-hover);
+    transform: scale(1.05);
+}
+
+.detailScreenClose:active {
+    transform: scale(0.95);
+}
+
+.detailScreenContent {
+    flex: 1;
+    padding: var(--spacing-lg);
+}
+
+/* Кнопка добавления смены в детальном режиме */
+.detailAddShiftWrapper {
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: var(--color-primary-bg);
+    border-bottom: 1px solid #e0e8e2;
+    flex-shrink: 0;
+}
+
+.detailAddShiftBtn {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 10px var(--spacing-xl);
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    width: 100%;
+    justify-content: center;
+    font-family: inherit;
+}
+
+.detailAddShiftBtn:hover {
+    background: var(--color-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-primary-lg);
+}
+
+.detailAddShiftBtn:active {
+    transform: translateY(0);
+}
+
+.detailAddShiftBtn:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+/* ============================================================
+   ПРЕЛОАДЕР ВНУТРИ ДЕТАЛЬНОГО РЕЖИМА
+   ============================================================ */
+
+.detailLoading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px var(--spacing-xl);
+    gap: var(--spacing-lg);
+}
+
+.detailSpinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--border-color);
+    border-top: 3px solid var(--color-primary);
+    border-radius: 50%;
+    animation: savingSpin 0.8s linear infinite;
+}
+
+.detailLoading p {
+    color: var(--text-muted);
+    font-size: 15px;
+    margin: 0;
+}
+
+/* ============================================================
+   ПЛАВАЮЩАЯ КНОПКА (FAB)
+   ============================================================ */
+
+.fabAddShift {
+    position: fixed;
+    bottom: 90px;
+    right: 24px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 16px rgba(45, 125, 70, 0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    z-index: var(--z-fab);
+    padding: 0;
+}
+
+.fabAddShift:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 24px rgba(45, 125, 70, 0.5);
+}
+
+.fabAddShift:active {
+    transform: scale(0.92);
+}
+
+.fabAddShift svg {
+    color: white;
+}
+
+/* ============================================================
+   ПОЛЕ ЗАГРУЗКИ ФОТО
+   ============================================================ */
+
+.addWorkerInput[type="file"] {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.addWorkerInput[type="file"]::-webkit-file-upload-button {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.addWorkerInput[type="file"]::-webkit-file-upload-button:hover {
+    background: var(--color-primary-hover);
+}
+
+/* ============================================================
+   АДАПТИВ ДЛЯ СТРАНИЦ
+   ============================================================ */
+
+.addSitePage,
+.addWorkerPage,
+.siteDetailPage,
+.workerDetailPage,
+.settingsPage,
+.notificationsPage,
+.salaryPage,
+.extraPage {
+    animation: fadeIn 0.25s ease;
+}
+
+.addSiteHeader,
+.addWorkerHeader,
+.siteDetailHeader,
+.workerDetailHeader,
+.settingsHeader,
+.notificationsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-xs) var(--spacing-lg) var(--spacing-xs);
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: var(--spacing-xl);
+}
+
+.addSiteTitle,
+.addWorkerTitle,
+.siteDetailTitle,
+.workerDetailTitle,
+.settingsTitle,
+.notificationsTitle,
+.salaryTitle,
+.extraTitle {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.addSiteBack,
+.addWorkerBack,
+.myTabelBackBtn {
+    background: none;
+    border: none;
+    font-size: var(--font-size-lg);
+    color: var(--color-primary);
+    cursor: pointer;
+    padding: var(--spacing-sm) var(--spacing-xs);
+    font-weight: 500;
+    font-family: inherit;
+}
+
+.addSiteBack:hover,
+.addWorkerBack:hover,
+.myTabelBackBtn:hover {
+    opacity: 0.7;
+}
+
+.addSiteSave,
+.addWorkerSave {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: var(--spacing-sm) var(--spacing-xl);
+    border-radius: 20px;
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: var(--transition-normal);
+}
+
+.addSiteSave:hover:not(:disabled),
+.addWorkerSave:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+}
+
+.addSiteSave:disabled,
+.addWorkerSave:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.addSiteForm,
+.addWorkerForm {
+    padding: 0 var(--spacing-xs);
+}
+
+.addSiteError,
+.addWorkerError {
+    background: #ffebee;
+    color: #c62828;
+    padding: 10px var(--spacing-md);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.addSiteField,
+.addWorkerField {
+    margin-bottom: var(--spacing-xl);
+}
+
+.addSiteLabel,
+.addWorkerLabel {
+    display: block;
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.addSiteInput,
+.addWorkerInput,
+.loginInput,
+.myTabelDetailTextarea {
+    width: 100%;
+    padding: var(--spacing-md) var(--spacing-md);
+    border: 1.5px solid var(--border-input);
+    border-radius: 10px;
+    font-size: var(--font-size-lg);
+    font-family: inherit;
+    transition: var(--transition-normal);
+    background: var(--bg-input);
+    color: var(--text-primary);
+}
+
+.addSiteInput:focus,
+.addWorkerInput:focus,
+.loginInput:focus,
+.myTabelDetailTextarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.addSiteHint,
+.addWorkerHint {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: var(--spacing-sm);
+}
+
+/* ============================================================
+   СТРАНИЦЫ ДОБАВЛЕНИЯ ОБЪЕКТА/РАБОТНИКА
+   ============================================================ */
+
+.addWorkerInput[type="file"] {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.addWorkerInput[type="file"]::-webkit-file-upload-button {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.addWorkerInput[type="file"]::-webkit-file-upload-button:hover {
+    background: var(--color-primary-hover);
+}
+
+/* ============================================================
+   СТРАНИЦЫ SALARY И EXTRA
+   ============================================================ */
+
+.salaryPage,
+.extraPage {
+    animation: fadeIn 0.25s ease;
+}
+
+.salaryHeader,
+.extraHeader {
+    padding: var(--spacing-lg) 0 var(--spacing-md) 0;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: var(--spacing-xl);
+}
+
+.salaryTitle,
+.extraTitle {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.salaryContent,
+.extraContent {
+    padding: 0 var(--spacing-xs);
+}
+
+/* ============================================================
+   УВЕДОМЛЕНИЯ
+   ============================================================ */
+
+.notificationsContent {
+    padding: 0 var(--spacing-xs);
+}
+
+.notificationsEmpty {
+    text-align: center;
+    padding: 60px var(--spacing-xl);
+}
+
+.notificationsEmptyIcon {
+    font-size: 48px;
+    margin-bottom: var(--spacing-md);
+}
+
+.notificationsEmptyText {
+    font-size: var(--font-size-lg);
+    color: var(--text-muted);
+}
+
+.notificationsItem {
+    display: flex;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-md);
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-sm);
+    box-shadow: var(--shadow-sm);
+}
+
+.notificationsItemDot {
+    width: 8px;
+    min-width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    margin-top: 6px;
+}
+
+.notificationsItemContent {
+    flex: 1;
+}
+
+.notificationsItemTitle {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.notificationsItemMessage {
+    font-size: var(--font-size-md);
+    color: #555;
+    margin-top: 2px;
+}
+
+.notificationsItemTime {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    margin-top: var(--spacing-xs);
+}
+
+/* ============================================================
+   СТРАНИЦА НАСТРОЕК
+   ============================================================ */
+
+.settingsContent {
+    padding: 0 var(--spacing-xs);
+}
+
+.settingsAvatarLarge {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--spacing-xl) auto;
+}
+
+.settingsAvatarLetter {
+    font-size: 36px;
+    font-weight: 700;
+    color: white;
+}
+
+.settingsField {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md) 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.settingsField:last-of-type {
+    border-bottom: none;
+}
+
+.settingsLabel {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.settingsValue {
+    font-size: 17px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.settingsLogoutBtn {
+    width: 100%;
+    padding: var(--spacing-md);
+    margin-top: var(--spacing-2xl);
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: var(--transition-normal);
+    box-shadow: var(--shadow-primary);
+}
+
+.settingsLogoutBtn:hover {
+    background: var(--color-primary-hover);
+    transform: scale(1.01);
+}
+
+.settingsLogoutBtn:active {
+    transform: scale(0.97);
+}
+
+/* ============================================================
+   СТРАНИЦА ДЕТАЛЕЙ ОБЪЕКТА/РАБОТНИКА
+   ============================================================ */
+
+.siteDetailContent,
+.workerDetailContent {
+    padding: 0 var(--spacing-xs);
+}
+
+.siteDetailField,
+.workerDetailField {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md) 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.siteDetailField:last-of-type,
+.workerDetailField:last-of-type {
+    border-bottom: none;
+}
+
+.siteDetailLabel,
+.workerDetailLabel {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.siteDetailValue,
+.workerDetailValue {
+    font-size: 17px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.siteDetailHint,
+.workerDetailHint {
+    margin-top: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    background: #f5f5f5;
+    border-radius: 10px;
+    font-size: var(--font-size-md);
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.siteDetailDelete,
+.workerDetailDelete {
+    width: 100%;
+    padding: var(--spacing-md);
+    margin-top: var(--spacing-xl);
+    background: #ffebee;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: var(--transition-normal);
+}
+
+.siteDetailDelete:hover,
+.workerDetailDelete:hover {
+    background: #ffcdd2;
+}
+
+.siteDetailDelete:active,
+.workerDetailDelete:active {
+    transform: scale(0.98);
+}
+
+.siteDetailClose,
+.workerDetailClose,
+.settingsClose,
+.notificationsClose {
+    background: var(--color-primary);
+    border: none;
+    font-size: 28px;
+    font-weight: 400;
+    color: white;
+    cursor: pointer;
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: 30px;
+    transition: var(--transition-normal);
+    line-height: 1.4;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-primary);
+}
+
+.siteDetailClose:hover,
+.workerDetailClose:hover,
+.settingsClose:hover,
+.notificationsClose:hover {
+    background: var(--color-primary-hover);
+    transform: scale(1.05);
+}
+
+.siteDetailClose:active,
+.workerDetailClose:active,
+.settingsClose:active,
+.notificationsClose:active {
+    transform: scale(0.95);
+}
+
+/* ============================================================
+   КАЛЕНДАРЬ РАБОТНИКА
+   ============================================================ */
+
+.workerCalendar {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.workerCalendarHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.workerCalendarTitle {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.workerCalendarNav {
+    background: none;
+    border: none;
+    font-size: 20px;
+    padding: var(--spacing-xs) var(--spacing-md);
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: var(--transition-normal);
+    font-family: inherit;
+}
+
+.workerCalendarNav:hover {
+    background: #f0f0f0;
+    border-radius: var(--radius-sm);
+}
+
+.workerCalendarGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--spacing-xs);
+}
+
+.workerCalendarLabel {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-muted);
+    padding: 6px 0;
+    font-weight: 600;
+}
+
+.workerCalendarCell {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    position: relative;
+    padding: var(--spacing-xs);
+    user-select: none;
+}
+
+.workerCalendarCell.empty {
+    cursor: default;
+}
+
+.workerCalendarDay {
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.workerCalendarCell.today .workerCalendarDay {
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+.workerCalendarCell.selected {
+    background: var(--color-primary);
+}
+
+.workerCalendarCell.selected .workerCalendarDay {
+    color: white;
+}
+
+.workerCalendarCell.hasShift {
+    background: var(--color-primary-light);
+}
+
+.workerCalendarCell.hasShift.selected {
+    background: var(--color-primary);
+}
+
+.workerCalendarDot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    margin-top: 1px;
+}
+
+.workerCalendarCell.selected .workerCalendarDot {
+    background: white;
+}
+
+.workerCalendarStats {
+    margin-top: var(--spacing-md);
+    padding: 10px 0 var(--spacing-xs) 0;
+    border-top: 1px solid var(--border-light);
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+@media (max-width: 400px) {
+    .workerCalendar {
+        padding: var(--spacing-md);
+    }
+    
+    .workerCalendarDay {
+        font-size: var(--font-size-sm);
+    }
+}
+/* ============================================================
+   ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ
+   ============================================================ */
+
+.themeToggleWrapper {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.themeToggleBtn {
+    flex: 1;
+    padding: 8px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.25s ease;
+}
+
+.themeToggleBtn:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+}
+
+.themeToggleBtn.active {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+.themeToggleBtn:active {
+    transform: scale(0.97);
+}

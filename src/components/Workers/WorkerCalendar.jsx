@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { MONTHS, getMonthDays, isToday as checkIsToday, formatDate } from '../../utils/dateHelpers'
+import styles from '../../styles/workers.module.css'
+import calendarStyles from '../../styles/calendar.module.css'
 
 export function WorkerCalendar({ shifts, workerName }) {
     const [currentDate, setCurrentDate] = useState(new Date())
@@ -54,23 +56,23 @@ export function WorkerCalendar({ shifts, workerName }) {
     }
 
     return (
-        <div className="worker-calendar">
-            <div className="worker-calendar-header">
-                <button className="worker-calendar-nav" onClick={handlePrevMonth}>‹</button>
-                <span className="worker-calendar-title">
+        <div className={styles.workerCalendar}>
+            <div className={styles.workerCalendarHeader}>
+                <button className={styles.workerCalendarNav} onClick={handlePrevMonth}>‹</button>
+                <span className={styles.workerCalendarTitle}>
                     {MONTHS[month]} {year}
                 </span>
-                <button className="worker-calendar-nav" onClick={handleNextMonth}>›</button>
+                <button className={styles.workerCalendarNav} onClick={handleNextMonth}>›</button>
             </div>
             
-            <div className="worker-calendar-grid">
+            <div className={styles.workerCalendarGrid}>
                 {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
-                    <div key={day} className="worker-calendar-label">{day}</div>
+                    <div key={day} className={styles.workerCalendarLabel}>{day}</div>
                 ))}
                 
                 {days.map((day, index) => {
                     if (day.empty) {
-                        return <div key={`empty-${index}`} className="worker-calendar-cell empty"></div>
+                        return <div key={`empty-${index}`} className={`${styles.workerCalendarCell} ${styles.empty}`}></div>
                     }
                     
                     const hasShift = isShiftDay(day.date)
@@ -80,18 +82,18 @@ export function WorkerCalendar({ shifts, workerName }) {
                     return (
                         <div 
                             key={index}
-                            className={`worker-calendar-cell ${today ? 'today' : ''} ${selected ? 'selected' : ''} ${hasShift ? 'has-shift' : ''}`}
+                            className={`${styles.workerCalendarCell} ${today ? styles.today : ''} ${selected ? styles.selected : ''} ${hasShift ? styles.hasShift : ''}`}
                             onClick={() => handleDayClick(day.date)}
                         >
-                            <span className="worker-calendar-day">{day.day}</span>
-                            {hasShift && <span className="worker-calendar-dot"></span>}
+                            <span className={styles.workerCalendarDay}>{day.day}</span>
+                            {hasShift && <span className={styles.workerCalendarDot}></span>}
                         </div>
                     )
                 })}
             </div>
             
             {shiftDates.size > 0 && (
-                <div className="worker-calendar-stats">
+                <div className={styles.workerCalendarStats}>
                     <span>📋 Всего смен: {shiftDates.size}</span>
                 </div>
             )}

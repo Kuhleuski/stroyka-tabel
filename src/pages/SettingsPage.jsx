@@ -1,7 +1,24 @@
+import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
+import styles from '../styles/components.module.css'
 
 export function SettingsPage({ onClose, onLogout }) {
     const { user } = useAuth()
+    
+    // === ТЕМА ===
+    const [theme, setTheme] = useState(() => {
+        return localStorage.getItem('theme') || 'light'
+    })
+
+    // Применяем тему при загрузке и при изменении
+    useEffect(() => {
+        document.documentElement.setAttribute('data-theme', theme)
+        localStorage.setItem('theme', theme)
+    }, [theme])
+
+    const toggleTheme = () => {
+        setTheme(prev => prev === 'light' ? 'dark' : 'light')
+    }
 
     const handleLogout = () => {
         if (window.confirm('Вы уверены, что хотите выйти?')) {
@@ -15,32 +32,51 @@ export function SettingsPage({ onClose, onLogout }) {
     }
 
     return (
-        <div className="settings-page">
-            <div className="settings-header">
-                <span className="settings-title">⚙️ Настройки</span>
-                <button className="settings-close" onClick={onClose}>
+        <div className={styles.settingsPage}>
+            <div className={styles.settingsHeader}>
+                <span className={styles.settingsTitle}>⚙️ Настройки</span>
+                <button className={styles.settingsClose} onClick={onClose}>
                     ✕
                 </button>
             </div>
 
-            <div className="settings-content">
-                <div className="settings-avatar-large">
-                    <span className="settings-avatar-letter">
+            <div className={styles.settingsContent}>
+                <div className={styles.settingsAvatarLarge}>
+                    <span className={styles.settingsAvatarLetter}>
                         {user.name.charAt(0).toUpperCase()}
                     </span>
                 </div>
 
-                <div className="settings-field">
-                    <span className="settings-label">Имя</span>
-                    <span className="settings-value">{user.name}</span>
+                <div className={styles.settingsField}>
+                    <span className={styles.settingsLabel}>Имя</span>
+                    <span className={styles.settingsValue}>{user.name}</span>
                 </div>
 
-                <div className="settings-field">
-                    <span className="settings-label">Роль</span>
-                    <span className="settings-value">{roleLabels[user.role] || user.role}</span>
+                <div className={styles.settingsField}>
+                    <span className={styles.settingsLabel}>Роль</span>
+                    <span className={styles.settingsValue}>{roleLabels[user.role] || user.role}</span>
                 </div>
 
-                <button className="settings-logout-btn" onClick={handleLogout}>
+                {/* === ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ === */}
+                <div className={styles.settingsField}>
+                    <span className={styles.settingsLabel}>Тема</span>
+                    <div className={styles.themeToggleWrapper}>
+                        <button 
+                            className={`${styles.themeToggleBtn} ${theme === 'light' ? styles.active : ''}`}
+                            onClick={() => setTheme('light')}
+                        >
+                            ☀️ Светлая
+                        </button>
+                        <button 
+                            className={`${styles.themeToggleBtn} ${theme === 'dark' ? styles.active : ''}`}
+                            onClick={() => setTheme('dark')}
+                        >
+                            🌙 Тёмная
+                        </button>
+                    </div>
+                </div>
+
+                <button className={styles.settingsLogoutBtn} onClick={handleLogout}>
                     Выйти из аккаунта
                 </button>
             </div>

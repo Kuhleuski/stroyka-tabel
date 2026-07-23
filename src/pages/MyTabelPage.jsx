@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import styles from '../styles/my-tabel.module.css'
 
 export function MyTabelPage({ shifts }) {
     const { user } = useAuth()
@@ -89,39 +90,39 @@ export function MyTabelPage({ shifts }) {
     // Детальный просмотр дня
     if (showDayDetail && selectedDate) {
         return (
-            <div className="my-tabel-page">
-                <div className="my-tabel-header">
-                    <button className="my-tabel-back-btn" onClick={handleCloseDetail}>
+            <div className={styles.myTabelPage}>
+                <div className={styles.myTabelHeader}>
+                    <button className={styles.myTabelBackBtn} onClick={handleCloseDetail}>
                         ← Назад
                     </button>
-                    <span className="my-tabel-detail-title">
+                    <span className={styles.myTabelDetailTitle}>
                         {formatDate(selectedDate)}
                     </span>
                 </div>
 
-                <div className="my-tabel-detail-content">
-                    <div className="my-tabel-detail-shifts">
-                        <div className="my-tabel-detail-label">📍 Объекты</div>
+                <div className={styles.myTabelDetailContent}>
+                    <div className={styles.myTabelDetailShifts}>
+                        <div className={styles.myTabelDetailLabel}>📍 Объекты</div>
                         {selectedDayShifts.length > 0 ? (
                             selectedDayShifts.map((s, idx) => (
-                                <div key={idx} className="my-tabel-detail-shift-item">
+                                <div key={idx} className={styles.myTabelDetailShiftItem}>
                                     <span 
-                                        className="my-tabel-detail-shift-dot"
+                                        className={styles.myTabelDetailShiftDot}
                                         style={{ background: getSiteColor(s.site_name) }}
                                     />
-                                    <span className="my-tabel-detail-shift-site">{s.site_name}</span>
-                                    <span className="my-tabel-detail-shift-hours">{s.hours} ч.</span>
+                                    <span className={styles.myTabelDetailShiftSite}>{s.site_name}</span>
+                                    <span className={styles.myTabelDetailShiftHours}>{s.hours} ч.</span>
                                 </div>
                             ))
                         ) : (
-                            <div className="my-tabel-detail-empty">В этот день не работал</div>
+                            <div className={styles.myTabelDetailEmpty}>В этот день не работал</div>
                         )}
                     </div>
 
-                    <div className="my-tabel-detail-note">
-                        <div className="my-tabel-detail-label">📝 Заметки</div>
+                    <div className={styles.myTabelDetailNote}>
+                        <div className={styles.myTabelDetailLabel}>📝 Заметки</div>
                         <textarea
-                            className="my-tabel-detail-textarea"
+                            className={styles.myTabelDetailTextarea}
                             value={dayNote}
                             onChange={(e) => setDayNote(e.target.value)}
                             placeholder="Добавьте заметку..."
@@ -134,38 +135,38 @@ export function MyTabelPage({ shifts }) {
     }
 
     return (
-        <div className="my-tabel-page">
-            <div className="my-tabel-header">
-                <div className="my-tabel-user-info">
-                    <div className="my-tabel-avatar-small">
+        <div className={styles.myTabelPage}>
+            <div className={styles.myTabelHeader}>
+                <div className={styles.myTabelUserInfo}>
+                    <div className={styles.myTabelAvatarSmall}>
                         {user.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                        <div className="my-tabel-name">{user.name}</div>
-                        <div className="my-tabel-role">{roleLabels[user.role] || user.role}</div>
+                        <div className={styles.myTabelName}>{user.name}</div>
+                        <div className={styles.myTabelRole}>{roleLabels[user.role] || user.role}</div>
                     </div>
                 </div>
             </div>
 
             {/* Неделя */}
-            <div className="my-tabel-week-section">
-                <div className="my-tabel-week-nav">
-                    <div className="my-tabel-nav-group">
-                        <button className="my-tabel-nav-btn" onClick={() => changeWeek(-1)}>‹</button>
-                        <span className="my-tabel-week-label">
+            <div className={styles.myTabelWeekSection}>
+                <div className={styles.myTabelWeekNav}>
+                    <div className={styles.myTabelNavGroup}>
+                        <button className={styles.myTabelNavBtn} onClick={() => changeWeek(-1)}>‹</button>
+                        <span className={styles.myTabelWeekLabel}>
                             {weekDays[0].getDate()} {monthNames[weekDays[0].getMonth()]} – {weekDays[6].getDate()} {monthNames[weekDays[6].getMonth()]} {weekDays[0].getFullYear()}
                         </span>
-                        <button className="my-tabel-nav-btn" onClick={() => changeWeek(1)}>›</button>
+                        <button className={styles.myTabelNavBtn} onClick={() => changeWeek(1)}>›</button>
                     </div>
                     <button 
-                        className="my-tabel-today-btn"
+                        className={styles.myTabelTodayBtn}
                         onClick={() => setCurrentDate(new Date())}
                     >
                         Сегодня
                     </button>
                 </div>
 
-                <div className="my-tabel-week-days">
+                <div className={styles.myTabelWeekDays}>
                     {weekDays.map((day, index) => {
                         const dayShifts = getDayShifts(day)
                         const hasShifts = dayShifts.length > 0
@@ -178,17 +179,17 @@ export function MyTabelPage({ shifts }) {
                         return (
                             <div 
                                 key={index}
-                                className={`my-tabel-week-day ${today ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
+                                className={`${styles.myTabelWeekDay} ${today ? styles.today : ''} ${isSelected ? styles.selected : ''}`}
                                 onClick={() => handleDayClick(day)}
                             >
-                                <div className="my-tabel-week-day-name">{dayNames[index]}</div>
-                                <div className="my-tabel-week-day-number">{day.getDate()}</div>
+                                <div className={styles.myTabelWeekDayName}>{dayNames[index]}</div>
+                                <div className={styles.myTabelWeekDayNumber}>{day.getDate()}</div>
                                 {hasShifts && (
-                                    <div className="my-tabel-week-day-dots">
+                                    <div className={styles.myTabelWeekDayDots}>
                                         {dayShifts.map((s, idx) => (
                                             <span 
                                                 key={idx}
-                                                className="my-tabel-week-day-dot"
+                                                className={styles.myTabelWeekDayDot}
                                                 style={{ background: getSiteColor(s.site_name) }}
                                             />
                                         ))}

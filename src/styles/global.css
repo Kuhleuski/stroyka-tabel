@@ -1,0 +1,38 @@
+/* ============================================================
+   ГЛОБАЛЬНЫЕ СТИЛИ
+   ============================================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-body);
+    color: var(--text-primary);
+    padding-bottom: 80px;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.app {
+    max-width: var(--max-width);
+    margin: 0 auto;
+}
+
+.container {
+    padding: var(--spacing-lg);
+}
+
+@media (max-width: 640px) {
+    .container {
+        padding: var(--spacing-md);
+    }
+}
+
+@media (max-width: 400px) {
+    .header-brand .title {
+        font-size: 17px;
+    }
+}

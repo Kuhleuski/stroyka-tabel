@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useShifts } from './hooks/useShifts'
 import { useAuth, AuthProvider } from './context/AuthContext'
-import { AvatarProvider } from './context/AvatarContext'  // ← НОВЫЙ ИМПОРТ
+import { AvatarProvider } from './context/AvatarContext'
 import { Header } from './components/Layout/Header'
 import { BottomNav } from './components/Layout/BottomNav'
 import { MainPage } from './pages/MainPage'
@@ -13,7 +13,7 @@ import { ExtraPage } from './pages/ExtraPage'
 import { LoginPage } from './pages/LoginPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { NotificationsPage } from './pages/NotificationsPage'
-import './App.css'
+import layoutStyles from './styles/layout.module.css'
 
 function AppContent() {
     const [currentPage, setCurrentPage] = useState('calendar')
@@ -54,7 +54,7 @@ function AppContent() {
 
     if (showSettings) {
         return (
-            <div className="app">
+            <div className={layoutStyles.app}>
                 <Header 
                     onLogout={logout} 
                     onSettings={() => setShowSettings(true)}
@@ -73,7 +73,7 @@ function AppContent() {
 
     if (showNotifications) {
         return (
-            <div className="app">
+            <div className={layoutStyles.app}>
                 <Header 
                     onLogout={logout} 
                     onSettings={() => setShowSettings(true)}
@@ -107,7 +107,7 @@ function AppContent() {
     }
 
     return (
-        <div className="app">
+        <div className={layoutStyles.app}>
             <Header 
                 onLogout={logout} 
                 onSettings={() => setShowSettings(true)}
@@ -125,7 +125,7 @@ function AppContent() {
 function App() {
     return (
         <AuthProvider>
-            <AvatarProvider>  {/* ← ОБЕРНИ В AvatarProvider */}
+            <AvatarProvider>
                 <AppContent />
             </AvatarProvider>
         </AuthProvider>

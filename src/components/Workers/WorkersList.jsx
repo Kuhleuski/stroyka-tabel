@@ -1,5 +1,6 @@
 import { useRef, useMemo } from 'react'
 import { useAvatars } from '../../context/AvatarContext'
+import styles from '../../styles/workers.module.css'
 
 // === ПЛОСКАЯ ИКОНКА ДЛЯ БРИГАДЫ ===
 const WorkersIcon = () => (
@@ -53,27 +54,27 @@ export function WorkersList({ workers, onWorkerClick }) {
 
     if (workers.length === 0) {
         return (
-            <div className="empty-state">
-                <div className="empty-icon">
+            <div className={styles.emptyState}>
+                <div className={styles.emptyIcon}>
                     <WorkersIcon />
                 </div>
-                <div className="empty-text">Нет добавленных работников</div>
+                <div className={styles.emptyText}>Нет добавленных работников</div>
             </div>
         )
     }
 
     return (
-        <div ref={containerRef} className="workers-grid-container">
+        <div ref={containerRef} className={styles.workersGridContainer}>
             {cachedWorkers.map((worker) => {
                 const { hasPhoto, avatarData, initials, avatarColor } = worker
 
                 return (
                     <div 
                         key={worker.id} 
-                        className="worker-grid-card"
+                        className={styles.workerGridCard}
                         onClick={() => onWorkerClick(worker)}
                     >
-                        <div className="worker-grid-avatar" style={{ 
+                        <div className={styles.workerGridAvatar} style={{ 
                             backgroundColor: hasPhoto ? 'transparent' : avatarColor,
                             border: hasPhoto ? '2px solid #e8eaed' : 'none',
                             overflow: 'hidden',
@@ -110,7 +111,7 @@ export function WorkersList({ workers, onWorkerClick }) {
                                 initials
                             )}
                         </div>
-                        <div className="worker-grid-name">{worker.name}</div>
+                        <div className={styles.workerGridName}>{worker.name}</div>
                     </div>
                 )
             })}

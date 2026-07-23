@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import styles from '../styles/sites.module.css'
+import compStyles from '../styles/components.module.css'
 
 // 10 контрастных цветов
 const COLORS = [
@@ -46,14 +48,14 @@ export function AddSitePage({ onSave, onCancel }) {
     }
 
     return (
-        <div className="add-site-page">
-            <div className="add-site-header">
-                <button className="add-site-back" onClick={onCancel}>
+        <div className={styles.addSitePage}>
+            <div className={styles.addSiteHeader}>
+                <button className={styles.addSiteBack} onClick={onCancel}>
                     ← Назад
                 </button>
-                <span className="add-site-title">Новый объект</span>
+                <span className={styles.addSiteTitle}>Новый объект</span>
                 <button 
-                    className="add-site-save" 
+                    className={styles.addSiteSave} 
                     onClick={handleSubmit}
                     disabled={loading || !name.trim()}
                 >
@@ -61,15 +63,15 @@ export function AddSitePage({ onSave, onCancel }) {
                 </button>
             </div>
 
-            <div className="add-site-form">
+            <div className={styles.addSiteForm}>
                 {error && (
-                    <div className="add-site-error">{error}</div>
+                    <div className={styles.addSiteError}>{error}</div>
                 )}
 
-                <div className="add-site-field">
-                    <label className="add-site-label">Название объекта</label>
+                <div className={styles.addSiteField}>
+                    <label className={styles.addSiteLabel}>Название объекта</label>
                     <input
-                        className="add-site-input"
+                        className={styles.addSiteInput}
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
@@ -78,10 +80,10 @@ export function AddSitePage({ onSave, onCancel }) {
                     />
                 </div>
 
-                <div className="add-site-field">
-                    <label className="add-site-label">Адрес</label>
+                <div className={styles.addSiteField}>
+                    <label className={styles.addSiteLabel}>Адрес</label>
                     <input
-                        className="add-site-input"
+                        className={styles.addSiteInput}
                         type="text"
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
@@ -89,14 +91,14 @@ export function AddSitePage({ onSave, onCancel }) {
                     />
                 </div>
 
-                <div className="add-site-field">
-                    <label className="add-site-label">Цвет объекта</label>
-                    <div className="color-palette">
+                <div className={styles.addSiteField}>
+                    <label className={styles.addSiteLabel}>Цвет объекта</label>
+                    <div className={compStyles.colorPalette}>
                         {COLORS.map((color) => (
                             <button
                                 key={color}
                                 type="button"
-                                className={`color-btn ${selectedColor === color ? 'active' : ''}`}
+                                className={`${compStyles.colorBtn} ${selectedColor === color ? compStyles.active : ''}`}
                                 style={{ backgroundColor: color }}
                                 onClick={() => setSelectedColor(color)}
                             />
@@ -104,7 +106,7 @@ export function AddSitePage({ onSave, onCancel }) {
                     </div>
                 </div>
 
-                <div className="add-site-hint">
+                <div className={styles.addSiteHint}>
                     После добавления объект появится в списке
                 </div>
             </div>

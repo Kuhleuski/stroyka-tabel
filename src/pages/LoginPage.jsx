@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import styles from '../styles/auth.module.css'
 
 export function LoginPage({ onLogin }) {
     const [login, setLogin] = useState('')
@@ -21,9 +22,9 @@ export function LoginPage({ onLogin }) {
     }
 
     return (
-        <div className="login-page">
-            <div className="login-container">
-                <div className="login-header">
+        <div className={styles.loginPage}>
+            <div className={styles.loginContainer}>
+                <div className={styles.loginHeader}>
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="48"
@@ -41,19 +42,19 @@ export function LoginPage({ onLogin }) {
                         <line x1="8" y1="15" x2="16" y2="15" />
                         <line x1="8" y1="19" x2="12" y2="19" />
                     </svg>
-                    <h1 className="login-title">Табель</h1>
-                    <p className="login-subtitle">Войдите в свой аккаунт</p>
+                    <h1 className={styles.loginTitle}>Табель</h1>
+                    <p className={styles.loginSubtitle}>Войдите в свой аккаунт</p>
                 </div>
 
-                <form className="login-form" onSubmit={handleSubmit}>
+                <form className={styles.loginForm} onSubmit={handleSubmit}>
                     {error && (
-                        <div className="login-error">{error}</div>
+                        <div className={styles.loginError}>{error}</div>
                     )}
 
-                    <div className="login-field">
-                        <label className="login-label">Логин</label>
+                    <div className={styles.loginField}>
+                        <label className={styles.loginLabel}>Логин</label>
                         <input
-                            className="login-input"
+                            className={styles.loginInput}
                             type="text"
                             value={login}
                             onChange={(e) => setLogin(e.target.value)}
@@ -63,10 +64,10 @@ export function LoginPage({ onLogin }) {
                         />
                     </div>
 
-                    <div className="login-field">
-                        <label className="login-label">Пароль</label>
+                    <div className={styles.loginField}>
+                        <label className={styles.loginLabel}>Пароль</label>
                         <input
-                            className="login-input"
+                            className={styles.loginInput}
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
@@ -76,14 +77,14 @@ export function LoginPage({ onLogin }) {
                     </div>
 
                     <button 
-                        className="login-btn" 
+                        className={styles.loginBtn} 
                         type="submit"
                         disabled={loading}
                     >
                         {loading ? 'Вход...' : 'Войти'}
                     </button>
 
-                    <div className="login-hint">
+                    <div className={styles.loginHint}>
                         <span>admin / 1111</span>
                         <span>user / 1111</span>
                     </div>

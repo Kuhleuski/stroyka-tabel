@@ -1,0 +1,117 @@
+/* ============================================================
+   СТРАНИЦА ВХОДА
+   ============================================================ */
+
+.loginPage {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-body);
+    padding: var(--spacing-xl);
+}
+
+.loginContainer {
+    background: var(--bg-card);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-3xl) var(--spacing-2xl);
+    max-width: 380px;
+    width: 100%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+}
+
+.loginHeader {
+    text-align: center;
+    margin-bottom: var(--spacing-2xl);
+}
+
+.loginHeader svg {
+    margin-bottom: var(--spacing-md);
+}
+
+.loginTitle {
+    font-size: var(--font-size-3xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.loginSubtitle {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin-top: var(--spacing-xs);
+}
+
+.loginForm {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.loginError {
+    background: #ffebee;
+    color: #c62828;
+    padding: 10px var(--spacing-md);
+    border-radius: 10px;
+    font-size: var(--font-size-md);
+    text-align: center;
+}
+
+.loginField {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.loginLabel {
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.loginInput {
+    padding: var(--spacing-md) var(--spacing-md);
+    border: 1.5px solid var(--border-input);
+    border-radius: 10px;
+    font-size: var(--font-size-lg);
+    font-family: inherit;
+    transition: var(--transition-normal);
+    background: var(--bg-input);
+    color: var(--text-primary);
+}
+
+.loginInput:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.loginBtn {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: var(--spacing-md);
+    border-radius: 10px;
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: var(--transition-normal);
+    margin-top: var(--spacing-xs);
+}
+
+.loginBtn:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+}
+
+.loginBtn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.loginHint {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #bbb;
+    padding: 0 var(--spacing-xs);
+}

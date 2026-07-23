@@ -1,0 +1,474 @@
+/* ============================================================
+   ПОЛНОЭКРАННАЯ ФОРМА ДОБАВЛЕНИЯ СМЕНЫ
+   ============================================================ */
+
+.shiftFormScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--bg-body);
+    z-index: var(--z-shift-form);
+    display: flex;
+    flex-direction: column;
+    animation: shiftSlideUp 0.3s ease;
+}
+
+/* === ШАПКА === */
+.shiftFormHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    min-height: 56px;
+    flex-shrink: 0;
+}
+
+.shiftFormBack {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    font-size: var(--font-size-lg);
+    font-weight: 500;
+    cursor: pointer;
+    padding: var(--spacing-sm) var(--spacing-xs);
+    font-family: inherit;
+    min-width: 60px;
+}
+
+.shiftFormBack:hover {
+    opacity: 0.7;
+}
+
+.shiftFormTitle {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+    text-align: center;
+}
+
+.shiftFormSave {
+    background: var(--color-primary);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-normal);
+    flex-shrink: 0;
+}
+
+.shiftFormSave:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+}
+
+.shiftFormSave:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+/* === ТЕЛО === */
+.shiftFormBody {
+    flex: 1;
+    padding: var(--spacing-lg);
+    overflow-y: auto;
+}
+
+/* === БЛОКИ === */
+.shiftFormBlock {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.shiftFormLabel {
+    display: block;
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+/* === СЕТКА ОБЪЕКТОВ (3 в ряд) === */
+.shiftSitesGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.shiftSiteCard {
+    padding: var(--spacing-md) var(--spacing-sm);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    text-align: center;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: var(--shadow-sm);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.shiftSiteCard:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.shiftSiteCard.selected {
+    border: 3px solid var(--color-primary);
+    box-shadow: 0 4px 16px rgba(45, 125, 70, 0.3);
+}
+
+.shiftSiteName {
+    font-size: var(--font-size-md);
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    line-height: 1.3;
+    word-break: break-word;
+}
+
+.shiftSiteCheck {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--color-primary);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: var(--font-size-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    border: 2px solid white;
+    box-shadow: var(--shadow-sm);
+}
+
+.shiftSiteAddress {
+    font-size: 11px;
+    color: var(--text-light);
+    text-align: center;
+    margin-top: var(--spacing-xs);
+    line-height: 1.3;
+    max-width: 100%;
+    word-break: break-word;
+}
+
+/* === СЕТКА РАБОТНИКОВ (3 в ряд) === */
+.shiftWorkersGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-sm);
+}
+
+.shiftWorkerCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-xs);
+    border-radius: var(--radius-md);
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    background: #fafbfa;
+    position: relative;
+}
+
+.shiftWorkerCard:hover {
+    background: var(--color-primary-bg);
+    transform: translateY(-2px);
+}
+
+.shiftWorkerCard.selected {
+    background: var(--color-primary-light);
+    border-color: transparent;
+}
+
+.shiftWorkerAvatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+}
+
+.shiftWorkerName {
+    font-size: var(--font-size-sm);
+    color: var(--text-primary);
+    text-align: center;
+    margin-top: var(--spacing-xs);
+    max-width: 70px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.shiftWorkerCheck {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: var(--color-primary);
+    color: white;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    border: 2px solid white;
+    box-shadow: var(--shadow-sm);
+}
+
+.shiftFormWorkersHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.shiftFormSelectAll {
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    cursor: pointer;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-family: inherit;
+}
+
+.shiftFormSelectAll:hover {
+    background: var(--color-primary-light);
+    border-radius: 6px;
+}
+
+/* === КНОПКИ ВНИЗУ === */
+.shiftFormActions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: var(--spacing-sm);
+}
+
+.shiftFormBottomBtn {
+    width: 100%;
+    padding: var(--spacing-md);
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: var(--transition-normal);
+}
+
+.shiftFormBottomBtn:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+}
+
+.shiftFormBottomBtn:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.shiftFormCancelBtn {
+    width: 100%;
+    padding: var(--spacing-md);
+    background: #f0f0f0;
+    color: var(--text-secondary);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-lg);
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: var(--transition-normal);
+}
+
+.shiftFormCancelBtn:hover {
+    background: #e0e0e0;
+}
+
+/* === ПУСТЫЕ СОСТОЯНИЯ === */
+.shiftFormEmpty {
+    padding: var(--spacing-xl);
+    text-align: center;
+    color: var(--text-muted);
+    grid-column: 1 / -1;
+}
+
+.shiftFormEmpty p {
+    margin: 0 0 var(--spacing-xs) 0;
+    font-size: 15px;
+}
+
+.shiftFormEmpty span {
+    font-size: 13px;
+    color: #bbb;
+}
+
+/* ============================================================
+   ЭКРАН СОХРАНЕНИЯ
+   ============================================================ */
+
+.savingScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--z-save-screen);
+    animation: savingFadeIn 0.5s ease;
+}
+
+.savingContent {
+    text-align: center;
+    padding: var(--spacing-3xl);
+    animation: savingScaleIn 0.6s ease;
+}
+
+.savingSpinner {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto var(--spacing-xl);
+    border: 4px solid rgba(255, 255, 255, 0.25);
+    border-top: 4px solid #ffffff;
+    border-radius: 50%;
+    animation: savingSpin 0.9s linear infinite;
+}
+
+.savingTitle {
+    color: white;
+    font-size: var(--font-size-2xl);
+    font-weight: 600;
+    margin: 0 0 var(--spacing-sm) 0;
+}
+
+.savingText {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: var(--font-size-lg);
+    margin: 0;
+}
+
+/* === КНОПКА ДОБАВЛЕНИЯ СМЕНЫ ПОД КАЛЕНДАРЁМ === */
+.detailAddButtonWrapper {
+    padding: var(--spacing-md) 0 var(--spacing-xs) 0;
+}
+
+.detailAddButton {
+    width: 100%;
+    padding: var(--spacing-md);
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-primary);
+}
+
+.detailAddButton:hover {
+    background: var(--color-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-primary-lg);
+}
+
+.detailAddButton:active {
+    transform: translateY(0);
+}
+
+/* === АДАПТИВ === */
+@media (max-width: 400px) {
+    .shiftFormHeader {
+        padding: 10px var(--spacing-md);
+        min-height: 48px;
+    }
+    
+    .shiftFormTitle {
+        font-size: 15px;
+    }
+    
+    .shiftFormBody {
+        padding: var(--spacing-md);
+    }
+    
+    .shiftWorkerItem {
+        padding: var(--spacing-sm) 10px;
+    }
+}
+
+@media (max-width: 420px) {
+    .shiftSitesGrid,
+    .shiftWorkersGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-sm);
+    }
+    
+    .shiftSiteCard {
+        padding: var(--spacing-md) 6px;
+        min-height: 48px;
+    }
+    
+    .shiftSiteName {
+        font-size: var(--font-size-sm);
+    }
+    
+    .shiftWorkerAvatar {
+        width: 48px;
+        height: 48px;
+        font-size: 17px;
+    }
+    
+    .shiftWorkerName {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 400px) {
+    .savingSpinner {
+        width: 48px;
+        height: 48px;
+        border-width: 3px;
+    }
+    
+    .savingTitle {
+        font-size: 18px;
+    }
+    
+    .savingText {
+        font-size: var(--font-size-md);
+    }
+}

@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { WorkerCalendar } from '../components/Workers/WorkerCalendar'
+import styles from '../styles/workers.module.css'
+import compStyles from '../styles/components.module.css'
 
 export function WorkerDetailPage({ worker, onClose, onDelete, shifts }) {
     const [showConfirm, setShowConfirm] = useState(false)
@@ -52,8 +54,8 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts }) {
     const avatarColor = getAvatarColor(worker.name)
 
     return (
-        <div className="worker-detail-page">
-            <div className="worker-detail-header">
+        <div className={styles.workerDetailPage}>
+            <div className={styles.workerDetailHeader}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     {/* АВАТАРКА */}
                     <div style={{
@@ -91,39 +93,39 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts }) {
                             initials
                         )}
                     </div>
-                    <span className="worker-detail-title">👷 {worker.name}</span>
+                    <span className={styles.workerDetailTitle}>👷 {worker.name}</span>
                 </div>
-                <button className="worker-detail-close" onClick={onClose}>
+                <button className={styles.workerDetailClose} onClick={onClose}>
                     ✕
                 </button>
             </div>
             
-            <div className="worker-detail-content">
-                <div className="worker-detail-field">
-                    <span className="worker-detail-label">Имя</span>
-                    <span className="worker-detail-value">{worker.name}</span>
+            <div className={styles.workerDetailContent}>
+                <div className={styles.workerDetailField}>
+                    <span className={styles.workerDetailLabel}>Имя</span>
+                    <span className={styles.workerDetailValue}>{worker.name}</span>
                 </div>
                 
-                <div className="worker-detail-field">
-                    <span className="worker-detail-label">Дата добавления</span>
-                    <span className="worker-detail-value">{formatDate(worker.created_at)}</span>
+                <div className={styles.workerDetailField}>
+                    <span className={styles.workerDetailLabel}>Дата добавления</span>
+                    <span className={styles.workerDetailValue}>{formatDate(worker.created_at)}</span>
                 </div>
 
                 {/* Календарь */}
-                <div className="worker-detail-calendar-section">
-                    <div className="worker-detail-section-title">📅 График работы</div>
+                <div className={styles.workerDetailCalendarSection}>
+                    <div className={styles.workerDetailSectionTitle}>📅 График работы</div>
                     <WorkerCalendar 
                         shifts={workerShifts} 
                         workerName={worker.name}
                     />
                 </div>
                 
-                <div className="worker-detail-hint">
+                <div className={styles.workerDetailHint}>
                     Здесь будет статистика по работнику
                 </div>
 
                 <button 
-                    className="worker-detail-delete"
+                    className={styles.workerDetailDelete}
                     onClick={() => setShowConfirm(true)}
                     disabled={deleting}
                 >
@@ -132,27 +134,27 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts }) {
             </div>
 
             {showConfirm && (
-                <div className="confirm-overlay">
-                    <div className="confirm-modal">
-                        <div className="confirm-icon">⚠️</div>
-                        <div className="confirm-title">Удалить работника?</div>
-                        <div className="confirm-text">
+                <div className={compStyles.confirmOverlay}>
+                    <div className={compStyles.confirmModal}>
+                        <div className={compStyles.confirmIcon}>⚠️</div>
+                        <div className={compStyles.confirmTitle}>Удалить работника?</div>
+                        <div className={compStyles.confirmText}>
                             Вы уверены, что хотите удалить работника <strong>«{worker.name}»</strong>?
                             <br />
                             <span style={{ fontSize: '13px', color: '#999' }}>
                                 Это действие нельзя отменить.
                             </span>
                         </div>
-                        <div className="confirm-buttons">
+                        <div className={compStyles.confirmButtons}>
                             <button 
-                                className="confirm-btn cancel"
+                                className={`${compStyles.confirmBtn} ${compStyles.cancel}`}
                                 onClick={() => setShowConfirm(false)}
                                 disabled={deleting}
                             >
                                 Отмена
                             </button>
                             <button 
-                                className="confirm-btn delete"
+                                className={`${compStyles.confirmBtn} ${compStyles.delete}`}
                                 onClick={handleDelete}
                                 disabled={deleting}
                             >
