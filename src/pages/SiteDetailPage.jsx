@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import styles from '../styles/sites.module.css'
+import compStyles from '../styles/components.module.css'
 
 export function SiteDetailPage({ site, onClose, onDelete }) {
     const [showConfirm, setShowConfirm] = useState(false)
@@ -31,38 +33,38 @@ export function SiteDetailPage({ site, onClose, onDelete }) {
     }
 
     return (
-        <div className="site-detail-page">
-            <div className="site-detail-header">
-                <span className="site-detail-title">🏗️ {site.name}</span>
-                <button className="site-detail-close" onClick={onClose}>
+        <div className={styles.siteDetailPage}>
+            <div className={styles.siteDetailHeader}>
+                <span className={styles.siteDetailTitle}>🏗️ {site.name}</span>
+                <button className={styles.siteDetailClose} onClick={onClose}>
                     ✕
                 </button>
             </div>
             
-            <div className="site-detail-content">
-                <div className="site-detail-field">
-                    <span className="site-detail-label">Название</span>
-                    <span className="site-detail-value">{site.name}</span>
+            <div className={styles.siteDetailContent}>
+                <div className={styles.siteDetailField}>
+                    <span className={styles.siteDetailLabel}>Название</span>
+                    <span className={styles.siteDetailValue}>{site.name}</span>
                 </div>
                 
                 {site.address && (
-                    <div className="site-detail-field">
-                        <span className="site-detail-label">Адрес</span>
-                        <span className="site-detail-value">{site.address}</span>
+                    <div className={styles.siteDetailField}>
+                        <span className={styles.siteDetailLabel}>Адрес</span>
+                        <span className={styles.siteDetailValue}>{site.address}</span>
                     </div>
                 )}
                 
-                <div className="site-detail-field">
-                    <span className="site-detail-label">Дата создания</span>
-                    <span className="site-detail-value">{formatDate(site.created_at)}</span>
+                <div className={styles.siteDetailField}>
+                    <span className={styles.siteDetailLabel}>Дата создания</span>
+                    <span className={styles.siteDetailValue}>{formatDate(site.created_at)}</span>
                 </div>
                 
-                <div className="site-detail-hint">
+                <div className={styles.siteDetailHint}>
                     Здесь будет статистика по объекту
                 </div>
 
                 <button 
-                    className="site-detail-delete"
+                    className={styles.siteDetailDelete}
                     onClick={() => setShowConfirm(true)}
                     disabled={deleting}
                 >
@@ -71,27 +73,27 @@ export function SiteDetailPage({ site, onClose, onDelete }) {
             </div>
 
             {showConfirm && (
-                <div className="confirm-overlay">
-                    <div className="confirm-modal">
-                        <div className="confirm-icon">⚠️</div>
-                        <div className="confirm-title">Удалить объект?</div>
-                        <div className="confirm-text">
+                <div className={compStyles.confirmOverlay}>
+                    <div className={compStyles.confirmModal}>
+                        <div className={compStyles.confirmIcon}>⚠️</div>
+                        <div className={compStyles.confirmTitle}>Удалить объект?</div>
+                        <div className={compStyles.confirmText}>
                             Вы уверены, что хотите удалить объект <strong>«{site.name}»</strong>?
                             <br />
                             <span style={{ fontSize: '13px', color: '#999' }}>
                                 Это действие нельзя отменить.
                             </span>
                         </div>
-                        <div className="confirm-buttons">
+                        <div className={compStyles.confirmButtons}>
                             <button 
-                                className="confirm-btn cancel"
+                                className={`${compStyles.confirmBtn} ${compStyles.cancel}`}
                                 onClick={() => setShowConfirm(false)}
                                 disabled={deleting}
                             >
                                 Отмена
                             </button>
                             <button 
-                                className="confirm-btn delete"
+                                className={`${compStyles.confirmBtn} ${compStyles.delete}`}
                                 onClick={handleDelete}
                                 disabled={deleting}
                             >
