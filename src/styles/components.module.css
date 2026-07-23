@@ -1,0 +1,383 @@
+/* ============================================================
+   МОДАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ
+   ============================================================ */
+
+.confirmOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: var(--z-modal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
+}
+
+.confirmModal {
+    background: var(--bg-card);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-2xl) 28px var(--spacing-xl);
+    max-width: 340px;
+    width: 90%;
+    text-align: center;
+    box-shadow: var(--shadow-xl);
+    animation: slideUp 0.25s ease;
+}
+
+.confirmIcon {
+    font-size: 48px;
+    margin-bottom: var(--spacing-md);
+}
+
+.confirmTitle {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.confirmText {
+    font-size: 15px;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: var(--spacing-xl);
+}
+
+.confirmText strong {
+    color: var(--text-primary);
+}
+
+.confirmButtons {
+    display: flex;
+    gap: 10px;
+}
+
+.confirmBtn {
+    flex: 1;
+    padding: var(--spacing-md);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: var(--transition-normal);
+}
+
+.confirmBtn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.confirmBtn.cancel {
+    background: #f0f0f0;
+    color: var(--text-secondary);
+}
+
+.confirmBtn.cancel:hover:not(:disabled) {
+    background: #e0e0e0;
+}
+
+.confirmBtn.delete {
+    background: #c62828;
+    color: white;
+}
+
+.confirmBtn.delete:hover:not(:disabled) {
+    background: #b71c1c;
+}
+
+/* ============================================================
+   ПАЛИТРА ЦВЕТОВ
+   ============================================================ */
+
+.colorPalette {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-xs);
+}
+
+.colorBtn {
+    width: 100%;
+    aspect-ratio: 1;
+    border: 3px solid transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    padding: 0;
+}
+
+.colorBtn:hover {
+    transform: scale(1.1);
+}
+
+.colorBtn.active {
+    border-color: var(--text-primary);
+    box-shadow: 0 0 0 2px white, 0 0 0 4px var(--text-primary);
+}
+
+/* ============================================================
+   ДЕТАЛЬНЫЙ РЕЖИМ
+   ============================================================ */
+
+.detailScreen {
+    background: var(--bg-body);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding-bottom: var(--spacing-xl);
+    animation: detailSlideUp 0.3s ease;
+}
+
+.detailScreenHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+    min-height: 56px;
+}
+
+.detailScreenTitle {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.detailScreenClose {
+    background: var(--color-primary);
+    border: none;
+    font-size: 28px;
+    font-weight: 400;
+    color: white;
+    cursor: pointer;
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: 30px;
+    transition: var(--transition-normal);
+    line-height: 1.4;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-primary);
+}
+
+.detailScreenClose:hover {
+    background: var(--color-primary-hover);
+    transform: scale(1.05);
+}
+
+.detailScreenClose:active {
+    transform: scale(0.95);
+}
+
+.detailScreenContent {
+    flex: 1;
+    padding: var(--spacing-lg);
+}
+
+/* Кнопка добавления смены в детальном режиме */
+.detailAddShiftWrapper {
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: var(--color-primary-bg);
+    border-bottom: 1px solid #e0e8e2;
+    flex-shrink: 0;
+}
+
+.detailAddShiftBtn {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 10px var(--spacing-xl);
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    width: 100%;
+    justify-content: center;
+    font-family: inherit;
+}
+
+.detailAddShiftBtn:hover {
+    background: var(--color-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-primary-lg);
+}
+
+.detailAddShiftBtn:active {
+    transform: translateY(0);
+}
+
+.detailAddShiftBtn:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+/* ============================================================
+   ПРЕЛОАДЕР ВНУТРИ ДЕТАЛЬНОГО РЕЖИМА
+   ============================================================ */
+
+.detailLoading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px var(--spacing-xl);
+    gap: var(--spacing-lg);
+}
+
+.detailSpinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--border-color);
+    border-top: 3px solid var(--color-primary);
+    border-radius: 50%;
+    animation: savingSpin 0.8s linear infinite;
+}
+
+.detailLoading p {
+    color: var(--text-muted);
+    font-size: 15px;
+    margin: 0;
+}
+
+/* ============================================================
+   ПЛАВАЮЩАЯ КНОПКА (FAB)
+   ============================================================ */
+
+.fabAddShift {
+    position: fixed;
+    bottom: 90px;
+    right: 24px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 16px rgba(45, 125, 70, 0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    z-index: var(--z-fab);
+    padding: 0;
+}
+
+.fabAddShift:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 24px rgba(45, 125, 70, 0.5);
+}
+
+.fabAddShift:active {
+    transform: scale(0.92);
+}
+
+.fabAddShift svg {
+    color: white;
+}
+
+/* ============================================================
+   ПОЛЕ ЗАГРУЗКИ ФОТО
+   ============================================================ */
+
+.addWorkerInput[type="file"] {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.addWorkerInput[type="file"]::-webkit-file-upload-button {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.addWorkerInput[type="file"]::-webkit-file-upload-button:hover {
+    background: var(--color-primary-hover);
+}
+
+/* ============================================================
+   АДАПТИВ ДЛЯ СТРАНИЦ
+   ============================================================ */
+
+.addSitePage,
+.addWorkerPage,
+.siteDetailPage,
+.workerDetailPage,
+.settingsPage,
+.notificationsPage,
+.salaryPage,
+.extraPage {
+    animation: fadeIn 0.25s ease;
+}
+
+.addSiteHeader,
+.addWorkerHeader,
+.siteDetailHeader,
+.workerDetailHeader,
+.settingsHeader,
+.notificationsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-xs) var(--spacing-lg) var(--spacing-xs);
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: var(--spacing-xl);
+}
+
+.addSiteTitle,
+.addWorkerTitle,
+.siteDetailTitle,
+.workerDetailTitle,
+.settingsTitle,
+.notificationsTitle,
+.salaryTitle,
+.extraTitle {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.addSiteBack,
+.addWorkerBack,
+.myTabelBackBtn {
+    background: none;
+    border: none;
+    font-size: var(--font-size-lg);
+    color: var(--color-primary);
+    cursor: pointer;
+    padding: var(--spacing-sm) var(--spacing-xs);
+    font-weight: 500;
+    font-family: inherit;
+}
+
+.addSiteBack:hover,
+.addWorkerBack:hover,
+.myTabelBackBtn:hover {
+    opacity: 0.7;
+}
+
+.addSiteSave,
+.addWorkerSave {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: var(--spacing-sm) var(--spacing-xl);
+    border-radius: 20px;
+    font-size: var(--font-size-md
