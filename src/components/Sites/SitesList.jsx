@@ -1,3 +1,5 @@
+import styles from '../../styles/sites.module.css'
+
 export function SitesList({ sites, onSiteClick }) {
     // Сортируем от новых к старым
     const sortedSites = [...(sites || [])].sort((a, b) => {
@@ -8,9 +10,9 @@ export function SitesList({ sites, onSiteClick }) {
 
     if (!sortedSites || sortedSites.length === 0) {
         return (
-            <div className="card empty-state">
-                <div className="empty-icon">🏗️</div>
-                <div className="empty-text">Пока нет объектов</div>
+            <div className={styles.emptyState}>
+                <div className={styles.emptyIcon}>🏗️</div>
+                <div className={styles.emptyText}>Пока нет объектов</div>
             </div>
         )
     }
@@ -40,37 +42,37 @@ export function SitesList({ sites, onSiteClick }) {
     }
 
     return (
-        <div className="sites-list">
+        <div className={styles.sitesList}>
             {sortedSites.map((site) => {
                 const status = getStatus(site.status)
 
                 return (
                     <div 
                         key={site.id} 
-                        className="site-card-row"
+                        className={styles.siteCardRow}
                         onClick={() => onSiteClick && onSiteClick(site)}
                     >
-                        <div className="site-card-top">
-                            <div className="site-card-left">
+                        <div className={styles.siteCardTop}>
+                            <div className={styles.siteCardLeft}>
                                 <span 
-                                    className="site-color-dot"
+                                    className={styles.siteColorDot}
                                     style={{ backgroundColor: site.color || '#2d7d46' }}
                                 />
-                                <span className="site-name">{site.name}</span>
+                                <span className={styles.siteName}>{site.name}</span>
                             </div>
                             <span 
-                                className="site-status-badge"
+                                className={styles.siteStatusBadge}
                                 style={{ 
                                     backgroundColor: status.bgColor,
                                     color: status.dotColor === 'white' ? 'white' : '#333'
                                 }}
                             >
-                                <span className="status-dot" style={{ backgroundColor: status.dotColor }} />
+                                <span className={styles.statusDot} style={{ backgroundColor: status.dotColor }} />
                                 {status.label}
                             </span>
                         </div>
                         {site.address && (
-                            <div className="site-address">{site.address}</div>
+                            <div className={styles.siteAddress}>{site.address}</div>
                         )}
                     </div>
                 )
