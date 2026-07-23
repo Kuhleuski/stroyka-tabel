@@ -6,6 +6,8 @@ import { fetchSites, fetchWorkers } from '../services/supabase'
 import { useAuth } from '../context/AuthContext'
 import { formatDateLocal } from '../utils/dateHelpers'
 import { Plus } from 'lucide-react'
+import styles from '../styles/components.module.css'
+import globalsStyles from '../styles/globals.module.css'
 
 export function MainPage({ shifts, loading, refetchShifts }) {
     const [selectedDate, setSelectedDate] = useState(new Date())
@@ -69,7 +71,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     }
 
     if (loading) {
-        return <div className="loading-text">⏳ Загрузка...</div>
+        return <div className={globalsStyles.loadingText}>⏳ Загрузка...</div>
     }
 
     const handleDayClick = (date) => {
@@ -107,11 +109,11 @@ export function MainPage({ shifts, loading, refetchShifts }) {
 
     if (showSavingScreen) {
         return (
-            <div className="saving-screen">
-                <div className="saving-content">
-                    <div className="saving-spinner"></div>
-                    <h2 className="saving-title">Сохраняем смену</h2>
-                    <p className="saving-text">Пожалуйста, подождите</p>
+            <div className={styles.savingScreen}>
+                <div className={styles.savingContent}>
+                    <div className={styles.savingSpinner}></div>
+                    <h2 className={styles.savingTitle}>Сохраняем смену</h2>
+                    <p className={styles.savingText}>Пожалуйста, подождите</p>
                 </div>
             </div>
         )
@@ -130,7 +132,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
     }
 
     if (!selectedDate) {
-        return <div className="loading-text">⏳ Загрузка...</div>
+        return <div className={globalsStyles.loadingText}>⏳ Загрузка...</div>
     }
 
     const monthNames = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']
@@ -150,8 +152,6 @@ export function MainPage({ shifts, loading, refetchShifts }) {
                 savedScrollTop={savedScrollTop}
             />
 
-            
-
             {/* ===== КАРТОЧКИ СМЕН (БЕЗ ОБЩЕГО КОНТЕЙНЕРА) ===== */}
             <div style={{ marginTop: '8px' }}>
                 <Timeline 
@@ -168,7 +168,7 @@ export function MainPage({ shifts, loading, refetchShifts }) {
             {/* ПЛАВАЮЩАЯ КНОПКА (FAB) */}
             {user?.role === 'admin' && (
                 <button 
-                    className="fab-add-shift"
+                    className={styles.fabAddShift}
                     onClick={() => handleOpenAddShift(selectedDate)}
                     aria-label="Добавить смену"
                 >
