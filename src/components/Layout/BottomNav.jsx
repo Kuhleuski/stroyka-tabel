@@ -1,4 +1,5 @@
 import { useAuth } from '../../context/AuthContext'
+import styles from '../../styles/layout.module.css'
 
 // === ПЛОСКИЕ SVG-ИКОНКИ ===
 const icons = {
@@ -78,14 +79,14 @@ export function BottomNav({ currentPage, onNavigate }) {
     const items = [...baseItems, ...roleItems]
 
     return (
-        <div className="bottom-nav">
+        <div className={styles.bottomNav}>
             {items.map(({ key, label }) => (
                 <button
                     key={key}
-                    className={currentPage === key ? 'active' : ''}
+                    className={currentPage === key ? styles.active : ''}
                     onClick={() => onNavigate(key)}
                 >
-                    <span className="nav-icon">
+                    <span className={styles.navIcon}>
                         {icons[key] || icons.extra}
                     </span>
                     <span>{label}</span>
