@@ -5,6 +5,9 @@ import { WorkerDetailPage } from './WorkerDetailPage'
 import { addWorker, deleteWorker } from '../services/supabase'
 import { useWorkers } from '../hooks/useWorkers'
 import { Plus } from 'lucide-react'
+import styles from '../styles/workers.module.css'
+import globalsStyles from '../styles/globals.module.css'
+import compStyles from '../styles/components.module.css'
 
 // === ПЛОСКАЯ ИКОНКА ДЛЯ ЗАГОЛОВКА ===
 const WorkersIcon = () => (
@@ -61,15 +64,15 @@ export function WorkersPage({ shifts }) {
     }
 
     if (loading) {
-        return <div className="loading-text">⏳ Загрузка...</div>
+        return <div className={globalsStyles.loadingText}>⏳ Загрузка...</div>
     }
 
     if (error) {
         return (
-            <div className="error-container">
-                <div className="error-icon">❌</div>
-                <div className="error-text">Ошибка загрузки работников</div>
-                <div className="error-detail">{error}</div>
+            <div className={globalsStyles.errorContainer}>
+                <div className={globalsStyles.errorIcon}>❌</div>
+                <div className={globalsStyles.errorText}>Ошибка загрузки работников</div>
+                <div className={globalsStyles.errorDetail}>{error}</div>
             </div>
         )
     }
@@ -96,19 +99,19 @@ export function WorkersPage({ shifts }) {
 
     return (
         <>
-            <div className="page-header">
+            <div className={styles.pageHeader}>
                 <div>
-                    <div className="page-title">
+                    <div className={styles.pageTitle}>
                         <WorkersIcon />
                         Бригада
                     </div>
-                    <div className="page-subtitle">Все батраки</div>
+                    <div className={styles.pageSubtitle}>Все рабочие</div>
                 </div>
                 <button 
-                    className="add-worker-btn"
+                    className={styles.addWorkerBtn}
                     onClick={handleOpenAddForm}
                 >
-                    + Добавить батрака
+                    + Добавить рабочего
                 </button>
             </div>
 
@@ -119,7 +122,7 @@ export function WorkersPage({ shifts }) {
 
             {/* ПЛАВАЮЩАЯ КНОПКА (FAB) — дублирует "Добавить работника" */}
             <button 
-                className="fab-add-worker"
+                className={styles.fabAddWorker}
                 onClick={handleOpenAddForm}
                 aria-label="Добавить работника"
             >
