@@ -1,3 +1,5 @@
+import styles from '../styles/components.module.css'
+
 export function NotificationsPage({ onClose }) {
     const notifications = [
         {
@@ -10,28 +12,28 @@ export function NotificationsPage({ onClose }) {
     ]
 
     return (
-        <div className="notifications-page">
-            <div className="notifications-header">
-                <span className="notifications-title">🔔 Уведомления</span>
-                <button className="notifications-close" onClick={onClose}>
+        <div className={styles.notificationsPage}>
+            <div className={styles.notificationsHeader}>
+                <span className={styles.notificationsTitle}>🔔 Уведомления</span>
+                <button className={styles.notificationsClose} onClick={onClose}>
                     ✕
                 </button>
             </div>
 
-            <div className="notifications-content">
+            <div className={styles.notificationsContent}>
                 {notifications.length === 0 ? (
-                    <div className="notifications-empty">
-                        <div className="notifications-empty-icon">📭</div>
-                        <div className="notifications-empty-text">Нет уведомлений</div>
+                    <div className={styles.notificationsEmpty}>
+                        <div className={styles.notificationsEmptyIcon}>📭</div>
+                        <div className={styles.notificationsEmptyText}>Нет уведомлений</div>
                     </div>
                 ) : (
                     notifications.map((notif) => (
-                        <div key={notif.id} className="notifications-item">
-                            <div className="notifications-item-dot" />
-                            <div className="notifications-item-content">
-                                <div className="notifications-item-title">{notif.title}</div>
-                                <div className="notifications-item-message">{notif.message}</div>
-                                <div className="notifications-item-time">{notif.time}</div>
+                        <div key={notif.id} className={styles.notificationsItem}>
+                            <div className={styles.notificationsItemDot} />
+                            <div className={styles.notificationsItemContent}>
+                                <div className={styles.notificationsItemTitle}>{notif.title}</div>
+                                <div className={styles.notificationsItemMessage}>{notif.message}</div>
+                                <div className={styles.notificationsItemTime}>{notif.time}</div>
                             </div>
                         </div>
                     ))
