@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import styles from '../styles/workers.module.css'
+import compStyles from '../styles/components.module.css'
 
 export function AddWorkerPage({ onSave, onCancel }) {
     const [firstName, setFirstName] = useState('')
@@ -47,14 +49,14 @@ export function AddWorkerPage({ onSave, onCancel }) {
     }
 
     return (
-        <div className="add-worker-page">
-            <div className="add-worker-header">
-                <button className="add-worker-back" onClick={onCancel}>
+        <div className={styles.addWorkerPage}>
+            <div className={styles.addWorkerHeader}>
+                <button className={styles.addWorkerBack} onClick={onCancel}>
                     ← Назад
                 </button>
-                <span className="add-worker-title">Новый работник</span>
+                <span className={styles.addWorkerTitle}>Новый работник</span>
                 <button 
-                    className="add-worker-save" 
+                    className={styles.addWorkerSave} 
                     onClick={handleSubmit}
                     disabled={loading || !firstName.trim()}
                 >
@@ -62,15 +64,15 @@ export function AddWorkerPage({ onSave, onCancel }) {
                 </button>
             </div>
 
-            <div className="add-worker-form">
+            <div className={styles.addWorkerForm}>
                 {error && (
-                    <div className="add-worker-error">{error}</div>
+                    <div className={styles.addWorkerError}>{error}</div>
                 )}
 
-                <div className="add-worker-field">
-                    <label className="add-worker-label">Имя *</label>
+                <div className={styles.addWorkerField}>
+                    <label className={styles.addWorkerLabel}>Имя *</label>
                     <input
-                        className="add-worker-input"
+                        className={styles.addWorkerInput}
                         type="text"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
@@ -79,10 +81,10 @@ export function AddWorkerPage({ onSave, onCancel }) {
                     />
                 </div>
 
-                <div className="add-worker-field">
-                    <label className="add-worker-label">Фамилия</label>
+                <div className={styles.addWorkerField}>
+                    <label className={styles.addWorkerLabel}>Фамилия</label>
                     <input
-                        className="add-worker-input"
+                        className={styles.addWorkerInput}
                         type="text"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
@@ -90,13 +92,13 @@ export function AddWorkerPage({ onSave, onCancel }) {
                     />
                 </div>
 
-                <div className="add-worker-field">
-                    <label className="add-worker-label">Фото</label>
+                <div className={styles.addWorkerField}>
+                    <label className={styles.addWorkerLabel}>Фото</label>
                     <input
                         type="file"
                         accept="image/*"
                         onChange={handleFileChange}
-                        className="add-worker-input"
+                        className={`${styles.addWorkerInput} ${compStyles.addWorkerInput}`}
                         style={{ padding: '8px' }}
                     />
                     {previewUrl && (
@@ -116,7 +118,7 @@ export function AddWorkerPage({ onSave, onCancel }) {
                     )}
                 </div>
 
-                <div className="add-worker-hint">
+                <div className={styles.addWorkerHint}>
                     После добавления работник появится в списке
                 </div>
             </div>
