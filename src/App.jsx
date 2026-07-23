@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useShifts } from './hooks/useShifts'
 import { useAuth, AuthProvider } from './context/AuthContext'
-import { AvatarProvider } from './context/AvatarContext'  // ← НОВЫЙ ИМПОРТ
+import { AvatarProvider } from './context/AvatarContext'
 import { Header } from './components/Layout/Header'
 import { BottomNav } from './components/Layout/BottomNav'
 import { MainPage } from './pages/MainPage'
@@ -13,7 +13,9 @@ import { ExtraPage } from './pages/ExtraPage'
 import { LoginPage } from './pages/LoginPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { NotificationsPage } from './pages/NotificationsPage'
-import './App.css'
+import globalsStyles from './styles/globals.module.css'
+import layoutStyles from './styles/layout.module.css'
+import compStyles from './styles/components.module.css'
 
 function AppContent() {
     const [currentPage, setCurrentPage] = useState('calendar')
@@ -31,10 +33,10 @@ function AppContent() {
 
     if (error) {
         return (
-            <div className="error-container">
-                <div className="error-icon">❌</div>
-                <div className="error-text">Ошибка загрузки данных</div>
-                <div className="error-detail">{error}</div>
+            <div className={globalsStyles.errorContainer}>
+                <div className={globalsStyles.errorIcon}>❌</div>
+                <div className={globalsStyles.errorText}>Ошибка загрузки данных</div>
+                <div className={globalsStyles.errorDetail}>{error}</div>
             </div>
         )
     }
@@ -54,14 +56,14 @@ function AppContent() {
 
     if (showSettings) {
         return (
-            <div className="app">
+            <div className={layoutStyles.app}>
                 <Header 
                     onLogout={logout} 
                     onSettings={() => setShowSettings(true)}
                     onNotifications={handleOpenNotifications}
                     unreadCount={unreadCount}
                 />
-                <div className="container">
+                <div className={globalsStyles.container}>
                     <SettingsPage 
                         onClose={() => setShowSettings(false)}
                         onLogout={logout}
@@ -73,14 +75,14 @@ function AppContent() {
 
     if (showNotifications) {
         return (
-            <div className="app">
+            <div className={layoutStyles.app}>
                 <Header 
                     onLogout={logout} 
                     onSettings={() => setShowSettings(true)}
                     onNotifications={handleOpenNotifications}
                     unreadCount={unreadCount}
                 />
-                <div className="container">
+                <div className={globalsStyles.container}>
                     <NotificationsPage onClose={() => setShowNotifications(false)} />
                 </div>
             </div>
@@ -107,14 +109,14 @@ function AppContent() {
     }
 
     return (
-        <div className="app">
+        <div className={layoutStyles.app}>
             <Header 
                 onLogout={logout} 
                 onSettings={() => setShowSettings(true)}
                 onNotifications={handleOpenNotifications}
                 unreadCount={unreadCount}
             />
-            <div className="container">
+            <div className={globalsStyles.container}>
                 {renderPage()}
             </div>
             <BottomNav currentPage={currentPage} onNavigate={handleNavigate} />
@@ -125,7 +127,7 @@ function AppContent() {
 function App() {
     return (
         <AuthProvider>
-            <AvatarProvider>  {/* ← ОБЕРНИ В AvatarProvider */}
+            <AvatarProvider>
                 <AppContent />
             </AvatarProvider>
         </AuthProvider>
