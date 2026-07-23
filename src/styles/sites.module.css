@@ -242,3 +242,111 @@
         right: calc(50% - 250px + 24px);
     }
 }
+
+/* ============================================================
+   СТРАНИЦА ДОБАВЛЕНИЯ ОБЪЕКТА
+   ============================================================ */
+
+.addSitePage {
+    animation: fadeIn 0.25s ease;
+}
+
+.addSiteHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-xs) var(--spacing-lg) var(--spacing-xs);
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: var(--spacing-xl);
+}
+
+.addSiteBack {
+    background: none;
+    border: none;
+    font-size: var(--font-size-lg);
+    color: var(--color-primary);
+    cursor: pointer;
+    padding: var(--spacing-sm) var(--spacing-xs);
+    font-weight: 500;
+    font-family: inherit;
+}
+
+.addSiteBack:hover {
+    opacity: 0.7;
+}
+
+.addSiteTitle {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.addSiteSave {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: var(--spacing-sm) var(--spacing-xl);
+    border-radius: 20px;
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: var(--transition-normal);
+}
+
+.addSiteSave:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+}
+
+.addSiteSave:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.addSiteForm {
+    padding: 0 var(--spacing-xs);
+}
+
+.addSiteError {
+    background: #ffebee;
+    color: #c62828;
+    padding: 10px var(--spacing-md);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.addSiteField {
+    margin-bottom: var(--spacing-xl);
+}
+
+.addSiteLabel {
+    display: block;
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.addSiteInput {
+    width: 100%;
+    padding: var(--spacing-md) var(--spacing-md);
+    border: 1.5px solid var(--border-input);
+    border-radius: 10px;
+    font-size: var(--font-size-lg);
+    font-family: inherit;
+    transition: var(--transition-normal);
+    background: var(--bg-input);
+    color: var(--text-primary);
+}
+
+.addSiteInput:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.addSiteHint {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: var(--spacing-sm);
+}
