@@ -1,0 +1,163 @@
+/* ============================================================
+   ГЛОБАЛЬНЫЕ СТИЛИ
+   ============================================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    background: var(--bg-body);
+    color: var(--text-primary);
+    padding-bottom: 80px;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.app {
+    max-width: var(--max-width);
+    margin: 0 auto;
+}
+
+.container {
+    padding: var(--spacing-lg);
+}
+
+/* ============================================================
+   ЗАГРУЗКА
+   ============================================================ */
+
+.loadingText {
+    text-align: center;
+    padding: var(--spacing-3xl);
+    color: var(--text-muted);
+}
+
+/* ============================================================
+   ОШИБКИ
+   ============================================================ */
+
+.errorContainer {
+    max-width: var(--max-width);
+    margin: var(--spacing-3xl) auto;
+    padding: var(--spacing-xl);
+    text-align: center;
+    background: #ffebee;
+    border-radius: var(--radius-md);
+    border: 1px solid #ffcdd2;
+}
+
+.errorIcon {
+    font-size: 48px;
+    margin-bottom: var(--spacing-md);
+}
+
+.errorText {
+    font-size: 18px;
+    font-weight: 600;
+    color: #c62828;
+    margin-bottom: var(--spacing-sm);
+}
+
+.errorDetail {
+    font-size: var(--font-size-md);
+    color: #d32f2f;
+}
+
+/* ============================================================
+   АНИМАЦИИ
+   ============================================================ */
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes detailSlideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes shiftSlideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes savingFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes savingScaleIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes savingSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.fadeIn {
+    animation: fadeIn 0.25s ease;
+}
+
+.slideUp {
+    animation: slideUp 0.25s ease;
+}
+
+/* ============================================================
+   АДАПТИВ
+   ============================================================ */
+
+@media (max-width: 640px) {
+    .container {
+        padding: var(--spacing-md);
+    }
+}
+
+@media (max-width: 400px) {
+    .headerBrand .title {
+        font-size: 17px;
+    }
+}
