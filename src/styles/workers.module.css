@@ -455,3 +455,132 @@
 .workerDetailDelete:active {
     transform: scale(0.98);
 }
+/* ============================================================
+   КАЛЕНДАРЬ РАБОТНИКА
+   ============================================================ */
+
+.workerCalendar {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.workerCalendarHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.workerCalendarTitle {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.workerCalendarNav {
+    background: none;
+    border: none;
+    font-size: 20px;
+    padding: var(--spacing-xs) var(--spacing-md);
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: var(--transition-normal);
+    font-family: inherit;
+}
+
+.workerCalendarNav:hover {
+    background: #f0f0f0;
+    border-radius: var(--radius-sm);
+}
+
+.workerCalendarGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--spacing-xs);
+}
+
+.workerCalendarLabel {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-muted);
+    padding: 6px 0;
+    font-weight: 600;
+}
+
+.workerCalendarCell {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    position: relative;
+    padding: var(--spacing-xs);
+    user-select: none;
+}
+
+.workerCalendarCell.empty {
+    cursor: default;
+}
+
+.workerCalendarDay {
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.workerCalendarCell.today .workerCalendarDay {
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+.workerCalendarCell.selected {
+    background: var(--color-primary);
+}
+
+.workerCalendarCell.selected .workerCalendarDay {
+    color: white;
+}
+
+.workerCalendarCell.hasShift {
+    background: var(--color-primary-light);
+}
+
+.workerCalendarCell.hasShift.selected {
+    background: var(--color-primary);
+}
+
+.workerCalendarDot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    margin-top: 1px;
+}
+
+.workerCalendarCell.selected .workerCalendarDot {
+    background: white;
+}
+
+.workerCalendarStats {
+    margin-top: var(--spacing-md);
+    padding: 10px 0 var(--spacing-xs) 0;
+    border-top: 1px solid var(--border-light);
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+@media (max-width: 400px) {
+    .workerCalendar {
+        padding: var(--spacing-md);
+    }
+    
+    .workerCalendarDay {
+        font-size: var(--font-size-sm);
+    }
+}
