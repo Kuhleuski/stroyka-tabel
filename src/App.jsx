@@ -14,7 +14,6 @@ import { LoginPage } from './pages/LoginPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { NotificationsPage } from './pages/NotificationsPage'
 import layoutStyles from './styles/layout.module.css'
-import compStyles from './styles/components.module.css'
 
 function AppContent() {
     const [currentPage, setCurrentPage] = useState('calendar')
@@ -32,10 +31,10 @@ function AppContent() {
 
     if (error) {
         return (
-            <div className={globalsStyles.errorContainer}>
-                <div className={globalsStyles.errorIcon}>❌</div>
-                <div className={globalsStyles.errorText}>Ошибка загрузки данных</div>
-                <div className={globalsStyles.errorDetail}>{error}</div>
+            <div className="error-container">
+                <div className="error-icon">❌</div>
+                <div className="error-text">Ошибка загрузки данных</div>
+                <div className="error-detail">{error}</div>
             </div>
         )
     }
@@ -62,7 +61,7 @@ function AppContent() {
                     onNotifications={handleOpenNotifications}
                     unreadCount={unreadCount}
                 />
-                <div className={globalsStyles.container}>
+                <div className="container">
                     <SettingsPage 
                         onClose={() => setShowSettings(false)}
                         onLogout={logout}
@@ -81,7 +80,7 @@ function AppContent() {
                     onNotifications={handleOpenNotifications}
                     unreadCount={unreadCount}
                 />
-                <div className={globalsStyles.container}>
+                <div className="container">
                     <NotificationsPage onClose={() => setShowNotifications(false)} />
                 </div>
             </div>
@@ -115,7 +114,7 @@ function AppContent() {
                 onNotifications={handleOpenNotifications}
                 unreadCount={unreadCount}
             />
-            <div className={globalsStyles.container}>
+            <div className="container">
                 {renderPage()}
             </div>
             <BottomNav currentPage={currentPage} onNavigate={handleNavigate} />
