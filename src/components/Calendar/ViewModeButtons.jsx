@@ -1,3 +1,5 @@
+import styles from '../../styles/calendar.module.css'
+
 export function ViewModeButtons({ mode, onChange }) {
     const modes = [
         { key: 'month', label: 'Месяц' },
@@ -5,11 +7,11 @@ export function ViewModeButtons({ mode, onChange }) {
     ]
 
     return (
-        <div className="view-mode-buttons">
+        <div className={styles.viewModeButtons}>
             {modes.map(({ key, label }) => (
                 <button
                     key={key}
-                    className={`view-mode-btn ${mode === key ? 'active' : ''}`}
+                    className={`${styles.viewModeBtn} ${mode === key ? styles.active : ''}`}
                     onClick={() => onChange(key)}
                 >
                     {label}
