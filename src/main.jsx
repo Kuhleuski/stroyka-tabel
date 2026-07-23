@@ -4,7 +4,7 @@ import App from './App.jsx'
 
 // === ВСЕ ГЛОБАЛЬНЫЕ СТИЛИ ===
 import './styles/global.css'
-import './styles/variables.module.css'
+import './styles/variables.css'
 import './styles/layout.module.css'
 import './styles/auth.module.css'
 import './styles/calendar.module.css'
