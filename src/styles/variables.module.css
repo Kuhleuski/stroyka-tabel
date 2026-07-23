@@ -1,0 +1,107 @@
+/* ============================================================
+   CSS VARIABLES — СВЕТЛАЯ И ТЕМНАЯ ТЕМА
+   ============================================================ */
+
+:root {
+    /* Основные цвета */
+    --color-primary: #2d7d46;
+    --color-primary-hover: #236835;
+    --color-primary-light: #e8f5e9;
+    --color-primary-bg: #f0f7f2;
+    
+    /* Фоны */
+    --bg-body: #f5f7f6;
+    --bg-card: #ffffff;
+    --bg-input: #ffffff;
+    --bg-header: #ffffff;
+    --bg-nav: #ffffff;
+    
+    /* Текст */
+    --text-primary: #1a1a1a;
+    --text-secondary: #666666;
+    --text-muted: #999999;
+    --text-light: #888888;
+    
+    /* Границы */
+    --border-color: #e8eaed;
+    --border-light: #f0f0f0;
+    --border-input: #e0e0e0;
+    
+    /* Тени */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.3);
+    --shadow-primary: 0 2px 8px rgba(45, 125, 70, 0.25);
+    --shadow-primary-lg: 0 4px 16px rgba(45, 125, 70, 0.35);
+    
+    /* Скругления */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-full: 50px;
+    
+    /* Отступы */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
+    --spacing-xl: 24px;
+    --spacing-2xl: 32px;
+    --spacing-3xl: 40px;
+    
+    /* Шрифты */
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-size-xs: 10px;
+    --font-size-sm: 12px;
+    --font-size-md: 14px;
+    --font-size-lg: 16px;
+    --font-size-xl: 20px;
+    --font-size-2xl: 22px;
+    --font-size-3xl: 28px;
+    
+    /* Анимации */
+    --transition-fast: 0.15s;
+    --transition-normal: 0.2s;
+    --transition-slow: 0.3s;
+    
+    /* Z-index */
+    --z-header: 25;
+    --z-nav: 25;
+    --z-fab: 15;
+    --z-modal: 1000;
+    --z-save-screen: 2000;
+    --z-shift-form: 1000;
+    
+    /* Максимальная ширина */
+    --max-width: 500px;
+}
+
+/* ============================================================
+   ТЕМНАЯ ТЕМА
+   ============================================================ */
+
+[data-theme="dark"] {
+    --bg-body: #121212;
+    --bg-card: #1e1e1e;
+    --bg-input: #2d2d2d;
+    --bg-header: #1a1a1a;
+    --bg-nav: #1a1a1a;
+    
+    --text-primary: #f0f0f0;
+    --text-secondary: #aaaaaa;
+    --text-muted: #777777;
+    --text-light: #888888;
+    
+    --border-color: #333333;
+    --border-light: #2a2a2a;
+    --border-input: #444444;
+    
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.5);
+    
+    --color-primary-bg: #1a2a1e;
+    --color-primary-light: #1a2a1e;
+}
