@@ -145,32 +145,24 @@ export function BottomNav({ currentPage, onNavigate, onNotifications, unreadCoun
     return (
         <div className={styles.bottomNav}>
             <div className={styles.navContainer}>
-                {/* Основная группа — ТОЛЬКО ИКОНКИ (без подписей) */}
-                <div className={styles.mainGroup}>
-                    {mainItems.map(({ key, icon }) => (
-                        <button
-                            key={key}
-                            className={`${styles.mainItem} ${currentPage === key ? styles.active : ''}`}
-                            onClick={() => handleNavigate(key)}
-                        >
-                            <span className={styles.iconWrap}>{icon}</span>
-                        </button>
-                    ))}
-                </div>
+                {/* ОСНОВНАЯ ГРУППА — видна когда меню ЗАКРЫТО */}
+                {!isExpanded && (
+                    <div className={styles.mainGroup}>
+                        {mainItems.map(({ key, icon }) => (
+                            <button
+                                key={key}
+                                className={`${styles.mainItem} ${currentPage === key ? styles.active : ''}`}
+                                onClick={() => handleNavigate(key)}
+                            >
+                                <span className={styles.iconWrap}>{icon}</span>
+                            </button>
+                        ))}
+                    </div>
+                )}
 
-                {/* Бургер */}
-                <button 
-                    className={`${styles.burgerBtn} ${isExpanded ? styles.burgerActive : ''}`}
-                    onClick={toggleMenu}
-                >
-                    <span className={styles.navIcon}><BurgerIcon /></span>
-                </button>
-            </div>
-
-            {/* Дополнительное меню (выезжает снизу) — в стиле аватарок из бригады */}
-            {isAdmin && (
-                <div className={`${styles.extraMenuContainer} ${isExpanded ? styles.expanded : ''}`}>
-                    <div className={styles.extraGrid}>
+                {/* ДОПОЛНИТЕЛЬНАЯ ГРУППА — видна когда меню ОТКРЫТО */}
+                {isAdmin && isExpanded && (
+                    <div className={styles.extraGroup}>
                         {extraItems.map(({ key, icon, label, badge }) => (
                             <button
                                 key={key}
@@ -189,8 +181,16 @@ export function BottomNav({ currentPage, onNavigate, onNotifications, unreadCoun
                             </button>
                         ))}
                     </div>
-                </div>
-            )}
+                )}
+
+                {/* БУРГЕР — всегда виден */}
+                <button 
+                    className={`${styles.burgerBtn} ${isExpanded ? styles.burgerActive : ''}`}
+                    onClick={toggleMenu}
+                >
+                    <span className={styles.navIcon}><BurgerIcon /></span>
+                </button>
+            </div>
         </div>
     )
 }
