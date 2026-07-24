@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import styles from '../../styles/layout.module.css'
 
-// === ПЛОСКИЕ SVG-ИКОНКИ ===
+// === ПЛОСКИЕ SVG-ИКОНКИ (Lucide) ===
 const icons = {
     'calendar': (
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -39,21 +39,26 @@ const icons = {
             <path d="M2 12l10 5 10-5"/>
         </svg>
     ),
+    // === ИСПРАВЛЕННАЯ ИКОНКА: chartNoAxesCombined ===
     'statistics': (
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 12v-2a5 5 0 0 0-5-5H8a5 5 0 0 0-5 5v2"/>
-            <circle cx="12" cy="16" r="5"/>
-            <path d="M12 11v5"/>
-            <path d="M9 13l3 3 3-3"/>
+            <path d="M12 16v-4"/>
+            <path d="M12 8V6"/>
+            <path d="M18 16v-8"/>
+            <path d="M6 16v-2"/>
+            <path d="M3 20h18"/>
+            <path d="M6 20v-2"/>
+            <path d="M12 20v-4"/>
+            <path d="M18 20v-8"/>
         </svg>
     ),
+    // === ИСПРАВЛЕННАЯ ИКОНКА: handCoins ===
     'costs': (
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2a10 10 0 1 0 10 10 10 10 0 0 0-10-10z"/>
-            <path d="M12 6v4"/>
-            <path d="M12 18v-2"/>
-            <path d="M9 9l3 3 3-3"/>
-            <path d="M9 15l3-3 3 3"/>
+            <path d="M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 17"/>
+            <path d="m7 21 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.8-2.8L14 13"/>
+            <circle cx="6" cy="18" r="2"/>
+            <circle cx="18" cy="6" r="2"/>
         </svg>
     ),
     'salary': (
@@ -119,7 +124,6 @@ export function BottomNav({ currentPage, onNavigate }) {
         <div className={styles.bottomNav}>
             <div className={styles.navContainer}>
                 <div className={styles.iconGroupWrapper}>
-                    {/* Основные пункты — уезжают вниз при открытии */}
                     <div className={`${styles.iconGroup} ${isExpanded ? styles.iconGroupSlideDown : styles.iconGroupVisible}`}>
                         {mainItems.map(({ key, icon }) => (
                             <button
@@ -132,7 +136,6 @@ export function BottomNav({ currentPage, onNavigate }) {
                         ))}
                     </div>
 
-                    {/* Дополнительные пункты — выезжают снизу при открытии */}
                     {isAdmin && (
                         <div className={`${styles.iconGroup} ${styles.iconGroupExtra} ${isExpanded ? styles.iconGroupSlideUp : ''}`}>
                             {extraItems.map(({ key, icon }) => (
