@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import styles from '../styles/auth.module.css'
 
-export default function LoginPage({ onLogin }) {
+export function LoginPage({ onLogin }) {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
 
