@@ -130,7 +130,7 @@
 }
 
 /* ============================================================
-   НИЖНЯЯ НАВИГАЦИЯ — СТЕКЛЯННЫЙ ДИЗАЙН
+   НИЖНЯЯ НАВИГАЦИЯ — СМЕНА БЛОКОВ
    ============================================================ */
 
 .bottomNav {
@@ -150,103 +150,134 @@
     align-items: center;
     gap: 12px;
     position: relative;
+    min-height: 64px;
 }
 
-/* === ОСНОВНАЯ ГРУППА — 4 ИКОНКИ === */
-.mainGroup {
+/* === ГРУППА ИКОНОК — СТЕКЛЯННЫЙ ФОН === */
+.iconGroup {
     flex: 1;
-    display: flex;
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 16px;
+    position: relative;
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 50px;
     padding: 6px;
+    height: 60px;
+    overflow: hidden;
+    transition: background 0.3s ease;
+}
+
+[data-theme="dark"] .iconGroup {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* === НАБОР ИКОНОК (анимированный) === */
+.iconSet {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
     gap: 4px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    right: 6px;
+    bottom: 6px;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    opacity: 1;
+    transform: translateY(0) scale(1);
 }
 
-[data-theme="dark"] .mainGroup {
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+.iconSet.hiddenSet {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+    pointer-events: none;
 }
 
-.mainGroupDimmed {
-    opacity: 0.4;
+.iconSet.activeSet {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
 }
 
-/* === ПУНКТ В ОСНОВНОЙ ГРУППЕ === */
-.navItem {
+/* === ОТДЕЛЬНАЯ ИКОНКА === */
+.iconItem {
     flex: 1;
     background: none;
     border: none;
-    padding: 8px 0;
-    color: rgba(0, 0, 0, 0.6);
+    padding: 4px 0;
+    color: rgba(0, 0, 0, 0.5);
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.25s ease;
-    border-radius: 12px;
+    border-radius: 30px;
     min-width: 0;
+    height: 100%;
+    gap: 2px;
 }
 
-[data-theme="dark"] .navItem {
-    color: rgba(255, 255, 255, 0.7);
+[data-theme="dark"] .iconItem {
+    color: rgba(255, 255, 255, 0.5);
 }
 
-.navItem .navIcon {
+.iconItem .iconWrap {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.navItem .navIcon svg {
-    width: 26px;
-    height: 26px;
+.iconItem .iconWrap svg {
+    width: 24px;
+    height: 24px;
     stroke: currentColor;
 }
 
-.navItem.active {
+.iconItem.active {
     color: var(--color-primary);
     background: var(--color-primary-light);
 }
 
-[data-theme="dark"] .navItem.active {
+[data-theme="dark"] .iconItem.active {
     color: var(--color-primary);
-    background: rgba(45, 125, 70, 0.25);
+    background: rgba(45, 125, 70, 0.3);
 }
 
-.navItem:disabled {
-    cursor: not-allowed;
-    opacity: 0.4;
+.iconItemWithLabel .iconWrap svg {
+    width: 20px;
+    height: 20px;
+}
+
+.iconLabel {
+    font-size: 8px;
+    color: inherit;
+    font-weight: 500;
+    opacity: 0.7;
+    line-height: 1;
 }
 
 /* === БУРГЕР === */
 .burgerBtn {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border: none;
-    width: 52px;
-    height: 52px;
+    width: 54px;
+    height: 54px;
     border-radius: 50%;
-    color: rgba(0, 0, 0, 0.7);
+    color: rgba(0, 0, 0, 0.6);
     cursor: pointer;
     transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
 [data-theme="dark"] .burgerBtn {
-    background: rgba(0, 0, 0, 0.6);
-    color: rgba(255, 255, 255, 0.85);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    background: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .burgerBtn .navIcon {
@@ -256,8 +287,8 @@
 }
 
 .burgerBtn .navIcon svg {
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
     stroke: currentColor;
 }
 
@@ -270,109 +301,11 @@
 }
 
 .burgerActive {
-    background: rgba(255, 255, 255, 0.95) !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+    background: rgba(0, 0, 0, 0.15) !important;
 }
 
 [data-theme="dark"] .burgerActive {
-    background: rgba(0, 0, 0, 0.8) !important;
-}
-
-/* === ДОПОЛНИТЕЛЬНОЕ МЕНЮ === */
-.extraMenu {
-    max-height: 0;
-    opacity: 0;
-    overflow: hidden;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
-    padding: 0 4px;
-    margin-top: 0;
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 16px;
-    transform: translateY(-8px) scale(0.96);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-}
-
-[data-theme="dark"] .extraMenu {
-    background: rgba(0, 0, 0, 0.5);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-
-.extraMenu.expanded {
-    max-height: 140px;
-    opacity: 1;
-    padding: 12px 8px;
-    margin-top: 10px;
-    transform: translateY(0) scale(1);
-}
-
-/* === ПУНКТ В ДОПОЛНИТЕЛЬНОМ МЕНЮ === */
-.extraItem {
-    background: none;
-    border: none;
-    padding: 6px 0;
-    color: rgba(0, 0, 0, 0.6);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border-radius: 10px;
-    font-family: inherit;
-    font-weight: 500;
-}
-
-[data-theme="dark"] .extraItem {
-    color: rgba(255, 255, 255, 0.7);
-}
-
-.extraItem .extraIcon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.extraItem .extraIcon svg {
-    width: 22px;
-    height: 22px;
-    stroke: currentColor;
-}
-
-.extraItem .extraLabel {
-    font-size: 9px;
-    color: rgba(0, 0, 0, 0.5);
-    font-weight: 500;
-}
-
-[data-theme="dark"] .extraItem .extraLabel {
-    color: rgba(255, 255, 255, 0.5);
-}
-
-.extraItem.active {
-    color: var(--color-primary);
-    background: var(--color-primary-light);
-}
-
-[data-theme="dark"] .extraItem.active {
-    color: var(--color-primary);
-    background: rgba(45, 125, 70, 0.25);
-}
-
-.extraItem.active .extraLabel {
-    color: var(--color-primary);
-}
-
-.extraItem:hover {
-    background: rgba(0, 0, 0, 0.05);
-}
-
-[data-theme="dark"] .extraItem:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.25) !important;
 }
 
 /* === АДАПТИВ === */
@@ -383,38 +316,44 @@
 
     .navContainer {
         gap: 8px;
+        min-height: 56px;
     }
 
-    .mainGroup {
+    .iconGroup {
+        height: 52px;
         padding: 4px;
+        border-radius: 40px;
+    }
+
+    .iconSet {
+        top: 4px;
+        left: 4px;
+        right: 4px;
+        bottom: 4px;
         gap: 2px;
     }
 
-    .navItem .navIcon svg {
-        width: 22px;
-        height: 22px;
-    }
-
-    .burgerBtn {
-        width: 46px;
-        height: 46px;
-    }
-
-    .burgerBtn .navIcon svg {
-        width: 22px;
-        height: 22px;
-    }
-
-    .extraItem .extraIcon svg {
+    .iconItem .iconWrap svg {
         width: 20px;
         height: 20px;
     }
 
-    .extraItem .extraLabel {
-        font-size: 8px;
+    .iconItemWithLabel .iconWrap svg {
+        width: 18px;
+        height: 18px;
     }
 
-    .extraMenu.expanded {
-        padding: 10px 6px;
+    .iconLabel {
+        font-size: 7px;
+    }
+
+    .burgerBtn {
+        width: 48px;
+        height: 48px;
+    }
+
+    .burgerBtn .navIcon svg {
+        width: 20px;
+        height: 20px;
     }
 }
