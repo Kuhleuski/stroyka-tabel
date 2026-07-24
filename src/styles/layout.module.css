@@ -130,7 +130,7 @@
 }
 
 /* ============================================================
-   НИЖНЯЯ НАВИГАЦИЯ
+   НИЖНЯЯ НАВИГАЦИЯ — С АНИМАЦИЕЙ
    ============================================================ */
 
 .bottomNav {
@@ -152,6 +152,13 @@
     position: relative;
     min-height: 64px;
     margin-right: 66px;
+}
+
+/* === ОБЕРТКА ДЛЯ ГРУПП === */
+.groupsWrapper {
+    flex: 1;
+    position: relative;
+    min-height: 60px;
 }
 
 /* ============================================================
@@ -215,11 +222,10 @@
 }
 
 /* ============================================================
-   ОСНОВНАЯ ГРУППА — 4 КОЛОНКИ, ПОЛНОСТЬЮ СКРУГЛЕННЫЕ УГЛЫ
+   ОСНОВНАЯ ГРУППА — С АНИМАЦИЕЙ
    ============================================================ */
 
 .mainGroup {
-    flex: 1;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 4px;
@@ -228,84 +234,35 @@
     padding: 6px 8px;
     align-items: center;
     min-height: 60px;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    transform-origin: center;
 }
 
 [data-theme="dark"] .mainGroup {
     background: #ffffff;
 }
 
-.mainItem {
-    background: none;
-    border: none;
-    padding: 4px 0;
-    color: rgba(255, 255, 255, 0.7);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: inherit;
-    border-radius: 50px;
-    padding: 6px 4px;
-}
-
-[data-theme="dark"] .mainItem {
-    color: rgba(0, 0, 0, 0.6);
-}
-
-.mainItem .iconWrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.mainItem .iconWrap svg {
-    width: 28px;
-    height: 28px;
-    stroke: currentColor;
-    color: #ffffff;
-}
-
-[data-theme="dark"] .mainItem .iconWrap svg {
-    color: #000000;
-}
-
-.mainItem.active .iconWrap svg {
-    color: var(--color-primary);
-}
-
-.mainItem.active {
-    color: var(--color-primary);
-    background: var(--color-primary-light);
-}
-
-[data-theme="dark"] .mainItem.active {
-    background: rgba(45, 125, 70, 0.3);
-}
-
-.mainLabel {
-    font-size: 9px;
-    color: inherit;
-    font-weight: 500;
-    text-align: center;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    opacity: 0.8;
-}
-
-.mainItem.active .mainLabel {
+.mainGroupVisible {
     opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
+}
+
+.mainGroupHidden {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+    pointer-events: none;
 }
 
 /* ============================================================
-   ДОПОЛНИТЕЛЬНАЯ ГРУППА — 3 КОЛОНКИ, ПОЛНОСТЬЮ СКРУГЛЕННЫЕ УГЛЫ
+   ДОПОЛНИТЕЛЬНАЯ ГРУППА — С АНИМАЦИЕЙ
    ============================================================ */
 
 .extraGroup {
-    flex: 1;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 4px;
@@ -314,12 +271,35 @@
     padding: 6px 8px;
     align-items: center;
     min-height: 60px;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    transform-origin: center;
 }
 
 [data-theme="dark"] .extraGroup {
     background: #ffffff;
 }
 
+.extraGroupVisible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
+}
+
+.extraGroupHidden {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    pointer-events: none;
+}
+
+/* ============================================================
+   ОБЩИЕ СТИЛИ ДЛЯ ПУНКТОВ
+   ============================================================ */
+
+.mainItem,
 .extraItem {
     background: none;
     border: none;
@@ -330,17 +310,18 @@
     align-items: center;
     gap: 2px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
     font-family: inherit;
     border-radius: 50px;
     padding: 6px 4px;
-    position: relative;
 }
 
+[data-theme="dark"] .mainItem,
 [data-theme="dark"] .extraItem {
     color: rgba(0, 0, 0, 0.6);
 }
 
+.mainItem .iconWrap,
 .extraItem .extraIconWrap {
     display: flex;
     align-items: center;
@@ -348,30 +329,37 @@
     position: relative;
 }
 
+.mainItem .iconWrap svg,
 .extraItem .extraIconWrap svg {
     width: 28px;
     height: 28px;
     stroke: currentColor;
     color: #ffffff;
+    transition: color 0.25s ease;
 }
 
+[data-theme="dark"] .mainItem .iconWrap svg,
 [data-theme="dark"] .extraItem .extraIconWrap svg {
     color: #000000;
 }
 
+.mainItem.active .iconWrap svg,
 .extraItem.active .extraIconWrap svg {
     color: var(--color-primary);
 }
 
+.mainItem.active,
 .extraItem.active {
     color: var(--color-primary);
     background: var(--color-primary-light);
 }
 
+[data-theme="dark"] .mainItem.active,
 [data-theme="dark"] .extraItem.active {
     background: rgba(45, 125, 70, 0.3);
 }
 
+.mainLabel,
 .extraLabel {
     font-size: 9px;
     color: inherit;
@@ -382,8 +370,10 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     opacity: 0.8;
+    transition: opacity 0.25s ease;
 }
 
+.mainItem.active .mainLabel,
 .extraItem.active .extraLabel {
     opacity: 1;
 }
@@ -452,22 +442,7 @@
         gap: 8px;
     }
 
-    .mainGroup {
-        padding: 4px 6px;
-        gap: 2px;
-        min-height: 52px;
-        border-radius: 40px;
-    }
-
-    .mainItem .iconWrap svg {
-        width: 22px;
-        height: 22px;
-    }
-
-    .mainLabel {
-        font-size: 8px;
-    }
-
+    .mainGroup,
     .extraGroup {
         padding: 4px 6px;
         gap: 2px;
@@ -475,11 +450,13 @@
         border-radius: 40px;
     }
 
+    .mainItem .iconWrap svg,
     .extraItem .extraIconWrap svg {
         width: 22px;
         height: 22px;
     }
 
+    .mainLabel,
     .extraLabel {
         font-size: 8px;
     }
