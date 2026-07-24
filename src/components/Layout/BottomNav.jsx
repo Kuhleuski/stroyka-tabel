@@ -39,7 +39,6 @@ const icons = {
             <path d="M2 12l10 5 10-5"/>
         </svg>
     ),
-    // === chart-spline ===
     'statistics': (
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M3 3v18h18"/>
@@ -125,34 +124,39 @@ export function BottomNav({ currentPage, onNavigate, onNotifications, unreadCoun
         </svg>
     )
 
+    const hasUnread = unreadCount > 0
+
     return (
         <div className={styles.bottomNav}>
             <button 
                 className={`${styles.burgerBtn} ${isExpanded ? styles.burgerActive : ''}`}
                 onClick={toggleMenu}
             >
-                <span className={styles.navIcon}><BurgerIcon /></span>
+                <span className={styles.navIcon}>
+                    <BurgerIcon />
+                    {hasUnread && <span className={styles.burgerBadge}></span>}
+                </span>
             </button>
 
             <div className={styles.navContainer}>
-                <div className={`${styles.groupsWrapper} ${isExpanded ? styles.groupsExpanded : ''}`}>
-                    {/* Основная группа */}
-                    <div className={`${styles.mainGroup} ${isExpanded ? styles.mainGroupHidden : styles.mainGroupVisible}`}>
-                        {mainItems.map(({ key, icon, label }) => (
-                            <button
-                                key={key}
-                                className={`${styles.mainItem} ${currentPage === key ? styles.active : ''}`}
-                                onClick={() => handleNavigate(key)}
-                            >
-                                <span className={styles.iconWrap}>{icon}</span>
-                                <span className={styles.mainLabel}>{label}</span>
-                            </button>
-                        ))}
-                    </div>
+                <div className={styles.groupsWrapper}>
+                    {!isExpanded && (
+                        <div className={`${styles.mainGroup} ${styles.mainGroupVisible}`}>
+                            {mainItems.map(({ key, icon, label }) => (
+                                <button
+                                    key={key}
+                                    className={`${styles.mainItem} ${currentPage === key ? styles.active : ''}`}
+                                    onClick={() => handleNavigate(key)}
+                                >
+                                    <span className={styles.iconWrap}>{icon}</span>
+                                    <span className={styles.mainLabel}>{label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
 
-                    {/* Дополнительная группа */}
-                    {isAdmin && (
-                        <div className={`${styles.extraGroup} ${isExpanded ? styles.extraGroupVisible : styles.extraGroupHidden}`}>
+                    {isAdmin && isExpanded && (
+                        <div className={`${styles.extraGroup} ${styles.extraGroupVisible}`}>
                             {extraItems.map(({ key, icon, label, badge }) => (
                                 <button
                                     key={key}
