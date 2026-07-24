@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import styles from '../../styles/layout.module.css'
 
@@ -39,7 +39,6 @@ const icons = {
             <path d="M2 12l10 5 10-5"/>
         </svg>
     ),
-    // === chart-no-axes-combined ===
     'statistics': (
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 16v-4"/>
@@ -52,7 +51,6 @@ const icons = {
             <path d="M18 20v-8"/>
         </svg>
     ),
-    // === circleMinus ===
     'costs': (
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10"/>
@@ -78,6 +76,19 @@ export function BottomNav({ currentPage, onNavigate }) {
     const [isExpanded, setIsExpanded] = useState(false)
     const isAdmin = user?.role === 'admin'
 
+    // Проверяем, находится ли текущая страница в основном меню
+    const mainKeys = ['calendar', 'my-tabel', 'workers', 'sites']
+    const extraKeys = ['statistics', 'costs', 'salary', 'settings']
+
+    // При смене страницы, если страница из дополнительного меню — оставляем меню открытым
+    useEffect(() => {
+        if (extraKeys.includes(currentPage)) {
+            setIsExpanded(true)
+        } else if (mainKeys.includes(currentPage)) {
+            setIsExpanded(false)
+        }
+    }, [currentPage])
+
     const mainItems = [
         { key: 'calendar', icon: icons.calendar },
         { key: 'my-tabel', icon: icons['my-tabel'] },
@@ -98,7 +109,8 @@ export function BottomNav({ currentPage, onNavigate }) {
 
     const handleNavigate = (key) => {
         onNavigate(key)
-        setIsExpanded(false)
+        // Не закрываем меню! Страница переключится, а меню останется открытым
+        // Закрытие управляется через useEffect
     }
 
     const BurgerIcon = () => (
