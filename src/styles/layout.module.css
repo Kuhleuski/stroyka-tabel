@@ -368,3 +368,32 @@
         height: 20px;
     }
 }
+/* === БЕЙДЖ ДЛЯ УВЕДОМЛЕНИЙ === */
+.badgeDot {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    background: #c62828;
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--bg-nav);
+}
+
+[data-theme="dark"] .badgeDot {
+    border-color: #1a1a1a;
+}
+
+/* Убедись, что иконка имеет позицию relative для бейджа */
+.iconWrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
