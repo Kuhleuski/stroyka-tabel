@@ -130,7 +130,7 @@
 }
 
 /* ============================================================
-   НИЖНЯЯ НАВИГАЦИЯ — СМЕНА БЛОКОВ С АНИМАЦИЕЙ
+   НИЖНЯЯ НАВИГАЦИЯ — СМЕНА БЛОКОВ С ПЛАВНОЙ АНИМАЦИЕЙ
    ============================================================ */
 
 .bottomNav {
@@ -153,7 +153,6 @@
     min-height: 64px;
 }
 
-/* === ОБЕРТКА ДЛЯ ГРУПП === */
 .iconGroupWrapper {
     flex: 1;
     position: relative;
@@ -175,7 +174,7 @@
     bottom: 0;
     padding: 6px;
     border-radius: 50px;
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     background: rgba(22, 25, 29, 0.97);
 }
 
@@ -183,7 +182,6 @@
     background: #ffffff;
 }
 
-/* Основная группа — всегда на месте, уезжает вниз */
 .iconGroupVisible {
     transform: translateY(0);
     opacity: 1;
@@ -194,7 +192,6 @@
     opacity: 0;
 }
 
-/* Дополнительная группа — скрыта, выезжает снизу */
 .iconGroupExtra {
     transform: translateY(100%);
     opacity: 0;
