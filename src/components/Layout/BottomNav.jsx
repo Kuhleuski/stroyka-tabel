@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import styles from '../../styles/layout.module.css'
 
-// === ПЛОСКИЕ SVG-ИКОНКИ (Lucide) — увеличены до 28px ===
+// === ПЛОСКИЕ SVG-ИКОНКИ (Lucide) ===
 const icons = {
     'calendar': (
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -39,6 +39,7 @@ const icons = {
             <path d="M2 12l10 5 10-5"/>
         </svg>
     ),
+    // === chart-no-axes-combined ===
     'statistics': (
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 16v-4"/>
@@ -51,12 +52,11 @@ const icons = {
             <path d="M18 20v-8"/>
         </svg>
     ),
+    // === circleMinus ===
     'costs': (
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 17"/>
-            <path d="m7 21 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.8-2.8L14 13"/>
-            <circle cx="6" cy="18" r="2"/>
-            <circle cx="18" cy="6" r="2"/>
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="8" y1="12" x2="16" y2="12"/>
         </svg>
     ),
     'salary': (
