@@ -215,14 +215,14 @@
 }
 
 /* ============================================================
-   ОСНОВНАЯ ГРУППА — КАК В ДОП МЕНЮ (КВАДРАТЫ + ПОДПИСЬ)
+   ОСНОВНАЯ ГРУППА — ТОЛЬКО ИКОНКИ + ПОДПИСИ (БЕЗ КВАДРАТОВ)
    ============================================================ */
 
 .mainGroup {
     flex: 1;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
+    gap: 4px;
     background: rgba(22, 25, 29, 0.97);
     border-radius: 16px;
     padding: 8px 6px;
@@ -237,46 +237,20 @@
 .mainItem {
     background: none;
     border: none;
-    padding: 0;
-    color: var(--text-muted);
+    padding: 4px 0;
+    color: rgba(255, 255, 255, 0.6);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
     cursor: pointer;
     transition: all 0.2s ease;
     font-family: inherit;
+    border-radius: 8px;
 }
 
-.mainItem:hover .mainIconBox {
-    transform: translateY(-2px);
-}
-
-.mainItem:active .mainIconBox {
-    transform: scale(0.92);
-}
-
-.mainIconBox {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.06);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.25s ease;
-}
-
-[data-theme="dark"] .mainIconBox {
-    background: rgba(0, 0, 0, 0.06);
-}
-
-.mainItem.active .mainIconBox {
-    background: var(--color-primary-light);
-}
-
-[data-theme="dark"] .mainItem.active .mainIconBox {
-    background: rgba(45, 125, 70, 0.3);
+[data-theme="dark"] .mainItem {
+    color: rgba(0, 0, 0, 0.5);
 }
 
 .mainItem .iconWrap {
@@ -300,34 +274,40 @@
     color: var(--color-primary);
 }
 
+.mainItem.active {
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+}
+
+[data-theme="dark"] .mainItem.active {
+    background: rgba(45, 125, 70, 0.3);
+}
+
 .mainLabel {
-    font-size: 9px;
-    color: rgba(255, 255, 255, 0.6);
+    font-size: 8px;
+    color: inherit;
     font-weight: 500;
     text-align: center;
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-
-[data-theme="dark"] .mainLabel {
-    color: rgba(0, 0, 0, 0.5);
+    opacity: 0.7;
 }
 
 .mainItem.active .mainLabel {
-    color: var(--color-primary);
+    opacity: 1;
 }
 
 /* ============================================================
-   ДОПОЛНИТЕЛЬНАЯ ГРУППА (3 пункта)
+   ДОПОЛНИТЕЛЬНАЯ ГРУППА (3 пункта) — БЕЗ КВАДРАТОВ
    ============================================================ */
 
 .extraGroup {
     flex: 1;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
+    gap: 4px;
     background: rgba(22, 25, 29, 0.97);
     border-radius: 16px;
     padding: 8px 6px;
@@ -342,64 +322,38 @@
 .extraItem {
     background: none;
     border: none;
-    padding: 0;
-    color: var(--text-muted);
+    padding: 4px 0;
+    color: rgba(255, 255, 255, 0.6);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
     cursor: pointer;
     transition: all 0.2s ease;
     font-family: inherit;
-}
-
-.extraItem:hover .extraIconBox {
-    transform: translateY(-2px);
-}
-
-.extraItem:active .extraIconBox {
-    transform: scale(0.92);
-}
-
-.extraIconBox {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.06);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.25s ease;
+    border-radius: 8px;
     position: relative;
 }
 
-[data-theme="dark"] .extraIconBox {
-    background: rgba(0, 0, 0, 0.06);
+[data-theme="dark"] .extraItem {
+    color: rgba(0, 0, 0, 0.5);
 }
 
-.extraItem.active .extraIconBox {
-    background: var(--color-primary-light);
-}
-
-[data-theme="dark"] .extraItem.active .extraIconBox {
-    background: rgba(45, 125, 70, 0.3);
-}
-
-.extraIconWrap {
+.extraItem .extraIconWrap {
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
 }
 
-.extraIconWrap svg {
+.extraItem .extraIconWrap svg {
     width: 24px;
     height: 24px;
     stroke: currentColor;
     color: #ffffff;
 }
 
-[data-theme="dark"] .extraIconWrap svg {
+[data-theme="dark"] .extraItem .extraIconWrap svg {
     color: #000000;
 }
 
@@ -407,23 +361,29 @@
     color: var(--color-primary);
 }
 
+.extraItem.active {
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+}
+
+[data-theme="dark"] .extraItem.active {
+    background: rgba(45, 125, 70, 0.3);
+}
+
 .extraLabel {
-    font-size: 9px;
-    color: rgba(255, 255, 255, 0.6);
+    font-size: 8px;
+    color: inherit;
     font-weight: 500;
     text-align: center;
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-
-[data-theme="dark"] .extraLabel {
-    color: rgba(0, 0, 0, 0.5);
+    opacity: 0.7;
 }
 
 .extraItem.active .extraLabel {
-    color: var(--color-primary);
+    opacity: 1;
 }
 
 /* ============================================================
@@ -449,13 +409,6 @@
 
 [data-theme="dark"] .badgeDot {
     border-color: #ffffff;
-}
-
-.iconWrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 /* ============================================================
@@ -499,13 +452,7 @@
 
     .mainGroup {
         padding: 6px 4px;
-        gap: 4px;
-    }
-
-    .mainIconBox {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
+        gap: 3px;
     }
 
     .mainItem .iconWrap svg {
@@ -514,27 +461,21 @@
     }
 
     .mainLabel {
-        font-size: 8px;
+        font-size: 7px;
     }
 
     .extraGroup {
         padding: 6px 4px;
-        gap: 4px;
+        gap: 3px;
     }
 
-    .extraIconBox {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-    }
-
-    .extraIconWrap svg {
+    .extraItem .extraIconWrap svg {
         width: 20px;
         height: 20px;
     }
 
     .extraLabel {
-        font-size: 8px;
+        font-size: 7px;
     }
 
     .burgerBtn {
