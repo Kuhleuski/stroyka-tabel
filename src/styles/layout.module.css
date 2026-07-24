@@ -193,8 +193,8 @@
 }
 
 .burgerBtn .navIcon svg {
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
     stroke: currentColor;
 }
 
@@ -215,7 +215,7 @@
 }
 
 /* ============================================================
-   ОСНОВНАЯ ГРУППА — ТОЛЬКО ИКОНКИ + ПОДПИСИ (БЕЗ КВАДРАТОВ)
+   ОСНОВНАЯ ГРУППА — 4 КОЛОНКИ, ПОЛНОСТЬЮ СКРУГЛЕННЫЕ УГЛЫ
    ============================================================ */
 
 .mainGroup {
@@ -224,10 +224,10 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 4px;
     background: rgba(22, 25, 29, 0.97);
-    border-radius: 16px;
-    padding: 8px 6px;
+    border-radius: 50px;
+    padding: 6px 8px;
     align-items: center;
-    min-height: 56px;
+    min-height: 60px;
 }
 
 [data-theme="dark"] .mainGroup {
@@ -238,7 +238,7 @@
     background: none;
     border: none;
     padding: 4px 0;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.7);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -246,11 +246,12 @@
     cursor: pointer;
     transition: all 0.2s ease;
     font-family: inherit;
-    border-radius: 8px;
+    border-radius: 50px;
+    padding: 6px 4px;
 }
 
 [data-theme="dark"] .mainItem {
-    color: rgba(0, 0, 0, 0.5);
+    color: rgba(0, 0, 0, 0.6);
 }
 
 .mainItem .iconWrap {
@@ -260,8 +261,8 @@
 }
 
 .mainItem .iconWrap svg {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     stroke: currentColor;
     color: #ffffff;
 }
@@ -284,7 +285,7 @@
 }
 
 .mainLabel {
-    font-size: 8px;
+    font-size: 9px;
     color: inherit;
     font-weight: 500;
     text-align: center;
@@ -292,7 +293,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    opacity: 0.7;
+    opacity: 0.8;
 }
 
 .mainItem.active .mainLabel {
@@ -300,7 +301,7 @@
 }
 
 /* ============================================================
-   ДОПОЛНИТЕЛЬНАЯ ГРУППА (3 пункта) — БЕЗ КВАДРАТОВ
+   ДОПОЛНИТЕЛЬНАЯ ГРУППА — 3 КОЛОНКИ, ПОЛНОСТЬЮ СКРУГЛЕННЫЕ УГЛЫ
    ============================================================ */
 
 .extraGroup {
@@ -309,10 +310,10 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 4px;
     background: rgba(22, 25, 29, 0.97);
-    border-radius: 16px;
-    padding: 8px 6px;
+    border-radius: 50px;
+    padding: 6px 8px;
     align-items: center;
-    min-height: 56px;
+    min-height: 60px;
 }
 
 [data-theme="dark"] .extraGroup {
@@ -323,7 +324,7 @@
     background: none;
     border: none;
     padding: 4px 0;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.7);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -331,12 +332,13 @@
     cursor: pointer;
     transition: all 0.2s ease;
     font-family: inherit;
-    border-radius: 8px;
+    border-radius: 50px;
+    padding: 6px 4px;
     position: relative;
 }
 
 [data-theme="dark"] .extraItem {
-    color: rgba(0, 0, 0, 0.5);
+    color: rgba(0, 0, 0, 0.6);
 }
 
 .extraItem .extraIconWrap {
@@ -347,8 +349,8 @@
 }
 
 .extraItem .extraIconWrap svg {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     stroke: currentColor;
     color: #ffffff;
 }
@@ -371,7 +373,7 @@
 }
 
 .extraLabel {
-    font-size: 8px;
+    font-size: 9px;
     color: inherit;
     font-weight: 500;
     text-align: center;
@@ -379,7 +381,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    opacity: 0.7;
+    opacity: 0.8;
 }
 
 .extraItem.active .extraLabel {
@@ -451,31 +453,35 @@
     }
 
     .mainGroup {
-        padding: 6px 4px;
-        gap: 3px;
+        padding: 4px 6px;
+        gap: 2px;
+        min-height: 52px;
+        border-radius: 40px;
     }
 
     .mainItem .iconWrap svg {
-        width: 20px;
-        height: 20px;
+        width: 22px;
+        height: 22px;
     }
 
     .mainLabel {
-        font-size: 7px;
+        font-size: 8px;
     }
 
     .extraGroup {
-        padding: 6px 4px;
-        gap: 3px;
+        padding: 4px 6px;
+        gap: 2px;
+        min-height: 52px;
+        border-radius: 40px;
     }
 
     .extraItem .extraIconWrap svg {
-        width: 20px;
-        height: 20px;
+        width: 22px;
+        height: 22px;
     }
 
     .extraLabel {
-        font-size: 7px;
+        font-size: 8px;
     }
 
     .burgerBtn {
@@ -486,7 +492,7 @@
     }
 
     .burgerBtn .navIcon svg {
-        width: 22px;
-        height: 22px;
+        width: 24px;
+        height: 24px;
     }
 }
