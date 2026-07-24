@@ -39,14 +39,13 @@ const icons = {
             <path d="M2 12l10 5 10-5"/>
         </svg>
     ),
-    // === chart-column-increasing ===
+    // === chart-spline ===
     'statistics': (
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="6" y="20" width="3" height="4"/>
-            <rect x="10" y="14" width="3" height="10"/>
-            <rect x="14" y="8" width="3" height="16"/>
-            <rect x="18" y="2" width="3" height="22"/>
-            <line x1="2" y1="22" x2="22" y2="22"/>
+            <path d="M3 3v18h18"/>
+            <path d="M5 15l4-4 3 3 6-6"/>
+            <path d="M21 12v4"/>
+            <path d="M21 16h-4"/>
         </svg>
     ),
     'notifications': (
@@ -136,8 +135,9 @@ export function BottomNav({ currentPage, onNavigate, onNotifications, unreadCoun
             </button>
 
             <div className={styles.navContainer}>
-                {!isExpanded && (
-                    <div className={styles.mainGroup}>
+                <div className={`${styles.groupsWrapper} ${isExpanded ? styles.groupsExpanded : ''}`}>
+                    {/* Основная группа */}
+                    <div className={`${styles.mainGroup} ${isExpanded ? styles.mainGroupHidden : styles.mainGroupVisible}`}>
                         {mainItems.map(({ key, icon, label }) => (
                             <button
                                 key={key}
@@ -149,27 +149,28 @@ export function BottomNav({ currentPage, onNavigate, onNotifications, unreadCoun
                             </button>
                         ))}
                     </div>
-                )}
 
-                {isAdmin && isExpanded && (
-                    <div className={styles.extraGroup}>
-                        {extraItems.map(({ key, icon, label, badge }) => (
-                            <button
-                                key={key}
-                                className={`${styles.extraItem} ${currentPage === key ? styles.active : ''}`}
-                                onClick={() => handleNavigate(key)}
-                            >
-                                <span className={styles.extraIconWrap}>
-                                    {icon}
-                                    {badge && (
-                                        <span className={styles.badgeDot}>{badge}</span>
-                                    )}
-                                </span>
-                                <span className={styles.extraLabel}>{label}</span>
-                            </button>
-                        ))}
-                    </div>
-                )}
+                    {/* Дополнительная группа */}
+                    {isAdmin && (
+                        <div className={`${styles.extraGroup} ${isExpanded ? styles.extraGroupVisible : styles.extraGroupHidden}`}>
+                            {extraItems.map(({ key, icon, label, badge }) => (
+                                <button
+                                    key={key}
+                                    className={`${styles.extraItem} ${currentPage === key ? styles.active : ''}`}
+                                    onClick={() => handleNavigate(key)}
+                                >
+                                    <span className={styles.extraIconWrap}>
+                                        {icon}
+                                        {badge && (
+                                            <span className={styles.badgeDot}>{badge}</span>
+                                        )}
+                                    </span>
+                                    <span className={styles.extraLabel}>{label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     )
