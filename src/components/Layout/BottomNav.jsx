@@ -145,7 +145,7 @@ export function BottomNav({ currentPage, onNavigate, onNotifications, unreadCoun
     return (
         <div className={styles.bottomNav}>
             <div className={styles.navContainer}>
-                {/* ОСНОВНАЯ ГРУППА — видна когда меню ЗАКРЫТО */}
+                {/* Основная группа — видна когда меню ЗАКРЫТО */}
                 {!isExpanded && (
                     <div className={styles.mainGroup}>
                         {mainItems.map(({ key, icon }) => (
@@ -160,7 +160,7 @@ export function BottomNav({ currentPage, onNavigate, onNotifications, unreadCoun
                     </div>
                 )}
 
-                {/* ДОПОЛНИТЕЛЬНАЯ ГРУППА — видна когда меню ОТКРЫТО */}
+                {/* Дополнительная группа — видна когда меню ОТКРЫТО */}
                 {isAdmin && isExpanded && (
                     <div className={styles.extraGroup}>
                         {extraItems.map(({ key, icon, label, badge }) => (
@@ -183,13 +183,15 @@ export function BottomNav({ currentPage, onNavigate, onNotifications, unreadCoun
                     </div>
                 )}
 
-                {/* БУРГЕР — всегда виден */}
-                <button 
-                    className={`${styles.burgerBtn} ${isExpanded ? styles.burgerActive : ''}`}
-                    onClick={toggleMenu}
-                >
-                    <span className={styles.navIcon}><BurgerIcon /></span>
-                </button>
+                {/* БУРГЕР — всегда на одном месте, фиксированная ширина */}
+                <div className={styles.burgerWrapper}>
+                    <button 
+                        className={`${styles.burgerBtn} ${isExpanded ? styles.burgerActive : ''}`}
+                        onClick={toggleMenu}
+                    >
+                        <span className={styles.navIcon}><BurgerIcon /></span>
+                    </button>
+                </div>
             </div>
         </div>
     )
