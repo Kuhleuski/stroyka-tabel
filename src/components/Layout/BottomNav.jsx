@@ -144,6 +144,14 @@ export function BottomNav({ currentPage, onNavigate, onNotifications, unreadCoun
 
     return (
         <div className={styles.bottomNav}>
+            {/* БУРГЕР — position: fixed, всегда справа */}
+            <button 
+                className={`${styles.burgerBtn} ${isExpanded ? styles.burgerActive : ''}`}
+                onClick={toggleMenu}
+            >
+                <span className={styles.navIcon}><BurgerIcon /></span>
+            </button>
+
             <div className={styles.navContainer}>
                 {/* Основная группа — видна когда меню ЗАКРЫТО */}
                 {!isExpanded && (
@@ -182,16 +190,6 @@ export function BottomNav({ currentPage, onNavigate, onNotifications, unreadCoun
                         ))}
                     </div>
                 )}
-
-                {/* БУРГЕР — всегда на одном месте, фиксированная ширина */}
-                <div className={styles.burgerWrapper}>
-                    <button 
-                        className={`${styles.burgerBtn} ${isExpanded ? styles.burgerActive : ''}`}
-                        onClick={toggleMenu}
-                    >
-                        <span className={styles.navIcon}><BurgerIcon /></span>
-                    </button>
-                </div>
             </div>
         </div>
     )
