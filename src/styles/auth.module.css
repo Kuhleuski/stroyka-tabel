@@ -115,3 +115,26 @@
     color: #bbb;
     padding: 0 var(--spacing-xs);
 }
+.loginBtn {
+    width: 100%;
+    padding: var(--spacing-md);
+    border: none;
+    border-radius: 10px;
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: var(--transition-normal);
+    color: white;
+    margin-top: var(--spacing-xs);
+}
+
+.loginBtn:hover:not(:disabled) {
+    transform: scale(1.02);
+    opacity: 0.9;
+}
+
+.loginBtn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
