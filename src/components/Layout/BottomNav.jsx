@@ -82,10 +82,10 @@ export function BottomNav({ currentPage, onNavigate }) {
     ]
 
     const extraItems = isAdmin ? [
-        { key: 'statistics', icon: icons.statistics, label: 'Статистика' },
-        { key: 'costs', icon: icons.costs, label: 'Затраты общ' },
-        { key: 'salary', icon: icons.salary, label: 'Зарплата' },
-        { key: 'settings', icon: icons.settings, label: 'Настройки' },
+        { key: 'statistics', icon: icons.statistics },
+        { key: 'costs', icon: icons.costs },
+        { key: 'salary', icon: icons.salary },
+        { key: 'settings', icon: icons.settings },
     ] : []
 
     const toggleMenu = () => {
@@ -117,8 +117,8 @@ export function BottomNav({ currentPage, onNavigate }) {
     return (
         <div className={styles.bottomNav}>
             <div className={styles.navContainer}>
-                {/* Группа иконок — меняется содержимое */}
-                <div className={styles.iconGroup}>
+                {/* Группа иконок — анимируется весь блок */}
+                <div className={`${styles.iconGroup} ${isExpanded ? styles.iconGroupExpanded : ''}`}>
                     {/* Основные пункты */}
                     <div className={`${styles.iconSet} ${!isExpanded ? styles.activeSet : styles.hiddenSet}`}>
                         {mainItems.map(({ key, icon }) => (
@@ -135,21 +135,20 @@ export function BottomNav({ currentPage, onNavigate }) {
                     {/* Дополнительные пункты */}
                     {isAdmin && (
                         <div className={`${styles.iconSet} ${isExpanded ? styles.activeSet : styles.hiddenSet}`}>
-                            {extraItems.map(({ key, icon, label }) => (
+                            {extraItems.map(({ key, icon }) => (
                                 <button
                                     key={key}
-                                    className={`${styles.iconItem} ${styles.iconItemWithLabel} ${currentPage === key ? styles.active : ''}`}
+                                    className={`${styles.iconItem} ${currentPage === key ? styles.active : ''}`}
                                     onClick={() => handleNavigate(key)}
                                 >
                                     <span className={styles.iconWrap}>{icon}</span>
-                                    <span className={styles.iconLabel}>{label}</span>
                                 </button>
                             ))}
                         </div>
                     )}
                 </div>
 
-                {/* Бургер — всегда на одном месте */}
+                {/* Бургер */}
                 <button 
                     className={`${styles.burgerBtn} ${isExpanded ? styles.burgerActive : ''}`}
                     onClick={toggleMenu}
