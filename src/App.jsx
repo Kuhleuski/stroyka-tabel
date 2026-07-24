@@ -13,6 +13,8 @@ import { ExtraPage } from './pages/ExtraPage'
 import { LoginPage } from './pages/LoginPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { NotificationsPage } from './pages/NotificationsPage'
+import { StatisticsPage } from './pages/StatisticsPage'
+import { CostsPage } from './pages/CostsPage'
 import layoutStyles from './styles/layout.module.css'
 
 function AppContent() {
@@ -101,6 +103,12 @@ function AppContent() {
                 return <SalaryPage key={`salary-${pageKey}`} />
             case 'extra':
                 return <ExtraPage key={`extra-${pageKey}`} />
+            case 'statistics':
+                return <StatisticsPage key={`statistics-${pageKey}`} />
+            case 'costs':
+                return <CostsPage key={`costs-${pageKey}`} />
+            case 'settings':
+                return <SettingsPage key={`settings-${pageKey}`} onClose={() => {}} onLogout={logout} />
             default:
                 return <MainPage key={`calendar-${pageKey}`} shifts={shifts} loading={loading} refetchShifts={refetch} />
         }
