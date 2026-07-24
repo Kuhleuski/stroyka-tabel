@@ -130,329 +130,6 @@
 }
 
 /* ============================================================
-   НИЖНЯЯ НАВИГАЦИЯ
-   ============================================================ */
-
-.bottomNav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: var(--bg-nav);
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-around;
-    padding: var(--spacing-sm) 0 var(--spacing-md);
-    z-index: var(--z-nav);
-    max-width: var(--max-width);
-    margin: 0 auto;
-}
-
-.bottomNav button {
-    background: none;
-    border: none;
-    padding: var(--spacing-sm) var(--spacing-lg);
-    font-size: 11px;
-    color: var(--text-muted);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    cursor: pointer;
-    transition: var(--transition-normal);
-    font-weight: 500;
-    font-family: inherit;
-}
-
-.bottomNav button .navIcon {
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.bottomNav button .navIcon svg {
-    width: 24px;
-    height: 24px;
-    stroke: currentColor;
-}
-
-.bottomNav button.active {
-    color: var(--color-primary);
-}
-
-.bottomNav button.active .navIcon svg {
-    stroke: var(--color-primary);
-}
-
-/* ============================================================
-   АДАПТИВ ШАПКИ
-   ============================================================ */
-
-@media (max-width: 640px) {
-    .header {
-        padding: var(--spacing-md) var(--spacing-lg);
-    }
-    
-    .headerUserName {
-        font-size: 15px;
-    }
-}
-
-@media (max-width: 400px) {
-    .headerBrand .title {
-        font-size: 17px;
-    }
-    
-    .headerUserName {
-        font-size: var(--font-size-md);
-    }
-    
-    .headerAvatar {
-        width: 30px;
-        height: 30px;
-        font-size: 13px;
-    }
-}
-/* ============================================================
-   НОВАЯ НИЖНЯЯ НАВИГАЦИЯ (ГРУППА + БУРГЕР)
-   ============================================================ */
-
-.bottomNav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: var(--bg-nav);
-    border-top: 1px solid var(--border-color);
-    z-index: var(--z-nav);
-    max-width: var(--max-width);
-    margin: 0 auto;
-    padding: 0 var(--spacing-sm) var(--spacing-sm);
-    overflow: visible;
-}
-
-.navContainer {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm) 0;
-}
-
-/* Основная группа пунктов */
-.mainGroup {
-    flex: 1;
-    display: flex;
-    background: var(--bg-card);
-    border-radius: var(--radius-lg);
-    padding: 4px;
-    box-shadow: var(--shadow-sm);
-    gap: 2px;
-    transition: all var(--transition-slow);
-}
-
-/* Пункты в основной группе */
-.navItem {
-    flex: 1;
-    background: none;
-    border: none;
-    padding: var(--spacing-sm) 0;
-    font-size: 10px;
-    color: var(--text-muted);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    cursor: pointer;
-    transition: all var(--transition-normal);
-    font-weight: 500;
-    font-family: inherit;
-    border-radius: var(--radius-sm);
-    min-width: 0;
-}
-
-.navItem .navIcon {
-    font-size: 22px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.navItem .navIcon svg {
-    width: 22px;
-    height: 22px;
-    stroke: currentColor;
-}
-
-.navItem.active {
-    color: var(--color-primary);
-    background: var(--color-primary-light);
-}
-
-.navItem.active .navIcon svg {
-    stroke: var(--color-primary);
-}
-
-/* Бургер */
-.burgerBtn {
-    background: var(--bg-card);
-    border: none;
-    padding: var(--spacing-sm) var(--spacing-md);
-    font-size: 10px;
-    color: var(--text-muted);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    cursor: pointer;
-    transition: all var(--transition-normal);
-    font-weight: 500;
-    font-family: inherit;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    min-width: 56px;
-    padding: var(--spacing-sm) var(--spacing-sm);
-}
-
-.burgerBtn .navIcon {
-    font-size: 22px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.burgerBtn .navIcon svg {
-    width: 22px;
-    height: 22px;
-    stroke: currentColor;
-}
-
-.burgerBtn.active {
-    color: var(--color-primary);
-    background: var(--color-primary-light);
-}
-
-.burgerBtn.active .navIcon svg {
-    stroke: var(--color-primary);
-}
-
-.burgerBtn:hover {
-    transform: scale(1.05);
-}
-
-/* Дополнительное меню (выезжает) */
-.extraMenu {
-    max-height: 0;
-    opacity: 0;
-    overflow: hidden;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    padding: 0 4px;
-    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-    background: var(--bg-card);
-    border-radius: var(--radius-lg);
-    margin-top: 0;
-    box-shadow: var(--shadow-sm);
-    transform: translateY(-8px);
-}
-
-.extraMenu.expanded {
-    max-height: 300px;
-    opacity: 1;
-    padding: var(--spacing-sm) 4px;
-    margin-top: var(--spacing-sm);
-    transform: translateY(0);
-}
-
-.extraItem {
-    flex: 1;
-    min-width: calc(50% - 4px);
-    background: none;
-    border: none;
-    padding: var(--spacing-sm) 0;
-    font-size: 10px;
-    color: var(--text-muted);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    cursor: pointer;
-    transition: all var(--transition-normal);
-    font-weight: 500;
-    font-family: inherit;
-    border-radius: var(--radius-sm);
-}
-
-.extraItem .navIcon {
-    font-size: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.extraItem .navIcon svg {
-    width: 20px;
-    height: 20px;
-    stroke: currentColor;
-}
-
-.extraItem.active {
-    color: var(--color-primary);
-    background: var(--color-primary-light);
-}
-
-.extraItem.active .navIcon svg {
-    stroke: var(--color-primary);
-}
-
-.extraItem:hover {
-    background: var(--bg-body);
-}
-
-/* Адаптив */
-@media (max-width: 400px) {
-    .navItem {
-        font-size: 9px;
-    }
-    
-    .navItem .navIcon {
-        font-size: 18px;
-    }
-    
-    .navItem .navIcon svg {
-        width: 18px;
-        height: 18px;
-    }
-    
-    .burgerBtn {
-        min-width: 48px;
-        font-size: 9px;
-    }
-    
-    .burgerBtn .navIcon {
-        font-size: 18px;
-    }
-    
-    .burgerBtn .navIcon svg {
-        width: 18px;
-        height: 18px;
-    }
-    
-    .extraItem {
-        font-size: 9px;
-    }
-    
-    .extraItem .navIcon {
-        font-size: 16px;
-    }
-    
-    .extraItem .navIcon svg {
-        width: 16px;
-        height: 16px;
-    }
-}
-/* ============================================================
    НИЖНЯЯ НАВИГАЦИЯ — iOS СТИЛЬ
    ============================================================ */
 
@@ -671,8 +348,35 @@
     background: var(--bg-body);
 }
 
-/* Адаптив */
+/* ============================================================
+   АДАПТИВ
+   ============================================================ */
+
+@media (max-width: 640px) {
+    .header {
+        padding: var(--spacing-md) var(--spacing-lg);
+    }
+    
+    .headerUserName {
+        font-size: 15px;
+    }
+}
+
 @media (max-width: 400px) {
+    .headerBrand .title {
+        font-size: 17px;
+    }
+    
+    .headerUserName {
+        font-size: var(--font-size-md);
+    }
+    
+    .headerAvatar {
+        width: 30px;
+        height: 30px;
+        font-size: 13px;
+    }
+
     .bottomNav {
         padding: 8px 12px 10px;
     }
