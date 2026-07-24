@@ -46,6 +46,10 @@ function AppContent() {
         setUnreadCount(0)
     }
 
+    const handleCloseNotifications = () => {
+        setShowNotifications(false)
+    }
+
     const handleNavigate = (page) => {
         setCurrentPage(page)
         if (page === 'calendar') {
@@ -83,7 +87,7 @@ function AppContent() {
                     unreadCount={unreadCount}
                 />
                 <div className="container">
-                    <NotificationsPage onClose={() => setShowNotifications(false)} />
+                    <NotificationsPage onClose={handleCloseNotifications} />
                 </div>
             </div>
         )
@@ -109,6 +113,8 @@ function AppContent() {
                 return <CostsPage key={`costs-${pageKey}`} />
             case 'settings':
                 return <SettingsPage key={`settings-${pageKey}`} onClose={() => {}} onLogout={logout} />
+            case 'notifications':
+                return <NotificationsPage key={`notifications-${pageKey}`} onClose={handleCloseNotifications} />
             default:
                 return <MainPage key={`calendar-${pageKey}`} shifts={shifts} loading={loading} refetchShifts={refetch} />
         }
@@ -125,7 +131,12 @@ function AppContent() {
             <div className="container">
                 {renderPage()}
             </div>
-            <BottomNav currentPage={currentPage} onNavigate={handleNavigate} />
+            <BottomNav 
+                currentPage={currentPage} 
+                onNavigate={handleNavigate}
+                onNotifications={handleOpenNotifications}
+                unreadCount={unreadCount}
+            />
         </div>
     )
 }
