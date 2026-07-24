@@ -452,3 +452,252 @@
         height: 16px;
     }
 }
+/* ============================================================
+   НИЖНЯЯ НАВИГАЦИЯ — iOS СТИЛЬ
+   ============================================================ */
+
+.bottomNav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-nav);
+    border-top: 1px solid var(--border-color);
+    z-index: var(--z-nav);
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 10px 16px 12px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.92);
+}
+
+[data-theme="dark"] .bottomNav {
+    background: rgba(26, 26, 26, 0.92);
+}
+
+.navContainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+}
+
+/* Основная группа — 4 иконки */
+.mainGroup {
+    flex: 1;
+    display: flex;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 14px;
+    padding: 6px;
+    gap: 2px;
+    transition: all 0.3s ease;
+}
+
+.mainGroupDimmed {
+    opacity: 0.3;
+}
+
+/* Пункт в основной группе — только иконка, без текста */
+.navItem {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 8px 0;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 10px;
+    min-width: 0;
+}
+
+.navItem .navIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.navItem .navIcon svg {
+    width: 26px;
+    height: 26px;
+    stroke: currentColor;
+}
+
+.navItem.active {
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+}
+
+.navItem.active .navIcon svg {
+    stroke: var(--color-primary);
+}
+
+.navItem:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+}
+
+/* Бургер — круглая кнопка */
+.burgerBtn {
+    background: var(--color-primary);
+    border: none;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 12px rgba(45, 125, 70, 0.3);
+}
+
+.burgerBtn .navIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.burgerBtn .navIcon svg {
+    width: 26px;
+    height: 26px;
+    stroke: white;
+}
+
+.burgerBtn:hover {
+    transform: scale(1.05);
+}
+
+.burgerBtn:active {
+    transform: scale(0.92);
+}
+
+.burgerActive {
+    background: #c62828;
+    box-shadow: 0 2px 12px rgba(198, 40, 40, 0.3);
+}
+
+.burgerActive .navIcon svg {
+    stroke: white;
+}
+
+/* Дополнительное меню — выезжает снизу */
+.extraMenu {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    padding: 0 4px;
+    margin-top: 0;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform: translateY(-8px) scale(0.95);
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 14px;
+}
+
+.extraMenu {
+    max-height: 0;
+    opacity: 0;
+    padding: 0 4px;
+    margin-top: 0;
+    transform: translateY(-8px) scale(0.95);
+}
+
+/* Когда меню открыто — плавно появляется */
+.extraMenu {
+    max-height: 120px;
+    opacity: 1;
+    padding: 12px 4px;
+    margin-top: 8px;
+    transform: translateY(0) scale(1);
+}
+
+/* Элемент в дополнительном меню */
+.extraItem {
+    background: none;
+    border: none;
+    padding: 8px 0;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 500;
+}
+
+.extraItem .extraIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.extraItem .extraIcon svg {
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+}
+
+.extraItem .extraLabel {
+    font-size: 9px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.extraItem.active {
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+}
+
+.extraItem.active .extraIcon svg {
+    stroke: var(--color-primary);
+}
+
+.extraItem.active .extraLabel {
+    color: var(--color-primary);
+}
+
+.extraItem:hover {
+    background: var(--bg-body);
+}
+
+/* Адаптив */
+@media (max-width: 400px) {
+    .bottomNav {
+        padding: 8px 12px 10px;
+    }
+    
+    .navItem .navIcon svg {
+        width: 22px;
+        height: 22px;
+    }
+    
+    .burgerBtn {
+        width: 46px;
+        height: 46px;
+    }
+    
+    .burgerBtn .navIcon svg {
+        width: 22px;
+        height: 22px;
+    }
+    
+    .extraItem .extraIcon svg {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .extraItem .extraLabel {
+        font-size: 8px;
+    }
+}
