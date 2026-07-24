@@ -40,7 +40,7 @@ const icons = {
         </svg>
     ),
     'statistics': (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 12v-2a5 5 0 0 0-5-5H8a5 5 0 0 0-5 5v2"/>
             <circle cx="12" cy="16" r="5"/>
             <path d="M12 11v5"/>
@@ -48,21 +48,21 @@ const icons = {
         </svg>
     ),
     'costs': (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10"/>
             <path d="M8 12h8"/>
             <path d="M12 8v8"/>
         </svg>
     ),
     'salary': (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10"/>
             <path d="M8 12h8"/>
             <path d="M12 8v8"/>
         </svg>
     ),
     'settings': (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="3"/>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
         </svg>
@@ -118,9 +118,9 @@ export function BottomNav({ currentPage, onNavigate }) {
         <div className={styles.bottomNav}>
             <div className={styles.navContainer}>
                 {/* Группа иконок — анимируется весь блок */}
-                <div className={`${styles.iconGroup} ${isExpanded ? styles.iconGroupExpanded : ''}`}>
-                    {/* Основные пункты */}
-                    <div className={`${styles.iconSet} ${!isExpanded ? styles.activeSet : styles.hiddenSet}`}>
+                <div className={styles.iconGroupWrapper}>
+                    {/* Основные пункты — уезжают вниз при открытии */}
+                    <div className={`${styles.iconGroup} ${isExpanded ? styles.iconGroupSlideDown : styles.iconGroupVisible}`}>
                         {mainItems.map(({ key, icon }) => (
                             <button
                                 key={key}
@@ -132,9 +132,9 @@ export function BottomNav({ currentPage, onNavigate }) {
                         ))}
                     </div>
 
-                    {/* Дополнительные пункты */}
+                    {/* Дополнительные пункты — выезжают снизу при открытии */}
                     {isAdmin && (
-                        <div className={`${styles.iconSet} ${isExpanded ? styles.activeSet : styles.hiddenSet}`}>
+                        <div className={`${styles.iconGroup} ${styles.iconGroupExtra} ${isExpanded ? styles.iconGroupSlideUp : ''}`}>
                             {extraItems.map(({ key, icon }) => (
                                 <button
                                     key={key}
