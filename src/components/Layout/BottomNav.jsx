@@ -39,7 +39,6 @@ const icons = {
             <path d="M2 12l10 5 10-5"/>
         </svg>
     ),
-    // === chart-column ===
     'statistics': (
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="6" y="20" width="3" height="4"/>
@@ -79,7 +78,6 @@ export function BottomNav({ currentPage, onNavigate, onNotifications, unreadCoun
         }
     }, [currentPage])
 
-    // ===== ОСНОВНЫЕ ПУНКТЫ (в стиле доп меню - квадраты) =====
     const mainItems = [
         { key: 'calendar', icon: icons.calendar, label: 'Главная' },
         { key: 'my-tabel', icon: icons['my-tabel'], label: 'Мой табель' },
@@ -87,24 +85,15 @@ export function BottomNav({ currentPage, onNavigate, onNotifications, unreadCoun
         { key: 'sites', icon: icons.sites, label: 'Объекты' },
     ]
 
-    // ===== ДОПОЛНИТЕЛЬНЫЕ ПУНКТЫ (только 3: статистика, уведомления, настройки) =====
     const extraItems = isAdmin ? [
-        { 
-            key: 'statistics', 
-            icon: icons.statistics, 
-            label: 'Статистика' 
-        },
+        { key: 'statistics', icon: icons.statistics, label: 'Статистика' },
         { 
             key: 'notifications', 
             icon: icons.notifications, 
             label: 'Уведомления',
             badge: unreadCount > 0 ? unreadCount : null
         },
-        { 
-            key: 'settings', 
-            icon: icons.settings, 
-            label: 'Настройки' 
-        },
+        { key: 'settings', icon: icons.settings, label: 'Настройки' },
     ] : []
 
     const toggleMenu = () => {
@@ -156,9 +145,7 @@ export function BottomNav({ currentPage, onNavigate, onNotifications, unreadCoun
                                 className={`${styles.mainItem} ${currentPage === key ? styles.active : ''}`}
                                 onClick={() => handleNavigate(key)}
                             >
-                                <div className={styles.mainIconBox}>
-                                    <span className={styles.iconWrap}>{icon}</span>
-                                </div>
+                                <span className={styles.iconWrap}>{icon}</span>
                                 <span className={styles.mainLabel}>{label}</span>
                             </button>
                         ))}
@@ -174,14 +161,12 @@ export function BottomNav({ currentPage, onNavigate, onNotifications, unreadCoun
                                 className={`${styles.extraItem} ${currentPage === key ? styles.active : ''}`}
                                 onClick={() => handleNavigate(key)}
                             >
-                                <div className={styles.extraIconBox}>
-                                    <span className={styles.extraIconWrap}>
-                                        {icon}
-                                        {badge && (
-                                            <span className={styles.badgeDot}>{badge}</span>
-                                        )}
-                                    </span>
-                                </div>
+                                <span className={styles.extraIconWrap}>
+                                    {icon}
+                                    {badge && (
+                                        <span className={styles.badgeDot}>{badge}</span>
+                                    )}
+                                </span>
                                 <span className={styles.extraLabel}>{label}</span>
                             </button>
                         ))}
