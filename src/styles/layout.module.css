@@ -130,7 +130,7 @@
 }
 
 /* ============================================================
-   НИЖНЯЯ НАВИГАЦИЯ — С АНИМАЦИЕЙ
+   НИЖНЯЯ НАВИГАЦИЯ — С АНИМАЦИЕЙ FADE
    ============================================================ */
 
 .bottomNav {
@@ -222,7 +222,7 @@
 }
 
 /* ============================================================
-   ОСНОВНАЯ ГРУППА — С АНИМАЦИЕЙ
+   ОСНОВНАЯ ГРУППА — FADE АНИМАЦИЯ
    ============================================================ */
 
 .mainGroup {
@@ -234,7 +234,7 @@
     padding: 6px 8px;
     align-items: center;
     min-height: 60px;
-    transition: all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: opacity 0.3s ease, transform 0.3s ease;
     position: absolute;
     top: 0;
     left: 0;
@@ -248,18 +248,18 @@
 
 .mainGroupVisible {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: scale(1);
     pointer-events: all;
 }
 
 .mainGroupHidden {
     opacity: 0;
-    transform: translateY(-20px) scale(0.95);
+    transform: scale(0.96);
     pointer-events: none;
 }
 
 /* ============================================================
-   ДОПОЛНИТЕЛЬНАЯ ГРУППА — С АНИМАЦИЕЙ
+   ДОПОЛНИТЕЛЬНАЯ ГРУППА — FADE АНИМАЦИЯ
    ============================================================ */
 
 .extraGroup {
@@ -271,7 +271,7 @@
     padding: 6px 8px;
     align-items: center;
     min-height: 60px;
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: opacity 0.3s ease, transform 0.3s ease;
     position: absolute;
     top: 0;
     left: 0;
@@ -285,13 +285,13 @@
 
 .extraGroupVisible {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: scale(1);
     pointer-events: all;
 }
 
 .extraGroupHidden {
     opacity: 0;
-    transform: translateY(20px) scale(0.95);
+    transform: scale(0.96);
     pointer-events: none;
 }
 
