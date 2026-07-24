@@ -39,28 +39,14 @@ const icons = {
             <path d="M2 12l10 5 10-5"/>
         </svg>
     ),
+    // === chart-column ===
     'statistics': (
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 16v-4"/>
-            <path d="M12 8V6"/>
-            <path d="M18 16v-8"/>
-            <path d="M6 16v-2"/>
-            <path d="M3 20h18"/>
-            <path d="M6 20v-2"/>
-            <path d="M12 20v-4"/>
-            <path d="M18 20v-8"/>
-        </svg>
-    ),
-    'costs': (
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="8" y1="12" x2="16" y2="12"/>
-        </svg>
-    ),
-    'salary': (
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="2" x2="12" y2="22"/>
-            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            <rect x="6" y="20" width="3" height="4"/>
+            <rect x="10" y="14" width="3" height="10"/>
+            <rect x="14" y="8" width="3" height="16"/>
+            <rect x="18" y="2" width="3" height="22"/>
+            <line x1="2" y1="22" x2="22" y2="22"/>
         </svg>
     ),
     'notifications': (
@@ -83,7 +69,7 @@ export function BottomNav({ currentPage, onNavigate, onNotifications, unreadCoun
     const isAdmin = user?.role === 'admin'
 
     const mainKeys = ['calendar', 'my-tabel', 'workers', 'sites']
-    const extraKeys = ['statistics', 'costs', 'salary', 'notifications', 'settings']
+    const extraKeys = ['statistics', 'notifications', 'settings']
 
     useEffect(() => {
         if (extraKeys.includes(currentPage)) {
@@ -93,24 +79,32 @@ export function BottomNav({ currentPage, onNavigate, onNotifications, unreadCoun
         }
     }, [currentPage])
 
+    // ===== ОСНОВНЫЕ ПУНКТЫ (в стиле доп меню - квадраты) =====
     const mainItems = [
-        { key: 'calendar', icon: icons.calendar },
-        { key: 'my-tabel', icon: icons['my-tabel'] },
-        { key: 'workers', icon: icons.workers },
-        { key: 'sites', icon: icons.sites },
+        { key: 'calendar', icon: icons.calendar, label: 'Главная' },
+        { key: 'my-tabel', icon: icons['my-tabel'], label: 'Мой табель' },
+        { key: 'workers', icon: icons.workers, label: 'Бригада' },
+        { key: 'sites', icon: icons.sites, label: 'Объекты' },
     ]
 
+    // ===== ДОПОЛНИТЕЛЬНЫЕ ПУНКТЫ (только 3: статистика, уведомления, настройки) =====
     const extraItems = isAdmin ? [
-        { key: 'statistics', icon: icons.statistics, label: 'Статистика' },
-        { key: 'costs', icon: icons.costs, label: 'Затраты' },
-        { key: 'salary', icon: icons.salary, label: 'Зарплата' },
+        { 
+            key: 'statistics', 
+            icon: icons.statistics, 
+            label: 'Статистика' 
+        },
         { 
             key: 'notifications', 
             icon: icons.notifications, 
             label: 'Уведомления',
             badge: unreadCount > 0 ? unreadCount : null
         },
-        { key: 'settings', icon: icons.settings, label: 'Настройки' },
+        { 
+            key: 'settings', 
+            icon: icons.settings, 
+            label: 'Настройки' 
+        },
     ] : []
 
     const toggleMenu = () => {
@@ -144,7 +138,7 @@ export function BottomNav({ currentPage, onNavigate, onNotifications, unreadCoun
 
     return (
         <div className={styles.bottomNav}>
-            {/* БУРГЕР — position: fixed, всегда справа */}
+            {/* БУРГЕР — position: fixed */}
             <button 
                 className={`${styles.burgerBtn} ${isExpanded ? styles.burgerActive : ''}`}
                 onClick={toggleMenu}
@@ -153,22 +147,25 @@ export function BottomNav({ currentPage, onNavigate, onNotifications, unreadCoun
             </button>
 
             <div className={styles.navContainer}>
-                {/* Основная группа — видна когда меню ЗАКРЫТО */}
+                {/* Основная группа */}
                 {!isExpanded && (
                     <div className={styles.mainGroup}>
-                        {mainItems.map(({ key, icon }) => (
+                        {mainItems.map(({ key, icon, label }) => (
                             <button
                                 key={key}
                                 className={`${styles.mainItem} ${currentPage === key ? styles.active : ''}`}
                                 onClick={() => handleNavigate(key)}
                             >
-                                <span className={styles.iconWrap}>{icon}</span>
+                                <div className={styles.mainIconBox}>
+                                    <span className={styles.iconWrap}>{icon}</span>
+                                </div>
+                                <span className={styles.mainLabel}>{label}</span>
                             </button>
                         ))}
                     </div>
                 )}
 
-                {/* Дополнительная группа — видна когда меню ОТКРЫТО */}
+                {/* Дополнительная группа */}
                 {isAdmin && isExpanded && (
                     <div className={styles.extraGroup}>
                         {extraItems.map(({ key, icon, label, badge }) => (
