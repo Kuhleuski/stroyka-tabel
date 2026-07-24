@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useShifts } from './hooks/useShifts'
 import { useAuth, AuthProvider } from './context/AuthContext'
 import { AvatarProvider } from './context/AvatarContext'
-import { Header } from './components/Layout/Header'
 import { BottomNav } from './components/Layout/BottomNav'
 import { MainPage } from './pages/MainPage'
 import { SitesPage } from './pages/SitesPage'
@@ -61,12 +60,6 @@ function AppContent() {
     if (showSettings) {
         return (
             <div className={layoutStyles.app}>
-                <Header 
-                    onLogout={logout} 
-                    onSettings={() => setShowSettings(true)}
-                    onNotifications={handleOpenNotifications}
-                    unreadCount={unreadCount}
-                />
                 <div className="container">
                     <SettingsPage 
                         onClose={() => setShowSettings(false)}
@@ -80,12 +73,6 @@ function AppContent() {
     if (showNotifications) {
         return (
             <div className={layoutStyles.app}>
-                <Header 
-                    onLogout={logout} 
-                    onSettings={() => setShowSettings(true)}
-                    onNotifications={handleOpenNotifications}
-                    unreadCount={unreadCount}
-                />
                 <div className="container">
                     <NotificationsPage onClose={handleCloseNotifications} />
                 </div>
@@ -122,12 +109,6 @@ function AppContent() {
 
     return (
         <div className={layoutStyles.app}>
-            <Header 
-                onLogout={logout} 
-                onSettings={() => setShowSettings(true)}
-                onNotifications={handleOpenNotifications}
-                unreadCount={unreadCount}
-            />
             <div className="container">
                 {renderPage()}
             </div>
