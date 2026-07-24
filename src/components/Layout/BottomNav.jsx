@@ -117,18 +117,39 @@ export function BottomNav({ currentPage, onNavigate }) {
     return (
         <div className={styles.bottomNav}>
             <div className={styles.navContainer}>
-                <div className={`${styles.mainGroup} ${isExpanded ? styles.mainGroupDimmed : ''}`}>
-                    {mainItems.map(({ key, icon }) => (
-                        <button
-                            key={key}
-                            className={`${styles.navItem} ${currentPage === key ? styles.active : ''}`}
-                            onClick={() => handleNavigate(key)}
-                            disabled={isExpanded}
-                        >
-                            <span className={styles.navIcon}>{icon}</span>
-                        </button>
-                    ))}
+                {/* Группа иконок — меняется содержимое */}
+                <div className={styles.iconGroup}>
+                    {/* Основные пункты */}
+                    <div className={`${styles.iconSet} ${!isExpanded ? styles.activeSet : styles.hiddenSet}`}>
+                        {mainItems.map(({ key, icon }) => (
+                            <button
+                                key={key}
+                                className={`${styles.iconItem} ${currentPage === key ? styles.active : ''}`}
+                                onClick={() => handleNavigate(key)}
+                            >
+                                <span className={styles.iconWrap}>{icon}</span>
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Дополнительные пункты */}
+                    {isAdmin && (
+                        <div className={`${styles.iconSet} ${isExpanded ? styles.activeSet : styles.hiddenSet}`}>
+                            {extraItems.map(({ key, icon, label }) => (
+                                <button
+                                    key={key}
+                                    className={`${styles.iconItem} ${styles.iconItemWithLabel} ${currentPage === key ? styles.active : ''}`}
+                                    onClick={() => handleNavigate(key)}
+                                >
+                                    <span className={styles.iconWrap}>{icon}</span>
+                                    <span className={styles.iconLabel}>{label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
+
+                {/* Бургер — всегда на одном месте */}
                 <button 
                     className={`${styles.burgerBtn} ${isExpanded ? styles.burgerActive : ''}`}
                     onClick={toggleMenu}
@@ -136,21 +157,6 @@ export function BottomNav({ currentPage, onNavigate }) {
                     <span className={styles.navIcon}><BurgerIcon /></span>
                 </button>
             </div>
-
-            {isAdmin && (
-                <div className={`${styles.extraMenu} ${isExpanded ? styles.expanded : ''}`}>
-                    {extraItems.map(({ key, icon, label }) => (
-                        <button
-                            key={key}
-                            className={`${styles.extraItem} ${currentPage === key ? styles.active : ''}`}
-                            onClick={() => handleNavigate(key)}
-                        >
-                            <span className={styles.extraIcon}>{icon}</span>
-                            <span className={styles.extraLabel}>{label}</span>
-                        </button>
-                    ))}
-                </div>
-            )}
         </div>
     )
 }
