@@ -397,3 +397,293 @@
     align-items: center;
     justify-content: center;
 }
+/* ============================================================
+   ОСНОВНАЯ ГРУППА — ТОЛЬКО ИКОНКИ (без подписей)
+   ============================================================ */
+
+.mainGroup {
+    flex: 1;
+    display: flex;
+    background: rgba(22, 25, 29, 0.97);
+    border-radius: 16px;
+    padding: 6px;
+    gap: 4px;
+    align-items: center;
+    height: 56px;
+}
+
+[data-theme="dark"] .mainGroup {
+    background: #ffffff;
+}
+
+.mainItem {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 4px 0;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    border-radius: 12px;
+    min-width: 0;
+    height: 100%;
+}
+
+[data-theme="dark"] .mainItem {
+    color: #000000;
+}
+
+.mainItem .iconWrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mainItem .iconWrap svg {
+    width: 26px;
+    height: 26px;
+    stroke: currentColor;
+}
+
+.mainItem.active {
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+}
+
+[data-theme="dark"] .mainItem.active {
+    color: var(--color-primary);
+    background: rgba(45, 125, 70, 0.3);
+}
+
+/* ============================================================
+   ДОПОЛНИТЕЛЬНОЕ МЕНЮ (КАК АВАТАРКИ В БРИГАДЕ)
+   ============================================================ */
+
+.extraMenuContainer {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform: translateY(-8px) scale(0.96);
+    padding: 0 4px;
+    margin-top: 0;
+}
+
+.extraMenuContainer.expanded {
+    max-height: 300px;
+    opacity: 1;
+    padding: 12px 4px 8px;
+    margin-top: 8px;
+    transform: translateY(0) scale(1);
+}
+
+.extraGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+/* === ЭЛЕМЕНТ ДОПОЛНИТЕЛЬНОГО МЕНЮ (как аватарка) === */
+.extraItem {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.extraItem:hover .extraIconBox {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.extraItem:active .extraIconBox {
+    transform: scale(0.92);
+}
+
+/* === КВАДРАТНЫЙ БЛОК С ИКОНКОЙ === */
+.extraIconBox {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: rgba(22, 25, 29, 0.97);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .extraIconBox {
+    background: #ffffff;
+}
+
+.extraItem.active .extraIconBox {
+    background: var(--color-primary-light);
+    box-shadow: 0 4px 16px rgba(45, 125, 70, 0.25);
+}
+
+[data-theme="dark"] .extraItem.active .extraIconBox {
+    background: rgba(45, 125, 70, 0.3);
+}
+
+.extraIconWrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.extraIconWrap svg {
+    width: 28px;
+    height: 28px;
+    stroke: currentColor;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .extraIconWrap svg {
+    color: #000000;
+}
+
+.extraItem.active .extraIconWrap svg {
+    color: var(--color-primary);
+}
+
+/* === ПОДПИСЬ ПОД БЛОКОМ === */
+.extraLabel {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-align: center;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.extraItem.active .extraLabel {
+    color: var(--color-primary);
+}
+
+/* === БЕЙДЖ ДЛЯ УВЕДОМЛЕНИЙ === */
+.badgeDot {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    background: #c62828;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(22, 25, 29, 0.97);
+}
+
+[data-theme="dark"] .badgeDot {
+    border-color: #ffffff;
+}
+
+/* === БУРГЕР === */
+.burgerBtn {
+    background: rgba(22, 25, 29, 0.97);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: none;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .burgerBtn {
+    background: #ffffff;
+    color: #000000;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.burgerBtn .navIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.burgerBtn .navIcon svg {
+    width: 26px;
+    height: 26px;
+    stroke: currentColor;
+}
+
+.burgerBtn:hover {
+    transform: scale(1.05);
+}
+
+.burgerBtn:active {
+    transform: scale(0.92);
+}
+
+.burgerActive {
+    background: rgba(22, 25, 29, 0.85) !important;
+}
+
+[data-theme="dark"] .burgerActive {
+    background: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* === АДАПТИВ === */
+@media (max-width: 400px) {
+    .mainGroup {
+        height: 48px;
+        padding: 4px;
+        gap: 2px;
+    }
+
+    .mainItem .iconWrap svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    .burgerBtn {
+        width: 48px;
+        height: 48px;
+    }
+
+    .burgerBtn .navIcon svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    .extraIconBox {
+        width: 56px;
+        height: 56px;
+    }
+
+    .extraIconWrap svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .extraLabel {
+        font-size: 9px;
+    }
+}
