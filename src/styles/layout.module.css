@@ -455,3 +455,25 @@
         height: 24px;
     }
 }
+/* === БЕЙДЖ НА БУРГЕР (красный кружок без цифры) === */
+.burgerBadge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #c62828;
+    border: 2px solid rgba(22, 25, 29, 0.97);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+[data-theme="dark"] .burgerBadge {
+    border-color: #ffffff;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
