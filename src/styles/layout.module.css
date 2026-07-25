@@ -1,5 +1,5 @@
 /* ============================================================
-   ШАПКА — СКРЫТА (закомментирована)
+   ШАПКА — СКРЫТА
    ============================================================ */
 
 /* 
@@ -14,125 +14,11 @@
     justify-content: space-between;
     align-items: center;
 }
-
-.headerBrand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.logoIcon {
-    flex-shrink: 0;
-}
-
-.headerBrand .title {
-    font-size: var(--font-size-xl);
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.headerActions {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-    flex-shrink: 0;
-}
-
-.headerUser {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
-}
-
-.headerAvatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: var(--color-primary);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--font-size-lg);
-    font-weight: 600;
-    flex-shrink: 0;
-}
-
-.headerUserName {
-    font-size: 17px;
-    font-weight: 600;
-    color: var(--text-primary);
-    white-space: nowrap;
-}
-
-.headerUserRole {
-    display: none;
-}
-
-.headerSettingsBtn {
-    background: #f0f0f0;
-    border: none;
-    color: #555;
-    cursor: pointer;
-    padding: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition-normal);
-    border-radius: 50%;
-    width: 34px;
-    height: 34px;
-    flex-shrink: 0;
-}
-
-.headerSettingsBtn:hover {
-    background: #e0e0e0;
-    color: #222;
-}
-
-.headerNotificationsBtn {
-    background: none;
-    border: none;
-    color: #555;
-    cursor: pointer;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition-normal);
-    border-radius: 50%;
-    width: 34px;
-    height: 34px;
-    position: relative;
-    flex-shrink: 0;
-}
-
-.headerNotificationsBtn:hover {
-    background: #f0f0f0;
-    color: #222;
-}
-
-.headerNotificationsBadge {
-    position: absolute;
-    top: 0;
-    right: 0;
-    background: #c62828;
-    color: white;
-    font-size: var(--font-size-xs);
-    font-weight: 700;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid white;
-}
+...
 */
 
 /* ============================================================
-   НИЖНЯЯ НАВИГАЦИЯ — С ПЛАВНОЙ АНИМАЦИЕЙ FADE
+   НИЖНЯЯ НАВИГАЦИЯ
    ============================================================ */
 
 .bottomNav {
@@ -156,7 +42,6 @@
     margin-right: 66px;
 }
 
-/* === ОБЕРТКА ДЛЯ ГРУПП === */
 .groupsWrapper {
     flex: 1;
     position: relative;
@@ -224,7 +109,7 @@
 }
 
 /* ============================================================
-   ОСНОВНАЯ ГРУППА — ПЛАВНАЯ FADE АНИМАЦИЯ
+   ОСНОВНАЯ ГРУППА — 4 КОЛОНКИ
    ============================================================ */
 
 .mainGroup {
@@ -261,12 +146,12 @@
 }
 
 /* ============================================================
-   ДОПОЛНИТЕЛЬНАЯ ГРУППА — ПЛАВНАЯ FADE АНИМАЦИЯ
+   ДОПОЛНИТЕЛЬНАЯ ГРУППА — 4 КОЛОНКИ
    ============================================================ */
 
 .extraGroup {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 4px;
     background: rgba(22, 25, 29, 0.97);
     border-radius: 50px;
@@ -381,7 +266,7 @@
 }
 
 /* ============================================================
-   БЕЙДЖ
+   БЕЙДЖ (для уведомлений в доп меню)
    ============================================================ */
 
 .badgeDot {
@@ -406,12 +291,61 @@
 }
 
 /* ============================================================
-   АДАПТИВ
+   УВЕДОМЛЕНИЯ — ПРАВЫЙ ВЕРХНИЙ УГОЛ
    ============================================================ */
 
-@media (max-width: 640px) {
-    /* Шапка скрыта, адаптив не нужен */
+.notificationBadge {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 100;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: rgba(22, 25, 29, 0.9);
+    color: #ffffff;
 }
+
+[data-theme="dark"] .notificationBadge {
+    background: rgba(255, 255, 255, 0.9);
+    color: #1a1a1a;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.notificationBadge:hover {
+    transform: scale(1.05);
+}
+
+.notificationBadge svg {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+}
+
+.notificationBadgeDot {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #c62828;
+    border: 2px solid rgba(22, 25, 29, 0.9);
+}
+
+[data-theme="dark"] .notificationBadgeDot {
+    border-color: rgba(255, 255, 255, 0.9);
+}
+
+/* ============================================================
+   АДАПТИВ
+   ============================================================ */
 
 @media (max-width: 400px) {
     .bottomNav {
@@ -454,75 +388,11 @@
         width: 24px;
         height: 24px;
     }
-}
-/* === БЕЙДЖ НА БУРГЕР (красный кружок без цифры) === */
-.burgerBadge {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #c62828;
-}
-/* ============================================================
-   УВЕДОМЛЕНИЯ — ПРАВЫЙ ВЕРХНИЙ УГОЛ
-   ============================================================ */
 
-.notificationBadge {
-    position: fixed;
-    top: 16px;
-    right: 16px;
-    z-index: 100;
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 50%;
-    transition: all 0.25s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-card);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-[data-theme="dark"] .notificationBadge {
-    background: var(--bg-card);
-}
-
-.notificationBadge:hover {
-    transform: scale(1.05);
-    background: var(--bg-body);
-}
-
-.notificationBadge svg {
-    width: 24px;
-    height: 24px;
-    stroke: currentColor;
-}
-
-.notificationBadgeDot {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #c62828;
-    border: 2px solid var(--bg-card);
-}
-
-[data-theme="dark"] .notificationBadgeDot {
-    border-color: var(--bg-card);
-}
-
-@media (max-width: 400px) {
     .notificationBadge {
         top: 12px;
         right: 12px;
-        padding: 6px;
+        padding: 8px;
     }
 
     .notificationBadge svg {
