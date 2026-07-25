@@ -50,17 +50,7 @@ export function AddSitePage({ onSave, onCancel }) {
     return (
         <div className={styles.addSitePage}>
             <div className={styles.addSiteHeader}>
-                <button className={styles.addSiteBack} onClick={onCancel}>
-                    ← Назад
-                </button>
                 <span className={styles.addSiteTitle}>Новый объект</span>
-                <button 
-                    className={styles.addSiteSave} 
-                    onClick={handleSubmit}
-                    disabled={loading || !name.trim()}
-                >
-                    {loading ? '...' : 'Сохранить'}
-                </button>
             </div>
 
             <div className={styles.addSiteForm}>
@@ -108,6 +98,25 @@ export function AddSitePage({ onSave, onCancel }) {
 
                 <div className={styles.addSiteHint}>
                     После добавления объект появится в списке
+                </div>
+
+                {/* КНОПКИ ВНИЗУ */}
+                <div className={styles.addSiteActions}>
+                    <button 
+                        className={styles.addSiteCancel}
+                        onClick={onCancel}
+                        type="button"
+                    >
+                        Отмена
+                    </button>
+                    <button 
+                        className={styles.addSiteSave} 
+                        onClick={handleSubmit}
+                        disabled={loading || !name.trim()}
+                        type="button"
+                    >
+                        {loading ? '...' : 'Сохранить'}
+                    </button>
                 </div>
             </div>
         </div>
