@@ -3,8 +3,8 @@ import { createContext, useContext, useState, useEffect } from 'react'
 const AuthContext = createContext()
 
 const USERS = [
-    { login: 'admin', password: '1111', role: 'admin', name: 'Сергей' },
-    { login: 'user', password: '1111', role: 'worker', name: 'Саша' },
+    { login: 'admin', role: 'admin', name: 'Сергей' },
+    { login: 'user', role: 'worker', name: 'Саша' },
 ]
 
 export function AuthProvider({ children }) {
@@ -12,7 +12,6 @@ export function AuthProvider({ children }) {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        // Восстанавливаем сессию из localStorage
         const savedUser = localStorage.getItem('tabel_user')
         if (savedUser) {
             try {
@@ -25,8 +24,8 @@ export function AuthProvider({ children }) {
         setLoading(false)
     }, [])
 
-    const login = (login, password) => {
-        const found = USERS.find(u => u.login === login && u.password === password)
+    const login = (role) => {
+        const found = USERS.find(u => u.role === role)
         if (found) {
             const userData = { 
                 login: found.login, 
@@ -37,7 +36,7 @@ export function AuthProvider({ children }) {
             localStorage.setItem('tabel_user', JSON.stringify(userData))
             return { success: true }
         }
-        return { success: false, error: 'Неверный логин или пароль' }
+        return { success: false, error: 'Ошибка входа' }
     }
 
     const logout = () => {

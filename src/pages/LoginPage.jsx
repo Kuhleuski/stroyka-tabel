@@ -2,23 +2,20 @@ import { useState } from 'react'
 import styles from '../styles/auth.module.css'
 
 export function LoginPage({ onLogin }) {
-    const [login, setLogin] = useState('')
-    const [password, setPassword] = useState('')
-    const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
+    const [error, setError] = useState('')
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        setError('')
+    const handleLogin = (role) => {
         setLoading(true)
+        setError('')
 
         setTimeout(() => {
-            const result = onLogin(login, password)
+            const result = onLogin(role)
             setLoading(false)
             if (!result.success) {
                 setError(result.error)
             }
-        }, 500)
+        }, 300)
     }
 
     return (
@@ -43,52 +40,37 @@ export function LoginPage({ onLogin }) {
                         <line x1="8" y1="19" x2="12" y2="19" />
                     </svg>
                     <h1 className={styles.loginTitle}>Табель</h1>
-                    <p className={styles.loginSubtitle}>Войдите в свой аккаунт</p>
+                    <p className={styles.loginSubtitle}>Выберите роль для входа</p>
                 </div>
 
-                <form className={styles.loginForm} onSubmit={handleSubmit}>
+                <div className={styles.loginForm}>
                     {error && (
                         <div className={styles.loginError}>{error}</div>
                     )}
 
-                    <div className={styles.loginField}>
-                        <label className={styles.loginLabel}>Логин</label>
-                        <input
-                            className={styles.loginInput}
-                            type="text"
-                            value={login}
-                            onChange={(e) => setLogin(e.target.value)}
-                            placeholder="admin или user"
-                            autoFocus
-                            required
-                        />
-                    </div>
-
-                    <div className={styles.loginField}>
-                        <label className={styles.loginLabel}>Пароль</label>
-                        <input
-                            className={styles.loginInput}
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="1111"
-                            required
-                        />
-                    </div>
+                    <button 
+                        className={styles.loginBtn} 
+                        onClick={() => handleLogin('admin')}
+                        disabled={loading}
+                        style={{ background: '#2d7d46' }}
+                    >
+                        {loading ? 'Загрузка...' : '👨‍💼 Администратор'}
+                    </button>
 
                     <button 
                         className={styles.loginBtn} 
-                        type="submit"
+                        onClick={() => handleLogin('worker')}
                         disabled={loading}
+                        style={{ background: '#1a6b8a' }}
                     >
-                        {loading ? 'Вход...' : 'Войти'}
+                        {loading ? 'Загрузка...' : '👷 Пользователь'}
                     </button>
 
                     <div className={styles.loginHint}>
-                        <span>admin / 1111</span>
-                        <span>user / 1111</span>
+                        <span>Сергей (админ)</span>
+                        <span>Саша (пользователь)</span>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     )

@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useShifts } from './hooks/useShifts'
 import { useAuth, AuthProvider } from './context/AuthContext'
 import { AvatarProvider } from './context/AvatarContext'
-import { Header } from './components/Layout/Header'
 import { BottomNav } from './components/Layout/BottomNav'
 import { MainPage } from './pages/MainPage'
 import { SitesPage } from './pages/SitesPage'
@@ -13,6 +12,8 @@ import { ExtraPage } from './pages/ExtraPage'
 import { LoginPage } from './pages/LoginPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { NotificationsPage } from './pages/NotificationsPage'
+import { StatisticsPage } from './pages/StatisticsPage'
+import { CostsPage } from './pages/CostsPage'
 import layoutStyles from './styles/layout.module.css'
 
 function AppContent() {
@@ -44,6 +45,10 @@ function AppContent() {
         setUnreadCount(0)
     }
 
+    const handleCloseNotifications = () => {
+        setShowNotifications(false)
+    }
+
     const handleNavigate = (page) => {
         setCurrentPage(page)
         if (page === 'calendar') {
@@ -55,12 +60,6 @@ function AppContent() {
     if (showSettings) {
         return (
             <div className={layoutStyles.app}>
-                <Header 
-                    onLogout={logout} 
-                    onSettings={() => setShowSettings(true)}
-                    onNotifications={handleOpenNotifications}
-                    unreadCount={unreadCount}
-                />
                 <div className="container">
                     <SettingsPage 
                         onClose={() => setShowSettings(false)}
@@ -74,14 +73,8 @@ function AppContent() {
     if (showNotifications) {
         return (
             <div className={layoutStyles.app}>
-                <Header 
-                    onLogout={logout} 
-                    onSettings={() => setShowSettings(true)}
-                    onNotifications={handleOpenNotifications}
-                    unreadCount={unreadCount}
-                />
                 <div className="container">
-                    <NotificationsPage onClose={() => setShowNotifications(false)} />
+                    <NotificationsPage onClose={handleCloseNotifications} />
                 </div>
             </div>
         )
@@ -101,6 +94,14 @@ function AppContent() {
                 return <SalaryPage key={`salary-${pageKey}`} />
             case 'extra':
                 return <ExtraPage key={`extra-${pageKey}`} />
+            case 'statistics':
+                return <StatisticsPage key={`statistics-${pageKey}`} />
+            case 'costs':
+                return <CostsPage key={`costs-${pageKey}`} />
+            case 'settings':
+                return <SettingsPage key={`settings-${pageKey}`} onClose={() => {}} onLogout={logout} />
+            case 'notifications':
+                return <NotificationsPage key={`notifications-${pageKey}`} onClose={handleCloseNotifications} />
             default:
                 return <MainPage key={`calendar-${pageKey}`} shifts={shifts} loading={loading} refetchShifts={refetch} />
         }
@@ -108,16 +109,15 @@ function AppContent() {
 
     return (
         <div className={layoutStyles.app}>
-            <Header 
-                onLogout={logout} 
-                onSettings={() => setShowSettings(true)}
-                onNotifications={handleOpenNotifications}
-                unreadCount={unreadCount}
-            />
             <div className="container">
                 {renderPage()}
             </div>
-            <BottomNav currentPage={currentPage} onNavigate={handleNavigate} />
+            <BottomNav 
+                currentPage={currentPage} 
+                onNavigate={handleNavigate}
+                onNotifications={handleOpenNotifications}
+                unreadCount={unreadCount}
+            />
         </div>
     )
 }

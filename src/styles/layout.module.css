@@ -1,7 +1,8 @@
 /* ============================================================
-   ШАПКА
+   ШАПКА — СКРЫТА (закомментирована)
    ============================================================ */
 
+/* 
 .header {
     background: var(--bg-header);
     padding: var(--spacing-lg) var(--spacing-xl);
@@ -128,9 +129,10 @@
     justify-content: center;
     border: 2px solid white;
 }
+*/
 
 /* ============================================================
-   НИЖНЯЯ НАВИГАЦИЯ
+   НИЖНЯЯ НАВИГАЦИЯ — С ПЛАВНОЙ АНИМАЦИЕЙ FADE
    ============================================================ */
 
 .bottomNav {
@@ -138,79 +140,328 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: var(--bg-nav);
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-around;
-    padding: var(--spacing-sm) 0 var(--spacing-md);
     z-index: var(--z-nav);
     max-width: var(--max-width);
     margin: 0 auto;
+    padding: 12px 16px 20px;
+    background: transparent;
 }
 
-.bottomNav button {
-    background: none;
-    border: none;
-    padding: var(--spacing-sm) var(--spacing-lg);
-    font-size: 11px;
-    color: var(--text-muted);
+.navContainer {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 2px;
-    cursor: pointer;
-    transition: var(--transition-normal);
-    font-weight: 500;
-    font-family: inherit;
+    gap: 12px;
+    position: relative;
+    min-height: 64px;
+    margin-right: 66px;
 }
 
-.bottomNav button .navIcon {
-    font-size: 24px;
+/* === ОБЕРТКА ДЛЯ ГРУПП === */
+.groupsWrapper {
+    flex: 1;
+    position: relative;
+    min-height: 60px;
+}
+
+/* ============================================================
+   БУРГЕР — position: fixed
+   ============================================================ */
+
+.burgerBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 16px;
+    background: rgba(22, 25, 29, 0.97);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: none;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    z-index: 30;
+}
+
+[data-theme="dark"] .burgerBtn {
+    background: #ffffff;
+    color: #000000;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.burgerBtn .navIcon {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.bottomNav button .navIcon svg {
-    width: 24px;
-    height: 24px;
+.burgerBtn .navIcon svg {
+    width: 28px;
+    height: 28px;
     stroke: currentColor;
 }
 
-.bottomNav button.active {
-    color: var(--color-primary);
+.burgerBtn:hover {
+    transform: scale(1.05);
 }
 
-.bottomNav button.active .navIcon svg {
-    stroke: var(--color-primary);
+.burgerBtn:active {
+    transform: scale(0.92);
+}
+
+.burgerActive {
+    background: rgba(22, 25, 29, 0.85) !important;
+}
+
+[data-theme="dark"] .burgerActive {
+    background: rgba(255, 255, 255, 0.9) !important;
 }
 
 /* ============================================================
-   АДАПТИВ ШАПКИ
+   ОСНОВНАЯ ГРУППА — ПЛАВНАЯ FADE АНИМАЦИЯ
+   ============================================================ */
+
+.mainGroup {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    background: rgba(22, 25, 29, 0.97);
+    border-radius: 50px;
+    padding: 6px 8px;
+    align-items: center;
+    min-height: 60px;
+    transition: opacity 0.45s ease, transform 0.45s ease;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    transform-origin: center;
+}
+
+[data-theme="dark"] .mainGroup {
+    background: #ffffff;
+}
+
+.mainGroupVisible {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: all;
+}
+
+.mainGroupHidden {
+    opacity: 0;
+    transform: scale(0.96);
+    pointer-events: none;
+}
+
+/* ============================================================
+   ДОПОЛНИТЕЛЬНАЯ ГРУППА — ПЛАВНАЯ FADE АНИМАЦИЯ
+   ============================================================ */
+
+.extraGroup {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    background: rgba(22, 25, 29, 0.97);
+    border-radius: 50px;
+    padding: 6px 8px;
+    align-items: center;
+    min-height: 60px;
+    transition: opacity 0.45s ease, transform 0.45s ease;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    transform-origin: center;
+}
+
+[data-theme="dark"] .extraGroup {
+    background: #ffffff;
+}
+
+.extraGroupVisible {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: all;
+}
+
+.extraGroupHidden {
+    opacity: 0;
+    transform: scale(0.96);
+    pointer-events: none;
+}
+
+/* ============================================================
+   ОБЩИЕ СТИЛИ ДЛЯ ПУНКТОВ
+   ============================================================ */
+
+.mainItem,
+.extraItem {
+    background: none;
+    border: none;
+    padding: 4px 0;
+    color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    border-radius: 50px;
+    padding: 6px 4px;
+}
+
+[data-theme="dark"] .mainItem,
+[data-theme="dark"] .extraItem {
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.mainItem .iconWrap,
+.extraItem .extraIconWrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.mainItem .iconWrap svg,
+.extraItem .extraIconWrap svg {
+    width: 28px;
+    height: 28px;
+    stroke: currentColor;
+    color: #ffffff;
+    transition: color 0.3s ease;
+}
+
+[data-theme="dark"] .mainItem .iconWrap svg,
+[data-theme="dark"] .extraItem .extraIconWrap svg {
+    color: #000000;
+}
+
+.mainItem.active .iconWrap svg,
+.extraItem.active .extraIconWrap svg {
+    color: var(--color-primary);
+}
+
+.mainItem.active,
+.extraItem.active {
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+}
+
+[data-theme="dark"] .mainItem.active,
+[data-theme="dark"] .extraItem.active {
+    background: rgba(45, 125, 70, 0.3);
+}
+
+.mainLabel,
+.extraLabel {
+    font-size: 9px;
+    color: inherit;
+    font-weight: 500;
+    text-align: center;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.mainItem.active .mainLabel,
+.extraItem.active .extraLabel {
+    opacity: 1;
+}
+
+/* ============================================================
+   БЕЙДЖ
+   ============================================================ */
+
+.badgeDot {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    background: #c62828;
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(22, 25, 29, 0.97);
+}
+
+[data-theme="dark"] .badgeDot {
+    border-color: #ffffff;
+}
+
+/* ============================================================
+   АДАПТИВ
    ============================================================ */
 
 @media (max-width: 640px) {
-    .header {
-        padding: var(--spacing-md) var(--spacing-lg);
-    }
-    
-    .headerUserName {
-        font-size: 15px;
-    }
+    /* Шапка скрыта, адаптив не нужен */
 }
 
 @media (max-width: 400px) {
-    .headerBrand .title {
-        font-size: 17px;
+    .bottomNav {
+        padding: 10px 12px 16px;
     }
-    
-    .headerUserName {
-        font-size: var(--font-size-md);
+
+    .navContainer {
+        margin-right: 58px;
+        min-height: 56px;
+        gap: 8px;
     }
-    
-    .headerAvatar {
-        width: 30px;
-        height: 30px;
-        font-size: 13px;
+
+    .mainGroup,
+    .extraGroup {
+        padding: 4px 6px;
+        gap: 2px;
+        min-height: 52px;
+        border-radius: 40px;
     }
+
+    .mainItem .iconWrap svg,
+    .extraItem .extraIconWrap svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    .mainLabel,
+    .extraLabel {
+        font-size: 8px;
+    }
+
+    .burgerBtn {
+        width: 48px;
+        height: 48px;
+        bottom: 16px;
+        right: 12px;
+    }
+
+    .burgerBtn .navIcon svg {
+        width: 24px;
+        height: 24px;
+    }
+}
+/* === БЕЙДЖ НА БУРГЕР (красный кружок без цифры) === */
+.burgerBadge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #c62828;
 }
