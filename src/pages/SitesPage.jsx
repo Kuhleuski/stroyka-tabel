@@ -108,12 +108,7 @@ export function SitesPage({ onAddSite }) {
                     </div>
                     <div className={styles.pageSubtitle}>Все объекты</div>
                 </div>
-                <button 
-                    className={styles.addSiteBtn}
-                    onClick={handleOpenAddForm}
-                >
-                    + Добавить объект
-                </button>
+                {/* КНОПКА УБРАНА */}
             </div>
 
             <SitesList 
