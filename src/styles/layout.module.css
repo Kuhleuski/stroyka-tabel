@@ -3,18 +3,7 @@
    ============================================================ */
 
 /* 
-.header {
-    background: var(--bg-header);
-    padding: var(--spacing-lg) var(--spacing-xl);
-    border-bottom: 1px solid var(--border-color);
-    position: sticky;
-    top: 0;
-    z-index: var(--z-header);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-...
+.header { ... }
 */
 
 /* ============================================================
@@ -109,7 +98,7 @@
 }
 
 /* ============================================================
-   ОСНОВНАЯ ГРУППА — 4 КОЛОНКИ
+   ОСНОВНАЯ ГРУППА — ПЛАВНАЯ АНИМАЦИЯ
    ============================================================ */
 
 .mainGroup {
@@ -121,12 +110,13 @@
     padding: 6px 8px;
     align-items: center;
     min-height: 60px;
-    transition: opacity 0.45s ease, transform 0.45s ease;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     transform-origin: center;
+    will-change: transform, opacity;
 }
 
 [data-theme="dark"] .mainGroup {
@@ -135,18 +125,18 @@
 
 .mainGroupVisible {
     opacity: 1;
-    transform: scale(1);
+    transform: translateY(0) scale(1);
     pointer-events: all;
 }
 
 .mainGroupHidden {
     opacity: 0;
-    transform: scale(0.96);
+    transform: translateY(-10px) scale(0.95);
     pointer-events: none;
 }
 
 /* ============================================================
-   ДОПОЛНИТЕЛЬНАЯ ГРУППА — 4 КОЛОНКИ
+   ДОПОЛНИТЕЛЬНАЯ ГРУППА — ПЛАВНАЯ АНИМАЦИЯ
    ============================================================ */
 
 .extraGroup {
@@ -158,12 +148,13 @@
     padding: 6px 8px;
     align-items: center;
     min-height: 60px;
-    transition: opacity 0.45s ease, transform 0.45s ease;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     transform-origin: center;
+    will-change: transform, opacity;
 }
 
 [data-theme="dark"] .extraGroup {
@@ -172,13 +163,13 @@
 
 .extraGroupVisible {
     opacity: 1;
-    transform: scale(1);
+    transform: translateY(0) scale(1);
     pointer-events: all;
 }
 
 .extraGroupHidden {
     opacity: 0;
-    transform: scale(0.96);
+    transform: translateY(10px) scale(0.95);
     pointer-events: none;
 }
 
@@ -266,7 +257,7 @@
 }
 
 /* ============================================================
-   БЕЙДЖ (для уведомлений в доп меню)
+   БЕЙДЖ
    ============================================================ */
 
 .badgeDot {
@@ -343,11 +334,7 @@
     align-items: center;
     justify-content: center;
     padding: 0 4px;
-    border: 2px solid rgba(22, 25, 29, 0.9);
-}
-
-[data-theme="dark"] .notificationBadgeDot {
-    border-color: rgba(255, 255, 255, 0.9);
+    /* БЕЗ ЧЕРНОЙ ОБВОДКИ */
 }
 
 /* ============================================================
@@ -355,6 +342,47 @@
    ============================================================ */
 
 @media (max-width: 400px) {
+    .bottomNav {
+        padding: 10px 12px 16px;
+    }
+
+    .navContainer {
+        margin-right: 58px;
+        min-height: 56px;
+        gap: 8px;
+    }
+
+    .mainGroup,
+    .extraGroup {
+        padding: 4px 6px;
+        gap: 2px;
+        min-height: 52px;
+        border-radius: 40px;
+    }
+
+    .mainItem .iconWrap svg,
+    .extraItem .extraIconWrap svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    .mainLabel,
+    .extraLabel {
+        font-size: 8px;
+    }
+
+    .burgerBtn {
+        width: 48px;
+        height: 48px;
+        bottom: 16px;
+        right: 12px;
+    }
+
+    .burgerBtn .navIcon svg {
+        width: 24px;
+        height: 24px;
+    }
+
     .notificationBadge {
         top: 12px;
         right: 12px;
