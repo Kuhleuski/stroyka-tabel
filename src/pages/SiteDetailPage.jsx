@@ -35,9 +35,6 @@ export function SiteDetailPage({ site, onClose, onDelete }) {
     return (
         <div className={styles.siteDetailPage}>
             <div className={styles.siteDetailHeader}>
-                <button className={styles.siteDetailBack} onClick={onClose}>
-                    ← Назад
-                </button>
                 <span className={styles.siteDetailTitle}>{site.name}</span>
                 <button 
                     className={styles.siteDetailDeleteBtn}
@@ -51,6 +48,12 @@ export function SiteDetailPage({ site, onClose, onDelete }) {
                         <line x1="10" y1="11" x2="10" y2="17"/>
                         <line x1="14" y1="11" x2="14" y2="17"/>
                     </svg>
+                </button>
+            </div>
+
+            <div className={styles.siteDetailActions}>
+                <button className={styles.siteDetailBack} onClick={onClose}>
+                    ← Назад
                 </button>
             </div>
             
