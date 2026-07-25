@@ -465,3 +465,75 @@
     border-radius: 50%;
     background: #c62828;
 }
+/* ============================================================
+   УВЕДОМЛЕНИЯ — ПРАВЫЙ ВЕРХНИЙ УГОЛ
+   ============================================================ */
+
+.notificationBadge {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 100;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-card);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .notificationBadge {
+    background: var(--bg-card);
+}
+
+.notificationBadge:hover {
+    transform: scale(1.05);
+    background: var(--bg-body);
+}
+
+.notificationBadge svg {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+}
+
+.notificationBadgeDot {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #c62828;
+    border: 2px solid var(--bg-card);
+}
+
+[data-theme="dark"] .notificationBadgeDot {
+    border-color: var(--bg-card);
+}
+
+@media (max-width: 400px) {
+    .notificationBadge {
+        top: 12px;
+        right: 12px;
+        padding: 6px;
+    }
+
+    .notificationBadge svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .notificationBadgeDot {
+        width: 8px;
+        height: 8px;
+        top: 3px;
+        right: 3px;
+    }
+}
