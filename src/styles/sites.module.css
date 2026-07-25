@@ -463,3 +463,55 @@
 .siteDetailDelete:active {
     transform: scale(0.98);
 }
+/* ============================================================
+   КНОПКИ ВНИЗУ ФОРМЫ
+   ============================================================ */
+
+.addSiteActions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.addSiteCancel {
+    flex: 1;
+    padding: 12px;
+    background: #f0f0f0;
+    color: var(--text-secondary);
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.addSiteCancel:hover {
+    background: #e0e0e0;
+}
+
+.addSiteSave {
+    flex: 1;
+    padding: 12px;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.addSiteSave:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+}
+
+.addSiteSave:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
