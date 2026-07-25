@@ -584,3 +584,27 @@
         font-size: var(--font-size-sm);
     }
 }
+
+/* ============================================================
+   СТРАНИЦА БРИГАДЫ
+   ============================================================ */
+
+.pageTitle {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: var(--spacing-lg) 0 var(--spacing-xs);
+}
+
+.pageSubtitle {
+    color: var(--text-secondary);
+    font-size: var(--font-size-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.pageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-xs);
+}
