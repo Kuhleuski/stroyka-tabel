@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useShifts } from './hooks/useShifts'
 import { useAuth, AuthProvider } from './context/AuthContext'
 import { AvatarProvider } from './context/AvatarContext'
@@ -26,6 +26,14 @@ function AppContent() {
     
     const { shifts, loading, error, refetch } = useShifts()
     const { user, login, logout } = useAuth()
+
+    // === ВОССТАНАВЛИВАЕМ ТЕМУ ПРИ ЗАГРУЗКЕ ===
+    useEffect(() => {
+        const savedTheme = localStorage.getItem('theme')
+        if (savedTheme === 'dark' || savedTheme === 'light') {
+            document.documentElement.setAttribute('data-theme', savedTheme)
+        }
+    }, [])
 
     if (!user) {
         return <LoginPage onLogin={login} />
