@@ -260,47 +260,10 @@
     margin-bottom: var(--spacing-xl);
 }
 
-.addSiteBack {
-    background: none;
-    border: none;
-    font-size: var(--font-size-lg);
-    color: var(--color-primary);
-    cursor: pointer;
-    padding: var(--spacing-sm) var(--spacing-xs);
-    font-weight: 500;
-    font-family: inherit;
-}
-
-.addSiteBack:hover {
-    opacity: 0.7;
-}
-
 .addSiteTitle {
     font-size: var(--font-size-xl);
     font-weight: 700;
     color: var(--text-primary);
-}
-
-.addSiteSave {
-    background: var(--color-primary);
-    color: white;
-    border: none;
-    padding: var(--spacing-sm) var(--spacing-xl);
-    border-radius: 20px;
-    font-size: var(--font-size-md);
-    font-weight: 500;
-    cursor: pointer;
-    font-family: inherit;
-    transition: var(--transition-normal);
-}
-
-.addSiteSave:hover:not(:disabled) {
-    background: var(--color-primary-hover);
-}
-
-.addSiteSave:disabled {
-    opacity: 0.4;
-    cursor: default;
 }
 
 .addSiteForm {
@@ -350,121 +313,9 @@
     color: var(--text-muted);
     margin-top: var(--spacing-sm);
 }
+
 /* ============================================================
-   СТРАНИЦА ДЕТАЛЕЙ ОБЪЕКТА
-   ============================================================ */
-
-.siteDetailPage {
-    animation: fadeIn 0.25s ease;
-}
-
-.siteDetailHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--spacing-md) var(--spacing-xs) var(--spacing-lg) var(--spacing-xs);
-    border-bottom: 2px solid var(--border-color);
-    margin-bottom: var(--spacing-xl);
-}
-
-.siteDetailTitle {
-    font-size: var(--font-size-xl);
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.siteDetailClose {
-    background: var(--color-primary);
-    border: none;
-    font-size: 28px;
-    font-weight: 400;
-    color: white;
-    cursor: pointer;
-    padding: var(--spacing-xs) var(--spacing-md);
-    border-radius: 30px;
-    transition: var(--transition-normal);
-    line-height: 1.4;
-    min-width: 44px;
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: var(--shadow-primary);
-}
-
-.siteDetailClose:hover {
-    background: var(--color-primary-hover);
-    transform: scale(1.05);
-}
-
-.siteDetailClose:active {
-    transform: scale(0.95);
-}
-
-.siteDetailContent {
-    padding: 0 var(--spacing-xs);
-}
-
-.siteDetailField {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-    padding: var(--spacing-md) 0;
-    border-bottom: 1px solid var(--border-light);
-}
-
-.siteDetailField:last-of-type {
-    border-bottom: none;
-}
-
-.siteDetailLabel {
-    font-size: 13px;
-    color: var(--text-muted);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-}
-
-.siteDetailValue {
-    font-size: 17px;
-    color: var(--text-primary);
-    font-weight: 500;
-}
-
-.siteDetailHint {
-    margin-top: var(--spacing-xl);
-    padding: var(--spacing-lg);
-    background: #f5f5f5;
-    border-radius: 10px;
-    font-size: var(--font-size-md);
-    color: var(--text-muted);
-    text-align: center;
-}
-
-.siteDetailDelete {
-    width: 100%;
-    padding: var(--spacing-md);
-    margin-top: var(--spacing-xl);
-    background: #ffebee;
-    color: #c62828;
-    border: 1px solid #ffcdd2;
-    border-radius: 10px;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    font-family: inherit;
-    transition: var(--transition-normal);
-}
-
-.siteDetailDelete:hover {
-    background: #ffcdd2;
-}
-
-.siteDetailDelete:active {
-    transform: scale(0.98);
-}
-/* ============================================================
-   КНОПКИ ВНИЗУ ФОРМЫ
+   КНОПКИ ВНИЗУ ФОРМЫ ДОБАВЛЕНИЯ
    ============================================================ */
 
 .addSiteActions {
@@ -515,71 +366,16 @@
     opacity: 0.5;
     cursor: default;
 }
+
 /* ============================================================
-   ДЕТАЛИ ОБЪЕКТА
+   СТРАНИЦА ДЕТАЛЕЙ ОБЪЕКТА
    ============================================================ */
 
-.siteDetailHeader {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 4px 16px 4px;
-    border-bottom: 2px solid var(--border-color);
-    margin-bottom: 24px;
-    gap: 10px;
+.siteDetailPage {
+    animation: fadeIn 0.25s ease;
 }
 
-.siteDetailBack {
-    background: none;
-    border: none;
-    font-size: 16px;
-    color: var(--color-primary);
-    cursor: pointer;
-    padding: 8px 4px;
-    font-weight: 500;
-    font-family: inherit;
-    flex-shrink: 0;
-}
-
-.siteDetailBack:hover {
-    opacity: 0.7;
-}
-
-.siteDetailTitle {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text-primary);
-    flex: 1;
-    text-align: center;
-}
-
-.siteDetailDeleteBtn {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    padding: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    border-radius: 8px;
-    flex-shrink: 0;
-}
-
-.siteDetailDeleteBtn:hover:not(:disabled) {
-    background: #f0f0f0;
-    color: #c62828;
-}
-
-.siteDetailDeleteBtn:disabled {
-    opacity: 0.4;
-    cursor: default;
-}
-/* ============================================================
-   ДЕТАЛИ ОБЪЕКТА
-   ============================================================ */
-
+/* ШАПКА ДЕТАЛЕЙ */
 .siteDetailHeader {
     display: flex;
     align-items: center;
@@ -597,6 +393,7 @@
     flex: 1;
 }
 
+/* КНОПКА УДАЛИТЬ В ШАПКЕ */
 .siteDetailDeleteBtn {
     background: none;
     border: none;
@@ -621,6 +418,7 @@
     cursor: default;
 }
 
+/* БЛОК С КНОПКОЙ НАЗАД ПОД ШАПКОЙ */
 .siteDetailActions {
     display: flex;
     align-items: center;
@@ -643,4 +441,45 @@
 
 .siteDetailBack:hover {
     opacity: 0.7;
+}
+
+/* КОНТЕНТ ДЕТАЛЕЙ */
+.siteDetailContent {
+    padding: 0 var(--spacing-xs);
+}
+
+.siteDetailField {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md) 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.siteDetailField:last-of-type {
+    border-bottom: none;
+}
+
+.siteDetailLabel {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.siteDetailValue {
+    font-size: 17px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.siteDetailHint {
+    margin-top: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    background: #f5f5f5;
+    border-radius: 10px;
+    font-size: var(--font-size-md);
+    color: var(--text-muted);
+    text-align: center;
 }
