@@ -943,36 +943,13 @@
     align-items: center;
     padding: var(--spacing-md) var(--spacing-xs) var(--spacing-lg) var(--spacing-xs);
     border-bottom: 2px solid var(--border-color);
-    margin-bottom: 8px;
+    margin-bottom: var(--spacing-xl);
 }
 
 .settingsTitle {
     font-size: var(--font-size-xl);
     font-weight: 700;
     color: var(--text-primary);
-}
-
-.settingsActions {
-    display: flex;
-    align-items: center;
-    padding: 4px 4px 16px 4px;
-    border-bottom: 1px solid var(--border-light);
-    margin-bottom: 16px;
-}
-
-.settingsBack {
-    background: none;
-    border: none;
-    font-size: 16px;
-    color: var(--color-primary);
-    cursor: pointer;
-    padding: 6px 4px;
-    font-weight: 500;
-    font-family: inherit;
-}
-
-.settingsBack:hover {
-    opacity: 0.7;
 }
 
 .settingsContent {
@@ -1022,10 +999,39 @@
     font-weight: 500;
 }
 
-.settingsLogoutBtn {
-    width: 100%;
-    padding: var(--spacing-md);
+/* ============================================================
+   КНОПКИ НАСТРОЕК
+   ============================================================ */
+
+.settingsActions {
+    display: flex;
+    gap: 10px;
     margin-top: var(--spacing-2xl);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+}
+
+.settingsCancelBtn {
+    flex: 1;
+    padding: var(--spacing-md);
+    background: #f0f0f0;
+    color: var(--text-secondary);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-lg);
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.settingsCancelBtn:hover {
+    background: #e0e0e0;
+}
+
+.settingsLogoutBtn {
+    flex: 1;
+    padding: var(--spacing-md);
     background: var(--color-primary);
     color: white;
     border: none;
@@ -1034,7 +1040,7 @@
     font-weight: 600;
     cursor: pointer;
     font-family: inherit;
-    transition: var(--transition-normal);
+    transition: all 0.2s ease;
     box-shadow: var(--shadow-primary);
 }
 
@@ -1085,47 +1091,6 @@
 
 .themeToggleBtn:active {
     transform: scale(0.97);
-}
-/* ============================================================
-   СТРАНИЦА НАСТРОЕК
-   ============================================================ */
-
-.settingsPage {
-    animation: fadeIn 0.25s ease;
-}
-
-.settingsHeader {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: var(--spacing-md) var(--spacing-xs) var(--spacing-lg) var(--spacing-xs);
-    border-bottom: 2px solid var(--border-color);
-    margin-bottom: 8px;
-}
-
-.settingsTitle {
-    font-size: var(--font-size-xl);
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.settingsActions {
-    display: flex;
-    align-items: center;
-    padding: 4px 4px 16px 4px;
-    border-bottom: 1px solid var(--border-light);
-    margin-bottom: 16px;
-}
-
-.settingsBack {
-    background: none;
-    border: none;
-    font-size: 16px;
-    color: var(--color-primary);
-    cursor: pointer;
-    padding: 6px 4px;
-    font-weight: 500;
-    font-family: inherit;
 }
 
 .settingsBack:hover {
