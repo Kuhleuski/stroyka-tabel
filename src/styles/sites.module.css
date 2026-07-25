@@ -515,3 +515,64 @@
     opacity: 0.5;
     cursor: default;
 }
+/* ============================================================
+   ДЕТАЛИ ОБЪЕКТА
+   ============================================================ */
+
+.siteDetailHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 4px 16px 4px;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 24px;
+    gap: 10px;
+}
+
+.siteDetailBack {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: var(--color-primary);
+    cursor: pointer;
+    padding: 8px 4px;
+    font-weight: 500;
+    font-family: inherit;
+    flex-shrink: 0;
+}
+
+.siteDetailBack:hover {
+    opacity: 0.7;
+}
+
+.siteDetailTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+    text-align: center;
+}
+
+.siteDetailDeleteBtn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.siteDetailDeleteBtn:hover:not(:disabled) {
+    background: #f0f0f0;
+    color: #c62828;
+}
+
+.siteDetailDeleteBtn:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
