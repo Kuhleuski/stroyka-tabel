@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import styles from '../styles/sites.module.css'
 import compStyles from '../styles/components.module.css'
+import { ConfirmModal } from '../components/ConfirmModal'
 
 export function SiteDetailPage({ site, onClose, onDelete }) {
     const [showConfirm, setShowConfirm] = useState(false)
@@ -94,35 +95,21 @@ export function SiteDetailPage({ site, onClose, onDelete }) {
             </div>
 
             {showConfirm && (
-                <div className={compStyles.confirmOverlay}>
-                    <div className={compStyles.confirmModal}>
-                        <div className={compStyles.confirmIcon}>⚠️</div>
-                        <div className={compStyles.confirmTitle}>Удалить объект?</div>
-                        <div className={compStyles.confirmText}>
+                <ConfirmModal
+                    title="Удалить объект?"
+                    message={
+                        <>
                             Вы уверены, что хотите удалить объект <strong>«{site.name}»</strong>?
                             <br />
                             <span style={{ fontSize: '13px', color: '#999' }}>
                                 Это действие нельзя отменить.
                             </span>
-                        </div>
-                        <div className={compStyles.confirmButtons}>
-                            <button 
-                                className={`${compStyles.confirmBtn} ${compStyles.cancel}`}
-                                onClick={() => setShowConfirm(false)}
-                                disabled={deleting}
-                            >
-                                Отмена
-                            </button>
-                            <button 
-                                className={`${compStyles.confirmBtn} ${compStyles.delete}`}
-                                onClick={handleDelete}
-                                disabled={deleting}
-                            >
-                                {deleting ? 'Удаление...' : 'Удалить'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                        </>
+                    }
+                    onConfirm={handleDelete}
+                    onCancel={() => setShowConfirm(false)}
+                    loading={deleting}
+                />
             )}
         </div>
     )
