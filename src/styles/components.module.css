@@ -1086,3 +1086,48 @@
 .themeToggleBtn:active {
     transform: scale(0.97);
 }
+/* ============================================================
+   СТРАНИЦА НАСТРОЕК
+   ============================================================ */
+
+.settingsPage {
+    animation: fadeIn 0.25s ease;
+}
+
+.settingsHeader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-xs) var(--spacing-lg) var(--spacing-xs);
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 8px;
+}
+
+.settingsTitle {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.settingsActions {
+    display: flex;
+    align-items: center;
+    padding: 4px 4px 16px 4px;
+    border-bottom: 1px solid var(--border-light);
+    margin-bottom: 16px;
+}
+
+.settingsBack {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: var(--color-primary);
+    cursor: pointer;
+    padding: 6px 4px;
+    font-weight: 500;
+    font-family: inherit;
+}
+
+.settingsBack:hover {
+    opacity: 0.7;
+}
