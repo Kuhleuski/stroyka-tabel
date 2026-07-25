@@ -7,7 +7,6 @@ export function SettingsPage({ onClose, onLogout }) {
     
     // === ТЕМА ===
     const [theme, setTheme] = useState(() => {
-        // Проверяем localStorage при первом рендере
         const savedTheme = localStorage.getItem('theme')
         if (savedTheme === 'dark' || savedTheme === 'light') {
             return savedTheme
@@ -15,15 +14,11 @@ export function SettingsPage({ onClose, onLogout }) {
         return 'light'
     })
 
-    // Применяем тему при загрузке и при изменении
     useEffect(() => {
-        // Устанавливаем атрибут на HTML
         document.documentElement.setAttribute('data-theme', theme)
-        // Сохраняем в localStorage
         localStorage.setItem('theme', theme)
     }, [theme])
 
-    // При монтировании проверяем сохраненную тему
     useEffect(() => {
         const savedTheme = localStorage.getItem('theme')
         if (savedTheme === 'dark' || savedTheme === 'light') {
@@ -47,12 +42,6 @@ export function SettingsPage({ onClose, onLogout }) {
         <div className={styles.settingsPage}>
             <div className={styles.settingsHeader}>
                 <span className={styles.settingsTitle}>⚙️ Настройки</span>
-            </div>
-
-            <div className={styles.settingsActions}>
-                <button className={styles.settingsBack} onClick={onClose}>
-                    ← Назад
-                </button>
             </div>
 
             <div className={styles.settingsContent}>
@@ -99,9 +88,21 @@ export function SettingsPage({ onClose, onLogout }) {
                     </div>
                 </div>
 
-                <button className={styles.settingsLogoutBtn} onClick={handleLogout}>
-                    Выйти из аккаунта
-                </button>
+                {/* КНОПКИ ВНИЗУ */}
+                <div className={styles.settingsActions}>
+                    <button 
+                        className={styles.settingsCancelBtn}
+                        onClick={onClose}
+                    >
+                        Отмена
+                    </button>
+                    <button 
+                        className={styles.settingsLogoutBtn}
+                        onClick={handleLogout}
+                    >
+                        Выйти из аккаунта
+                    </button>
+                </div>
             </div>
         </div>
     )
