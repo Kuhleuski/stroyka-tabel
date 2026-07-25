@@ -35,9 +35,22 @@ export function SiteDetailPage({ site, onClose, onDelete }) {
     return (
         <div className={styles.siteDetailPage}>
             <div className={styles.siteDetailHeader}>
-                <span className={styles.siteDetailTitle}>🏗️ {site.name}</span>
-                <button className={styles.siteDetailClose} onClick={onClose}>
-                    ✕
+                <button className={styles.siteDetailBack} onClick={onClose}>
+                    ← Назад
+                </button>
+                <span className={styles.siteDetailTitle}>{site.name}</span>
+                <button 
+                    className={styles.siteDetailDeleteBtn}
+                    onClick={() => setShowConfirm(true)}
+                    disabled={deleting}
+                    aria-label="Удалить объект"
+                >
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 6h18"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        <line x1="10" y1="11" x2="10" y2="17"/>
+                        <line x1="14" y1="11" x2="14" y2="17"/>
+                    </svg>
                 </button>
             </div>
             
@@ -62,14 +75,6 @@ export function SiteDetailPage({ site, onClose, onDelete }) {
                 <div className={styles.siteDetailHint}>
                     Здесь будет статистика по объекту
                 </div>
-
-                <button 
-                    className={styles.siteDetailDelete}
-                    onClick={() => setShowConfirm(true)}
-                    disabled={deleting}
-                >
-                    {deleting ? '⏳ Удаление...' : '🗑️ Удалить объект'}
-                </button>
             </div>
 
             {showConfirm && (
