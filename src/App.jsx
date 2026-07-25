@@ -3,6 +3,7 @@ import { useShifts } from './hooks/useShifts'
 import { useAuth, AuthProvider } from './context/AuthContext'
 import { AvatarProvider } from './context/AvatarContext'
 import { BottomNav } from './components/Layout/BottomNav'
+import { NotificationBadge } from './components/Layout/NotificationBadge'
 import { MainPage } from './pages/MainPage'
 import { SitesPage } from './pages/SitesPage'
 import { WorkersPage } from './pages/WorkersPage'
@@ -100,8 +101,6 @@ function AppContent() {
                 return <CostsPage key={`costs-${pageKey}`} />
             case 'settings':
                 return <SettingsPage key={`settings-${pageKey}`} onClose={() => {}} onLogout={logout} />
-            case 'notifications':
-                return <NotificationsPage key={`notifications-${pageKey}`} onClose={handleCloseNotifications} />
             default:
                 return <MainPage key={`calendar-${pageKey}`} shifts={shifts} loading={loading} refetchShifts={refetch} />
         }
@@ -109,14 +108,16 @@ function AppContent() {
 
     return (
         <div className={layoutStyles.app}>
+            <NotificationBadge 
+                unreadCount={unreadCount} 
+                onClick={handleOpenNotifications} 
+            />
             <div className="container">
                 {renderPage()}
             </div>
             <BottomNav 
                 currentPage={currentPage} 
                 onNavigate={handleNavigate}
-                onNotifications={handleOpenNotifications}
-                unreadCount={unreadCount}
             />
         </div>
     )
