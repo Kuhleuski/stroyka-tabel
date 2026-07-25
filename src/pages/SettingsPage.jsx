@@ -16,10 +16,6 @@ export function SettingsPage({ onClose, onLogout }) {
         localStorage.setItem('theme', theme)
     }, [theme])
 
-    const toggleTheme = () => {
-        setTheme(prev => prev === 'light' ? 'dark' : 'light')
-    }
-
     const handleLogout = () => {
         if (window.confirm('Вы уверены, что хотите выйти?')) {
             onLogout()
@@ -35,8 +31,11 @@ export function SettingsPage({ onClose, onLogout }) {
         <div className={styles.settingsPage}>
             <div className={styles.settingsHeader}>
                 <span className={styles.settingsTitle}>⚙️ Настройки</span>
-                <button className={styles.settingsClose} onClick={onClose}>
-                    ✕
+            </div>
+
+            <div className={styles.settingsActions}>
+                <button className={styles.settingsBack} onClick={onClose}>
+                    ← Назад
                 </button>
             </div>
 
