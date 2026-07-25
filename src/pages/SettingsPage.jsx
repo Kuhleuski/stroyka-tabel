@@ -7,14 +7,30 @@ export function SettingsPage({ onClose, onLogout }) {
     
     // === ТЕМА ===
     const [theme, setTheme] = useState(() => {
-        return localStorage.getItem('theme') || 'light'
+        // Проверяем localStorage при первом рендере
+        const savedTheme = localStorage.getItem('theme')
+        if (savedTheme === 'dark' || savedTheme === 'light') {
+            return savedTheme
+        }
+        return 'light'
     })
 
     // Применяем тему при загрузке и при изменении
     useEffect(() => {
+        // Устанавливаем атрибут на HTML
         document.documentElement.setAttribute('data-theme', theme)
+        // Сохраняем в localStorage
         localStorage.setItem('theme', theme)
     }, [theme])
+
+    // При монтировании проверяем сохраненную тему
+    useEffect(() => {
+        const savedTheme = localStorage.getItem('theme')
+        if (savedTheme === 'dark' || savedTheme === 'light') {
+            document.documentElement.setAttribute('data-theme', savedTheme)
+            setTheme(savedTheme)
+        }
+    }, [])
 
     const handleLogout = () => {
         if (window.confirm('Вы уверены, что хотите выйти?')) {
@@ -62,13 +78,21 @@ export function SettingsPage({ onClose, onLogout }) {
                     <div className={styles.themeToggleWrapper}>
                         <button 
                             className={`${styles.themeToggleBtn} ${theme === 'light' ? styles.active : ''}`}
-                            onClick={() => setTheme('light')}
+                            onClick={() => {
+                                setTheme('light')
+                                localStorage.setItem('theme', 'light')
+                                document.documentElement.setAttribute('data-theme', 'light')
+                            }}
                         >
                             ☀️ Светлая
                         </button>
                         <button 
                             className={`${styles.themeToggleBtn} ${theme === 'dark' ? styles.active : ''}`}
-                            onClick={() => setTheme('dark')}
+                            onClick={() => {
+                                setTheme('dark')
+                                localStorage.setItem('theme', 'dark')
+                                document.documentElement.setAttribute('data-theme', 'dark')
+                            }}
                         >
                             🌙 Тёмная
                         </button>
