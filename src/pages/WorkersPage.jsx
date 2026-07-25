@@ -107,12 +107,7 @@ export function WorkersPage({ shifts }) {
                     </div>
                     <div className={styles.pageSubtitle}>Все рабочие</div>
                 </div>
-                <button 
-                    className={styles.addWorkerBtn}
-                    onClick={handleOpenAddForm}
-                >
-                    + Добавить рабочего
-                </button>
+                {/* КНОПКА УБРАНА */}
             </div>
 
             <WorkersList 
@@ -120,7 +115,7 @@ export function WorkersPage({ shifts }) {
                 onWorkerClick={handleWorkerClick}
             />
 
-            {/* ПЛАВАЮЩАЯ КНОПКА (FAB) — дублирует "Добавить работника" */}
+            {/* ПЛАВАЮЩАЯ КНОПКА (FAB) */}
             <button 
                 className={styles.fabAddWorker}
                 onClick={handleOpenAddForm}
