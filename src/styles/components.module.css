@@ -1271,3 +1271,38 @@
     opacity: 0.5;
     cursor: default;
 }
+/* ============================================================
+   ПАЛИТРА ЦВЕТОВ В МОДАЛКЕ
+   ============================================================ */
+
+.modalColorPalette {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.modalColorBtn {
+    width: 100%;
+    aspect-ratio: 1;
+    border: 3px solid transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.modalColorBtn:hover {
+    transform: scale(1.08);
+}
+
+.modalColorActive {
+    border-color: var(--text-primary);
+    box-shadow: 0 0 0 2px var(--bg-card), 0 0 0 4px var(--text-primary);
+}
+
+@media (min-width: 420px) {
+    .modalColorPalette {
+        grid-template-columns: repeat(10, 1fr);
+    }
+}
