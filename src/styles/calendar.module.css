@@ -465,3 +465,31 @@
     font-size: 18px;
     font-weight: 600;
 }
+/* ============================================================
+   ОБЁРТКА ДЛЯ СВАЙПА
+   ============================================================ */
+
+.calendarGridWrapper {
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+    will-change: transform;
+    overflow: hidden;
+}
+
+/* ============================================================
+   ХЕДЕР КАЛЕНДАРЯ — без кнопок
+   ============================================================ */
+
+.calendarHeader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    padding: 0 var(--spacing-sm);
+}
+
+.calendarHeader .monthTitle {
+    font-size: 18px;
+    font-weight: 600;
+}
