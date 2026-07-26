@@ -1,3 +1,5 @@
+// src/components/Calendar/Calendar.jsx
+
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { MONTHS, getMonthDays, formatDateLocal, isToday as isTodayUtil } from '../../utils/dateHelpers'
@@ -185,6 +187,7 @@ export function Calendar({
     const [displayDate, setDisplayDate] = useState(selectedDate || new Date())
     const [allDays, setAllDays] = useState([])
     const containerRef = useRef(null)
+    const monthScrollRef = useRef(null)
     const isRestoring = useRef(false)
     const virtualizerRef = useRef(null)
     const [shouldShowToday, setShouldShowToday] = useState(true)
@@ -192,6 +195,49 @@ export function Calendar({
 
     const YEARS_BACK = 5
     const YEARS_FORWARD = 3
+
+    // === ГЕНЕРАЦИЯ СПИСКА МЕСЯЦЕВ ДЛЯ СКРОЛЛА ===
+    const generateMonths = useCallback(() => {
+        const months = []
+        const now = new Date()
+        const startYear = now.getFullYear() - 5
+        const endYear = now.getFullYear() + 3
+        
+        for (let year = startYear; year <= endYear; year++) {
+            for (let month = 0; month < 12; month++) {
+                months.push({ year, month })
+            }
+        }
+        return months
+    }, [])
+
+    const allMonths = generateMonths()
+
+    // === ПРОКРУТКА К ТЕКУЩЕМУ МЕСЯЦУ ===
+    useEffect(() => {
+        if (!monthScrollRef.current || mode === 'feed') return
+        
+        const currentYear = displayDate.getFullYear()
+        const currentMonth = displayDate.getMonth()
+        
+        const index = allMonths.findIndex(m => m.year === currentYear && m.month === currentMonth)
+        if (index === -1) return
+        
+        const container = monthScrollRef.current
+        const targetElement = container.children[index]
+        if (!targetElement) return
+        
+        const containerRect = container.getBoundingClientRect()
+        const elementRect = targetElement.getBoundingClientRect()
+        
+        if (elementRect.left < containerRect.left || elementRect.right > containerRect.right) {
+            targetElement.scrollIntoView({
+                block: 'nearest',
+                inline: 'center',
+                behavior: 'smooth'
+            })
+        }
+    }, [displayDate, allMonths, mode])
 
     const generateDays = useCallback((centerDate) => {
         const days = []
@@ -362,42 +408,13 @@ export function Calendar({
         }
     }
 
-    const changeMonth = (direction) => {
-        const newDate = new Date(displayDate)
-        if (mode === 'month') {
-            newDate.setMonth(newDate.getMonth() + direction)
-            setDisplayDate(newDate)
-        } else if (mode === 'feed') {
-            const centerDate = new Date(displayDate)
-            centerDate.setDate(centerDate.getDate() + direction * 30)
-            initFeed(centerDate)
-            setDisplayDate(centerDate)
-        }
-    }
-
-    const handlePrev = () => changeMonth(-1)
-    const handleNext = () => changeMonth(1)
-
-    const handleModeChange = (newMode) => {
-        setMode(newMode)
-        if (onModeChange) {
-            onModeChange(newMode, null)
-        }
-        if (selectedDate) {
-            setDisplayDate(selectedDate)
-            if (newMode === 'feed') {
-                initFeed(selectedDate)
-            }
-        } else {
-            const today = new Date()
-            onDateSelect(today)
-            setDisplayDate(today)
-            if (newMode === 'feed') {
-                initFeed(today)
-            }
-        }
-        setShouldShowToday(true)
-        isRestoring.current = false
+    // === ОБРАБОТЧИК ВЫБОРА МЕСЯЦА ===
+    const handleMonthSelect = (year, month) => {
+        const newDate = new Date()
+        newDate.setFullYear(year)
+        newDate.setMonth(month)
+        newDate.setDate(1)
+        setDisplayDate(newDate)
     }
 
     const handleDayClick = (date) => {
@@ -412,18 +429,37 @@ export function Calendar({
     return (
         <>
             <div className={`${styles.calendarWrapper} ${mode === 'feed' ? styles.feedMode : ''}`}>
-                <div className={styles.calendarHeader}>
-                    {mode !== 'feed' && (
-                        <>
-                            <button className={styles.calendarNavBtn} onClick={handlePrev}>‹</button>
-                            <span className={styles.monthTitle}>{getTitle(displayDate)}</span>
-                            <button className={styles.calendarNavBtn} onClick={handleNext}>›</button>
-                        </>
-                    )}
-                    {mode === 'feed' && (
+                {/* === ХЕДЕР С МЕСЯЦАМИ (горизонтальный скролл) === */}
+                {mode !== 'feed' && (
+                    <div className={styles.calendarHeader}>
+                        <div 
+                            className={styles.monthScrollWrapper}
+                            ref={monthScrollRef}
+                        >
+                            {allMonths.map(({ year, month }) => {
+                                const isActive = displayDate.getFullYear() === year && displayDate.getMonth() === month
+                                const monthShort = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 
+                                                    'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек']
+                                return (
+                                    <button
+                                        key={`${year}-${month}`}
+                                        className={`${styles.monthItem} ${isActive ? styles.monthActive : ''}`}
+                                        onClick={() => handleMonthSelect(year, month)}
+                                    >
+                                        <span className={styles.monthName}>{monthShort[month]}</span>
+                                        <span className={styles.monthYear}>{year}</span>
+                                    </button>
+                                )
+                            })}
+                        </div>
+                    </div>
+                )}
+                
+                {mode === 'feed' && (
+                    <div className={styles.calendarHeaderFeed}>
                         <span className={styles.monthTitle} style={{ visibility: 'hidden' }}>—</span>
-                    )}
-                </div>
+                    </div>
+                )}
                 
                 {mode === 'feed' ? (
                     <div 
