@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { SitesList } from '../components/Sites/SitesList'
-import { AddSitePage } from './AddSitePage'
 import { SiteDetailPage } from './SiteDetailPage'
+import { AddSiteModal } from '../components/AddSiteModal'
 import { addSite, deleteSite } from '../services/supabase'
 import { useSites } from '../hooks/useSites'
 import { Plus } from 'lucide-react'
 import styles from '../styles/sites.module.css'
 import globalsStyles from '../styles/globals.module.css'
-import compStyles from '../styles/components.module.css'
 
 // === ПЛОСКАЯ ИКОНКА ===
 const SitesIcon = () => (
@@ -19,7 +18,7 @@ const SitesIcon = () => (
 )
 
 export function SitesPage({ onAddSite }) {
-    const [showAddForm, setShowAddForm] = useState(false)
+    const [showAddModal, setShowAddModal] = useState(false)
     const [selectedSite, setSelectedSite] = useState(null)
     const [scrollPosition, setScrollPosition] = useState(0)
     const { sites, loading, error, addSiteToState, removeSiteFromState } = useSites()
@@ -32,7 +31,7 @@ export function SitesPage({ onAddSite }) {
             if (onAddSite) {
                 onAddSite(siteData)
             }
-            setShowAddForm(false)
+            setShowAddModal(false)
         } catch (err) {
             throw err
         }
@@ -61,8 +60,8 @@ export function SitesPage({ onAddSite }) {
         }, 50)
     }
 
-    const handleOpenAddForm = () => {
-        setShowAddForm(true)
+    const handleOpenAddModal = () => {
+        setShowAddModal(true)
     }
 
     if (loading) {
@@ -89,15 +88,6 @@ export function SitesPage({ onAddSite }) {
         )
     }
 
-    if (showAddForm) {
-        return (
-            <AddSitePage 
-                onSave={handleSave}
-                onCancel={() => setShowAddForm(false)}
-            />
-        )
-    }
-
     return (
         <>
             <div className={styles.pageHeader}>
@@ -108,7 +98,6 @@ export function SitesPage({ onAddSite }) {
                     </div>
                     <div className={styles.pageSubtitle}>Все объекты</div>
                 </div>
-                {/* КНОПКА УБРАНА */}
             </div>
 
             <SitesList 
@@ -116,14 +105,19 @@ export function SitesPage({ onAddSite }) {
                 onSiteClick={handleSiteClick}
             />
 
-            {/* ПЛАВАЮЩАЯ КНОПКА (FAB) */}
             <button 
                 className={styles.fabAddSite}
-                onClick={handleOpenAddForm}
+                onClick={handleOpenAddModal}
                 aria-label="Добавить объект"
             >
                 <Plus size={28} strokeWidth={2.5} />
             </button>
+
+            <AddSiteModal 
+                isOpen={showAddModal}
+                onClose={() => setShowAddModal(false)}
+                onSave={handleSave}
+            />
         </>
     )
 }
