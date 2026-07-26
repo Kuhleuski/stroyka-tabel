@@ -709,3 +709,140 @@
         height: 22px;
     }
 }
+/* ============================================================
+   НИЖНЯЯ НАВИГАЦИЯ — НОВАЯ (без бургера)
+   ============================================================ */
+
+.bottomNav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-nav);
+    border-top: 1px solid var(--border-color);
+    z-index: 200;
+    padding: 6px 0 env(safe-area-inset-bottom);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+[data-theme="dark"] .bottomNav {
+    background: rgba(26, 26, 26, 0.92);
+}
+
+.navContainer {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 4px;
+    overflow: hidden;
+}
+
+/* Горизонтальный скролл */
+.scrollWrapper {
+    display: flex;
+    gap: 2px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px 8px 8px;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    /* Скрываем скроллбар */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scrollWrapper::-webkit-scrollbar {
+    display: none;
+}
+
+/* Каждый пункт меню */
+.navItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    background: none;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+    font-family: inherit;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    min-width: 64px;
+}
+
+.navItem:hover {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+}
+
+.navItem.active {
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+}
+
+.navIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+}
+
+.navIcon svg {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+}
+
+.navLabel {
+    font-size: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Адаптив для маленьких экранов */
+@media (max-width: 400px) {
+    .bottomNav {
+        padding: 4px 0 env(safe-area-inset-bottom);
+    }
+
+    .navContainer {
+        padding: 0 2px;
+    }
+
+    .scrollWrapper {
+        padding: 4px 4px 6px;
+        gap: 2px;
+    }
+
+    .navItem {
+        padding: 4px 10px;
+        min-width: 52px;
+    }
+
+    .navIcon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .navIcon svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .navLabel {
+        font-size: 8px;
+    }
+}
+
+@media (min-width: 401px) and (max-width: 480px) {
+    .navItem {
+        padding: 6px 12px;
+        min-width: 58px;
+    }
+}
