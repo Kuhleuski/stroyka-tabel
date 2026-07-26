@@ -1,6 +1,6 @@
 // src/components/Calendar/Calendar.jsx
 
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { MONTHS, getMonthDays, formatDateLocal, isToday as isTodayUtil } from '../../utils/dateHelpers'
 import styles from '../../styles/calendar.module.css'
@@ -199,100 +199,38 @@ export function Calendar({
     const [translateX, setTranslateX] = useState(0)
     const [isAnimating, setIsAnimating] = useState(false)
 
-    // === КЕШ МЕСЯЦЕВ ===
-    const monthsCache = useRef({})
-    
-    // === КОМПОНЕНТ МЕСЯЦА ДЛЯ СЛАЙДЕРА ===
-    const MonthView = ({ year, month, isVisible }) => {
-        const days = getMonthDays(year, month)
+    const YEARS_BACK = 5
+    const YEARS_FORWARD = 3
+
+    const generateDays = useCallback((centerDate) => {
+        const days = []
+        const startDate = new Date(centerDate)
+        startDate.setFullYear(startDate.getFullYear() - YEARS_BACK)
+        startDate.setDate(startDate.getDate() - 1)
         
-        return (
-            <div className={`${styles.monthSlide} ${isVisible ? styles.monthSlideActive : ''}`}>
-                <div className={styles.calendarGrid}>
-                    {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
-                        <div key={day} className={styles.dayLabel}>{day}</div>
-                    ))}
-                    
-                    {days.map((day, index) => {
-                        if (day.empty) {
-                            return <div key={`empty-${index}`} className={`${styles.dayCell} ${styles.empty}`}></div>
-                        }
-
-                        const dayShifts = getDayShifts(day.date)
-                        const today = isToday(day.date)
-                        const selected = isSelected(day.date)
-
-                        return (
-                            <DayCell
-                                key={index}
-                                day={day}
-                                dayShifts={dayShifts}
-                                isToday={today}
-                                isSelected={selected}
-                                sites={sites}
-                                onClick={() => handleDayClick(day.date)}
-                            />
-                        )
-                    })}
-                </div>
-            </div>
-        )
-    }
-
-    // === ПРЕДЗАГРУЗКА МЕСЯЦЕВ ===
-    const preloadMonths = useCallback((centerYear, centerMonth) => {
-        const months = []
-        const range = 2 // 2 месяца вперёд и назад
+        const endDate = new Date(centerDate)
+        endDate.setFullYear(endDate.getFullYear() + YEARS_FORWARD)
+        endDate.setDate(endDate.getDate() + 1)
         
-        for (let i = -range; i <= range; i++) {
-            const date = new Date(centerYear, centerMonth + i, 1)
-            const key = `${date.getFullYear()}-${date.getMonth()}`
-            
-            // Генерируем и кешируем
-            if (!monthsCache.current[key]) {
-                monthsCache.current[key] = {
-                    year: date.getFullYear(),
-                    month: date.getMonth(),
-                    days: getMonthDays(date.getFullYear(), date.getMonth())
-                }
-            }
-            
-            months.push(monthsCache.current[key])
+        let currentDate = new Date(startDate)
+        while (currentDate <= endDate) {
+            days.push({ 
+                date: new Date(currentDate), 
+                day: currentDate.getDate(), 
+                month: currentDate.getMonth(),
+                year: currentDate.getFullYear(),
+                empty: false 
+            })
+            currentDate.setDate(currentDate.getDate() + 1)
         }
-        
-        return months
+        return days
     }, [])
 
-    // === СОСТОЯНИЕ ДЛЯ СЛАЙДЕРА ===
-    const [months, setMonths] = useState([])
-    const [currentIndex, setCurrentIndex] = useState(2) // Индекс текущего месяца (всегда 2, т.к. 2 месяца назад)
-
-    // === ИНИЦИАЛИЗАЦИЯ ===
-    useEffect(() => {
-        const initialDate = selectedDate || new Date()
-        const year = initialDate.getFullYear()
-        const month = initialDate.getMonth()
-        
-        setDisplayDate(initialDate)
-        const preloaded = preloadMonths(year, month)
-        setMonths(preloaded)
-        setCurrentIndex(2)
-    }, [])
-
-    // === ОБНОВЛЕНИЕ ПРИ СМЕНЕ ДАТЫ ===
-    useEffect(() => {
-        if (selectedDate) {
-            const year = selectedDate.getFullYear()
-            const month = selectedDate.getMonth()
-            
-            setDisplayDate(selectedDate)
-            if (mode === 'month') {
-                const preloaded = preloadMonths(year, month)
-                setMonths(preloaded)
-                setCurrentIndex(2)
-            }
-        }
-    }, [selectedDate, mode, preloadMonths])
+    const initFeed = useCallback((centerDate) => {
+        const days = generateDays(centerDate)
+        setAllDays(days)
+        setHasRestored(false)
+    }, [generateDays])
 
     const getDayShifts = useCallback((date) => {
         const dateStr = formatDateLocal(date)
@@ -334,6 +272,21 @@ export function Calendar({
             virtualizerRef.current = instance
         }
     })
+
+    useEffect(() => {
+        const initialDate = selectedDate || new Date()
+        setDisplayDate(initialDate)
+        initFeed(initialDate)
+    }, [])
+
+    useEffect(() => {
+        if (selectedDate) {
+            setDisplayDate(selectedDate)
+            if (mode === 'feed') {
+                initFeed(selectedDate)
+            }
+        }
+    }, [selectedDate, mode])
 
     useEffect(() => {
         if (mode !== 'feed' || allDays.length === 0) return
@@ -418,44 +371,23 @@ export function Calendar({
         }
     }
 
-    // === ПЕРЕКЛЮЧЕНИЕ МЕСЯЦА В СЛАЙДЕРЕ ===
-    const changeMonth = useCallback((direction) => {
+    const changeMonth = (direction) => {
         if (isAnimating) return
         
-        // Получаем текущий месяц
-        const currentMonth = months[currentIndex]
-        if (!currentMonth) return
-        
-        // Вычисляем новый месяц
-        const newDate = new Date(currentMonth.year, currentMonth.month + direction, 1)
-        const newYear = newDate.getFullYear()
-        const newMonth = newDate.getMonth()
-        
-        // Проверяем, есть ли уже в кеше
-        const key = `${newYear}-${newMonth}`
-        if (!monthsCache.current[key]) {
-            monthsCache.current[key] = {
-                year: newYear,
-                month: newMonth,
-                days: getMonthDays(newYear, newMonth)
-            }
+        const newDate = new Date(displayDate)
+        if (mode === 'month') {
+            newDate.setMonth(newDate.getMonth() + direction)
+            setDisplayDate(newDate)
+        } else if (mode === 'feed') {
+            const centerDate = new Date(displayDate)
+            centerDate.setDate(centerDate.getDate() + direction * 30)
+            initFeed(centerDate)
+            setDisplayDate(centerDate)
         }
-        
-        // Обновляем массив месяцев
-        const newMonths = [...months]
-        if (direction === 1) {
-            // Вперёд — добавляем справа, удаляем слева
-            newMonths.shift()
-            newMonths.push(monthsCache.current[key])
-        } else {
-            // Назад — добавляем слева, удаляем справа
-            newMonths.pop()
-            newMonths.unshift(monthsCache.current[key])
-        }
-        
-        setMonths(newMonths)
-        // currentIndex всегда 2 (индекс текущего месяца в центре)
-    }, [months, currentIndex, isAnimating])
+    }
+
+    const handlePrev = () => changeMonth(-1)
+    const handleNext = () => changeMonth(1)
 
     // === ОБРАБОТЧИКИ СВАЙПА ===
     const handleTouchStart = (e) => {
@@ -476,7 +408,7 @@ export function Calendar({
             isSwiping.current = true
             e.preventDefault()
             
-            const maxOffset = window.innerWidth * 0.4
+            const maxOffset = window.innerWidth * 0.3
             const offset = Math.max(-maxOffset, Math.min(maxOffset, deltaX))
             setTranslateX(offset)
         }
@@ -491,7 +423,6 @@ export function Calendar({
             setIsAnimating(true)
             const direction = deltaX < 0 ? 1 : -1
             
-            // Анимация улетания
             const offset = deltaX < 0 ? -window.innerWidth * 0.3 : window.innerWidth * 0.3
             setTranslateX(offset)
             
@@ -499,7 +430,7 @@ export function Calendar({
                 changeMonth(direction)
                 setTranslateX(0)
                 setIsAnimating(false)
-            }, 250)
+            }, 200)
         } else {
             setTranslateX(0)
         }
@@ -517,33 +448,14 @@ export function Calendar({
         if (selectedDate) {
             setDisplayDate(selectedDate)
             if (newMode === 'feed') {
-                const year = selectedDate.getFullYear()
-                const month = selectedDate.getMonth()
-                const days = buildFeed(year, month)
-                setAllDays(days)
-            } else {
-                // Для режима месяца — обновляем слайдер
-                const year = selectedDate.getFullYear()
-                const month = selectedDate.getMonth()
-                const preloaded = preloadMonths(year, month)
-                setMonths(preloaded)
-                setCurrentIndex(2)
+                initFeed(selectedDate)
             }
         } else {
             const today = new Date()
             onDateSelect(today)
             setDisplayDate(today)
             if (newMode === 'feed') {
-                const year = today.getFullYear()
-                const month = today.getMonth()
-                const days = buildFeed(year, month)
-                setAllDays(days)
-            } else {
-                const year = today.getFullYear()
-                const month = today.getMonth()
-                const preloaded = preloadMonths(year, month)
-                setMonths(preloaded)
-                setCurrentIndex(2)
+                initFeed(today)
             }
         }
         setShouldShowToday(true)
@@ -559,41 +471,14 @@ export function Calendar({
         }
     }
 
-    // === ПОСТРОЕНИЕ ЛЕНТЫ ДЛЯ FEED ===
-    const buildFeed = useCallback((year, month) => {
-        const days = []
-        const range = 2
-        
-        for (let i = -range; i <= range; i++) {
-            const date = new Date(year, month + i, 1)
-            const monthDays = getMonthDays(date.getFullYear(), date.getMonth())
-            
-            monthDays.forEach(day => {
-                if (!day.empty) {
-                    days.push({
-                        date: day.date,
-                        day: day.date.getDate(),
-                        month: day.date.getMonth(),
-                        year: day.date.getFullYear(),
-                        empty: false
-                    })
-                }
-            })
-        }
-        
-        return days
-    }, [])
-
     const feedKey = `feed-${mode}-${allDays.length}`
 
     return (
         <>
             <div className={`${styles.calendarWrapper} ${mode === 'feed' ? styles.feedMode : ''}`}>
                 <div className={styles.calendarHeader}>
-                    {mode !== 'feed' && months[currentIndex] && (
-                        <span className={styles.monthTitle}>
-                            {MONTHS[months[currentIndex].month]} {months[currentIndex].year}
-                        </span>
+                    {mode !== 'feed' && (
+                        <span className={styles.monthTitle}>{getTitle(displayDate)}</span>
                     )}
                     {mode === 'feed' && (
                         <span className={styles.monthTitle} style={{ visibility: 'hidden' }}>—</span>
@@ -650,50 +535,43 @@ export function Calendar({
                     </div>
                 ) : (
                     <div 
-                        className={styles.calendarSlider}
+                        className={styles.calendarGridWrapper}
                         onTouchStart={handleTouchStart}
                         onTouchMove={handleTouchMove}
                         onTouchEnd={handleTouchEnd}
                         style={{
                             transform: `translateX(${translateX}px)`,
-                            transition: isAnimating ? 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+                            transition: isAnimating ? 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
                             willChange: 'transform'
                         }}
                     >
-                        {months.map((monthData, index) => (
-                            <div 
-                                key={`${monthData.year}-${monthData.month}`}
-                                className={`${styles.monthSlide} ${index === currentIndex ? styles.monthSlideCenter : ''}`}
-                            >
-                                <div className={styles.calendarGrid}>
-                                    {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
-                                        <div key={day} className={styles.dayLabel}>{day}</div>
-                                    ))}
-                                    
-                                    {monthData.days.map((day, idx) => {
-                                        if (day.empty) {
-                                            return <div key={`empty-${idx}`} className={`${styles.dayCell} ${styles.empty}`}></div>
-                                        }
+                        <div className={styles.calendarGrid}>
+                            {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
+                                <div key={day} className={styles.dayLabel}>{day}</div>
+                            ))}
+                            
+                            {getMonthDays(displayDate.getFullYear(), displayDate.getMonth()).map((day, index) => {
+                                if (day.empty) {
+                                    return <div key={`empty-${index}`} className={`${styles.dayCell} ${styles.empty}`}></div>
+                                }
 
-                                        const dayShifts = getDayShifts(day.date)
-                                        const today = isToday(day.date)
-                                        const selected = isSelected(day.date)
+                                const dayShifts = getDayShifts(day.date)
+                                const today = isToday(day.date)
+                                const selected = isSelected(day.date)
 
-                                        return (
-                                            <DayCell
-                                                key={idx}
-                                                day={day}
-                                                dayShifts={dayShifts}
-                                                isToday={today}
-                                                isSelected={selected}
-                                                sites={sites}
-                                                onClick={() => handleDayClick(day.date)}
-                                            />
-                                        )
-                                    })}
-                                </div>
-                            </div>
-                        ))}
+                                return (
+                                    <DayCell
+                                        key={index}
+                                        day={day}
+                                        dayShifts={dayShifts}
+                                        isToday={today}
+                                        isSelected={selected}
+                                        sites={sites}
+                                        onClick={() => handleDayClick(day.date)}
+                                    />
+                                )
+                            })}
+                        </div>
                     </div>
                 )}
             </div>
