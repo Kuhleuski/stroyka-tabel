@@ -18,7 +18,11 @@ import { CostsPage } from './pages/CostsPage'
 import layoutStyles from './styles/layout.module.css'
 
 // === СТРАНИЦЫ, ГДЕ НУЖНО СКРЫТЬ МЕНЮ ===
-const HIDDEN_NAV_PAGES = ['settings', 'notifications']
+const HIDDEN_NAV_PAGES = [
+    'settings', 
+    'notifications',
+    'add-worker'
+]
 
 function AppContent() {
     const [currentPage, setCurrentPage] = useState('calendar')
@@ -114,6 +118,12 @@ function AppContent() {
                 return <CostsPage key={`costs-${pageKey}`} />
             case 'settings':
                 return <SettingsPage key={`settings-${pageKey}`} onClose={() => {}} onLogout={logout} />
+            case 'add-worker':
+                return <AddWorkerPage 
+                    key={`add-worker-${pageKey}`}
+                    onSave={() => {}} 
+                    onCancel={() => setCurrentPage('workers')} 
+                />
             default:
                 return <MainPage key={`calendar-${pageKey}`} shifts={shifts} loading={loading} refetchShifts={refetch} />
         }
