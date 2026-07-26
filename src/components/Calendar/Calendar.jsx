@@ -100,7 +100,6 @@ export function Calendar({
     onDayClick
 }) {
     const [displayDate, setDisplayDate] = useState(selectedDate || new Date())
-    const [prevDate, setPrevDate] = useState(null)
     const wrapperRef = useRef(null)
     
     // === ДЛЯ СВАЙПА ===
@@ -109,7 +108,6 @@ export function Calendar({
     const isSwiping = useRef(false)
     const [translateX, setTranslateX] = useState(0)
     const [isAnimating, setIsAnimating] = useState(false)
-    const [direction, setDirection] = useState(0) // -1 = влево, 1 = вправо
 
     const getDayShifts = useCallback((date) => {
         const dateStr = formatDateLocal(date)
@@ -131,31 +129,27 @@ export function Calendar({
         return `${MONTHS[month]} ${year}`
     }
 
-    const changeMonth = useCallback((dir) => {
+    const changeMonth = (direction) => {
         if (isAnimating) return
         
         const newDate = new Date(displayDate)
-        newDate.setMonth(newDate.getMonth() + dir)
+        newDate.setMonth(newDate.getMonth() + direction)
         
-        setPrevDate(displayDate)
-        setDirection(dir)
         setIsAnimating(true)
-        
-        // Сначала улетаем
-        const offset = dir === 1 ? -window.innerWidth * 0.3 : window.innerWidth * 0.3
+        const offset = direction === 1 ? -window.innerWidth * 0.2 : window.innerWidth * 0.2
         setTranslateX(offset)
         
         setTimeout(() => {
-            // Меняем месяц
             setDisplayDate(newDate)
             setTranslateX(0)
-            
             setTimeout(() => {
                 setIsAnimating(false)
-                setPrevDate(null)
             }, 150)
         }, 200)
-    }, [displayDate, isAnimating])
+    }
+
+    const handlePrev = () => changeMonth(-1)
+    const handleNext = () => changeMonth(1)
 
     // === ОБРАБОТЧИКИ СВАЙПА ===
     const handleTouchStart = (e) => {
@@ -176,7 +170,7 @@ export function Calendar({
             isSwiping.current = true
             e.preventDefault()
             
-            const maxOffset = window.innerWidth * 0.3
+            const maxOffset = window.innerWidth * 0.25
             const offset = Math.max(-maxOffset, Math.min(maxOffset, deltaX))
             setTranslateX(offset)
         }
@@ -188,8 +182,8 @@ export function Calendar({
         const deltaX = e.changedTouches[0].clientX - touchStartX.current
         
         if (Math.abs(deltaX) > 50 && isSwiping.current) {
-            const dir = deltaX < 0 ? 1 : -1
-            changeMonth(dir)
+            const direction = deltaX < 0 ? 1 : -1
+            changeMonth(direction)
         } else {
             setTranslateX(0)
         }
@@ -222,26 +216,7 @@ export function Calendar({
         }
     }
 
-    // Получаем дни текущего месяца
-    const currentDays = getMonthDays(displayDate.getFullYear(), displayDate.getMonth())
-    const prevDays = prevDate ? getMonthDays(prevDate.getFullYear(), prevDate.getMonth()) : null
-
-    // Вычисляем смещение для анимации
-    const getSlideStyle = () => {
-        if (!isAnimating) {
-            return {
-                transform: `translateX(${translateX}px)`,
-                transition: 'none'
-            }
-        }
-        
-        // Анимация улетания/прилетания
-        const offset = direction === 1 ? -window.innerWidth * 0.3 : window.innerWidth * 0.3
-        return {
-            transform: `translateX(${offset}px)`,
-            transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
-        }
-    }
+    const days = getMonthDays(displayDate.getFullYear(), displayDate.getMonth())
 
     return (
         <div className={styles.calendarWrapper}>
@@ -249,49 +224,79 @@ export function Calendar({
                 <span className={styles.monthTitle}>{getTitle(displayDate)}</span>
             </div>
 
-            <div className={styles.calendarSliderContainer}>
-                {/* Текущий месяц */}
-                <div 
-                    ref={wrapperRef}
-                    className={styles.calendarSlide}
-                    style={{
-                        transform: `translateX(${translateX}px)`,
-                        transition: isAnimating 
-                            ? 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)' 
-                            : 'none',
-                        willChange: 'transform'
-                    }}
-                >
-                    <div className={styles.calendarGridWrapper}>
-                        <div className={styles.calendarGrid}>
-                            {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
-                                <div key={day} className={styles.dayLabel}>{day}</div>
-                            ))}
-                            
-                            {currentDays.map((day, index) => {
-                                if (day.empty) {
-                                    return <div key={`empty-${index}`} className={`${styles.dayCell} ${styles.empty}`}></div>
-                                }
+            <div 
+                ref={wrapperRef}
+                className={styles.calendarGridWrapper}
+                style={{
+                    transform: `translateX(${translateX}px)`,
+                    transition: isAnimating 
+                        ? 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)' 
+                        : 'none',
+                    willChange: 'transform'
+                }}
+            >
+                <div className={styles.calendarGrid}>
+                    {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
+                        <div key={day} className={styles.dayLabel}>{day}</div>
+                    ))}
+                    
+                    {days.map((day, index) => {
+                        if (day.empty) {
+                            return <div key={`empty-${index}`} className={`${styles.dayCell} ${styles.empty}`}></div>
+                        }
 
-                                const dayShifts = getDayShifts(day.date)
-                                const today = isToday(day.date)
-                                const selected = isSelected(day.date)
+                        const dayShifts = getDayShifts(day.date)
+                        const today = isToday(day.date)
+                        const selected = isSelected(day.date)
 
-                                return (
-                                    <DayCell
-                                        key={index}
-                                        day={day}
-                                        dayShifts={dayShifts}
-                                        isToday={today}
-                                        isSelected={selected}
-                                        sites={sites}
-                                        onClick={() => handleDayClick(day.date)}
-                                    />
-                                )
-                            })}
-                        </div>
-                    </div>
+                        return (
+                            <DayCell
+                                key={index}
+                                day={day}
+                                dayShifts={dayShifts}
+                                isToday={today}
+                                isSelected={selected}
+                                sites={sites}
+                                onClick={() => handleDayClick(day.date)}
+                            />
+                        )
+                    })}
                 </div>
+            </div>
+
+            {/* === СТРЕЛКИ ВНИЗУ === */}
+            <div className={styles.calendarNav}>
+                <button 
+                    className={styles.calendarNavBtn}
+                    onClick={handlePrev}
+                    aria-label="Предыдущий месяц"
+                >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="15 18 9 12 15 6"/>
+                    </svg>
+                </button>
+                <button 
+                    className={styles.calendarNavBtn}
+                    onClick={() => {
+                        const today = new Date()
+                        setDisplayDate(today)
+                    }}
+                    aria-label="Сегодня"
+                >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </button>
+                <button 
+                    className={styles.calendarNavBtn}
+                    onClick={handleNext}
+                    aria-label="Следующий месяц"
+                >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </button>
             </div>
         </div>
     )
