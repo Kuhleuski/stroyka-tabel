@@ -493,3 +493,64 @@
     font-size: 18px;
     font-weight: 600;
 }
+/* ============================================================
+   СЛАЙДЕР МЕСЯЦЕВ (КАК В НИЖНЕМ МЕНЮ)
+   ============================================================ */
+
+.monthSlider {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    user-select: none;
+    -webkit-user-select: none;
+    /* Скрываем скроллбар */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.monthSlider::-webkit-scrollbar {
+    display: none;
+}
+
+.monthTrack {
+    display: flex;
+    gap: 0;
+    width: max-content;
+}
+
+.monthSlide {
+    min-width: 100%;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    padding: 0 var(--spacing-xs);
+}
+
+/* ============================================================
+   ХЕДЕР КАЛЕНДАРЯ
+   ============================================================ */
+
+.calendarHeader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    padding: 0 var(--spacing-sm);
+}
+
+.calendarHeader .monthTitle {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* ============================================================
+   СЕТКА КАЛЕНДАРЯ
+   ============================================================ */
+
+.calendarGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--spacing-xs);
+}
