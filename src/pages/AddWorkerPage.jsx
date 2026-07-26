@@ -113,7 +113,7 @@ export function AddWorkerPage({ onSave, onCancel }) {
                 </div>
             </div>
 
-            {/* КНОПКИ ВНИЗУ (фиксированные над меню) */}
+            {/* КНОПКИ ВНИЗУ (на уровне меню, скрываем меню) */}
             <div className={styles.addWorkerActions}>
                 <button 
                     className={styles.addWorkerCancel}
