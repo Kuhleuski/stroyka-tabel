@@ -1,3 +1,5 @@
+// src/components/SettingsModal.jsx
+
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import styles from '../styles/components.module.css'
@@ -8,21 +10,19 @@ export function SettingsModal({ isOpen, onClose, onLogout }) {
     // === ТЕМА ===
     const [theme, setTheme] = useState(() => {
         const savedTheme = localStorage.getItem('theme')
-        if (savedTheme === 'dark' || savedTheme === 'light') {
-            return savedTheme
-        }
-        return 'light'
+        return savedTheme === 'dark' || savedTheme === 'light' ? savedTheme : 'light'
     })
 
+    // Применяем тему при изменении
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme)
         localStorage.setItem('theme', theme)
     }, [theme])
 
+    // Загружаем сохранённую тему при монтировании
     useEffect(() => {
         const savedTheme = localStorage.getItem('theme')
         if (savedTheme === 'dark' || savedTheme === 'light') {
-            document.documentElement.setAttribute('data-theme', savedTheme)
             setTheme(savedTheme)
         }
     }, [])
@@ -32,6 +32,10 @@ export function SettingsModal({ isOpen, onClose, onLogout }) {
             onLogout()
             onClose()
         }
+    }
+
+    const handleThemeChange = (newTheme) => {
+        setTheme(newTheme)
     }
 
     const roleLabels = {
@@ -51,18 +55,20 @@ export function SettingsModal({ isOpen, onClose, onLogout }) {
                 <div className={styles.modalBody}>
                     <div className={styles.settingsAvatarLarge}>
                         <span className={styles.settingsAvatarLetter}>
-                            {user.name.charAt(0).toUpperCase()}
+                            {user?.name?.charAt(0).toUpperCase() || '?'}
                         </span>
                     </div>
 
                     <div className={styles.settingsField}>
                         <span className={styles.settingsLabel}>Имя</span>
-                        <span className={styles.settingsValue}>{user.name}</span>
+                        <span className={styles.settingsValue}>{user?.name || '—'}</span>
                     </div>
 
                     <div className={styles.settingsField}>
                         <span className={styles.settingsLabel}>Роль</span>
-                        <span className={styles.settingsValue}>{roleLabels[user.role] || user.role}</span>
+                        <span className={styles.settingsValue}>
+                            {roleLabels[user?.role] || user?.role || '—'}
+                        </span>
                     </div>
 
                     {/* === ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ === */}
@@ -71,21 +77,13 @@ export function SettingsModal({ isOpen, onClose, onLogout }) {
                         <div className={styles.themeToggleWrapper}>
                             <button 
                                 className={`${styles.themeToggleBtn} ${theme === 'light' ? styles.active : ''}`}
-                                onClick={() => {
-                                    setTheme('light')
-                                    localStorage.setItem('theme', 'light')
-                                    document.documentElement.setAttribute('data-theme', 'light')
-                                }}
+                                onClick={() => handleThemeChange('light')}
                             >
                                 ☀️ Светлая
                             </button>
                             <button 
                                 className={`${styles.themeToggleBtn} ${theme === 'dark' ? styles.active : ''}`}
-                                onClick={() => {
-                                    setTheme('dark')
-                                    localStorage.setItem('theme', 'dark')
-                                    document.documentElement.setAttribute('data-theme', 'dark')
-                                }}
+                                onClick={() => handleThemeChange('dark')}
                             >
                                 🌙 Тёмная
                             </button>
