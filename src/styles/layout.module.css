@@ -469,3 +469,199 @@
         font-size: 9px;
     }
 }
+/* ============================================================
+   ХЕДЕР
+   ============================================================ */
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    min-height: 64px;
+}
+
+[data-theme="dark"] .header {
+    background: rgba(26, 26, 26, 0.95);
+}
+
+/* Левая часть — информация о пользователе */
+.headerBrand {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+}
+
+.headerUserInfo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: default;
+    min-width: 0;
+}
+
+.headerAvatarSmall {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+    user-select: none;
+}
+
+.headerUserText {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+    min-width: 0;
+}
+
+.headerUserLabel {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.headerUserName {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Правая часть — кнопки */
+.headerActions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+/* Кнопка уведомлений */
+.headerNotificationsBtn {
+    position: relative;
+    background: none;
+    border: none;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+}
+
+.headerNotificationsBtn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.headerNotificationsBtn:active {
+    transform: scale(0.92);
+}
+
+.headerNotificationsBadge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: #e53935;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    border: 2px solid var(--bg-card);
+}
+
+/* Кнопка настроек */
+.headerSettingsBtn {
+    background: none;
+    border: none;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+}
+
+.headerSettingsBtn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.headerSettingsBtn:active {
+    transform: scale(0.92);
+}
+
+/* ============================================================
+   АДАПТИВ ДЛЯ ХЕДЕРА
+   ============================================================ */
+
+@media (max-width: 480px) {
+    .header {
+        padding: 10px 12px;
+        min-height: 56px;
+    }
+
+    .headerAvatarSmall {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+
+    .headerUserName {
+        font-size: 14px;
+    }
+
+    .headerUserLabel {
+        font-size: 9px;
+    }
+
+    .headerNotificationsBtn,
+    .headerSettingsBtn {
+        width: 36px;
+        height: 36px;
+        padding: 6px;
+    }
+
+    .headerNotificationsBtn svg,
+    .headerSettingsBtn svg {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+    .header {
+        padding: 14px 20px;
+    }
+}
