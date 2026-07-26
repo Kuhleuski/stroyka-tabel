@@ -710,7 +710,7 @@
     }
 }
 /* ============================================================
-   НИЖНЯЯ НАВИГАЦИЯ — НОВАЯ (без бургера)
+   НИЖНЯЯ НАВИГАЦИЯ — БЕЗ ХОВЕРОВ
    ============================================================ */
 
 .bottomNav {
@@ -747,7 +747,6 @@
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x proximity;
-    /* Скрываем скроллбар */
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
@@ -756,7 +755,7 @@
     display: none;
 }
 
-/* Каждый пункт меню */
+/* Каждый пункт меню — ТОЛЬКО два состояния */
 .navItem {
     display: flex;
     flex-direction: column;
@@ -767,19 +766,22 @@
     padding: 6px 14px;
     border-radius: 12px;
     cursor: pointer;
-    color: var(--text-muted);
-    transition: all 0.2s ease;
     font-family: inherit;
     flex-shrink: 0;
     scroll-snap-align: start;
     min-width: 64px;
+    transition: none;
+    /* ❌ Убираем все переходы и ховеры */
+    color: var(--text-muted);
 }
 
+/* ❌ Убираем ховер */
 .navItem:hover {
-    color: var(--text-primary);
-    background: var(--bg-hover);
+    color: var(--text-muted);
+    background: none;
 }
 
+/* ✅ Активное состояние */
 .navItem.active {
     color: var(--color-primary);
     background: var(--color-primary-light);
