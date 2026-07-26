@@ -1,7 +1,6 @@
 // src/components/Calendar/Calendar.jsx
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useVirtualizer } from '@tanstack/react-virtual'
 import { MONTHS, getMonthDays, formatDateLocal, isToday as isTodayUtil } from '../../utils/dateHelpers'
 import styles from '../../styles/calendar.module.css'
 
@@ -98,13 +97,8 @@ export function Calendar({
     sites = [],
     selectedDate, 
     onDateSelect, 
-    onDayClick,
-    mode: externalMode,
-    onModeChange,
-    isReturning,
-    savedScrollTop
+    onDayClick
 }) {
-    const [mode, setMode] = useState(externalMode || 'month')
     const [displayDate, setDisplayDate] = useState(selectedDate || new Date())
     const wrapperRef = useRef(null)
     
@@ -114,6 +108,7 @@ export function Calendar({
     const isSwiping = useRef(false)
     const [translateX, setTranslateX] = useState(0)
     const [isAnimating, setIsAnimating] = useState(false)
+    const [fadeState, setFadeState] = useState('visible') // 'visible' | 'fading' | 'hidden'
 
     const getDayShifts = useCallback((date) => {
         const dateStr = formatDateLocal(date)
@@ -135,13 +130,20 @@ export function Calendar({
         return `${MONTHS[month]} ${year}`
     }
 
-    const changeMonth = (direction) => {
+    const changeMonth = useCallback((direction) => {
         if (isAnimating) return
         
         const newDate = new Date(displayDate)
         newDate.setMonth(newDate.getMonth() + direction)
-        setDisplayDate(newDate)
-    }
+        
+        // Анимация затухания
+        setFadeState('fading')
+        
+        setTimeout(() => {
+            setDisplayDate(newDate)
+            setFadeState('visible')
+        }, 200)
+    }, [displayDate, isAnimating])
 
     // === ОБРАБОТЧИКИ СВАЙПА ===
     const handleTouchStart = (e) => {
@@ -177,13 +179,17 @@ export function Calendar({
             setIsAnimating(true)
             const direction = deltaX < 0 ? 1 : -1
             
+            // Улетаем в сторону свайпа
             const offset = deltaX < 0 ? -window.innerWidth * 0.3 : window.innerWidth * 0.3
             setTranslateX(offset)
             
             setTimeout(() => {
                 changeMonth(direction)
-                setTranslateX(0)
-                setIsAnimating(false)
+                // Возвращаемся на место и убираем анимацию
+                setTimeout(() => {
+                    setTranslateX(0)
+                    setIsAnimating(false)
+                }, 50)
             }, 200)
         } else {
             setTranslateX(0)
@@ -213,9 +219,12 @@ export function Calendar({
     const handleDayClick = (date) => {
         onDateSelect(date)
         if (onDayClick) {
-            onDayClick(date, mode)
+            onDayClick(date, 'month')
         }
     }
+
+    // Получаем дни текущего месяца
+    const days = getMonthDays(displayDate.getFullYear(), displayDate.getMonth())
 
     return (
         <div className={styles.calendarWrapper}>
@@ -228,8 +237,14 @@ export function Calendar({
                 className={styles.calendarGridWrapper}
                 style={{
                     transform: `translateX(${translateX}px)`,
-                    transition: isAnimating ? 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
-                    willChange: 'transform'
+                    transition: isAnimating 
+                        ? 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)' 
+                        : 'none',
+                    willChange: 'transform',
+                    opacity: fadeState === 'fading' ? 0.6 : 1,
+                    transition: isAnimating 
+                        ? `transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease`
+                        : 'none'
                 }}
             >
                 <div className={styles.calendarGrid}>
@@ -237,7 +252,7 @@ export function Calendar({
                         <div key={day} className={styles.dayLabel}>{day}</div>
                     ))}
                     
-                    {getMonthDays(displayDate.getFullYear(), displayDate.getMonth()).map((day, index) => {
+                    {days.map((day, index) => {
                         if (day.empty) {
                             return <div key={`empty-${index}`} className={`${styles.dayCell} ${styles.empty}`}></div>
                         }
