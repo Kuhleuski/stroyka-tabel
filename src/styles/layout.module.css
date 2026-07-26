@@ -402,3 +402,70 @@
         right: -3px;
     }
 }
+
+/* ============================================================
+   ХЕДЕР — ИНФОРМАЦИЯ О ПОЛЬЗОВАТЕЛЕ
+   ============================================================ */
+
+.headerUserInfo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: default;
+}
+
+.headerAvatarSmall {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+    user-select: none;
+}
+
+.headerUserText {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.headerUserLabel {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.headerUserName {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Адаптив для маленьких экранов */
+@media (max-width: 480px) {
+    .headerUserInfo {
+        gap: 8px;
+    }
+
+    .headerAvatarSmall {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+
+    .headerUserName {
+        font-size: 14px;
+    }
+
+    .headerUserLabel {
+        font-size: 9px;
+    }
+}
