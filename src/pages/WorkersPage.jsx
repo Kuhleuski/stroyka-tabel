@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { WorkersList } from '../components/Workers/WorkersList'
-import { AddWorkerPage } from './AddWorkerPage'
 import { WorkerDetailPage } from './WorkerDetailPage'
+import { AddWorkerModal } from '../components/AddWorkerModal'
 import { addWorker, deleteWorker } from '../services/supabase'
 import { useWorkers } from '../hooks/useWorkers'
 import { Plus } from 'lucide-react'
 import styles from '../styles/workers.module.css'
 import globalsStyles from '../styles/globals.module.css'
-import compStyles from '../styles/components.module.css'
 
 // === ПЛОСКАЯ ИКОНКА ДЛЯ ЗАГОЛОВКА ===
 const WorkersIcon = () => (
@@ -19,8 +18,8 @@ const WorkersIcon = () => (
     </svg>
 )
 
-export function WorkersPage({ shifts, onNavigate }) {
-    const [showAddForm, setShowAddForm] = useState(false)
+export function WorkersPage({ shifts }) {
+    const [showAddModal, setShowAddModal] = useState(false)
     const [selectedWorker, setSelectedWorker] = useState(null)
     const [scrollPosition, setScrollPosition] = useState(0)
     const { workers, loading, error, addWorkerToState, removeWorkerFromState } = useWorkers()
@@ -30,11 +29,7 @@ export function WorkersPage({ shifts, onNavigate }) {
             const newWorker = await addWorker(name, avatarFile)
             const workerData = newWorker[0] || newWorker
             addWorkerToState(workerData)
-            setShowAddForm(false)
-            // Возвращаемся на страницу бригады
-            if (onNavigate) {
-                onNavigate('workers')
-            }
+            setShowAddModal(false)
         } catch (err) {
             throw err
         }
@@ -63,8 +58,8 @@ export function WorkersPage({ shifts, onNavigate }) {
         }, 50)
     }
 
-    const handleOpenAddForm = () => {
-        setShowAddForm(true)
+    const handleOpenAddModal = () => {
+        setShowAddModal(true)
     }
 
     if (loading) {
@@ -92,17 +87,6 @@ export function WorkersPage({ shifts, onNavigate }) {
         )
     }
 
-    if (showAddForm) {
-        return (
-            <AddWorkerPage 
-                onSave={handleSave}
-                onCancel={() => {
-                    setShowAddForm(false)
-                }}
-            />
-        )
-    }
-
     return (
         <>
             <div className={styles.pageHeader}>
@@ -113,7 +97,6 @@ export function WorkersPage({ shifts, onNavigate }) {
                     </div>
                     <div className={styles.pageSubtitle}>Все рабочие</div>
                 </div>
-                {/* КНОПКА УБРАНА */}
             </div>
 
             <WorkersList 
@@ -121,14 +104,19 @@ export function WorkersPage({ shifts, onNavigate }) {
                 onWorkerClick={handleWorkerClick}
             />
 
-            {/* ПЛАВАЮЩАЯ КНОПКА (FAB) */}
             <button 
                 className={styles.fabAddWorker}
-                onClick={handleOpenAddForm}
+                onClick={handleOpenAddModal}
                 aria-label="Добавить работника"
             >
                 <Plus size={28} strokeWidth={2.5} />
             </button>
+
+            <AddWorkerModal 
+                isOpen={showAddModal}
+                onClose={() => setShowAddModal(false)}
+                onSave={handleSave}
+            />
         </>
     )
 }
