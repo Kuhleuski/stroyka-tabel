@@ -17,6 +17,9 @@ import { StatisticsPage } from './pages/StatisticsPage'
 import { CostsPage } from './pages/CostsPage'
 import layoutStyles from './styles/layout.module.css'
 
+// === СТРАНИЦЫ, ГДЕ НУЖНО СКРЫТЬ МЕНЮ ===
+const HIDDEN_NAV_PAGES = ['settings', 'notifications']
+
 function AppContent() {
     const [currentPage, setCurrentPage] = useState('calendar')
     const [showSettings, setShowSettings] = useState(false)
@@ -27,7 +30,6 @@ function AppContent() {
     const { shifts, loading, error, refetch } = useShifts()
     const { user, login, logout } = useAuth()
 
-    // === ВОССТАНАВЛИВАЕМ ТЕМУ ПРИ ЗАГРУЗКЕ ===
     useEffect(() => {
         const savedTheme = localStorage.getItem('theme')
         if (savedTheme === 'dark' || savedTheme === 'light') {
@@ -65,6 +67,9 @@ function AppContent() {
             refetch()
         }
     }
+
+    // === Определяем, показывать ли меню ===
+    const showBottomNav = !HIDDEN_NAV_PAGES.includes(currentPage)
 
     if (showSettings) {
         return (
@@ -123,10 +128,13 @@ function AppContent() {
             <div className="container">
                 {renderPage()}
             </div>
-            <BottomNav 
-                currentPage={currentPage} 
-                onNavigate={handleNavigate}
-            />
+            {/* МЕНЮ ПОКАЗЫВАЕМ ТОЛЬКО ЕСЛИ НУЖНО */}
+            {showBottomNav && (
+                <BottomNav 
+                    currentPage={currentPage} 
+                    onNavigate={handleNavigate}
+                />
+            )}
         </div>
     )
 }
