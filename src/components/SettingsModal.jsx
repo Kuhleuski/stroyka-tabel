@@ -49,7 +49,22 @@ export function SettingsModal({ isOpen, onClose, onLogout }) {
         <div className={styles.modalOverlay}>
             <div className={styles.modalContent}>
                 <div className={styles.modalHeader}>
-                    <span className={styles.modalTitle}>⚙️ Настройки</span>
+                    {/* ПЛОСКАЯ ИКОНКА ВМЕСТО ЭМОДЗИ */}
+                    <svg
+                        width="28"
+                        height="28"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{ marginRight: '10px', color: 'var(--text-primary)' }}
+                    >
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                    <span className={styles.modalTitle}>Настройки</span>
                 </div>
 
                 <div className={styles.modalBody}>
@@ -99,13 +114,14 @@ export function SettingsModal({ isOpen, onClose, onLogout }) {
                     </button>
                 </div>
 
-                {/* КНОПКА ЗАКРЫТЬ ВНИЗУ (по центру) */}
+                {/* КНОПКА ЗАКРЫТЬ — ЗЕЛЁНАЯ */}
                 <div className={styles.modalFooterCenter}>
                     <button 
-                        className={styles.modalCloseBtn}
+                        className={styles.modalSaveBtn}
                         onClick={onClose}
+                        style={{ minWidth: '140px' }}
                     >
-                        Закрыть
+                        Готово
                     </button>
                 </div>
             </div>
