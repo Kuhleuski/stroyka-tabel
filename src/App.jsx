@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useShifts } from './hooks/useShifts'
 import { useAuth, AuthProvider } from './context/AuthContext'
 import { AvatarProvider } from './context/AvatarContext'
+import { Header } from './components/Layout/Header'  // ← ДОБАВЛЕН ИМПОРТ
 import { BottomNav } from './components/Layout/BottomNav'
 import { NotificationBadge } from './components/Layout/NotificationBadge'
 import { SettingsModal } from './components/SettingsModal'
@@ -78,6 +79,10 @@ function AppContent() {
         setShowSettings(false)
     }
 
+    const handleOpenSettings = () => {
+        setShowSettings(true)
+    }
+
     if (showNotifications) {
         return (
             <div className={layoutStyles.app}>
@@ -113,13 +118,22 @@ function AppContent() {
 
     return (
         <div className={layoutStyles.app}>
+            {/* === ХЭДЕР === */}
+            <Header 
+                onSettings={handleOpenSettings}
+                onNotifications={handleOpenNotifications}
+                unreadCount={unreadCount}
+            />
+
             <NotificationBadge 
                 unreadCount={unreadCount} 
                 onClick={handleOpenNotifications} 
             />
+            
             <div className="container">
                 {renderPage()}
             </div>
+            
             <BottomNav 
                 currentPage={currentPage} 
                 onNavigate={handleNavigate}
