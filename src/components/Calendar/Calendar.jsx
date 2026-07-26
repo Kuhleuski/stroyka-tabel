@@ -184,7 +184,6 @@ export function Calendar({
     savedScrollTop
 }) {
     const [mode, setMode] = useState(externalMode || 'month')
-    const [currentMonthIndex, setCurrentMonthIndex] = useState(0)
     const [displayDate, setDisplayDate] = useState(selectedDate || new Date())
     const [allDays, setAllDays] = useState([])
     const containerRef = useRef(null)
@@ -199,84 +198,74 @@ export function Calendar({
     const isSwiping = useRef(false)
     const [translateX, setTranslateX] = useState(0)
     const [isAnimating, setIsAnimating] = useState(false)
-    const [swipeDirection, setSwipeDirection] = useState(null)
-
-    const YEARS_BACK = 5
-    const YEARS_FORWARD = 3
 
     // === КЕШ МЕСЯЦЕВ ===
     const monthsCache = useRef({})
     
-    // === ГЕНЕРАЦИЯ ДНЕЙ ДЛЯ КОНКРЕТНОГО МЕСЯЦА ===
-    const generateMonthDays = useCallback((year, month) => {
-        const key = `${year}-${month}`
+    // === КОМПОНЕНТ МЕСЯЦА ДЛЯ СЛАЙДЕРА ===
+    const MonthView = ({ year, month, isVisible }) => {
+        const days = getMonthDays(year, month)
         
-        // Проверяем кеш
-        if (monthsCache.current[key]) {
-            return monthsCache.current[key]
-        }
-        
-        // Генерируем дни месяца
-        const days = []
-        const monthDays = getMonthDays(year, month)
-        
-        monthDays.forEach(day => {
-            if (!day.empty) {
-                days.push({
-                    date: day.date,
-                    day: day.date.getDate(),
-                    month: day.date.getMonth(),
-                    year: day.date.getFullYear(),
-                    empty: false
-                })
-            }
-        })
-        
-        // Сохраняем в кеш
-        monthsCache.current[key] = days
-        
-        // Ограничиваем размер кеша (храним только последние 20 месяцев)
-        const keys = Object.keys(monthsCache.current)
-        if (keys.length > 20) {
-            const oldestKey = keys[0]
-            delete monthsCache.current[oldestKey]
-        }
-        
-        return days
-    }, [])
+        return (
+            <div className={`${styles.monthSlide} ${isVisible ? styles.monthSlideActive : ''}`}>
+                <div className={styles.calendarGrid}>
+                    {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
+                        <div key={day} className={styles.dayLabel}>{day}</div>
+                    ))}
+                    
+                    {days.map((day, index) => {
+                        if (day.empty) {
+                            return <div key={`empty-${index}`} className={`${styles.dayCell} ${styles.empty}`}></div>
+                        }
 
-    // === ПОЛУЧЕНИЕ МЕСЯЦЕВ ДЛЯ ОТОБРАЖЕНИЯ (текущий + соседние) ===
-    const getMonthsToRender = useCallback((centerYear, centerMonth) => {
+                        const dayShifts = getDayShifts(day.date)
+                        const today = isToday(day.date)
+                        const selected = isSelected(day.date)
+
+                        return (
+                            <DayCell
+                                key={index}
+                                day={day}
+                                dayShifts={dayShifts}
+                                isToday={today}
+                                isSelected={selected}
+                                sites={sites}
+                                onClick={() => handleDayClick(day.date)}
+                            />
+                        )
+                    })}
+                </div>
+            </div>
+        )
+    }
+
+    // === ПРЕДЗАГРУЗКА МЕСЯЦЕВ ===
+    const preloadMonths = useCallback((centerYear, centerMonth) => {
         const months = []
         const range = 2 // 2 месяца вперёд и назад
         
         for (let i = -range; i <= range; i++) {
             const date = new Date(centerYear, centerMonth + i, 1)
-            months.push({
-                year: date.getFullYear(),
-                month: date.getMonth(),
-                days: generateMonthDays(date.getFullYear(), date.getMonth())
-            })
+            const key = `${date.getFullYear()}-${date.getMonth()}`
+            
+            // Генерируем и кешируем
+            if (!monthsCache.current[key]) {
+                monthsCache.current[key] = {
+                    year: date.getFullYear(),
+                    month: date.getMonth(),
+                    days: getMonthDays(date.getFullYear(), date.getMonth())
+                }
+            }
+            
+            months.push(monthsCache.current[key])
         }
         
         return months
-    }, [generateMonthDays])
+    }, [])
 
-    // === СОЗДАНИЕ ЛЕНТЫ ДНЕЙ ===
-    const buildFeed = useCallback((year, month) => {
-        const months = getMonthsToRender(year, month)
-        const allDays = []
-        
-        months.forEach((monthData, idx) => {
-            // Добавляем разделитель месяца
-            if (idx > 0) {
-                // Разделитель будет добавлен в рендере
-            }
-            allDays.push(...monthData.days)
-        })
-        
-        return allDays
-    }, [getMonthsToRender])
+    // === СОСТОЯНИЕ ДЛЯ СЛАЙДЕРА ===
+    const [months, setMonths] = useState([])
+    const [currentIndex, setCurrentIndex] = useState(2) // Индекс текущего месяца (всегда 2, т.к. 2 месяца назад)
 
     // === ИНИЦИАЛИЗАЦИЯ ===
     useEffect(() => {
@@ -285,10 +274,9 @@ export function Calendar({
         const month = initialDate.getMonth()
         
         setDisplayDate(initialDate)
-        const days = buildFeed(year, month)
-        setAllDays(days)
-        setCurrentMonthIndex(2) // Индекс текущего месяца в массиве (2 — потому что 2 месяца назад)
-        setHasRestored(false)
+        const preloaded = preloadMonths(year, month)
+        setMonths(preloaded)
+        setCurrentIndex(2)
     }, [])
 
     // === ОБНОВЛЕНИЕ ПРИ СМЕНЕ ДАТЫ ===
@@ -298,13 +286,13 @@ export function Calendar({
             const month = selectedDate.getMonth()
             
             setDisplayDate(selectedDate)
-            if (mode === 'feed') {
-                const days = buildFeed(year, month)
-                setAllDays(days)
-                setCurrentMonthIndex(2)
+            if (mode === 'month') {
+                const preloaded = preloadMonths(year, month)
+                setMonths(preloaded)
+                setCurrentIndex(2)
             }
         }
-    }, [selectedDate, mode, buildFeed])
+    }, [selectedDate, mode, preloadMonths])
 
     const getDayShifts = useCallback((date) => {
         const dateStr = formatDateLocal(date)
@@ -430,37 +418,56 @@ export function Calendar({
         }
     }
 
-    // === ПЕРЕКЛЮЧЕНИЕ МЕСЯЦА ===
+    // === ПЕРЕКЛЮЧЕНИЕ МЕСЯЦА В СЛАЙДЕРЕ ===
     const changeMonth = useCallback((direction) => {
         if (isAnimating) return
         
-        const newDate = new Date(displayDate)
-        newDate.setMonth(newDate.getMonth() + direction)
-        setDisplayDate(newDate)
+        // Получаем текущий месяц
+        const currentMonth = months[currentIndex]
+        if (!currentMonth) return
         
-        // Перестраиваем ленту с новым центром
-        const year = newDate.getFullYear()
-        const month = newDate.getMonth()
-        const days = buildFeed(year, month)
-        setAllDays(days)
-        setCurrentMonthIndex(2)
-    }, [displayDate, isAnimating, buildFeed])
-
-    const handlePrev = () => changeMonth(-1)
-    const handleNext = () => changeMonth(1)
+        // Вычисляем новый месяц
+        const newDate = new Date(currentMonth.year, currentMonth.month + direction, 1)
+        const newYear = newDate.getFullYear()
+        const newMonth = newDate.getMonth()
+        
+        // Проверяем, есть ли уже в кеше
+        const key = `${newYear}-${newMonth}`
+        if (!monthsCache.current[key]) {
+            monthsCache.current[key] = {
+                year: newYear,
+                month: newMonth,
+                days: getMonthDays(newYear, newMonth)
+            }
+        }
+        
+        // Обновляем массив месяцев
+        const newMonths = [...months]
+        if (direction === 1) {
+            // Вперёд — добавляем справа, удаляем слева
+            newMonths.shift()
+            newMonths.push(monthsCache.current[key])
+        } else {
+            // Назад — добавляем слева, удаляем справа
+            newMonths.pop()
+            newMonths.unshift(monthsCache.current[key])
+        }
+        
+        setMonths(newMonths)
+        // currentIndex всегда 2 (индекс текущего месяца в центре)
+    }, [months, currentIndex, isAnimating])
 
     // === ОБРАБОТЧИКИ СВАЙПА ===
     const handleTouchStart = (e) => {
-        if (isAnimating) return
+        if (isAnimating || mode === 'feed') return
         touchStartX.current = e.touches[0].clientX
         touchStartY.current = e.touches[0].clientY
         isSwiping.current = false
         setTranslateX(0)
-        setSwipeDirection(null)
     }
 
     const handleTouchMove = (e) => {
-        if (!touchStartX.current || isAnimating) return
+        if (!touchStartX.current || isAnimating || mode === 'feed') return
         
         const deltaX = e.touches[0].clientX - touchStartX.current
         const deltaY = e.touches[0].clientY - touchStartY.current
@@ -472,17 +479,11 @@ export function Calendar({
             const maxOffset = window.innerWidth * 0.4
             const offset = Math.max(-maxOffset, Math.min(maxOffset, deltaX))
             setTranslateX(offset)
-            
-            if (deltaX < 0) {
-                setSwipeDirection('left')
-            } else {
-                setSwipeDirection('right')
-            }
         }
     }
 
     const handleTouchEnd = (e) => {
-        if (isAnimating) return
+        if (isAnimating || mode === 'feed') return
         
         const deltaX = e.changedTouches[0].clientX - touchStartX.current
         
@@ -491,18 +492,16 @@ export function Calendar({
             const direction = deltaX < 0 ? 1 : -1
             
             // Анимация улетания
-            const offset = deltaX < 0 ? -window.innerWidth : window.innerWidth
-            setTranslateX(offset * 0.5)
+            const offset = deltaX < 0 ? -window.innerWidth * 0.3 : window.innerWidth * 0.3
+            setTranslateX(offset)
             
             setTimeout(() => {
                 changeMonth(direction)
                 setTranslateX(0)
                 setIsAnimating(false)
-                setSwipeDirection(null)
-            }, 200)
+            }, 250)
         } else {
             setTranslateX(0)
-            setSwipeDirection(null)
         }
         
         touchStartX.current = 0
@@ -522,7 +521,13 @@ export function Calendar({
                 const month = selectedDate.getMonth()
                 const days = buildFeed(year, month)
                 setAllDays(days)
-                setCurrentMonthIndex(2)
+            } else {
+                // Для режима месяца — обновляем слайдер
+                const year = selectedDate.getFullYear()
+                const month = selectedDate.getMonth()
+                const preloaded = preloadMonths(year, month)
+                setMonths(preloaded)
+                setCurrentIndex(2)
             }
         } else {
             const today = new Date()
@@ -533,7 +538,12 @@ export function Calendar({
                 const month = today.getMonth()
                 const days = buildFeed(year, month)
                 setAllDays(days)
-                setCurrentMonthIndex(2)
+            } else {
+                const year = today.getFullYear()
+                const month = today.getMonth()
+                const preloaded = preloadMonths(year, month)
+                setMonths(preloaded)
+                setCurrentIndex(2)
             }
         }
         setShouldShowToday(true)
@@ -549,14 +559,41 @@ export function Calendar({
         }
     }
 
+    // === ПОСТРОЕНИЕ ЛЕНТЫ ДЛЯ FEED ===
+    const buildFeed = useCallback((year, month) => {
+        const days = []
+        const range = 2
+        
+        for (let i = -range; i <= range; i++) {
+            const date = new Date(year, month + i, 1)
+            const monthDays = getMonthDays(date.getFullYear(), date.getMonth())
+            
+            monthDays.forEach(day => {
+                if (!day.empty) {
+                    days.push({
+                        date: day.date,
+                        day: day.date.getDate(),
+                        month: day.date.getMonth(),
+                        year: day.date.getFullYear(),
+                        empty: false
+                    })
+                }
+            })
+        }
+        
+        return days
+    }, [])
+
     const feedKey = `feed-${mode}-${allDays.length}`
 
     return (
         <>
             <div className={`${styles.calendarWrapper} ${mode === 'feed' ? styles.feedMode : ''}`}>
                 <div className={styles.calendarHeader}>
-                    {mode !== 'feed' && (
-                        <span className={styles.monthTitle}>{getTitle(displayDate)}</span>
+                    {mode !== 'feed' && months[currentIndex] && (
+                        <span className={styles.monthTitle}>
+                            {MONTHS[months[currentIndex].month]} {months[currentIndex].year}
+                        </span>
                     )}
                     {mode === 'feed' && (
                         <span className={styles.monthTitle} style={{ visibility: 'hidden' }}>—</span>
@@ -613,43 +650,50 @@ export function Calendar({
                     </div>
                 ) : (
                     <div 
-                        className={styles.calendarGridWrapper}
+                        className={styles.calendarSlider}
                         onTouchStart={handleTouchStart}
                         onTouchMove={handleTouchMove}
                         onTouchEnd={handleTouchEnd}
                         style={{
                             transform: `translateX(${translateX}px)`,
-                            transition: isAnimating ? 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+                            transition: isAnimating ? 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
                             willChange: 'transform'
                         }}
                     >
-                        <div className={styles.calendarGrid}>
-                            {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
-                                <div key={day} className={styles.dayLabel}>{day}</div>
-                            ))}
-                            
-                            {getMonthDays(displayDate.getFullYear(), displayDate.getMonth()).map((day, index) => {
-                                if (day.empty) {
-                                    return <div key={`empty-${index}`} className={`${styles.dayCell} ${styles.empty}`}></div>
-                                }
+                        {months.map((monthData, index) => (
+                            <div 
+                                key={`${monthData.year}-${monthData.month}`}
+                                className={`${styles.monthSlide} ${index === currentIndex ? styles.monthSlideCenter : ''}`}
+                            >
+                                <div className={styles.calendarGrid}>
+                                    {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
+                                        <div key={day} className={styles.dayLabel}>{day}</div>
+                                    ))}
+                                    
+                                    {monthData.days.map((day, idx) => {
+                                        if (day.empty) {
+                                            return <div key={`empty-${idx}`} className={`${styles.dayCell} ${styles.empty}`}></div>
+                                        }
 
-                                const dayShifts = getDayShifts(day.date)
-                                const today = isToday(day.date)
-                                const selected = isSelected(day.date)
+                                        const dayShifts = getDayShifts(day.date)
+                                        const today = isToday(day.date)
+                                        const selected = isSelected(day.date)
 
-                                return (
-                                    <DayCell
-                                        key={index}
-                                        day={day}
-                                        dayShifts={dayShifts}
-                                        isToday={today}
-                                        isSelected={selected}
-                                        sites={sites}
-                                        onClick={() => handleDayClick(day.date)}
-                                    />
-                                )
-                            })}
-                        </div>
+                                        return (
+                                            <DayCell
+                                                key={idx}
+                                                day={day}
+                                                dayShifts={dayShifts}
+                                                isToday={today}
+                                                isSelected={selected}
+                                                sites={sites}
+                                                onClick={() => handleDayClick(day.date)}
+                                            />
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 )}
             </div>
