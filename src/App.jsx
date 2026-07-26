@@ -4,6 +4,7 @@ import { useAuth, AuthProvider } from './context/AuthContext'
 import { AvatarProvider } from './context/AvatarContext'
 import { BottomNav } from './components/Layout/BottomNav'
 import { NotificationBadge } from './components/Layout/NotificationBadge'
+import { SettingsModal } from './components/SettingsModal'
 import { MainPage } from './pages/MainPage'
 import { SitesPage } from './pages/SitesPage'
 import { WorkersPage } from './pages/WorkersPage'
@@ -11,19 +12,10 @@ import { MyTabelPage } from './pages/MyTabelPage'
 import { SalaryPage } from './pages/SalaryPage'
 import { ExtraPage } from './pages/ExtraPage'
 import { LoginPage } from './pages/LoginPage'
-import { SettingsPage } from './pages/SettingsPage'
 import { NotificationsPage } from './pages/NotificationsPage'
 import { StatisticsPage } from './pages/StatisticsPage'
 import { CostsPage } from './pages/CostsPage'
-import { AddWorkerPage } from './pages/AddWorkerPage'
 import layoutStyles from './styles/layout.module.css'
-
-// === СТРАНИЦЫ, ГДЕ НУЖНО СКРЫТЬ МЕНЮ ===
-const HIDDEN_NAV_PAGES = [
-    'settings', 
-    'notifications',
-    'add-worker'  // ← ДОБАВЛЕНО!
-]
 
 function AppContent() {
     const [currentPage, setCurrentPage] = useState('calendar')
@@ -73,21 +65,6 @@ function AppContent() {
         }
     }
 
-    const showBottomNav = !HIDDEN_NAV_PAGES.includes(currentPage)
-
-    if (showSettings) {
-        return (
-            <div className={layoutStyles.app}>
-                <div className="container">
-                    <SettingsPage 
-                        onClose={() => setShowSettings(false)}
-                        onLogout={logout}
-                    />
-                </div>
-            </div>
-        )
-    }
-
     if (showNotifications) {
         return (
             <div className={layoutStyles.app}>
@@ -107,11 +84,7 @@ function AppContent() {
             case 'sites':
                 return <SitesPage key={`sites-${pageKey}`} />
             case 'workers':
-                return <WorkersPage 
-                    key={`workers-${pageKey}`} 
-                    shifts={shifts} 
-                    onNavigate={handleNavigate}
-                />
+                return <WorkersPage key={`workers-${pageKey}`} shifts={shifts} />
             case 'salary':
                 return <SalaryPage key={`salary-${pageKey}`} />
             case 'extra':
@@ -120,14 +93,6 @@ function AppContent() {
                 return <StatisticsPage key={`statistics-${pageKey}`} />
             case 'costs':
                 return <CostsPage key={`costs-${pageKey}`} />
-            case 'settings':
-                return <SettingsPage key={`settings-${pageKey}`} onClose={() => {}} onLogout={logout} />
-            case 'add-worker':
-                return <AddWorkerPage 
-                    key={`add-worker-${pageKey}`}
-                    onSave={() => {}} 
-                    onCancel={() => handleNavigate('workers')} 
-                />
             default:
                 return <MainPage key={`calendar-${pageKey}`} shifts={shifts} loading={loading} refetchShifts={refetch} />
         }
@@ -142,12 +107,17 @@ function AppContent() {
             <div className="container">
                 {renderPage()}
             </div>
-            {showBottomNav && (
-                <BottomNav 
-                    currentPage={currentPage} 
-                    onNavigate={handleNavigate}
-                />
-            )}
+            <BottomNav 
+                currentPage={currentPage} 
+                onNavigate={handleNavigate}
+            />
+
+            {/* МОДАЛКА НАСТРОЕК */}
+            <SettingsModal 
+                isOpen={showSettings}
+                onClose={() => setShowSettings(false)}
+                onLogout={logout}
+            />
         </div>
     )
 }
