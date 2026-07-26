@@ -192,10 +192,13 @@ export function Calendar({
     const [shouldShowToday, setShouldShowToday] = useState(true)
     const [hasRestored, setHasRestored] = useState(false)
     
-    // === ДЛЯ СВАЙПА ===
+    // === ДЛЯ СВАЙПА И АНИМАЦИИ ===
     const touchStartX = useRef(0)
     const touchStartY = useRef(0)
+    const touchCurrentX = useRef(0)
     const isSwiping = useRef(false)
+    const [translateX, setTranslateX] = useState(0)
+    const [isAnimating, setIsAnimating] = useState(false)
 
     const YEARS_BACK = 5
     const YEARS_FORWARD = 3
@@ -370,6 +373,8 @@ export function Calendar({
     }
 
     const changeMonth = (direction) => {
+        if (isAnimating) return
+        
         const newDate = new Date(displayDate)
         if (mode === 'month') {
             newDate.setMonth(newDate.getMonth() + direction)
@@ -385,37 +390,64 @@ export function Calendar({
     const handlePrev = () => changeMonth(-1)
     const handleNext = () => changeMonth(1)
 
-    // === ОБРАБОТЧИКИ СВАЙПА ===
+    // === ОБРАБОТЧИКИ СВАЙПА С АНИМАЦИЕЙ ===
     const handleTouchStart = (e) => {
+        if (isAnimating) return
         touchStartX.current = e.touches[0].clientX
         touchStartY.current = e.touches[0].clientY
+        touchCurrentX.current = touchStartX.current
         isSwiping.current = false
+        setTranslateX(0)
     }
 
     const handleTouchMove = (e) => {
-        if (!touchStartX.current) return
+        if (!touchStartX.current || isAnimating) return
         
         const deltaX = e.touches[0].clientX - touchStartX.current
         const deltaY = e.touches[0].clientY - touchStartY.current
         
-        // Определяем, что это горизонтальный свайп (а не вертикальный)
-        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 30) {
+        // Определяем, что это горизонтальный свайп
+        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
             isSwiping.current = true
             e.preventDefault()
+            
+            // Ограничиваем максимальное смещение
+            const maxOffset = window.innerWidth * 0.3
+            const offset = Math.max(-maxOffset, Math.min(maxOffset, deltaX))
+            setTranslateX(offset)
+            touchCurrentX.current = e.touches[0].clientX
         }
     }
 
     const handleTouchEnd = (e) => {
-        if (!isSwiping.current) return
+        if (isAnimating) return
         
         const deltaX = e.changedTouches[0].clientX - touchStartX.current
         
-        if (deltaX < -50) {
-            // Свайп влево — следующий месяц
-            handleNext()
-        } else if (deltaX > 50) {
-            // Свайп вправо — предыдущий месяц
-            handlePrev()
+        if (Math.abs(deltaX) > 50) {
+            // Анимация перелистывания
+            setIsAnimating(true)
+            
+            if (deltaX < 0) {
+                // Свайп влево — следующий месяц
+                setTranslateX(-window.innerWidth * 0.3)
+                setTimeout(() => {
+                    handleNext()
+                    setTranslateX(0)
+                    setIsAnimating(false)
+                }, 250)
+            } else {
+                // Свайп вправо — предыдущий месяц
+                setTranslateX(window.innerWidth * 0.3)
+                setTimeout(() => {
+                    handlePrev()
+                    setTranslateX(0)
+                    setIsAnimating(false)
+                }, 250)
+            }
+        } else {
+            // Возврат на место, если свайп был коротким
+            setTranslateX(0)
         }
         
         touchStartX.current = 0
@@ -443,6 +475,8 @@ export function Calendar({
         }
         setShouldShowToday(true)
         isRestoring.current = false
+        setTranslateX(0)
+        setIsAnimating(false)
     }
 
     const handleDayClick = (date) => {
@@ -459,11 +493,7 @@ export function Calendar({
             <div className={`${styles.calendarWrapper} ${mode === 'feed' ? styles.feedMode : ''}`}>
                 <div className={styles.calendarHeader}>
                     {mode !== 'feed' && (
-                        <>
-                            <button className={styles.calendarNavBtn} onClick={handlePrev}>‹</button>
-                            <span className={styles.monthTitle}>{getTitle(displayDate)}</span>
-                            <button className={styles.calendarNavBtn} onClick={handleNext}>›</button>
-                        </>
+                        <span className={styles.monthTitle}>{getTitle(displayDate)}</span>
                     )}
                     {mode === 'feed' && (
                         <span className={styles.monthTitle} style={{ visibility: 'hidden' }}>—</span>
@@ -524,6 +554,11 @@ export function Calendar({
                         onTouchStart={handleTouchStart}
                         onTouchMove={handleTouchMove}
                         onTouchEnd={handleTouchEnd}
+                        style={{
+                            transform: `translateX(${translateX}px)`,
+                            transition: isAnimating ? 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+                            willChange: 'transform'
+                        }}
                     >
                         <div className={styles.calendarGrid}>
                             {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
