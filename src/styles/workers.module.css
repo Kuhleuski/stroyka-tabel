@@ -2,6 +2,26 @@
    СТРАНИЦА БРИГАДЫ
    ============================================================ */
 
+.pageTitle {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: var(--spacing-lg) 0 var(--spacing-xs);
+}
+
+.pageSubtitle {
+    color: var(--text-secondary);
+    font-size: var(--font-size-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.pageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-xs);
+}
+
 .addWorkerBtn {
     background: var(--color-primary);
     color: white;
@@ -172,69 +192,25 @@
     color: white;
 }
 
-/* === АДАПТИВ === */
-@media (max-width: 420px) {
-    .workersGridContainer {
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--spacing-md);
-    }
-    
-    .workerGridAvatar {
-        width: 56px;
-        height: 56px;
-        font-size: 20px;
-    }
-}
-
-@media (max-width: 400px) {
-    .fabAddWorker {
-        width: 52px;
-        height: 52px;
-        bottom: 80px;
-        right: 16px;
-    }
-    
-    .fabAddWorker svg {
-        width: 24px;
-        height: 24px;
-    }
-}
-
-@media (min-width: 500px) {
-    .fabAddWorker {
-        right: calc(50% - 250px + 24px);
-    }
-}
 /* ============================================================
    СТРАНИЦА ДОБАВЛЕНИЯ РАБОТНИКА
    ============================================================ */
 
 .addWorkerPage {
     animation: fadeIn 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding-bottom: 0;
 }
 
 .addWorkerHeader {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     padding: var(--spacing-md) var(--spacing-xs) var(--spacing-lg) var(--spacing-xs);
     border-bottom: 2px solid var(--border-color);
     margin-bottom: var(--spacing-xl);
-}
-
-.addWorkerBack {
-    background: none;
-    border: none;
-    font-size: var(--font-size-lg);
-    color: var(--color-primary);
-    cursor: pointer;
-    padding: var(--spacing-sm) var(--spacing-xs);
-    font-weight: 500;
-    font-family: inherit;
-}
-
-.addWorkerBack:hover {
-    opacity: 0.7;
 }
 
 .addWorkerTitle {
@@ -243,30 +219,10 @@
     color: var(--text-primary);
 }
 
-.addWorkerSave {
-    background: var(--color-primary);
-    color: white;
-    border: none;
-    padding: var(--spacing-sm) var(--spacing-xl);
-    border-radius: 20px;
-    font-size: var(--font-size-md);
-    font-weight: 500;
-    cursor: pointer;
-    font-family: inherit;
-    transition: var(--transition-normal);
-}
-
-.addWorkerSave:hover:not(:disabled) {
-    background: var(--color-primary-hover);
-}
-
-.addWorkerSave:disabled {
-    opacity: 0.4;
-    cursor: default;
-}
-
 .addWorkerForm {
+    flex: 1;
     padding: 0 var(--spacing-xs);
+    padding-bottom: 80px;
 }
 
 .addWorkerError {
@@ -331,6 +287,75 @@
     color: var(--text-muted);
     margin-top: var(--spacing-sm);
 }
+
+/* ============================================================
+   КНОПКИ ВНИЗУ (НА УРОВНЕ МЕНЮ)
+   ============================================================ */
+
+.addWorkerActions {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 12px 16px 20px;
+    display: flex;
+    gap: 10px;
+    background: var(--bg-nav);
+    border-top: 1px solid var(--border-color);
+    z-index: 20;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+[data-theme="dark"] .addWorkerActions {
+    background: rgba(26, 26, 26, 0.92);
+}
+
+.addWorkerCancel {
+    flex: 1;
+    padding: 14px;
+    background: #f0f0f0;
+    color: var(--text-secondary);
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.addWorkerCancel:hover {
+    background: #e0e0e0;
+}
+
+.addWorkerSaveBtn {
+    flex: 1;
+    padding: 14px;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-primary);
+}
+
+.addWorkerSaveBtn:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+    transform: scale(1.01);
+}
+
+.addWorkerSaveBtn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
 /* ============================================================
    СТРАНИЦА ДЕТАЛЕЙ РАБОТНИКА
    ============================================================ */
@@ -455,6 +480,7 @@
 .workerDetailDelete:active {
     transform: scale(0.98);
 }
+
 /* ============================================================
    КАЛЕНДАРЬ РАБОТНИКА
    ============================================================ */
@@ -575,7 +601,36 @@
     text-align: center;
 }
 
+/* ============================================================
+   АДАПТИВ
+   ============================================================ */
+
+@media (max-width: 420px) {
+    .workersGridContainer {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-md);
+    }
+    
+    .workerGridAvatar {
+        width: 56px;
+        height: 56px;
+        font-size: 20px;
+    }
+}
+
 @media (max-width: 400px) {
+    .fabAddWorker {
+        width: 52px;
+        height: 52px;
+        bottom: 80px;
+        right: 16px;
+    }
+    
+    .fabAddWorker svg {
+        width: 24px;
+        height: 24px;
+    }
+
     .workerCalendar {
         padding: var(--spacing-md);
     }
@@ -585,181 +640,8 @@
     }
 }
 
-/* ============================================================
-   СТРАНИЦА БРИГАДЫ
-   ============================================================ */
-
-.pageTitle {
-    font-size: var(--font-size-2xl);
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: var(--spacing-lg) 0 var(--spacing-xs);
-}
-
-.pageSubtitle {
-    color: var(--text-secondary);
-    font-size: var(--font-size-md);
-    margin-bottom: var(--spacing-lg);
-}
-
-.pageHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: var(--spacing-xs);
-}
-/* ============================================================
-   СТРАНИЦА ДОБАВЛЕНИЯ РАБОТНИКА
-   ============================================================ */
-
-.addWorkerPage {
-    animation: fadeIn 0.25s ease;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    padding-bottom: 80px; /* отступ под нижнее меню */
-}
-
-.addWorkerHeader {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: var(--spacing-md) var(--spacing-xs) var(--spacing-lg) var(--spacing-xs);
-    border-bottom: 2px solid var(--border-color);
-    margin-bottom: var(--spacing-xl);
-}
-
-.addWorkerTitle {
-    font-size: var(--font-size-xl);
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.addWorkerForm {
-    flex: 1;
-    padding: 0 var(--spacing-xs);
-}
-
-.addWorkerError {
-    background: #ffebee;
-    color: #c62828;
-    padding: 10px var(--spacing-md);
-    border-radius: var(--radius-sm);
-    font-size: var(--font-size-md);
-    margin-bottom: var(--spacing-lg);
-}
-
-.addWorkerField {
-    margin-bottom: var(--spacing-xl);
-}
-
-.addWorkerLabel {
-    display: block;
-    font-size: var(--font-size-md);
-    font-weight: 500;
-    color: var(--text-primary);
-    margin-bottom: 6px;
-}
-
-.addWorkerInput {
-    width: 100%;
-    padding: var(--spacing-md) var(--spacing-md);
-    border: 1.5px solid var(--border-input);
-    border-radius: 10px;
-    font-size: var(--font-size-lg);
-    font-family: inherit;
-    transition: var(--transition-normal);
-    background: var(--bg-input);
-    color: var(--text-primary);
-}
-
-.addWorkerInput:focus {
-    outline: none;
-    border-color: var(--color-primary);
-}
-
-.addWorkerInput[type="file"] {
-    padding: 10px;
-    cursor: pointer;
-}
-
-.addWorkerInput[type="file"]::-webkit-file-upload-button {
-    background: var(--color-primary);
-    color: white;
-    border: none;
-    padding: 6px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-family: inherit;
-}
-
-.addWorkerInput[type="file"]::-webkit-file-upload-button:hover {
-    background: var(--color-primary-hover);
-}
-
-.addWorkerHint {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-top: var(--spacing-sm);
-}
-
-/* ============================================================
-   КНОПКИ ВНИЗУ (над меню)
-   ============================================================ */
-
-.addWorkerActions {
-    position: fixed;
-    bottom: 70px;
-    left: 0;
-    right: 0;
-    max-width: var(--max-width);
-    margin: 0 auto;
-    padding: 0 16px 12px;
-    display: flex;
-    gap: 10px;
-    background: transparent;
-    z-index: 20;
-}
-
-.addWorkerCancel {
-    flex: 1;
-    padding: 12px;
-    background: #f0f0f0;
-    color: var(--text-secondary);
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.2s ease;
-}
-
-.addWorkerCancel:hover {
-    background: #e0e0e0;
-}
-
-.addWorkerSaveBtn {
-    flex: 1;
-    padding: 12px;
-    background: var(--color-primary);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.2s ease;
-    box-shadow: var(--shadow-primary);
-}
-
-.addWorkerSaveBtn:hover:not(:disabled) {
-    background: var(--color-primary-hover);
-    transform: scale(1.01);
-}
-
-.addWorkerSaveBtn:disabled {
-    opacity: 0.5;
-    cursor: default;
+@media (min-width: 500px) {
+    .fabAddWorker {
+        right: calc(50% - 250px + 24px);
+    }
 }
