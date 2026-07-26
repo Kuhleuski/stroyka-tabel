@@ -172,45 +172,6 @@ const DayCell = ({ day, dayShifts, isToday, isSelected, onClick, sites }) => {
     )
 }
 
-// ============================================================
-// КОМПОНЕНТ МЕСЯЦА ДЛЯ СЛАЙДЕРА
-// ============================================================
-const MonthSlide = ({ year, month, sites, shifts, selectedDate, onDayClick, getDayShifts, isToday, isSelected }) => {
-    const days = useMemo(() => getMonthDays(year, month), [year, month])
-    
-    return (
-        <div className={styles.monthSlide}>
-            <div className={styles.calendarGrid}>
-                {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
-                    <div key={day} className={styles.dayLabel}>{day}</div>
-                ))}
-                
-                {days.map((day, index) => {
-                    if (day.empty) {
-                        return <div key={`empty-${index}`} className={`${styles.dayCell} ${styles.empty}`}></div>
-                    }
-
-                    const dayShifts = getDayShifts(day.date)
-                    const today = isToday(day.date)
-                    const selected = isSelected(day.date)
-
-                    return (
-                        <DayCell
-                            key={index}
-                            day={day}
-                            dayShifts={dayShifts}
-                            isToday={today}
-                            isSelected={selected}
-                            sites={sites}
-                            onClick={() => onDayClick(day.date)}
-                        />
-                    )
-                })}
-            </div>
-        </div>
-    )
-}
-
 export function Calendar({ 
     shifts, 
     sites = [],
@@ -230,53 +191,6 @@ export function Calendar({
     const virtualizerRef = useRef(null)
     const [shouldShowToday, setShouldShowToday] = useState(true)
     const [hasRestored, setHasRestored] = useState(false)
-    
-    // === ДЛЯ СЛАЙДЕРА ===
-    const sliderRef = useRef(null)
-    const [currentMonthIndex, setCurrentMonthIndex] = useState(2)
-
-    // === ГЕНЕРАЦИЯ МЕСЯЦЕВ ДЛЯ СЛАЙДЕРА ===
-    const generateMonths = useCallback((centerYear, centerMonth) => {
-        const months = []
-        const range = 2
-        
-        for (let i = -range; i <= range; i++) {
-            const date = new Date(centerYear, centerMonth + i, 1)
-            months.push({
-                year: date.getFullYear(),
-                month: date.getMonth(),
-                key: `${date.getFullYear()}-${date.getMonth()}`
-            })
-        }
-        return months
-    }, [])
-
-    const [sliderMonths, setSliderMonths] = useState(() => {
-        const now = new Date()
-        return generateMonths(now.getFullYear(), now.getMonth())
-    })
-
-    // === ОБНОВЛЕНИЕ СЛАЙДЕРА ПРИ СМЕНЕ ДАТЫ ===
-    useEffect(() => {
-        if (mode === 'feed') return
-        
-        const year = displayDate.getFullYear()
-        const month = displayDate.getMonth()
-        const newMonths = generateMonths(year, month)
-        setSliderMonths(newMonths)
-        setCurrentMonthIndex(2)
-    }, [displayDate, mode, generateMonths])
-
-    // === ПРОКРУТКА К ТЕКУЩЕМУ МЕСЯЦУ ===
-    useEffect(() => {
-        if (mode === 'feed' || !sliderRef.current) return
-        
-        const container = sliderRef.current
-        const slideWidth = container.offsetWidth
-        if (slideWidth === 0) return
-        
-        container.scrollLeft = currentMonthIndex * slideWidth
-    }, [sliderMonths, currentMonthIndex, mode])
 
     const YEARS_BACK = 5
     const YEARS_FORWARD = 3
@@ -450,33 +364,18 @@ export function Calendar({
         }
     }
 
-    // === ОБРАБОТЧИК СВАЙПА ДЛЯ СЛАЙДЕРА ===
-    const handleSliderScroll = useCallback(() => {
-        if (mode === 'feed' || !sliderRef.current) return
-        
-        const container = sliderRef.current
-        const slideWidth = container.offsetWidth
-        if (slideWidth === 0) return
-        
-        const newIndex = Math.round(container.scrollLeft / slideWidth)
-        if (newIndex !== currentMonthIndex && newIndex >= 0 && newIndex < sliderMonths.length) {
-            setCurrentMonthIndex(newIndex)
-            const monthData = sliderMonths[newIndex]
-            const newDate = new Date(monthData.year, monthData.month, 1)
+    const changeMonth = (direction) => {
+        const newDate = new Date(displayDate)
+        if (mode === 'month') {
+            newDate.setMonth(newDate.getMonth() + direction)
             setDisplayDate(newDate)
+        } else if (mode === 'feed') {
+            const centerDate = new Date(displayDate)
+            centerDate.setDate(centerDate.getDate() + direction * 30)
+            initFeed(centerDate)
+            setDisplayDate(centerDate)
         }
-    }, [mode, sliderMonths, currentMonthIndex])
-
-    useEffect(() => {
-        if (mode === 'feed' || !sliderRef.current) return
-        
-        const container = sliderRef.current
-        container.addEventListener('scroll', handleSliderScroll, { passive: true })
-        
-        return () => {
-            container.removeEventListener('scroll', handleSliderScroll)
-        }
-    }, [mode, handleSliderScroll])
+    }
 
     const handleModeChange = (newMode) => {
         setMode(newMode)
@@ -513,10 +412,8 @@ export function Calendar({
         <>
             <div className={`${styles.calendarWrapper} ${mode === 'feed' ? styles.feedMode : ''}`}>
                 <div className={styles.calendarHeader}>
-                    {mode !== 'feed' && sliderMonths[currentMonthIndex] && (
-                        <span className={styles.monthTitle}>
-                            {MONTHS[sliderMonths[currentMonthIndex].month]} {sliderMonths[currentMonthIndex].year}
-                        </span>
+                    {mode !== 'feed' && (
+                        <span className={styles.monthTitle}>{getTitle(displayDate)}</span>
                     )}
                     {mode === 'feed' && (
                         <span className={styles.monthTitle} style={{ visibility: 'hidden' }}>—</span>
@@ -572,25 +469,33 @@ export function Calendar({
                         </div>
                     </div>
                 ) : (
-                    <div 
-                        ref={sliderRef}
-                        className={styles.monthSlider}
-                    >
-                        <div className={styles.monthTrack}>
-                            {sliderMonths.map((monthData) => (
-                                <MonthSlide
-                                    key={monthData.key}
-                                    year={monthData.year}
-                                    month={monthData.month}
-                                    sites={sites}
-                                    shifts={shifts}
-                                    selectedDate={selectedDate}
-                                    onDayClick={handleDayClick}
-                                    getDayShifts={getDayShifts}
-                                    isToday={isToday}
-                                    isSelected={isSelected}
-                                />
+                    <div className={styles.calendarGridWrapper}>
+                        <div className={styles.calendarGrid}>
+                            {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
+                                <div key={day} className={styles.dayLabel}>{day}</div>
                             ))}
+                            
+                            {getMonthDays(displayDate.getFullYear(), displayDate.getMonth()).map((day, index) => {
+                                if (day.empty) {
+                                    return <div key={`empty-${index}`} className={`${styles.dayCell} ${styles.empty}`}></div>
+                                }
+
+                                const dayShifts = getDayShifts(day.date)
+                                const today = isToday(day.date)
+                                const selected = isSelected(day.date)
+
+                                return (
+                                    <DayCell
+                                        key={index}
+                                        day={day}
+                                        dayShifts={dayShifts}
+                                        isToday={today}
+                                        isSelected={selected}
+                                        sites={sites}
+                                        onClick={() => handleDayClick(day.date)}
+                                    />
+                                )
+                            })}
                         </div>
                     </div>
                 )}
