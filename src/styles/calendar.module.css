@@ -276,3 +276,97 @@
         font-size: var(--font-size-md);
     }
 }
+
+/* ============================================================
+   ГОРИЗОНТАЛЬНЫЙ СКРОЛЛ МЕСЯЦЕВ
+   ============================================================ */
+
+.calendarHeader {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.monthScrollWrapper {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px 0 8px 0;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.monthScrollWrapper::-webkit-scrollbar {
+    display: none;
+}
+
+.monthItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 56px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 12px;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    transition: all 0.2s ease;
+    color: var(--text-muted);
+    gap: 2px;
+}
+
+.monthItem:hover {
+    background: var(--bg-hover);
+}
+
+.monthItem.monthActive {
+    background: var(--color-primary);
+    color: white;
+}
+
+.monthName {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.monthYear {
+    font-size: 9px;
+    font-weight: 400;
+    opacity: 0.7;
+}
+
+.monthItem.monthActive .monthYear {
+    opacity: 0.9;
+}
+
+/* Хедер для режима feed */
+.calendarHeaderFeed {
+    padding: var(--spacing-md) var(--spacing-lg) 0 var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+}
+
+/* Адаптив */
+@media (max-width: 400px) {
+    .monthItem {
+        min-width: 48px;
+        padding: 6px 10px;
+    }
+    
+    .monthName {
+        font-size: 11px;
+    }
+    
+    .monthYear {
+        font-size: 8px;
+    }
+}
