@@ -197,21 +197,16 @@ export function Calendar({
     const YEARS_FORWARD = 3
 
     // === ГЕНЕРАЦИЯ СПИСКА МЕСЯЦЕВ ДЛЯ СКРОЛЛА ===
-    const generateMonths = useCallback(() => {
-        const months = []
-        const now = new Date()
-        const startYear = now.getFullYear() - 5
-        const endYear = now.getFullYear() + 3
-        
-        for (let year = startYear; year <= endYear; year++) {
-            for (let month = 0; month < 12; month++) {
-                months.push({ year, month })
-            }
+    const allMonths = []
+    const now = new Date()
+    const startYear = now.getFullYear() - 5
+    const endYear = now.getFullYear() + 3
+    
+    for (let year = startYear; year <= endYear; year++) {
+        for (let month = 0; month < 12; month++) {
+            allMonths.push({ year, month })
         }
-        return months
-    }, [])
-
-    const allMonths = generateMonths()
+    }
 
     // === ПРОКРУТКА К ТЕКУЩЕМУ МЕСЯЦУ ===
     useEffect(() => {
@@ -408,13 +403,26 @@ export function Calendar({
         }
     }
 
-    // === ОБРАБОТЧИК ВЫБОРА МЕСЯЦА ===
-    const handleMonthSelect = (year, month) => {
-        const newDate = new Date()
-        newDate.setFullYear(year)
-        newDate.setMonth(month)
-        newDate.setDate(1)
-        setDisplayDate(newDate)
+    const handleModeChange = (newMode) => {
+        setMode(newMode)
+        if (onModeChange) {
+            onModeChange(newMode, null)
+        }
+        if (selectedDate) {
+            setDisplayDate(selectedDate)
+            if (newMode === 'feed') {
+                initFeed(selectedDate)
+            }
+        } else {
+            const today = new Date()
+            onDateSelect(today)
+            setDisplayDate(today)
+            if (newMode === 'feed') {
+                initFeed(today)
+            }
+        }
+        setShouldShowToday(true)
+        isRestoring.current = false
     }
 
     const handleDayClick = (date) => {
@@ -424,14 +432,23 @@ export function Calendar({
         }
     }
 
+    // === ОБРАБОТЧИК ВЫБОРА МЕСЯЦА ===
+    const handleMonthSelect = (year, month) => {
+        const newDate = new Date()
+        newDate.setFullYear(year)
+        newDate.setMonth(month)
+        newDate.setDate(1)
+        setDisplayDate(newDate)
+    }
+
     const feedKey = `feed-${mode}-${allDays.length}`
 
     return (
         <>
             <div className={`${styles.calendarWrapper} ${mode === 'feed' ? styles.feedMode : ''}`}>
-                {/* === ХЕДЕР С МЕСЯЦАМИ (горизонтальный скролл) === */}
-                {mode !== 'feed' && (
-                    <div className={styles.calendarHeader}>
+                <div className={styles.calendarHeader}>
+                    {mode !== 'feed' ? (
+                        // === ГОРИЗОНТАЛЬНЫЙ СКРОЛЛ С МЕСЯЦАМИ ===
                         <div 
                             className={styles.monthScrollWrapper}
                             ref={monthScrollRef}
@@ -452,14 +469,10 @@ export function Calendar({
                                 )
                             })}
                         </div>
-                    </div>
-                )}
-                
-                {mode === 'feed' && (
-                    <div className={styles.calendarHeaderFeed}>
+                    ) : (
                         <span className={styles.monthTitle} style={{ visibility: 'hidden' }}>—</span>
-                    </div>
-                )}
+                    )}
+                </div>
                 
                 {mode === 'feed' ? (
                     <div 
