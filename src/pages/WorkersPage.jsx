@@ -19,7 +19,7 @@ const WorkersIcon = () => (
     </svg>
 )
 
-export function WorkersPage({ shifts }) {
+export function WorkersPage({ shifts, onNavigate }) {
     const [showAddForm, setShowAddForm] = useState(false)
     const [selectedWorker, setSelectedWorker] = useState(null)
     const [scrollPosition, setScrollPosition] = useState(0)
@@ -60,7 +60,10 @@ export function WorkersPage({ shifts }) {
     }
 
     const handleOpenAddForm = () => {
-        setShowAddForm(true)
+        // Переходим на страницу добавления через навигацию
+        if (onNavigate) {
+            onNavigate('add-worker')
+        }
     }
 
     if (loading) {
@@ -92,7 +95,12 @@ export function WorkersPage({ shifts }) {
         return (
             <AddWorkerPage 
                 onSave={handleSave}
-                onCancel={() => setShowAddForm(false)}
+                onCancel={() => {
+                    setShowAddForm(false)
+                    if (onNavigate) {
+                        onNavigate('workers')
+                    }
+                }}
             />
         )
     }
