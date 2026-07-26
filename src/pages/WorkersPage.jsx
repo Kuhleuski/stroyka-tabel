@@ -31,6 +31,10 @@ export function WorkersPage({ shifts, onNavigate }) {
             const workerData = newWorker[0] || newWorker
             addWorkerToState(workerData)
             setShowAddForm(false)
+            // Возвращаемся на страницу бригады
+            if (onNavigate) {
+                onNavigate('workers')
+            }
         } catch (err) {
             throw err
         }
@@ -60,10 +64,7 @@ export function WorkersPage({ shifts, onNavigate }) {
     }
 
     const handleOpenAddForm = () => {
-        // Переходим на страницу добавления через навигацию
-        if (onNavigate) {
-            onNavigate('add-worker')
-        }
+        setShowAddForm(true)
     }
 
     if (loading) {
@@ -97,9 +98,6 @@ export function WorkersPage({ shifts, onNavigate }) {
                 onSave={handleSave}
                 onCancel={() => {
                     setShowAddForm(false)
-                    if (onNavigate) {
-                        onNavigate('workers')
-                    }
                 }}
             />
         )
