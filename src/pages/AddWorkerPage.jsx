@@ -51,17 +51,7 @@ export function AddWorkerPage({ onSave, onCancel }) {
     return (
         <div className={styles.addWorkerPage}>
             <div className={styles.addWorkerHeader}>
-                <button className={styles.addWorkerBack} onClick={onCancel}>
-                    ← Назад
-                </button>
                 <span className={styles.addWorkerTitle}>Новый работник</span>
-                <button 
-                    className={styles.addWorkerSave} 
-                    onClick={handleSubmit}
-                    disabled={loading || !firstName.trim()}
-                >
-                    {loading ? '...' : 'Сохранить'}
-                </button>
             </div>
 
             <div className={styles.addWorkerForm}>
@@ -121,6 +111,25 @@ export function AddWorkerPage({ onSave, onCancel }) {
                 <div className={styles.addWorkerHint}>
                     После добавления работник появится в списке
                 </div>
+            </div>
+
+            {/* КНОПКИ ВНИЗУ (фиксированные над меню) */}
+            <div className={styles.addWorkerActions}>
+                <button 
+                    className={styles.addWorkerCancel}
+                    onClick={onCancel}
+                    type="button"
+                >
+                    Отмена
+                </button>
+                <button 
+                    className={styles.addWorkerSaveBtn} 
+                    onClick={handleSubmit}
+                    disabled={loading || !firstName.trim()}
+                    type="button"
+                >
+                    {loading ? 'Сохранение...' : 'Сохранить'}
+                </button>
             </div>
         </div>
     )
