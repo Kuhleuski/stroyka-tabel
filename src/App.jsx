@@ -21,7 +21,8 @@ import layoutStyles from './styles/layout.module.css'
 // === СТРАНИЦЫ, ГДЕ НУЖНО СКРЫТЬ МЕНЮ ===
 const HIDDEN_NAV_PAGES = [
     'settings', 
-    'notifications'
+    'notifications',
+    'add-worker'  // ← ДОБАВЛЕНО!
 ]
 
 function AppContent() {
@@ -72,7 +73,6 @@ function AppContent() {
         }
     }
 
-    // === Определяем, показывать ли меню ===
     const showBottomNav = !HIDDEN_NAV_PAGES.includes(currentPage)
 
     if (showSettings) {
@@ -122,6 +122,12 @@ function AppContent() {
                 return <CostsPage key={`costs-${pageKey}`} />
             case 'settings':
                 return <SettingsPage key={`settings-${pageKey}`} onClose={() => {}} onLogout={logout} />
+            case 'add-worker':
+                return <AddWorkerPage 
+                    key={`add-worker-${pageKey}`}
+                    onSave={() => {}} 
+                    onCancel={() => handleNavigate('workers')} 
+                />
             default:
                 return <MainPage key={`calendar-${pageKey}`} shifts={shifts} loading={loading} refetchShifts={refetch} />
         }
@@ -136,7 +142,6 @@ function AppContent() {
             <div className="container">
                 {renderPage()}
             </div>
-            {/* МЕНЮ ПОКАЗЫВАЕМ ТОЛЬКО ЕСЛИ НУЖНО */}
             {showBottomNav && (
                 <BottomNav 
                     currentPage={currentPage} 
