@@ -187,52 +187,18 @@ export function Calendar({
     const [displayDate, setDisplayDate] = useState(selectedDate || new Date())
     const [allDays, setAllDays] = useState([])
     const containerRef = useRef(null)
-    const monthScrollRef = useRef(null)
     const isRestoring = useRef(false)
     const virtualizerRef = useRef(null)
     const [shouldShowToday, setShouldShowToday] = useState(true)
     const [hasRestored, setHasRestored] = useState(false)
+    
+    // === ДЛЯ СВАЙПА ===
+    const touchStartX = useRef(0)
+    const touchStartY = useRef(0)
+    const isSwiping = useRef(false)
 
     const YEARS_BACK = 5
     const YEARS_FORWARD = 3
-
-    // === ГЕНЕРАЦИЯ СПИСКА МЕСЯЦЕВ ДЛЯ СКРОЛЛА ===
-    const allMonths = []
-    const now = new Date()
-    const startYear = now.getFullYear() - 5
-    const endYear = now.getFullYear() + 3
-    
-    for (let year = startYear; year <= endYear; year++) {
-        for (let month = 0; month < 12; month++) {
-            allMonths.push({ year, month })
-        }
-    }
-
-    // === ПРОКРУТКА К ТЕКУЩЕМУ МЕСЯЦУ ===
-    useEffect(() => {
-        if (!monthScrollRef.current || mode === 'feed') return
-        
-        const currentYear = displayDate.getFullYear()
-        const currentMonth = displayDate.getMonth()
-        
-        const index = allMonths.findIndex(m => m.year === currentYear && m.month === currentMonth)
-        if (index === -1) return
-        
-        const container = monthScrollRef.current
-        const targetElement = container.children[index]
-        if (!targetElement) return
-        
-        const containerRect = container.getBoundingClientRect()
-        const elementRect = targetElement.getBoundingClientRect()
-        
-        if (elementRect.left < containerRect.left || elementRect.right > containerRect.right) {
-            targetElement.scrollIntoView({
-                block: 'nearest',
-                inline: 'center',
-                behavior: 'smooth'
-            })
-        }
-    }, [displayDate, allMonths, mode])
 
     const generateDays = useCallback((centerDate) => {
         const days = []
@@ -403,6 +369,60 @@ export function Calendar({
         }
     }
 
+    const changeMonth = (direction) => {
+        const newDate = new Date(displayDate)
+        if (mode === 'month') {
+            newDate.setMonth(newDate.getMonth() + direction)
+            setDisplayDate(newDate)
+        } else if (mode === 'feed') {
+            const centerDate = new Date(displayDate)
+            centerDate.setDate(centerDate.getDate() + direction * 30)
+            initFeed(centerDate)
+            setDisplayDate(centerDate)
+        }
+    }
+
+    const handlePrev = () => changeMonth(-1)
+    const handleNext = () => changeMonth(1)
+
+    // === ОБРАБОТЧИКИ СВАЙПА ===
+    const handleTouchStart = (e) => {
+        touchStartX.current = e.touches[0].clientX
+        touchStartY.current = e.touches[0].clientY
+        isSwiping.current = false
+    }
+
+    const handleTouchMove = (e) => {
+        if (!touchStartX.current) return
+        
+        const deltaX = e.touches[0].clientX - touchStartX.current
+        const deltaY = e.touches[0].clientY - touchStartY.current
+        
+        // Определяем, что это горизонтальный свайп (а не вертикальный)
+        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 30) {
+            isSwiping.current = true
+            e.preventDefault()
+        }
+    }
+
+    const handleTouchEnd = (e) => {
+        if (!isSwiping.current) return
+        
+        const deltaX = e.changedTouches[0].clientX - touchStartX.current
+        
+        if (deltaX < -50) {
+            // Свайп влево — следующий месяц
+            handleNext()
+        } else if (deltaX > 50) {
+            // Свайп вправо — предыдущий месяц
+            handlePrev()
+        }
+        
+        touchStartX.current = 0
+        touchStartY.current = 0
+        isSwiping.current = false
+    }
+
     const handleModeChange = (newMode) => {
         setMode(newMode)
         if (onModeChange) {
@@ -432,44 +452,20 @@ export function Calendar({
         }
     }
 
-    // === ОБРАБОТЧИК ВЫБОРА МЕСЯЦА ===
-    const handleMonthSelect = (year, month) => {
-        const newDate = new Date()
-        newDate.setFullYear(year)
-        newDate.setMonth(month)
-        newDate.setDate(1)
-        setDisplayDate(newDate)
-    }
-
     const feedKey = `feed-${mode}-${allDays.length}`
 
     return (
         <>
             <div className={`${styles.calendarWrapper} ${mode === 'feed' ? styles.feedMode : ''}`}>
                 <div className={styles.calendarHeader}>
-                    {mode !== 'feed' ? (
-                        // === ГОРИЗОНТАЛЬНЫЙ СКРОЛЛ С МЕСЯЦАМИ ===
-                        <div 
-                            className={styles.monthScrollWrapper}
-                            ref={monthScrollRef}
-                        >
-                            {allMonths.map(({ year, month }) => {
-                                const isActive = displayDate.getFullYear() === year && displayDate.getMonth() === month
-                                const monthShort = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 
-                                                    'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек']
-                                return (
-                                    <button
-                                        key={`${year}-${month}`}
-                                        className={`${styles.monthItem} ${isActive ? styles.monthActive : ''}`}
-                                        onClick={() => handleMonthSelect(year, month)}
-                                    >
-                                        <span className={styles.monthName}>{monthShort[month]}</span>
-                                        <span className={styles.monthYear}>{year}</span>
-                                    </button>
-                                )
-                            })}
-                        </div>
-                    ) : (
+                    {mode !== 'feed' && (
+                        <>
+                            <button className={styles.calendarNavBtn} onClick={handlePrev}>‹</button>
+                            <span className={styles.monthTitle}>{getTitle(displayDate)}</span>
+                            <button className={styles.calendarNavBtn} onClick={handleNext}>›</button>
+                        </>
+                    )}
+                    {mode === 'feed' && (
                         <span className={styles.monthTitle} style={{ visibility: 'hidden' }}>—</span>
                     )}
                 </div>
@@ -523,32 +519,39 @@ export function Calendar({
                         </div>
                     </div>
                 ) : (
-                    <div className={styles.calendarGrid}>
-                        {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
-                            <div key={day} className={styles.dayLabel}>{day}</div>
-                        ))}
-                        
-                        {getMonthDays(displayDate.getFullYear(), displayDate.getMonth()).map((day, index) => {
-                            if (day.empty) {
-                                return <div key={`empty-${index}`} className={`${styles.dayCell} ${styles.empty}`}></div>
-                            }
+                    <div 
+                        className={styles.calendarGridWrapper}
+                        onTouchStart={handleTouchStart}
+                        onTouchMove={handleTouchMove}
+                        onTouchEnd={handleTouchEnd}
+                    >
+                        <div className={styles.calendarGrid}>
+                            {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
+                                <div key={day} className={styles.dayLabel}>{day}</div>
+                            ))}
+                            
+                            {getMonthDays(displayDate.getFullYear(), displayDate.getMonth()).map((day, index) => {
+                                if (day.empty) {
+                                    return <div key={`empty-${index}`} className={`${styles.dayCell} ${styles.empty}`}></div>
+                                }
 
-                            const dayShifts = getDayShifts(day.date)
-                            const today = isToday(day.date)
-                            const selected = isSelected(day.date)
+                                const dayShifts = getDayShifts(day.date)
+                                const today = isToday(day.date)
+                                const selected = isSelected(day.date)
 
-                            return (
-                                <DayCell
-                                    key={index}
-                                    day={day}
-                                    dayShifts={dayShifts}
-                                    isToday={today}
-                                    isSelected={selected}
-                                    sites={sites}
-                                    onClick={() => handleDayClick(day.date)}
-                                />
-                            )
-                        })}
+                                return (
+                                    <DayCell
+                                        key={index}
+                                        day={day}
+                                        dayShifts={dayShifts}
+                                        isToday={today}
+                                        isSelected={selected}
+                                        sites={sites}
+                                        onClick={() => handleDayClick(day.date)}
+                                    />
+                                )
+                            })}
+                        </div>
                     </div>
                 )}
             </div>
