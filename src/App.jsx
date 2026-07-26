@@ -15,13 +15,13 @@ import { SettingsPage } from './pages/SettingsPage'
 import { NotificationsPage } from './pages/NotificationsPage'
 import { StatisticsPage } from './pages/StatisticsPage'
 import { CostsPage } from './pages/CostsPage'
+import { AddWorkerPage } from './pages/AddWorkerPage'
 import layoutStyles from './styles/layout.module.css'
 
 // === СТРАНИЦЫ, ГДЕ НУЖНО СКРЫТЬ МЕНЮ ===
 const HIDDEN_NAV_PAGES = [
     'settings', 
-    'notifications',
-    'add-worker'
+    'notifications'
 ]
 
 function AppContent() {
@@ -107,7 +107,11 @@ function AppContent() {
             case 'sites':
                 return <SitesPage key={`sites-${pageKey}`} />
             case 'workers':
-                return <WorkersPage key={`workers-${pageKey}`} shifts={shifts} />
+                return <WorkersPage 
+                    key={`workers-${pageKey}`} 
+                    shifts={shifts} 
+                    onNavigate={handleNavigate}
+                />
             case 'salary':
                 return <SalaryPage key={`salary-${pageKey}`} />
             case 'extra':
@@ -118,12 +122,6 @@ function AppContent() {
                 return <CostsPage key={`costs-${pageKey}`} />
             case 'settings':
                 return <SettingsPage key={`settings-${pageKey}`} onClose={() => {}} onLogout={logout} />
-            case 'add-worker':
-                return <AddWorkerPage 
-                    key={`add-worker-${pageKey}`}
-                    onSave={() => {}} 
-                    onCancel={() => setCurrentPage('workers')} 
-                />
             default:
                 return <MainPage key={`calendar-${pageKey}`} shifts={shifts} loading={loading} refetchShifts={refetch} />
         }
