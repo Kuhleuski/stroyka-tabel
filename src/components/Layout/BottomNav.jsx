@@ -100,21 +100,15 @@ export function BottomNav({ currentPage, onNavigate }) {
         const activeIndex = allItems.findIndex(item => item.key === currentPage)
         if (activeIndex === -1) return
 
-        // Находим активный элемент
         const activeElement = container.children[activeIndex]
         if (!activeElement) return
 
-        // Прокручиваем так, чтобы активный элемент был виден
-        // Но НЕ в центр, а просто в поле зрения
         const containerRect = container.getBoundingClientRect()
         const elementRect = activeElement.getBoundingClientRect()
 
-        // Если элемент слева от видимой области
         if (elementRect.left < containerRect.left) {
             container.scrollLeft -= (containerRect.left - elementRect.left) + 10
-        }
-        // Если элемент справа от видимой области
-        else if (elementRect.right > containerRect.right) {
+        } else if (elementRect.right > containerRect.right) {
             container.scrollLeft += (elementRect.right - containerRect.right) + 10
         }
     }, [currentPage, allItems])
