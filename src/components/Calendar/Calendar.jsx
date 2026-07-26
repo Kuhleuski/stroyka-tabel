@@ -198,6 +198,7 @@ export function Calendar({
     const isSwiping = useRef(false)
     const [translateX, setTranslateX] = useState(0)
     const [isAnimating, setIsAnimating] = useState(false)
+    const wrapperRef = useRef(null)
 
     const YEARS_BACK = 5
     const YEARS_FORWARD = 3
@@ -390,15 +391,15 @@ export function Calendar({
     const handleNext = () => changeMonth(1)
 
     // === ОБРАБОТЧИКИ СВАЙПА ===
-    const handleTouchStart = (e) => {
+    const handleTouchStart = useCallback((e) => {
         if (isAnimating || mode === 'feed') return
         touchStartX.current = e.touches[0].clientX
         touchStartY.current = e.touches[0].clientY
         isSwiping.current = false
         setTranslateX(0)
-    }
+    }, [isAnimating, mode])
 
-    const handleTouchMove = (e) => {
+    const handleTouchMove = useCallback((e) => {
         if (!touchStartX.current || isAnimating || mode === 'feed') return
         
         const deltaX = e.touches[0].clientX - touchStartX.current
@@ -412,9 +413,9 @@ export function Calendar({
             const offset = Math.max(-maxOffset, Math.min(maxOffset, deltaX))
             setTranslateX(offset)
         }
-    }
+    }, [isAnimating, mode])
 
-    const handleTouchEnd = (e) => {
+    const handleTouchEnd = useCallback((e) => {
         if (isAnimating || mode === 'feed') return
         
         const deltaX = e.changedTouches[0].clientX - touchStartX.current
@@ -438,7 +439,23 @@ export function Calendar({
         touchStartX.current = 0
         touchStartY.current = 0
         isSwiping.current = false
-    }
+    }, [isAnimating, mode])
+
+    // === ДОБАВЛЯЕМ СЛУШАТЕЛИ С { passive: false } ===
+    useEffect(() => {
+        const wrapper = wrapperRef.current
+        if (!wrapper || mode === 'feed') return
+
+        wrapper.addEventListener('touchstart', handleTouchStart, { passive: true })
+        wrapper.addEventListener('touchmove', handleTouchMove, { passive: false })
+        wrapper.addEventListener('touchend', handleTouchEnd, { passive: true })
+
+        return () => {
+            wrapper.removeEventListener('touchstart', handleTouchStart)
+            wrapper.removeEventListener('touchmove', handleTouchMove)
+            wrapper.removeEventListener('touchend', handleTouchEnd)
+        }
+    }, [handleTouchStart, handleTouchMove, handleTouchEnd, mode])
 
     const handleModeChange = (newMode) => {
         setMode(newMode)
@@ -535,10 +552,8 @@ export function Calendar({
                     </div>
                 ) : (
                     <div 
+                        ref={wrapperRef}
                         className={styles.calendarGridWrapper}
-                        onTouchStart={handleTouchStart}
-                        onTouchMove={handleTouchMove}
-                        onTouchEnd={handleTouchEnd}
                         style={{
                             transform: `translateX(${translateX}px)`,
                             transition: isAnimating ? 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
