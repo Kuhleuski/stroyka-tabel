@@ -100,6 +100,7 @@ export function Calendar({
     onDayClick
 }) {
     const [displayDate, setDisplayDate] = useState(selectedDate || new Date())
+    const [prevDate, setPrevDate] = useState(null)
     const wrapperRef = useRef(null)
     
     // === ДЛЯ СВАЙПА ===
@@ -108,7 +109,7 @@ export function Calendar({
     const isSwiping = useRef(false)
     const [translateX, setTranslateX] = useState(0)
     const [isAnimating, setIsAnimating] = useState(false)
-    const [fadeState, setFadeState] = useState('visible') // 'visible' | 'fading' | 'hidden'
+    const [direction, setDirection] = useState(0) // -1 = влево, 1 = вправо
 
     const getDayShifts = useCallback((date) => {
         const dateStr = formatDateLocal(date)
@@ -130,18 +131,29 @@ export function Calendar({
         return `${MONTHS[month]} ${year}`
     }
 
-    const changeMonth = useCallback((direction) => {
+    const changeMonth = useCallback((dir) => {
         if (isAnimating) return
         
         const newDate = new Date(displayDate)
-        newDate.setMonth(newDate.getMonth() + direction)
+        newDate.setMonth(newDate.getMonth() + dir)
         
-        // Анимация затухания
-        setFadeState('fading')
+        setPrevDate(displayDate)
+        setDirection(dir)
+        setIsAnimating(true)
+        
+        // Сначала улетаем
+        const offset = dir === 1 ? -window.innerWidth * 0.3 : window.innerWidth * 0.3
+        setTranslateX(offset)
         
         setTimeout(() => {
+            // Меняем месяц
             setDisplayDate(newDate)
-            setFadeState('visible')
+            setTranslateX(0)
+            
+            setTimeout(() => {
+                setIsAnimating(false)
+                setPrevDate(null)
+            }, 150)
         }, 200)
     }, [displayDate, isAnimating])
 
@@ -176,21 +188,8 @@ export function Calendar({
         const deltaX = e.changedTouches[0].clientX - touchStartX.current
         
         if (Math.abs(deltaX) > 50 && isSwiping.current) {
-            setIsAnimating(true)
-            const direction = deltaX < 0 ? 1 : -1
-            
-            // Улетаем в сторону свайпа
-            const offset = deltaX < 0 ? -window.innerWidth * 0.3 : window.innerWidth * 0.3
-            setTranslateX(offset)
-            
-            setTimeout(() => {
-                changeMonth(direction)
-                // Возвращаемся на место и убираем анимацию
-                setTimeout(() => {
-                    setTranslateX(0)
-                    setIsAnimating(false)
-                }, 50)
-            }, 200)
+            const dir = deltaX < 0 ? 1 : -1
+            changeMonth(dir)
         } else {
             setTranslateX(0)
         }
@@ -224,7 +223,25 @@ export function Calendar({
     }
 
     // Получаем дни текущего месяца
-    const days = getMonthDays(displayDate.getFullYear(), displayDate.getMonth())
+    const currentDays = getMonthDays(displayDate.getFullYear(), displayDate.getMonth())
+    const prevDays = prevDate ? getMonthDays(prevDate.getFullYear(), prevDate.getMonth()) : null
+
+    // Вычисляем смещение для анимации
+    const getSlideStyle = () => {
+        if (!isAnimating) {
+            return {
+                transform: `translateX(${translateX}px)`,
+                transition: 'none'
+            }
+        }
+        
+        // Анимация улетания/прилетания
+        const offset = direction === 1 ? -window.innerWidth * 0.3 : window.innerWidth * 0.3
+        return {
+            transform: `translateX(${offset}px)`,
+            transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+        }
+    }
 
     return (
         <div className={styles.calendarWrapper}>
@@ -232,47 +249,48 @@ export function Calendar({
                 <span className={styles.monthTitle}>{getTitle(displayDate)}</span>
             </div>
 
-            <div 
-                ref={wrapperRef}
-                className={styles.calendarGridWrapper}
-                style={{
-                    transform: `translateX(${translateX}px)`,
-                    transition: isAnimating 
-                        ? 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)' 
-                        : 'none',
-                    willChange: 'transform',
-                    opacity: fadeState === 'fading' ? 0.6 : 1,
-                    transition: isAnimating 
-                        ? `transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease`
-                        : 'none'
-                }}
-            >
-                <div className={styles.calendarGrid}>
-                    {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
-                        <div key={day} className={styles.dayLabel}>{day}</div>
-                    ))}
-                    
-                    {days.map((day, index) => {
-                        if (day.empty) {
-                            return <div key={`empty-${index}`} className={`${styles.dayCell} ${styles.empty}`}></div>
-                        }
+            <div className={styles.calendarSliderContainer}>
+                {/* Текущий месяц */}
+                <div 
+                    ref={wrapperRef}
+                    className={styles.calendarSlide}
+                    style={{
+                        transform: `translateX(${translateX}px)`,
+                        transition: isAnimating 
+                            ? 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)' 
+                            : 'none',
+                        willChange: 'transform'
+                    }}
+                >
+                    <div className={styles.calendarGridWrapper}>
+                        <div className={styles.calendarGrid}>
+                            {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
+                                <div key={day} className={styles.dayLabel}>{day}</div>
+                            ))}
+                            
+                            {currentDays.map((day, index) => {
+                                if (day.empty) {
+                                    return <div key={`empty-${index}`} className={`${styles.dayCell} ${styles.empty}`}></div>
+                                }
 
-                        const dayShifts = getDayShifts(day.date)
-                        const today = isToday(day.date)
-                        const selected = isSelected(day.date)
+                                const dayShifts = getDayShifts(day.date)
+                                const today = isToday(day.date)
+                                const selected = isSelected(day.date)
 
-                        return (
-                            <DayCell
-                                key={index}
-                                day={day}
-                                dayShifts={dayShifts}
-                                isToday={today}
-                                isSelected={selected}
-                                sites={sites}
-                                onClick={() => handleDayClick(day.date)}
-                            />
-                        )
-                    })}
+                                return (
+                                    <DayCell
+                                        key={index}
+                                        day={day}
+                                        dayShifts={dayShifts}
+                                        isToday={today}
+                                        isSelected={selected}
+                                        sites={sites}
+                                        onClick={() => handleDayClick(day.date)}
+                                    />
+                                )
+                            })}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
