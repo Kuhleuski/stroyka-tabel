@@ -1,3 +1,5 @@
+// src/App.jsx
+
 import { useState, useEffect } from 'react'
 import { useShifts } from './hooks/useShifts'
 import { useAuth, AuthProvider } from './context/AuthContext'
@@ -58,11 +60,22 @@ function AppContent() {
     }
 
     const handleNavigate = (page) => {
+        // Если нажали на настройки — открываем модалку
+        if (page === 'settings') {
+            setShowSettings(true)
+            return
+        }
+        
+        // Иначе переключаем страницу
         setCurrentPage(page)
         if (page === 'calendar') {
             setPageKey(prev => prev + 1)
             refetch()
         }
+    }
+
+    const handleCloseSettings = () => {
+        setShowSettings(false)
     }
 
     if (showNotifications) {
@@ -115,7 +128,7 @@ function AppContent() {
             {/* МОДАЛКА НАСТРОЕК */}
             <SettingsModal 
                 isOpen={showSettings}
-                onClose={() => setShowSettings(false)}
+                onClose={handleCloseSettings}
                 onLogout={logout}
             />
         </div>
