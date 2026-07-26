@@ -1,10 +1,12 @@
 // src/components/Layout/Header.jsx
 
 import { useAuth } from '../../context/AuthContext'
+import { useAvatars } from '../../context/AvatarContext'
 import styles from '../../styles/layout.module.css'
 
 export function Header({ onLogout, onSettings, onNotifications, unreadCount }) {
     const { user } = useAuth()
+    const { getAvatar } = useAvatars()
 
     if (!user) return null
 
@@ -13,15 +15,26 @@ export function Header({ onLogout, onSettings, onNotifications, unreadCount }) {
     }
 
     const isAdmin = user?.role === 'admin'
+    
+    // Получаем аватарку пользователя по имени
+    const avatarUrl = getAvatar(user.name)
 
     return (
         <header className={styles.header}>
             <div className={styles.headerBrand}>
                 {/* ЛЕВАЯ ЧАСТЬ — АВАТАРКА + ИМЯ ПОЛЬЗОВАТЕЛЯ */}
                 <div className={styles.headerUserInfo}>
-                    <div className={styles.headerAvatarSmall}>
-                        {getInitial(user.name)}
-                    </div>
+                    {avatarUrl ? (
+                        <img 
+                            src={avatarUrl} 
+                            alt={user.name}
+                            className={styles.headerAvatarImage}
+                        />
+                    ) : (
+                        <div className={styles.headerAvatarSmall}>
+                            {getInitial(user.name)}
+                        </div>
+                    )}
                     <div className={styles.headerUserText}>
                         <span className={styles.headerUserLabel}>Учётная запись</span>
                         <span className={styles.headerUserName}>{user.name}</span>
@@ -38,8 +51,8 @@ export function Header({ onLogout, onSettings, onNotifications, unreadCount }) {
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            width="22"
-                            height="22"
+                            width="26"
+                            height="26"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -63,8 +76,8 @@ export function Header({ onLogout, onSettings, onNotifications, unreadCount }) {
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
+                        width="26"
+                        height="26"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
