@@ -1,40 +1,47 @@
+// src/components/Layout/Header.jsx
+
 import { useAuth } from '../../context/AuthContext'
+import { useAvatars } from '../../context/AvatarContext'
 import styles from '../../styles/layout.module.css'
 
 export function Header({ onLogout, onSettings, onNotifications, unreadCount }) {
     const { user } = useAuth()
+    const { getAvatar } = useAvatars()
 
     if (!user) return null
 
     const getInitial = (name) => {
-        return name.charAt(0).toUpperCase()
+        return name?.charAt(0).toUpperCase() || '?'
     }
 
     const isAdmin = user?.role === 'admin'
+    
+    // Получаем аватарку пользователя по имени
+    const avatarUrl = getAvatar(user.name)
 
     return (
         <header className={styles.header}>
             <div className={styles.headerBrand}>
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="28"
-                    height="28"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#2d7d46"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className={styles.logoIcon}
-                >
-                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
-                    <line x1="8" y1="11" x2="16" y2="11" />
-                    <line x1="8" y1="15" x2="16" y2="15" />
-                    <line x1="8" y1="19" x2="12" y2="19" />
-                </svg>
-                <span className={styles.title}>Табель</span>
+                {/* ЛЕВАЯ ЧАСТЬ — АВАТАРКА + ИМЯ ПОЛЬЗОВАТЕЛЯ */}
+                <div className={styles.headerUserInfo}>
+                    {avatarUrl ? (
+                        <img 
+                            src={avatarUrl} 
+                            alt={user.name}
+                            className={styles.headerAvatarImage}
+                        />
+                    ) : (
+                        <div className={styles.headerAvatarSmall}>
+                            {getInitial(user.name)}
+                        </div>
+                    )}
+                    <div className={styles.headerUserText}>
+                        <span className={styles.headerUserLabel}>Учётная запись</span>
+                        <span className={styles.headerUserName}>{user.name}</span>
+                    </div>
+                </div>
             </div>
+
             <div className={styles.headerActions}>
                 {isAdmin && (
                     <button 
@@ -44,8 +51,8 @@ export function Header({ onLogout, onSettings, onNotifications, unreadCount }) {
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            width="22"
-                            height="22"
+                            width="26"
+                            height="26"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -61,12 +68,7 @@ export function Header({ onLogout, onSettings, onNotifications, unreadCount }) {
                         )}
                     </button>
                 )}
-                <div className={styles.headerUser}>
-                    <div className={styles.headerAvatar}>
-                        {getInitial(user.name)}
-                    </div>
-                    <span className={styles.headerUserName}>{user.name}</span>
-                </div>
+
                 <button 
                     className={styles.headerSettingsBtn}
                     onClick={onSettings}
@@ -74,8 +76,8 @@ export function Header({ onLogout, onSettings, onNotifications, unreadCount }) {
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
+                        width="26"
+                        height="26"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"

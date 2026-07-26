@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react'
 import { useShifts } from './hooks/useShifts'
 import { useAuth, AuthProvider } from './context/AuthContext'
 import { AvatarProvider } from './context/AvatarContext'
+import { Header } from './components/Layout/Header'
 import { BottomNav } from './components/Layout/BottomNav'
-import { NotificationBadge } from './components/Layout/NotificationBadge'
+// ❌ УДАЛЯЕМ импорт NotificationBadge
+// import { NotificationBadge } from './components/Layout/NotificationBadge'
 import { SettingsModal } from './components/SettingsModal'
 import { MainPage } from './pages/MainPage'
 import { SitesPage } from './pages/SitesPage'
@@ -60,13 +62,11 @@ function AppContent() {
     }
 
     const handleNavigate = (page) => {
-        // Если нажали на настройки — открываем модалку
         if (page === 'settings') {
             setShowSettings(true)
             return
         }
         
-        // Иначе переключаем страницу
         setCurrentPage(page)
         if (page === 'calendar') {
             setPageKey(prev => prev + 1)
@@ -76,6 +76,10 @@ function AppContent() {
 
     const handleCloseSettings = () => {
         setShowSettings(false)
+    }
+
+    const handleOpenSettings = () => {
+        setShowSettings(true)
     }
 
     if (showNotifications) {
@@ -113,19 +117,28 @@ function AppContent() {
 
     return (
         <div className={layoutStyles.app}>
-            <NotificationBadge 
+            {/* === ХЭДЕР === */}
+            <Header 
+                onSettings={handleOpenSettings}
+                onNotifications={handleOpenNotifications}
+                unreadCount={unreadCount}
+            />
+
+            {/* ❌ УДАЛЯЕМ NotificationBadge */}
+            {/* <NotificationBadge 
                 unreadCount={unreadCount} 
                 onClick={handleOpenNotifications} 
-            />
+            /> */}
+            
             <div className="container">
                 {renderPage()}
             </div>
+            
             <BottomNav 
                 currentPage={currentPage} 
                 onNavigate={handleNavigate}
             />
 
-            {/* МОДАЛКА НАСТРОЕК */}
             <SettingsModal 
                 isOpen={showSettings}
                 onClose={handleCloseSettings}

@@ -1,3 +1,5 @@
+// src/pages/MyTabelPage.jsx
+
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import styles from '../styles/my-tabel.module.css'
@@ -8,11 +10,6 @@ export function MyTabelPage({ shifts }) {
     const [selectedDate, setSelectedDate] = useState(null)
     const [showDayDetail, setShowDayDetail] = useState(false)
     const [dayNote, setDayNote] = useState('')
-
-    const roleLabels = {
-        admin: 'Администратор',
-        worker: 'Работник'
-    }
 
     const getWeekDays = (date) => {
         const day = date.getDay()
@@ -136,7 +133,8 @@ export function MyTabelPage({ shifts }) {
 
     return (
         <div className={styles.myTabelPage}>
-            <div className={styles.myTabelHeader}>
+            {/* ❌ УДАЛЯЕМ блок с аватаркой и именем */}
+            {/* <div className={styles.myTabelHeader}>
                 <div className={styles.myTabelUserInfo}>
                     <div className={styles.myTabelAvatarSmall}>
                         {user.name.charAt(0).toUpperCase()}
@@ -146,7 +144,7 @@ export function MyTabelPage({ shifts }) {
                         <div className={styles.myTabelRole}>{roleLabels[user.role] || user.role}</div>
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             {/* Неделя */}
             <div className={styles.myTabelWeekSection}>
