@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import styles from '../styles/components.module.css'
-import compStyles from '../styles/components.module.css'
 
 export function AddWorkerModal({ isOpen, onClose, onSave }) {
     const [firstName, setFirstName] = useState('')
