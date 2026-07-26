@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { WorkersList } from '../components/Workers/WorkersList'
-import { AddWorkerPage } from './AddWorkerPage'
 import { WorkerDetailPage } from './WorkerDetailPage'
+import { AddWorkerModal } from '../components/AddWorkerModal'
 import { addWorker, deleteWorker } from '../services/supabase'
 import { useWorkers } from '../hooks/useWorkers'
 import { Plus } from 'lucide-react'
 import styles from '../styles/workers.module.css'
 import globalsStyles from '../styles/globals.module.css'
-import compStyles from '../styles/components.module.css'
 
 // === ПЛОСКАЯ ИКОНКА ДЛЯ ЗАГОЛОВКА ===
 const WorkersIcon = () => (
@@ -20,7 +19,7 @@ const WorkersIcon = () => (
 )
 
 export function WorkersPage({ shifts }) {
-    const [showAddForm, setShowAddForm] = useState(false)
+    const [showAddModal, setShowAddModal] = useState(false)
     const [selectedWorker, setSelectedWorker] = useState(null)
     const [scrollPosition, setScrollPosition] = useState(0)
     const { workers, loading, error, addWorkerToState, removeWorkerFromState } = useWorkers()
@@ -30,7 +29,7 @@ export function WorkersPage({ shifts }) {
             const newWorker = await addWorker(name, avatarFile)
             const workerData = newWorker[0] || newWorker
             addWorkerToState(workerData)
-            setShowAddForm(false)
+            setShowAddModal(false)
         } catch (err) {
             throw err
         }
@@ -59,8 +58,8 @@ export function WorkersPage({ shifts }) {
         }, 50)
     }
 
-    const handleOpenAddForm = () => {
-        setShowAddForm(true)
+    const handleOpenAddModal = () => {
+        setShowAddModal(true)
     }
 
     if (loading) {
@@ -88,15 +87,6 @@ export function WorkersPage({ shifts }) {
         )
     }
 
-    if (showAddForm) {
-        return (
-            <AddWorkerPage 
-                onSave={handleSave}
-                onCancel={() => setShowAddForm(false)}
-            />
-        )
-    }
-
     return (
         <>
             <div className={styles.pageHeader}>
@@ -107,12 +97,6 @@ export function WorkersPage({ shifts }) {
                     </div>
                     <div className={styles.pageSubtitle}>Все рабочие</div>
                 </div>
-                <button 
-                    className={styles.addWorkerBtn}
-                    onClick={handleOpenAddForm}
-                >
-                    + Добавить рабочего
-                </button>
             </div>
 
             <WorkersList 
@@ -120,14 +104,19 @@ export function WorkersPage({ shifts }) {
                 onWorkerClick={handleWorkerClick}
             />
 
-            {/* ПЛАВАЮЩАЯ КНОПКА (FAB) — дублирует "Добавить работника" */}
             <button 
                 className={styles.fabAddWorker}
-                onClick={handleOpenAddForm}
+                onClick={handleOpenAddModal}
                 aria-label="Добавить работника"
             >
                 <Plus size={28} strokeWidth={2.5} />
             </button>
+
+            <AddWorkerModal 
+                isOpen={showAddModal}
+                onClose={() => setShowAddModal(false)}
+                onSave={handleSave}
+            />
         </>
     )
 }

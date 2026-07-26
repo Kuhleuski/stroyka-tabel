@@ -47,10 +47,16 @@ const icons = {
             <path d="M21 16h-4"/>
         </svg>
     ),
-    'notifications': (
+    'costs': (
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="8" y1="12" x2="16" y2="12"/>
+        </svg>
+    ),
+    'salary': (
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="2" x2="12" y2="22"/>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
         </svg>
     ),
     'settings': (
@@ -61,13 +67,13 @@ const icons = {
     )
 }
 
-export function BottomNav({ currentPage, onNavigate, onNotifications, unreadCount }) {
+export function BottomNav({ currentPage, onNavigate }) {
     const { user } = useAuth()
     const [isExpanded, setIsExpanded] = useState(false)
     const isAdmin = user?.role === 'admin'
 
     const mainKeys = ['calendar', 'my-tabel', 'workers', 'sites']
-    const extraKeys = ['statistics', 'notifications', 'settings']
+    const extraKeys = ['statistics', 'costs', 'salary', 'settings']
 
     useEffect(() => {
         if (extraKeys.includes(currentPage)) {
@@ -86,12 +92,8 @@ export function BottomNav({ currentPage, onNavigate, onNotifications, unreadCoun
 
     const extraItems = isAdmin ? [
         { key: 'statistics', icon: icons.statistics, label: 'Статистика' },
-        { 
-            key: 'notifications', 
-            icon: icons.notifications, 
-            label: 'Уведомления',
-            badge: unreadCount > 0 ? unreadCount : null
-        },
+        { key: 'costs', icon: icons.costs, label: 'Затраты' },
+        { key: 'salary', icon: icons.salary, label: 'Зарплата' },
         { key: 'settings', icon: icons.settings, label: 'Настройки' },
     ] : []
 
@@ -100,10 +102,6 @@ export function BottomNav({ currentPage, onNavigate, onNotifications, unreadCoun
     }
 
     const handleNavigate = (key) => {
-        if (key === 'notifications' && onNotifications) {
-            onNotifications()
-            return
-        }
         onNavigate(key)
     }
 
@@ -124,18 +122,13 @@ export function BottomNav({ currentPage, onNavigate, onNotifications, unreadCoun
         </svg>
     )
 
-    const hasUnread = unreadCount > 0
-
     return (
         <div className={styles.bottomNav}>
             <button 
                 className={`${styles.burgerBtn} ${isExpanded ? styles.burgerActive : ''}`}
                 onClick={toggleMenu}
             >
-                <span className={styles.navIcon}>
-                    <BurgerIcon />
-                    {hasUnread && <span className={styles.burgerBadge}></span>}
-                </span>
+                <span className={styles.navIcon}><BurgerIcon /></span>
             </button>
 
             <div className={styles.navContainer}>
@@ -157,18 +150,13 @@ export function BottomNav({ currentPage, onNavigate, onNotifications, unreadCoun
 
                     {isAdmin && isExpanded && (
                         <div className={`${styles.extraGroup} ${styles.extraGroupVisible}`}>
-                            {extraItems.map(({ key, icon, label, badge }) => (
+                            {extraItems.map(({ key, icon, label }) => (
                                 <button
                                     key={key}
                                     className={`${styles.extraItem} ${currentPage === key ? styles.active : ''}`}
                                     onClick={() => handleNavigate(key)}
                                 >
-                                    <span className={styles.extraIconWrap}>
-                                        {icon}
-                                        {badge && (
-                                            <span className={styles.badgeDot}>{badge}</span>
-                                        )}
-                                    </span>
+                                    <span className={styles.extraIconWrap}>{icon}</span>
                                     <span className={styles.extraLabel}>{label}</span>
                                 </button>
                             ))}

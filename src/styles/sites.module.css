@@ -260,47 +260,10 @@
     margin-bottom: var(--spacing-xl);
 }
 
-.addSiteBack {
-    background: none;
-    border: none;
-    font-size: var(--font-size-lg);
-    color: var(--color-primary);
-    cursor: pointer;
-    padding: var(--spacing-sm) var(--spacing-xs);
-    font-weight: 500;
-    font-family: inherit;
-}
-
-.addSiteBack:hover {
-    opacity: 0.7;
-}
-
 .addSiteTitle {
     font-size: var(--font-size-xl);
     font-weight: 700;
     color: var(--text-primary);
-}
-
-.addSiteSave {
-    background: var(--color-primary);
-    color: white;
-    border: none;
-    padding: var(--spacing-sm) var(--spacing-xl);
-    border-radius: 20px;
-    font-size: var(--font-size-md);
-    font-weight: 500;
-    cursor: pointer;
-    font-family: inherit;
-    transition: var(--transition-normal);
-}
-
-.addSiteSave:hover:not(:disabled) {
-    background: var(--color-primary-hover);
-}
-
-.addSiteSave:disabled {
-    opacity: 0.4;
-    cursor: default;
 }
 
 .addSiteForm {
@@ -350,6 +313,60 @@
     color: var(--text-muted);
     margin-top: var(--spacing-sm);
 }
+
+/* ============================================================
+   КНОПКИ ВНИЗУ ФОРМЫ ДОБАВЛЕНИЯ
+   ============================================================ */
+
+.addSiteActions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.addSiteCancel {
+    flex: 1;
+    padding: 12px;
+    background: #f0f0f0;
+    color: var(--text-secondary);
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.addSiteCancel:hover {
+    background: #e0e0e0;
+}
+
+.addSiteSave {
+    flex: 1;
+    padding: 12px;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.addSiteSave:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+}
+
+.addSiteSave:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
 /* ============================================================
    СТРАНИЦА ДЕТАЛЕЙ ОБЪЕКТА
    ============================================================ */
@@ -358,49 +375,103 @@
     animation: fadeIn 0.25s ease;
 }
 
+/* ШАПКА ДЕТАЛЕЙ */
 .siteDetailHeader {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: var(--spacing-md) var(--spacing-xs) var(--spacing-lg) var(--spacing-xs);
+    justify-content: space-between;
+    padding: 12px 4px 16px 4px;
     border-bottom: 2px solid var(--border-color);
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: 8px;
+    gap: 10px;
 }
 
 .siteDetailTitle {
-    font-size: var(--font-size-xl);
-    font-weight: 700;
+    font-size: 18px;
+    font-weight: 600;
     color: var(--text-primary);
+    flex: 1;
 }
 
-.siteDetailClose {
-    background: var(--color-primary);
+/* КНОПКА УДАЛИТЬ В ШАПКЕ (корзина) */
+.siteDetailDeleteBtn {
+    background: none;
     border: none;
-    font-size: 28px;
-    font-weight: 400;
-    color: white;
+    color: var(--text-muted);
     cursor: pointer;
-    padding: var(--spacing-xs) var(--spacing-md);
-    border-radius: 30px;
-    transition: var(--transition-normal);
-    line-height: 1.4;
-    min-width: 44px;
-    min-height: 44px;
+    padding: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: var(--shadow-primary);
+    transition: all 0.2s ease;
+    border-radius: 8px;
+    flex-shrink: 0;
 }
 
-.siteDetailClose:hover {
-    background: var(--color-primary-hover);
-    transform: scale(1.05);
+.siteDetailDeleteBtn:hover:not(:disabled) {
+    background: #f0f0f0;
+    color: #c62828;
 }
 
-.siteDetailClose:active {
-    transform: scale(0.95);
+.siteDetailDeleteBtn:disabled {
+    opacity: 0.4;
+    cursor: default;
 }
 
+/* БЛОК С КНОПКАМИ ПОД ШАПКОЙ */
+.siteDetailActions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 4px 4px 16px 4px;
+    border-bottom: 1px solid var(--border-light);
+    margin-bottom: 16px;
+}
+
+.siteDetailBack {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: var(--color-primary);
+    cursor: pointer;
+    padding: 6px 4px;
+    font-weight: 500;
+    font-family: inherit;
+}
+
+.siteDetailBack:hover {
+    opacity: 0.7;
+}
+
+/* КНОПКА УДАЛИТЬ В БЛОКЕ ДЕЙСТВИЙ */
+.siteDetailDeleteAction {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.siteDetailDeleteAction:hover:not(:disabled) {
+    background: #f0f0f0;
+    color: #c62828;
+}
+
+.siteDetailDeleteAction:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+/* КОНТЕНТ ДЕТАЛЕЙ */
 .siteDetailContent {
     padding: 0 var(--spacing-xs);
 }
@@ -441,25 +512,139 @@
     text-align: center;
 }
 
-.siteDetailDelete {
-    width: 100%;
-    padding: var(--spacing-md);
-    margin-top: var(--spacing-xl);
-    background: #ffebee;
-    color: #c62828;
-    border: 1px solid #ffcdd2;
-    border-radius: 10px;
-    font-size: 15px;
+/* === ДОПОЛНИТЕЛЬНЫЕ СТИЛИ === */
+
+.addSiteBack {
+    background: none;
+    border: none;
+    font-size: var(--font-size-lg);
+    color: var(--color-primary);
+    cursor: pointer;
+    padding: var(--spacing-sm) var(--spacing-xs);
+    font-weight: 500;
+    font-family: inherit;
+}
+
+.addSiteBack:hover {
+    opacity: 0.7;
+}
+
+.addSiteSave {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: var(--spacing-sm) var(--spacing-xl);
+    border-radius: 20px;
+    font-size: var(--font-size-md);
     font-weight: 500;
     cursor: pointer;
     font-family: inherit;
     transition: var(--transition-normal);
 }
 
-.siteDetailDelete:hover {
-    background: #ffcdd2;
+.addSiteSave:hover:not(:disabled) {
+    background: var(--color-primary-hover);
 }
 
-.siteDetailDelete:active {
-    transform: scale(0.98);
+.addSiteSave:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+/* ============================================================
+   МОДАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ
+   ============================================================ */
+
+.confirmOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: var(--z-modal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
+}
+
+.confirmModal {
+    background: var(--bg-card);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-2xl) 28px var(--spacing-xl);
+    max-width: 340px;
+    width: 90%;
+    text-align: center;
+    box-shadow: var(--shadow-xl);
+    animation: slideUp 0.25s ease;
+}
+
+.confirmIconWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--spacing-md);
+    color: #c62828;
+}
+
+.confirmIconWrapper svg {
+    stroke: currentColor;
+}
+
+.confirmTitle {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.confirmText {
+    font-size: 15px;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: var(--spacing-xl);
+}
+
+.confirmText strong {
+    color: var(--text-primary);
+}
+
+.confirmButtons {
+    display: flex;
+    gap: 10px;
+}
+
+.confirmBtn {
+    flex: 1;
+    padding: var(--spacing-md);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: var(--transition-normal);
+}
+
+.confirmBtn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.confirmBtn.cancel {
+    background: #f0f0f0;
+    color: var(--text-secondary);
+}
+
+.confirmBtn.cancel:hover:not(:disabled) {
+    background: #e0e0e0;
+}
+
+.confirmBtn.delete {
+    background: #c62828;
+    color: white;
+}
+
+.confirmBtn.delete:hover:not(:disabled) {
+    background: #b71c1c;
 }

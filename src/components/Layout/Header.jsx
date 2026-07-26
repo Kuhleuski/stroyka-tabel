@@ -36,7 +36,6 @@ export function Header({ onLogout, onSettings, onNotifications, unreadCount }) {
                 <span className={styles.title}>Табель</span>
             </div>
             <div className={styles.headerActions}>
-                {/* Уведомления только для админа */}
                 {isAdmin && (
                     <button 
                         className={styles.headerNotificationsBtn}

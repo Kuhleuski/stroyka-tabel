@@ -1,8 +1,12 @@
-import { useState } from 'react'
+// src/App.jsx
+
+import { useState, useEffect } from 'react'
 import { useShifts } from './hooks/useShifts'
 import { useAuth, AuthProvider } from './context/AuthContext'
 import { AvatarProvider } from './context/AvatarContext'
 import { BottomNav } from './components/Layout/BottomNav'
+import { NotificationBadge } from './components/Layout/NotificationBadge'
+import { SettingsModal } from './components/SettingsModal'
 import { MainPage } from './pages/MainPage'
 import { SitesPage } from './pages/SitesPage'
 import { WorkersPage } from './pages/WorkersPage'
@@ -10,7 +14,6 @@ import { MyTabelPage } from './pages/MyTabelPage'
 import { SalaryPage } from './pages/SalaryPage'
 import { ExtraPage } from './pages/ExtraPage'
 import { LoginPage } from './pages/LoginPage'
-import { SettingsPage } from './pages/SettingsPage'
 import { NotificationsPage } from './pages/NotificationsPage'
 import { StatisticsPage } from './pages/StatisticsPage'
 import { CostsPage } from './pages/CostsPage'
@@ -25,6 +28,13 @@ function AppContent() {
     
     const { shifts, loading, error, refetch } = useShifts()
     const { user, login, logout } = useAuth()
+
+    useEffect(() => {
+        const savedTheme = localStorage.getItem('theme')
+        if (savedTheme === 'dark' || savedTheme === 'light') {
+            document.documentElement.setAttribute('data-theme', savedTheme)
+        }
+    }, [])
 
     if (!user) {
         return <LoginPage onLogin={login} />
@@ -50,6 +60,13 @@ function AppContent() {
     }
 
     const handleNavigate = (page) => {
+        // Если нажали на настройки — открываем модалку
+        if (page === 'settings') {
+            setShowSettings(true)
+            return
+        }
+        
+        // Иначе переключаем страницу
         setCurrentPage(page)
         if (page === 'calendar') {
             setPageKey(prev => prev + 1)
@@ -57,17 +74,8 @@ function AppContent() {
         }
     }
 
-    if (showSettings) {
-        return (
-            <div className={layoutStyles.app}>
-                <div className="container">
-                    <SettingsPage 
-                        onClose={() => setShowSettings(false)}
-                        onLogout={logout}
-                    />
-                </div>
-            </div>
-        )
+    const handleCloseSettings = () => {
+        setShowSettings(false)
     }
 
     if (showNotifications) {
@@ -98,10 +106,6 @@ function AppContent() {
                 return <StatisticsPage key={`statistics-${pageKey}`} />
             case 'costs':
                 return <CostsPage key={`costs-${pageKey}`} />
-            case 'settings':
-                return <SettingsPage key={`settings-${pageKey}`} onClose={() => {}} onLogout={logout} />
-            case 'notifications':
-                return <NotificationsPage key={`notifications-${pageKey}`} onClose={handleCloseNotifications} />
             default:
                 return <MainPage key={`calendar-${pageKey}`} shifts={shifts} loading={loading} refetchShifts={refetch} />
         }
@@ -109,14 +113,23 @@ function AppContent() {
 
     return (
         <div className={layoutStyles.app}>
+            <NotificationBadge 
+                unreadCount={unreadCount} 
+                onClick={handleOpenNotifications} 
+            />
             <div className="container">
                 {renderPage()}
             </div>
             <BottomNav 
                 currentPage={currentPage} 
                 onNavigate={handleNavigate}
-                onNotifications={handleOpenNotifications}
-                unreadCount={unreadCount}
+            />
+
+            {/* МОДАЛКА НАСТРОЕК */}
+            <SettingsModal 
+                isOpen={showSettings}
+                onClose={handleCloseSettings}
+                onLogout={logout}
             />
         </div>
     )

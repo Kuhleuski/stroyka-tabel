@@ -929,3 +929,460 @@
 .themeToggleBtn:active {
     transform: scale(0.97);
 }
+/* ============================================================
+   СТРАНИЦА НАСТРОЕК
+   ============================================================ */
+
+.settingsPage {
+    animation: fadeIn 0.25s ease;
+}
+
+.settingsHeader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-xs) var(--spacing-lg) var(--spacing-xs);
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: var(--spacing-xl);
+}
+
+.settingsTitle {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.settingsContent {
+    padding: 0 var(--spacing-xs);
+}
+
+.settingsAvatarLarge {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--spacing-xl) auto;
+}
+
+.settingsAvatarLetter {
+    font-size: 36px;
+    font-weight: 700;
+    color: white;
+}
+
+.settingsField {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md) 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.settingsField:last-of-type {
+    border-bottom: none;
+}
+
+.settingsLabel {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.settingsValue {
+    font-size: 17px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* ============================================================
+   КНОПКИ НАСТРОЕК
+   ============================================================ */
+
+.settingsActions {
+    display: flex;
+    gap: 10px;
+    margin-top: var(--spacing-2xl);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+}
+
+.settingsCancelBtn {
+    flex: 1;
+    padding: var(--spacing-md);
+    background: #f0f0f0;
+    color: var(--text-secondary);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-lg);
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.settingsCancelBtn:hover {
+    background: #e0e0e0;
+}
+
+.settingsLogoutBtn {
+    flex: 1;
+    padding: var(--spacing-md);
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-primary);
+}
+
+.settingsLogoutBtn:hover {
+    background: var(--color-primary-hover);
+    transform: scale(1.01);
+}
+
+.settingsLogoutBtn:active {
+    transform: scale(0.97);
+}
+
+/* ============================================================
+   ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ
+   ============================================================ */
+
+.themeToggleWrapper {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.themeToggleBtn {
+    flex: 1;
+    padding: 8px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.25s ease;
+}
+
+.themeToggleBtn:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+}
+
+.themeToggleBtn.active {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+.themeToggleBtn:active {
+    transform: scale(0.97);
+}
+
+.settingsBack:hover {
+    opacity: 0.7;
+}
+/* ============================================================
+   ПОЛНОЭКРАННАЯ МОДАЛКА (ДОБАВЛЕНИЕ РАБОТНИКА)
+   ============================================================ */
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--bg-body);
+    z-index: 1000;
+    animation: modalFadeIn 0.25s ease;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modalContent {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: var(--bg-body);
+    max-width: var(--max-width);
+    margin: 0 auto;
+    width: 100%;
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: var(--spacing-xl);
+}
+
+.modalTitle {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.modalBody {
+    flex: 1;
+    padding: 0 var(--spacing-lg);
+    padding-bottom: 100px;
+}
+
+.modalError {
+    background: #ffebee;
+    color: #c62828;
+    padding: 10px var(--spacing-md);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.modalField {
+    margin-bottom: var(--spacing-xl);
+}
+
+.modalLabel {
+    display: block;
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.modalInput {
+    width: 100%;
+    padding: var(--spacing-md) var(--spacing-md);
+    border: 1.5px solid var(--border-input);
+    border-radius: 10px;
+    font-size: var(--font-size-lg);
+    font-family: inherit;
+    transition: var(--transition-normal);
+    background: var(--bg-input);
+    color: var(--text-primary);
+}
+
+.modalInput:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.modalInput[type="file"] {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.modalInput[type="file"]::-webkit-file-upload-button {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.modalInput[type="file"]::-webkit-file-upload-button:hover {
+    background: var(--color-primary-hover);
+}
+
+.modalFooter {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 12px var(--spacing-lg) 20px;
+    display: flex;
+    gap: 10px;
+    background: var(--bg-nav);
+    border-top: 1px solid var(--border-color);
+    z-index: 20;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+[data-theme="dark"] .modalFooter {
+    background: rgba(26, 26, 26, 0.92);
+}
+
+.modalCancelBtn {
+    flex: 1;
+    padding: 14px;
+    background: #f0f0f0;
+    color: var(--text-secondary);
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.modalCancelBtn:hover {
+    background: #e0e0e0;
+}
+
+.modalSaveBtn {
+    flex: 1;
+    padding: 14px;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-primary);
+}
+
+.modalSaveBtn:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+    transform: scale(1.01);
+}
+
+.modalSaveBtn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+/* ============================================================
+   ПАЛИТРА ЦВЕТОВ В МОДАЛКЕ
+   ============================================================ */
+
+.modalColorPalette {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.modalColorBtn {
+    width: 100%;
+    aspect-ratio: 1;
+    border: 3px solid transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.modalColorBtn:hover {
+    transform: scale(1.08);
+}
+
+.modalColorActive {
+    border-color: var(--text-primary);
+    box-shadow: 0 0 0 2px var(--bg-card), 0 0 0 4px var(--text-primary);
+}
+
+@media (min-width: 420px) {
+    .modalColorPalette {
+        grid-template-columns: repeat(10, 1fr);
+    }
+}
+/* ============================================================
+   МОДАЛКА НАСТРОЕК
+   ============================================================ */
+
+/* Кнопка "Закрыть" по центру */
+.modalFooterCenter {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 12px var(--spacing-lg) 20px;
+    display: flex;
+    justify-content: center;
+    background: var(--bg-nav);
+    border-top: 1px solid var(--border-color);
+    z-index: 20;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+[data-theme="dark"] .modalFooterCenter {
+    background: rgba(26, 26, 26, 0.92);
+}
+
+.modalCloseBtn {
+    padding: 12px 48px;
+    background: #f0f0f0;
+    color: var(--text-secondary);
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    min-width: 140px;
+}
+
+.modalCloseBtn:hover {
+    background: #e0e0e0;
+}
+
+[data-theme="dark"] .modalCloseBtn {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .modalCloseBtn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================================
+   КНОПКА "ГОТОВО" В МОДАЛКЕ НАСТРОЕК
+   ============================================================ */
+
+.modalSaveBtn {
+    padding: 12px 48px;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    min-width: 140px;
+    box-shadow: var(--shadow-primary);
+}
+
+.modalSaveBtn:hover {
+    background: var(--color-primary-hover);
+    transform: scale(1.02);
+}
+
+.modalSaveBtn:active {
+    transform: scale(0.97);
+}
