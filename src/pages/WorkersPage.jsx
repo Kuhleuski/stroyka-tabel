@@ -7,6 +7,7 @@ import { AddWorkerModal } from '../components/AddWorkerModal'
 import { EditWorkerModal } from '../components/EditWorkerModal'
 import { addWorker, deleteWorker, updateWorker } from '../services/supabase'
 import { useWorkers } from '../hooks/useWorkers'
+import { useAvatars } from '../context/AvatarContext'
 import { Plus } from 'lucide-react'
 import styles from '../styles/workers.module.css'
 import globalsStyles from '../styles/globals.module.css'
@@ -28,6 +29,7 @@ export function WorkersPage({ shifts }) {
     const [editingWorker, setEditingWorker] = useState(null)
     const [scrollPosition, setScrollPosition] = useState(0)
     const { workers, loading, error, addWorkerToState, removeWorkerFromState, updateWorkerInState } = useWorkers()
+    const { refreshAvatars } = useAvatars()
 
     // === СОХРАНЕНИЕ ДАТЫ ПОСЛЕДНЕГО ОТКРЫТИЯ ===
     const saveLastOpened = (workerId) => {
@@ -46,9 +48,21 @@ export function WorkersPage({ shifts }) {
         try {
             const newWorker = await addWorker(name, avatarFile)
             const workerData = newWorker[0] || newWorker
+            
+            // Добавляем в состояние
             addWorkerToState(workerData)
+            
+            // Обновляем кеш аватарок
+            await refreshAvatars()
+            
+            // Закрываем модалку
             setShowAddModal(false)
+            
+            // === ПЕРЕХОД НА СТРАНИЦУ ДЕТАЛЕЙ НОВОГО РАБОТНИКА ===
+            console.log('🔄 Переход на страницу деталей нового работника:', workerData.name)
+            setSelectedWorker(workerData)
         } catch (err) {
+            console.error('❌ Ошибка при создании работника:', err)
             throw err
         }
     }
@@ -56,12 +70,21 @@ export function WorkersPage({ shifts }) {
     const handleUpdate = async (workerId, name, avatarFile) => {
         try {
             const updated = await updateWorker(workerId, name, avatarFile)
+            
+            // Обновляем в состоянии
             updateWorkerInState(updated)
+            
+            // Обновляем кеш аватарок
+            await refreshAvatars()
+            
+            // Обновляем данные в детальной странице
             if (selectedWorker && selectedWorker.id === workerId) {
                 setSelectedWorker(updated)
             }
+            
             setShowEditModal(false)
         } catch (err) {
+            console.error('❌ Ошибка при обновлении работника:', err)
             throw err
         }
     }
@@ -69,6 +92,10 @@ export function WorkersPage({ shifts }) {
     const handleDelete = async (workerId) => {
         await deleteWorker(workerId)
         removeWorkerFromState(workerId)
+        
+        // Обновляем кеш аватарок
+        await refreshAvatars()
+        
         // Удаляем запись о последнем открытии
         try {
             const stored = localStorage.getItem('workerLastOpened')
