@@ -19,13 +19,18 @@ export function WorkersList({ workers, onWorkerClick }) {
     const { getAvatar } = useAvatars()
 
     const getAvatarColor = (name) => {
+        // Защита от undefined/null/не-строк
+        if (!name || typeof name !== 'string') {
+            return '#78909C' // серый цвет по умолчанию
+        }
+        
         const colors = ['#E53935', '#D81B60', '#8E24AA', '#5E35B1', '#1E88E5', '#039BE5', '#00ACC1', '#00897B', '#43A047', '#7CB342', '#FDD835', '#FFB300', '#FB8C00', '#F4511E', '#6D4C41', '#78909C']
-        const index = name.split('').reduce((acc, char) => acc + acc.charCodeAt(0), 0)
+        const index = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
         return colors[index % colors.length]
     }
 
     const getInitials = (name) => {
-        if (!name) return '?'
+        if (!name || typeof name !== 'string') return '?'
         const parts = name.trim().split(' ')
         if (parts.length === 1) return parts[0].charAt(0).toUpperCase()
         return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
@@ -45,21 +50,20 @@ export function WorkersList({ workers, onWorkerClick }) {
 
     // === СОРТИРОВКА ===
     const sortedWorkers = useMemo(() => {
+        if (!workers || !Array.isArray(workers)) return []
+        
         return [...workers].sort((a, b) => {
-            const lastOpenedA = getLastOpened(a.id)
-            const lastOpenedB = getLastOpened(b.id)
+            const lastOpenedA = getLastOpened(a?.id)
+            const lastOpenedB = getLastOpened(b?.id)
             
-            // Если оба открывались — сортируем по дате открытия (новые сверху)
             if (lastOpenedA && lastOpenedB) {
                 return new Date(lastOpenedB) - new Date(lastOpenedA)
             }
-            // Если открывался только A — он выше
             if (lastOpenedA) return -1
-            // Если открывался только B — он выше
             if (lastOpenedB) return 1
-            // Если никто не открывался — по дате создания (новые сверху)
-            const dateA = new Date(a.created_at || 0)
-            const dateB = new Date(b.created_at || 0)
+            
+            const dateA = new Date(a?.created_at || 0)
+            const dateB = new Date(b?.created_at || 0)
             return dateB - dateA
         })
     }, [workers])
@@ -67,18 +71,18 @@ export function WorkersList({ workers, onWorkerClick }) {
     // === КЕШИРОВАННЫЙ СПИСОК ===
     const cachedWorkers = useMemo(() => {
         return sortedWorkers.map((worker) => {
-            const avatar = getAvatar(worker.name)
+            const avatar = getAvatar(worker?.name)
             return {
                 ...worker,
                 hasPhoto: !!avatar,
                 avatarData: avatar,
-                initials: getInitials(worker.name),
-                avatarColor: getAvatarColor(worker.name)
+                initials: getInitials(worker?.name),
+                avatarColor: getAvatarColor(worker?.name)
             }
         })
     }, [sortedWorkers, getAvatar])
 
-    if (workers.length === 0) {
+    if (!workers || workers.length === 0) {
         return (
             <div className={styles.emptyState}>
                 <div className={styles.emptyIcon}>
@@ -96,7 +100,7 @@ export function WorkersList({ workers, onWorkerClick }) {
 
                 return (
                     <div 
-                        key={worker.id} 
+                        key={worker?.id} 
                         className={styles.workerGridCard}
                         onClick={() => onWorkerClick(worker)}
                     >
@@ -119,7 +123,7 @@ export function WorkersList({ workers, onWorkerClick }) {
                             {hasPhoto ? (
                                 <img 
                                     src={avatarData} 
-                                    alt={worker.name}
+                                    alt={worker?.name || 'Работник'}
                                     loading="lazy"
                                     style={{
                                         width: '100%',
@@ -137,7 +141,7 @@ export function WorkersList({ workers, onWorkerClick }) {
                                 initials
                             )}
                         </div>
-                        <div className={styles.workerGridName}>{worker.name}</div>
+                        <div className={styles.workerGridName}>{worker?.name || 'Без имени'}</div>
                     </div>
                 )
             })}
