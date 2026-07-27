@@ -11,7 +11,7 @@ export function useSites() {
             try {
                 setLoading(true)
                 const data = await fetchSites()
-                setSites(data)
+                setSites(data || [])
                 setError(null)
             } catch (err) {
                 setError(err.message)
@@ -23,6 +23,13 @@ export function useSites() {
     }, [])
 
     const addSiteToState = (newSite) => {
+        if (Array.isArray(newSite)) {
+            newSite = newSite[0]
+        }
+        if (!newSite || !newSite.id) {
+            console.warn('⚠️ addSiteToState: получен некорректный site:', newSite)
+            return
+        }
         setSites(prev => [...prev, newSite])
     }
 
@@ -30,5 +37,33 @@ export function useSites() {
         setSites(prev => prev.filter(s => s.id !== siteId))
     }
 
-    return { sites, loading, error, addSiteToState, removeSiteFromState }
+    // === ОБНОВЛЕНИЕ ОБЪЕКТА В СОСТОЯНИИ ===
+    const updateSiteInState = (updatedSite) => {
+        if (Array.isArray(updatedSite)) {
+            if (updatedSite.length === 0) {
+                console.warn('⚠️ updateSiteInState: получен пустой массив')
+                return
+            }
+            updatedSite = updatedSite[0]
+        }
+        
+        if (!updatedSite || !updatedSite.id) {
+            console.warn('⚠️ updateSiteInState: получен некорректный site:', updatedSite)
+            return
+        }
+        
+        console.log('🔄 Обновляем объект в состоянии:', updatedSite)
+        setSites(prev => prev.map(s => 
+            s.id === updatedSite.id ? updatedSite : s
+        ))
+    }
+
+    return { 
+        sites, 
+        loading, 
+        error, 
+        addSiteToState, 
+        removeSiteFromState,
+        updateSiteInState 
+    }
 }
