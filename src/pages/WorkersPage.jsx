@@ -82,6 +82,7 @@ export function WorkersPage({ shifts }) {
     }
 
     const handleOpenEditModal = (worker) => {
+        console.log('🔄 Открываем редактирование для:', worker.name)
         setEditingWorker(worker)
         setShowEditModal(true)
     }
