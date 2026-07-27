@@ -1085,3 +1085,54 @@
     white-space: nowrap;
     max-width: 100%;
 }
+/* ============================================================
+   ИМЯ РАБОТНИКА С СТАТУСОМ
+   ============================================================ */
+
+.workerGridNameWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    max-width: 100%;
+    min-width: 0;
+    padding: 0 4px;
+}
+
+.workerStatusDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.workerGridName {
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    color: var(--text-primary);
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    min-width: 0;
+    flex: 1;
+}
+
+/* Дополнительно: гарантируем, что карточка не выходит за границы */
+.workerGridCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--spacing-lg) var(--spacing-sm);
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+}
