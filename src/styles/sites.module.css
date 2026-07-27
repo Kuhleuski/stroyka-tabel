@@ -1013,3 +1013,88 @@
     font-weight: 500;
     white-space: nowrap;
 }
+/* ============================================================
+   ФИЛЬТР
+   ============================================================ */
+
+.filterWrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: var(--spacing-lg);
+    flex-wrap: wrap;
+}
+
+.filterLabel {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.filterButtons {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.filterBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 1.5px solid var(--border-color);
+    border-radius: 20px;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.filterBtn:hover {
+    border-color: var(--color-primary);
+    color: var(--text-primary);
+}
+
+.filterBtn.filterActive {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+.filterDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+/* === АДАПТИВ === */
+@media (max-width: 480px) {
+    .filterWrapper {
+        gap: 8px;
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .filterLabel {
+        font-size: 12px;
+    }
+    
+    .filterBtn {
+        padding: 4px 10px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 400px) {
+    .filterWrapper {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+}
