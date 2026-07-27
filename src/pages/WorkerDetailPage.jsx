@@ -191,7 +191,7 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit }) 
                 </div>
             </div>
 
-            {/* === КНОПКА "ЗАКРЫТЬ" ВНИЗУ === */}
+            {/* === КНОПКА "ЗАКРЫТЬ" ВНИЗУ (ФИКСИРОВАННАЯ) === */}
             <div className={styles.workerDetailFooter}>
                 <button 
                     className={styles.workerDetailCloseBtn}
