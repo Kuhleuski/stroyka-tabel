@@ -275,11 +275,9 @@ export async function updateWorker(workerId, name, avatarFile = null) {
         const result = await response.json()
         console.log('✅ Результат обновления (сырой):', result)
         
-        // Если результат — пустой массив, значит работник не найден или обновление не произошло
         if (!result || result.length === 0) {
             console.warn('⚠️ Обновление вернуло пустой результат')
             
-            // Проверяем, существует ли работник
             const getUrl = `${SUPABASE_URL}/rest/v1/workers?id=eq.${workerId}&apikey=${SUPABASE_ANON_KEY}`
             const getResponse = await fetch(getUrl, {
                 method: 'GET',
@@ -291,7 +289,6 @@ export async function updateWorker(workerId, name, avatarFile = null) {
                 console.log('📥 Текущие данные работника:', getResult)
                 
                 if (getResult && getResult.length > 0) {
-                    // Проверяем, изменилось ли имя
                     const currentName = getResult[0].name
                     if (currentName !== name.trim()) {
                         console.warn(`⚠️ Имя не изменилось: было "${currentName}", пытались установить "${name.trim()}"`)
@@ -306,6 +303,52 @@ export async function updateWorker(workerId, name, avatarFile = null) {
         return result[0] || result
     } catch (error) {
         console.error('❌ Ошибка в updateWorker:', error)
+        throw error
+    }
+}
+
+// === ОБНОВЛЕНИЕ ОБЪЕКТА ===
+export async function updateSite(siteId, name, address, color, status) {
+    try {
+        if (!siteId) {
+            throw new Error('ID объекта не указан')
+        }
+
+        const updateData = { 
+            name: name.trim(), 
+            address: address.trim(), 
+            color,
+            status
+        }
+
+        console.log('📤 Обновляем объект:', siteId, updateData)
+
+        const url = `${SUPABASE_URL}/rest/v1/sites?id=eq.${siteId}&apikey=${SUPABASE_ANON_KEY}`
+        const response = await fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            },
+            body: JSON.stringify(updateData)
+        })
+        
+        if (!response.ok) {
+            const errorText = await response.text()
+            console.error('❌ Ошибка ответа:', response.status, errorText)
+            throw new Error(`Ошибка обновления: ${response.status} ${errorText}`)
+        }
+        
+        const result = await response.json()
+        console.log('✅ Результат обновления:', result)
+        
+        if (!result || result.length === 0) {
+            throw new Error(`Объект с ID ${siteId} не найден`)
+        }
+        
+        return result[0] || result
+    } catch (error) {
+        console.error('❌ Ошибка в updateSite:', error)
         throw error
     }
 }
@@ -343,50 +386,6 @@ export async function updateSiteStatus(siteId, status) {
         return result[0] || result
     } catch (error) {
         console.error('❌ Ошибка в updateSiteStatus:', error)
-        throw error
-    }
-}
-// === ОБНОВЛЕНИЕ ОБЪЕКТА ===
-export async function updateSite(siteId, name, address, color) {
-    try {
-        if (!siteId) {
-            throw new Error('ID объекта не указан')
-        }
-
-        const updateData = { 
-            name: name.trim(), 
-            address: address.trim(), 
-            color 
-        }
-
-        console.log('📤 Обновляем объект:', siteId, updateData)
-
-        const url = `${SUPABASE_URL}/rest/v1/sites?id=eq.${siteId}&apikey=${SUPABASE_ANON_KEY}`
-        const response = await fetch(url, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'Prefer': 'return=representation'
-            },
-            body: JSON.stringify(updateData)
-        })
-        
-        if (!response.ok) {
-            const errorText = await response.text()
-            console.error('❌ Ошибка ответа:', response.status, errorText)
-            throw new Error(`Ошибка обновления: ${response.status} ${errorText}`)
-        }
-        
-        const result = await response.json()
-        console.log('✅ Результат обновления:', result)
-        
-        if (!result || result.length === 0) {
-            throw new Error(`Объект с ID ${siteId} не найден`)
-        }
-        
-        return result[0] || result
-    } catch (error) {
-        console.error('❌ Ошибка в updateSite:', error)
         throw error
     }
 }
