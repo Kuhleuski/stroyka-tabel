@@ -3,13 +3,16 @@
 import { useState, useRef, useEffect } from 'react'
 import { WorkerCalendar } from '../components/Workers/WorkerCalendar'
 import { useAvatars } from '../context/AvatarContext'
+import { updateWorkerStatus } from '../services/supabase'
 import styles from '../styles/workers.module.css'
 import compStyles from '../styles/components.module.css'
 
-export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit }) {
+export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit, onStatusChange }) {
     const [showConfirm, setShowConfirm] = useState(false)
     const [deleting, setDeleting] = useState(false)
     const [showMenu, setShowMenu] = useState(false)
+    const [status, setStatus] = useState(worker.status || 'active')
+    const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
     const menuRef = useRef(null)
     const { getAvatar } = useAvatars()
 
@@ -54,16 +57,33 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit }) 
 
     const handleEdit = () => {
         setShowMenu(false)
-        console.log('🔄 Нажали "Редактировать инфо", onEdit:', onEdit)
         if (onEdit) {
             onEdit(worker)
-        } else {
-            console.warn('⚠️ onEdit НЕ передан!')
         }
     }
 
     const handleMenuToggle = () => {
         setShowMenu(!showMenu)
+    }
+
+    // === ОБРАБОТЧИК ИЗМЕНЕНИЯ СТАТУСА ===
+    const handleStatusChange = async (newStatus) => {
+        if (newStatus === status || isUpdatingStatus) return
+        
+        setIsUpdatingStatus(true)
+        try {
+            const updated = await updateWorkerStatus(worker.id, newStatus)
+            setStatus(newStatus)
+            // Обновляем данные в родителе
+            if (onStatusChange) {
+                onStatusChange({ ...worker, status: newStatus })
+            }
+        } catch (error) {
+            console.error('Ошибка обновления статуса:', error)
+            alert('Не удалось обновить статус')
+        } finally {
+            setIsUpdatingStatus(false)
+        }
     }
 
     // Закрываем меню при клике вне его
@@ -80,6 +100,13 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit }) 
         }
     }, [])
 
+    // Обновляем статус при изменении worker
+    useEffect(() => {
+        if (worker.status) {
+            setStatus(worker.status)
+        }
+    }, [worker.status])
+
     // Фильтруем смены только для этого работника
     const workerShifts = shifts ? shifts.filter(s => s.worker_name === worker.name) : []
 
@@ -94,6 +121,17 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit }) 
             {/* === ХЕДЕР === */}
             <div className={styles.workerDetailHeader}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+                    {/* КНОПКА НАЗАД */}
+                    <button 
+                        className={styles.workerDetailBackBtn}
+                        onClick={onClose}
+                        aria-label="Назад"
+                    >
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="15 18 9 12 15 6"/>
+                        </svg>
+                    </button>
+
                     {/* АВАТАРКА */}
                     <div style={{
                         width: '52px',
@@ -181,6 +219,32 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit }) 
                         </div>
                     )}
                 </div>
+            </div>
+
+            {/* === СТАТУС (ПЕРЕКЛЮЧАТЕЛЬ) === */}
+            <div className={styles.workerStatusSection}>
+                <div className={styles.workerStatusLabel}>Статус</div>
+                <div className={styles.workerStatusToggle}>
+                    <button 
+                        className={`${styles.workerStatusBtn} ${status === 'active' ? styles.workerStatusActive : ''}`}
+                        onClick={() => handleStatusChange('active')}
+                        disabled={isUpdatingStatus}
+                    >
+                        <span className={styles.workerStatusDot} style={{ backgroundColor: '#2d7d46' }} />
+                        Активен
+                    </button>
+                    <button 
+                        className={`${styles.workerStatusBtn} ${status === 'inactive' ? styles.workerStatusActive : ''}`}
+                        onClick={() => handleStatusChange('inactive')}
+                        disabled={isUpdatingStatus}
+                    >
+                        <span className={styles.workerStatusDot} style={{ backgroundColor: '#78909C' }} />
+                        Неактивен
+                    </button>
+                </div>
+                {isUpdatingStatus && (
+                    <span className={styles.workerStatusUpdating}>Обновление...</span>
+                )}
             </div>
             
             {/* === КОНТЕНТ === */}
