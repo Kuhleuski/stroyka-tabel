@@ -574,16 +574,20 @@
 
 .workerDetailFooter {
     position: fixed;
-    bottom: 0;
+    bottom: 60px;
     left: 0;
     right: 0;
     max-width: var(--max-width);
     margin: 0 auto;
-    padding: 12px var(--spacing-lg) 24px;
+    padding: 12px var(--spacing-lg) 20px;
     display: flex;
     justify-content: center;
-    background: transparent;
-    z-index: 9999;
+    background: #f5f7f6;
+    border-top: 0;
+}
+
+[data-theme="dark"] .workerDetailFooter {
+    background: #121212;
 }
 
 .workerDetailCloseBtn {
@@ -814,7 +818,8 @@
     }
 
     .workerDetailFooter {
-        padding: 10px var(--spacing-md) 20px;
+        padding: 10px var(--spacing-md) 16px;
+        bottom: 50px;
     }
 
     .workerDetailCloseBtn {
@@ -861,7 +866,8 @@
     }
 
     .workerDetailFooter {
-        padding: 8px var(--spacing-sm) 16px;
+        padding: 8px var(--spacing-sm) 14px;
+        bottom: 40px;
     }
 
     .workerDetailCloseBtn {
