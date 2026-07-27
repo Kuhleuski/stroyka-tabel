@@ -14,7 +14,7 @@ const WorkersIcon = () => (
     </svg>
 )
 
-export function WorkersList({ workers, onWorkerClick }) {
+export function WorkersList({ workers, onWorkerClick, refreshKey }) {
     const containerRef = useRef(null)
     const { getAvatar } = useAvatars()
 
@@ -57,7 +57,7 @@ export function WorkersList({ workers, onWorkerClick }) {
 
     // === СОРТИРОВКА ===
     const sortedWorkers = useMemo(() => {
-        if (!workers || !Array.isArray(workers)) return []
+        if (!workers || !Array.isArray(workers)) return { active: [], inactive: [] }
         
         const newWorkerId = getNewWorkerId()
         
@@ -66,7 +66,7 @@ export function WorkersList({ workers, onWorkerClick }) {
         const inactiveWorkers = workers.filter(w => w?.status === 'inactive')
         
         // Сортируем активных
-        const sortedActive = activeWorkers.sort((a, b) => {
+        const sortedActive = [...activeWorkers].sort((a, b) => {
             // Новый работник — всегда в начале активных
             const isNewA = newWorkerId && a?.id === parseInt(newWorkerId)
             const isNewB = newWorkerId && b?.id === parseInt(newWorkerId)
@@ -89,7 +89,7 @@ export function WorkersList({ workers, onWorkerClick }) {
         })
         
         // Сортируем неактивных
-        const sortedInactive = inactiveWorkers.sort((a, b) => {
+        const sortedInactive = [...inactiveWorkers].sort((a, b) => {
             // По дате последнего открытия
             const lastOpenedA = getLastOpened(a?.id)
             const lastOpenedB = getLastOpened(b?.id)
@@ -105,7 +105,7 @@ export function WorkersList({ workers, onWorkerClick }) {
         })
         
         return { active: sortedActive, inactive: sortedInactive }
-    }, [workers])
+    }, [workers]) // refreshKey не нужен в зависимостях, он нужен для пересоздания компонента
 
     // === КЕШИРОВАННЫЙ СПИСОК ===
     const cachedWorkers = useMemo(() => {
@@ -136,7 +136,6 @@ export function WorkersList({ workers, onWorkerClick }) {
         return { active: activeCached, inactive: inactiveCached }
     }, [sortedWorkers, getAvatar])
 
-    const allWorkersCount = workers?.length || 0
     const hasActive = cachedWorkers.active.length > 0
     const hasInactive = cachedWorkers.inactive.length > 0
 
@@ -152,7 +151,7 @@ export function WorkersList({ workers, onWorkerClick }) {
     }
 
     return (
-        <div ref={containerRef} className={styles.workersGridContainer}>
+        <div ref={containerRef} className={styles.workersGridContainer} key={refreshKey}>
             {/* АКТИВНЫЕ РАБОТНИКИ */}
             {hasActive && (
                 <>
