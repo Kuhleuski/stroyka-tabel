@@ -309,3 +309,40 @@ export async function updateWorker(workerId, name, avatarFile = null) {
         throw error
     }
 }
+
+// === ОБНОВЛЕНИЕ СТАТУСА ОБЪЕКТА ===
+export async function updateSiteStatus(siteId, status) {
+    try {
+        if (!siteId) {
+            throw new Error('ID объекта не указан')
+        }
+
+        const updateData = { status }
+
+        console.log('📤 Обновляем статус объекта:', siteId, status)
+
+        const url = `${SUPABASE_URL}/rest/v1/sites?id=eq.${siteId}&apikey=${SUPABASE_ANON_KEY}`
+        const response = await fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            },
+            body: JSON.stringify(updateData)
+        })
+        
+        if (!response.ok) {
+            const errorText = await response.text()
+            console.error('❌ Ошибка ответа:', response.status, errorText)
+            throw new Error(`Ошибка обновления статуса: ${response.status} ${errorText}`)
+        }
+        
+        const result = await response.json()
+        console.log('✅ Результат обновления статуса:', result)
+        
+        return result[0] || result
+    } catch (error) {
+        console.error('❌ Ошибка в updateSiteStatus:', error)
+        throw error
+    }
+}
