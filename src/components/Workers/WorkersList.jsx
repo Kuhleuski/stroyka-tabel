@@ -19,11 +19,9 @@ export function WorkersList({ workers, onWorkerClick }) {
     const { getAvatar } = useAvatars()
 
     const getAvatarColor = (name) => {
-        // Защита от undefined/null/не-строк
         if (!name || typeof name !== 'string') {
-            return '#78909C' // серый цвет по умолчанию
+            return '#78909C'
         }
-        
         const colors = ['#E53935', '#D81B60', '#8E24AA', '#5E35B1', '#1E88E5', '#039BE5', '#00ACC1', '#00897B', '#43A047', '#7CB342', '#FDD835', '#FFB300', '#FB8C00', '#F4511E', '#6D4C41', '#78909C']
         const index = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
         return colors[index % colors.length]
