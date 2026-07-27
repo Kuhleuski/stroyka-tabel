@@ -6,6 +6,7 @@ import styles from '../styles/components.module.css'
 export function EditWorkerModal({ isOpen, onClose, onSave, worker }) {
     const [firstName, setFirstName] = useState('')
     const [lastName, setLastName] = useState('')
+    const [status, setStatus] = useState('active')
     const [avatarFile, setAvatarFile] = useState(null)
     const [previewUrl, setPreviewUrl] = useState(null)
     const [currentAvatar, setCurrentAvatar] = useState(null)
@@ -15,7 +16,6 @@ export function EditWorkerModal({ isOpen, onClose, onSave, worker }) {
     // Заполняем форму при открытии
     useEffect(() => {
         if (worker && isOpen) {
-            // Защита от undefined
             const workerName = worker.name || ''
             const parts = workerName.trim().split(' ')
             if (parts.length === 1) {
@@ -25,6 +25,7 @@ export function EditWorkerModal({ isOpen, onClose, onSave, worker }) {
                 setFirstName(parts[0] || '')
                 setLastName(parts.slice(1).join(' ') || '')
             }
+            setStatus(worker.status || 'active')
             setCurrentAvatar(worker.avatar || null)
             setPreviewUrl(null)
             setAvatarFile(null)
@@ -58,10 +59,9 @@ export function EditWorkerModal({ isOpen, onClose, onSave, worker }) {
                 ? `${firstName.trim()} ${lastName.trim()}`
                 : firstName.trim()
             
-            // Если загружено новое фото — используем его, иначе оставляем null (не меняем фото)
             const avatarToSave = avatarFile || null
             
-            await onSave(worker.id, fullName, avatarToSave)
+            await onSave(worker.id, fullName, avatarToSave, status)
             onClose()
         } catch (err) {
             setError(err.message || 'Ошибка при обновлении')
@@ -70,7 +70,6 @@ export function EditWorkerModal({ isOpen, onClose, onSave, worker }) {
         }
     }
 
-    // Отображение превью (новое фото или текущее)
     const getDisplayAvatar = () => {
         if (previewUrl) return previewUrl
         if (currentAvatar) return currentAvatar
@@ -80,7 +79,7 @@ export function EditWorkerModal({ isOpen, onClose, onSave, worker }) {
     const displayAvatar = getDisplayAvatar()
 
     if (!isOpen) return null
-    if (!worker) return null // Защита от undefined
+    if (!worker) return null
 
     return (
         <div className={styles.modalOverlay}>
@@ -102,7 +101,6 @@ export function EditWorkerModal({ isOpen, onClose, onSave, worker }) {
                             value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
                             placeholder="Например: Александр"
-                            autoFocus
                         />
                     </div>
 
@@ -115,6 +113,26 @@ export function EditWorkerModal({ isOpen, onClose, onSave, worker }) {
                             onChange={(e) => setLastName(e.target.value)}
                             placeholder="Например: Петров"
                         />
+                    </div>
+
+                    <div className={styles.modalField}>
+                        <label className={styles.modalLabel}>Статус</label>
+                        <div className={styles.modalStatusWrapper}>
+                            <button 
+                                className={`${styles.modalStatusBtn} ${status === 'active' ? styles.modalStatusActive : ''}`}
+                                onClick={() => setStatus('active')}
+                            >
+                                <span className={styles.modalStatusDot} style={{ backgroundColor: '#2d7d46' }} />
+                                Активен
+                            </button>
+                            <button 
+                                className={`${styles.modalStatusBtn} ${status === 'inactive' ? styles.modalStatusActive : ''}`}
+                                onClick={() => setStatus('inactive')}
+                            >
+                                <span className={styles.modalStatusDot} style={{ backgroundColor: '#78909C' }} />
+                                Неактивен
+                            </button>
+                        </div>
                     </div>
 
                     <div className={styles.modalField}>
