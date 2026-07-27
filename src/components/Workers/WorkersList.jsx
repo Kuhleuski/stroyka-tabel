@@ -61,35 +61,55 @@ export function WorkersList({ workers, onWorkerClick }) {
         
         const newWorkerId = getNewWorkerId()
         
-        return [...workers].sort((a, b) => {
-            // 1. Новый работник — всегда в начале
+        // Разделяем на активных и неактивных
+        const activeWorkers = workers.filter(w => w?.status === 'active' || !w?.status)
+        const inactiveWorkers = workers.filter(w => w?.status === 'inactive')
+        
+        // Сортируем активных
+        const sortedActive = activeWorkers.sort((a, b) => {
+            // Новый работник — всегда в начале активных
             const isNewA = newWorkerId && a?.id === parseInt(newWorkerId)
             const isNewB = newWorkerId && b?.id === parseInt(newWorkerId)
             
             if (isNewA && !isNewB) return -1
             if (isNewB && !isNewA) return 1
             
-            // 2. Проверяем даты последнего открытия
+            // По дате последнего открытия
             const lastOpenedA = getLastOpened(a?.id)
             const lastOpenedB = getLastOpened(b?.id)
             
-            // 3. Если оба открывались — по дате открытия (новые сверху)
             if (lastOpenedA && lastOpenedB) {
                 return new Date(lastOpenedB).getTime() - new Date(lastOpenedA).getTime()
             }
-            // 4. Если открывался только A — он выше
             if (lastOpenedA) return -1
-            // 5. Если открывался только B — он выше
             if (lastOpenedB) return 1
             
-            // 6. По дате создания (новые сверху)
+            // По дате создания
             return new Date(b?.created_at || 0).getTime() - new Date(a?.created_at || 0).getTime()
         })
+        
+        // Сортируем неактивных
+        const sortedInactive = inactiveWorkers.sort((a, b) => {
+            // По дате последнего открытия
+            const lastOpenedA = getLastOpened(a?.id)
+            const lastOpenedB = getLastOpened(b?.id)
+            
+            if (lastOpenedA && lastOpenedB) {
+                return new Date(lastOpenedB).getTime() - new Date(lastOpenedA).getTime()
+            }
+            if (lastOpenedA) return -1
+            if (lastOpenedB) return 1
+            
+            // По дате создания
+            return new Date(b?.created_at || 0).getTime() - new Date(a?.created_at || 0).getTime()
+        })
+        
+        return { active: sortedActive, inactive: sortedInactive }
     }, [workers])
 
     // === КЕШИРОВАННЫЙ СПИСОК ===
     const cachedWorkers = useMemo(() => {
-        return sortedWorkers.map((worker) => {
+        const activeCached = sortedWorkers.active.map((worker) => {
             const avatar = getAvatar(worker?.name)
             return {
                 ...worker,
@@ -100,7 +120,25 @@ export function WorkersList({ workers, onWorkerClick }) {
                 status: worker?.status || 'active'
             }
         })
+        
+        const inactiveCached = sortedWorkers.inactive.map((worker) => {
+            const avatar = getAvatar(worker?.name)
+            return {
+                ...worker,
+                hasPhoto: !!avatar,
+                avatarData: avatar,
+                initials: getInitials(worker?.name),
+                avatarColor: getAvatarColor(worker?.name),
+                status: worker?.status || 'inactive'
+            }
+        })
+        
+        return { active: activeCached, inactive: inactiveCached }
     }, [sortedWorkers, getAvatar])
+
+    const allWorkersCount = workers?.length || 0
+    const hasActive = cachedWorkers.active.length > 0
+    const hasInactive = cachedWorkers.inactive.length > 0
 
     if (!workers || workers.length === 0) {
         return (
@@ -115,66 +153,152 @@ export function WorkersList({ workers, onWorkerClick }) {
 
     return (
         <div ref={containerRef} className={styles.workersGridContainer}>
-            {cachedWorkers.map((worker) => {
-                const { hasPhoto, avatarData, initials, avatarColor, status } = worker
-                const isActive = status === 'active'
-
-                return (
-                    <div 
-                        key={worker?.id} 
-                        className={styles.workerGridCard}
-                        onClick={() => onWorkerClick(worker)}
-                    >
-                        <div className={styles.workerGridAvatar} style={{ 
-                            backgroundColor: hasPhoto ? 'transparent' : avatarColor,
-                            border: hasPhoto ? '2px solid #e8eaed' : 'none',
-                            overflow: 'hidden',
-                            borderRadius: '50%',
-                            width: '64px',
-                            height: '64px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '24px',
-                            fontWeight: 600,
-                            color: 'white',
-                            flexShrink: 0,
-                            margin: '0 auto'
-                        }}>
-                            {hasPhoto ? (
-                                <img 
-                                    src={avatarData} 
-                                    alt={worker?.name || 'Работник'}
-                                    loading="lazy"
-                                    style={{
-                                        width: '100%',
-                                        height: '100%',
-                                        objectFit: 'cover',
-                                        borderRadius: '50%'
-                                    }}
-                                    onError={(e) => {
-                                        e.target.style.display = 'none'
-                                        e.target.parentNode.style.backgroundColor = avatarColor
-                                        e.target.parentNode.textContent = initials
-                                    }}
-                                />
-                            ) : (
-                                initials
-                            )}
-                        </div>
-                        <div className={styles.workerGridNameWrapper}>
-                            <span 
-                                className={styles.workerStatusDot}
-                                style={{ 
-                                    backgroundColor: isActive ? 'rgb(20, 231, 0)' : 'rgb(141, 141, 141)',
-                                    boxShadow: isActive ? '0 0 6px rgba(20, 231, 0, 0.6)' : 'none'
-                                }}
-                            />
-                            <span className={styles.workerGridName}>{worker?.name || 'Без имени'}</span>
-                        </div>
+            {/* АКТИВНЫЕ РАБОТНИКИ */}
+            {hasActive && (
+                <>
+                    <div className={styles.workersSectionHeader}>
+                        👷 Рабочие в статусе активные
                     </div>
-                )
-            })}
+                    <div className={styles.workersGrid}>
+                        {cachedWorkers.active.map((worker) => {
+                            const { hasPhoto, avatarData, initials, avatarColor, status } = worker
+                            const isActive = status === 'active'
+
+                            return (
+                                <div 
+                                    key={worker?.id} 
+                                    className={styles.workerGridCard}
+                                    onClick={() => onWorkerClick(worker)}
+                                >
+                                    <div className={styles.workerGridAvatar} style={{ 
+                                        backgroundColor: hasPhoto ? 'transparent' : avatarColor,
+                                        border: hasPhoto ? '2px solid #e8eaed' : 'none',
+                                        overflow: 'hidden',
+                                        borderRadius: '50%',
+                                        width: '64px',
+                                        height: '64px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '24px',
+                                        fontWeight: 600,
+                                        color: 'white',
+                                        flexShrink: 0,
+                                        margin: '0 auto'
+                                    }}>
+                                        {hasPhoto ? (
+                                            <img 
+                                                src={avatarData} 
+                                                alt={worker?.name || 'Работник'}
+                                                loading="lazy"
+                                                style={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'cover',
+                                                    borderRadius: '50%'
+                                                }}
+                                                onError={(e) => {
+                                                    e.target.style.display = 'none'
+                                                    e.target.parentNode.style.backgroundColor = avatarColor
+                                                    e.target.parentNode.textContent = initials
+                                                }}
+                                            />
+                                        ) : (
+                                            initials
+                                        )}
+                                    </div>
+                                    <div className={styles.workerGridNameWrapper}>
+                                        <span 
+                                            className={styles.workerStatusDot}
+                                            style={{ 
+                                                backgroundColor: isActive ? 'rgb(20, 231, 0)' : 'rgb(141, 141, 141)',
+                                                boxShadow: isActive ? '0 0 6px rgba(20, 231, 0, 0.6)' : 'none'
+                                            }}
+                                        />
+                                        <span className={styles.workerGridName}>{worker?.name || 'Без имени'}</span>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </>
+            )}
+
+            {/* РАЗДЕЛИТЕЛЬ */}
+            {hasActive && hasInactive && (
+                <div className={styles.workersDivider} />
+            )}
+
+            {/* НЕАКТИВНЫЕ РАБОТНИКИ */}
+            {hasInactive && (
+                <>
+                    <div className={styles.workersSectionHeader}>
+                        🚫 Рабочие в статусе не активные
+                    </div>
+                    <div className={styles.workersGrid}>
+                        {cachedWorkers.inactive.map((worker) => {
+                            const { hasPhoto, avatarData, initials, avatarColor, status } = worker
+                            const isActive = status === 'active'
+
+                            return (
+                                <div 
+                                    key={worker?.id} 
+                                    className={styles.workerGridCard}
+                                    onClick={() => onWorkerClick(worker)}
+                                >
+                                    <div className={styles.workerGridAvatar} style={{ 
+                                        backgroundColor: hasPhoto ? 'transparent' : avatarColor,
+                                        border: hasPhoto ? '2px solid #e8eaed' : 'none',
+                                        overflow: 'hidden',
+                                        borderRadius: '50%',
+                                        width: '64px',
+                                        height: '64px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '24px',
+                                        fontWeight: 600,
+                                        color: 'white',
+                                        flexShrink: 0,
+                                        margin: '0 auto'
+                                    }}>
+                                        {hasPhoto ? (
+                                            <img 
+                                                src={avatarData} 
+                                                alt={worker?.name || 'Работник'}
+                                                loading="lazy"
+                                                style={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'cover',
+                                                    borderRadius: '50%'
+                                                }}
+                                                onError={(e) => {
+                                                    e.target.style.display = 'none'
+                                                    e.target.parentNode.style.backgroundColor = avatarColor
+                                                    e.target.parentNode.textContent = initials
+                                                }}
+                                            />
+                                        ) : (
+                                            initials
+                                        )}
+                                    </div>
+                                    <div className={styles.workerGridNameWrapper}>
+                                        <span 
+                                            className={styles.workerStatusDot}
+                                            style={{ 
+                                                backgroundColor: isActive ? 'rgb(20, 231, 0)' : 'rgb(141, 141, 141)',
+                                                boxShadow: isActive ? '0 0 6px rgba(20, 231, 0, 0.6)' : 'none'
+                                            }}
+                                        />
+                                        <span className={styles.workerGridName}>{worker?.name || 'Без имени'}</span>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </>
+            )}
         </div>
     )
 }
