@@ -15,13 +15,15 @@ export function EditWorkerModal({ isOpen, onClose, onSave, worker }) {
     // Заполняем форму при открытии
     useEffect(() => {
         if (worker && isOpen) {
-            const parts = worker.name.trim().split(' ')
+            // Защита от undefined
+            const workerName = worker.name || ''
+            const parts = workerName.trim().split(' ')
             if (parts.length === 1) {
-                setFirstName(parts[0])
+                setFirstName(parts[0] || '')
                 setLastName('')
             } else {
-                setFirstName(parts[0])
-                setLastName(parts.slice(1).join(' '))
+                setFirstName(parts[0] || '')
+                setLastName(parts.slice(1).join(' ') || '')
             }
             setCurrentAvatar(worker.avatar || null)
             setPreviewUrl(null)
@@ -56,7 +58,7 @@ export function EditWorkerModal({ isOpen, onClose, onSave, worker }) {
                 ? `${firstName.trim()} ${lastName.trim()}`
                 : firstName.trim()
             
-            // Если загружено новое фото — используем его, иначе оставляем старое
+            // Если загружено новое фото — используем его, иначе оставляем null (не меняем фото)
             const avatarToSave = avatarFile || null
             
             await onSave(worker.id, fullName, avatarToSave)
@@ -78,6 +80,7 @@ export function EditWorkerModal({ isOpen, onClose, onSave, worker }) {
     const displayAvatar = getDisplayAvatar()
 
     if (!isOpen) return null
+    if (!worker) return null // Защита от undefined
 
     return (
         <div className={styles.modalOverlay}>
