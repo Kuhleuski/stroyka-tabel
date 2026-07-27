@@ -17,10 +17,17 @@ const COLORS = [
     '#B5B4B4', // Gray
 ]
 
+// Список статусов
+const STATUSES = [
+    { value: 'в работе', label: 'В работе', color: '#2d7d46' },
+    { value: 'завершен', label: 'Завершен', color: '#78909C' },
+]
+
 export function EditSiteModal({ isOpen, onClose, onSave, site }) {
     const [name, setName] = useState('')
     const [address, setAddress] = useState('')
     const [selectedColor, setSelectedColor] = useState(COLORS[0])
+    const [status, setStatus] = useState('в работе')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
 
@@ -32,6 +39,7 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
             // Находим цвет в палитре или используем первый
             const colorIndex = COLORS.findIndex(c => c === site.color)
             setSelectedColor(colorIndex !== -1 ? COLORS[colorIndex] : COLORS[0])
+            setStatus(site.status || 'в работе')
             setError('')
         }
     }, [site, isOpen])
@@ -48,7 +56,7 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
         setError('')
 
         try {
-            await onSave(site.id, name.trim(), address.trim(), selectedColor)
+            await onSave(site.id, name.trim(), address.trim(), selectedColor, status)
             onClose()
         } catch (err) {
             setError(err.message || 'Ошибка при обновлении')
@@ -80,7 +88,6 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="Например: Дом на Ленина"
-                            autoFocus
                         />
                     </div>
 
@@ -93,6 +100,26 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
                             onChange={(e) => setAddress(e.target.value)}
                             placeholder="Например: ул. Ленина, 15"
                         />
+                    </div>
+
+                    <div className={styles.modalField}>
+                        <label className={styles.modalLabel}>Статус</label>
+                        <div className={styles.modalStatusWrapper}>
+                            {STATUSES.map((s) => (
+                                <button
+                                    key={s.value}
+                                    type="button"
+                                    className={`${styles.modalStatusBtn} ${status === s.value ? styles.modalStatusActive : ''}`}
+                                    onClick={() => setStatus(s.value)}
+                                >
+                                    <span 
+                                        className={styles.modalStatusDot}
+                                        style={{ backgroundColor: s.color }}
+                                    />
+                                    {s.label}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     <div className={styles.modalField}>
