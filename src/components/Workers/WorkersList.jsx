@@ -157,7 +157,7 @@ export function WorkersList({ workers, onWorkerClick }) {
             {hasActive && (
                 <>
                     <div className={styles.workersSectionHeader}>
-                        👷 Рабочие в статусе активные
+                        Работники в статусе активные
                     </div>
                     <div className={styles.workersGrid}>
                         {cachedWorkers.active.map((worker) => {
@@ -211,8 +211,8 @@ export function WorkersList({ workers, onWorkerClick }) {
                                         <span 
                                             className={styles.workerStatusDot}
                                             style={{ 
-                                                backgroundColor: isActive ? 'rgb(20, 231, 0)' : 'rgb(141, 141, 141)',
-                                                boxShadow: isActive ? '0 0 6px rgba(20, 231, 0, 0.6)' : 'none'
+                                                backgroundColor: isActive ? 'rgb(16, 180, 0)' : 'rgb(141, 141, 141)',
+                                                boxShadow: isActive ? '0 0 6px rgba(16, 180, 0, 0.5)' : 'none'
                                             }}
                                         />
                                         <span className={styles.workerGridName}>{worker?.name || 'Без имени'}</span>
@@ -224,7 +224,7 @@ export function WorkersList({ workers, onWorkerClick }) {
                 </>
             )}
 
-            {/* РАЗДЕЛИТЕЛЬ */}
+            {/* РАЗДЕЛИТЕЛЬ (ТОЛЬКО ЕСЛИ ЕСТЬ И АКТИВНЫЕ И НЕАКТИВНЫЕ) */}
             {hasActive && hasInactive && (
                 <div className={styles.workersDivider} />
             )}
@@ -233,7 +233,7 @@ export function WorkersList({ workers, onWorkerClick }) {
             {hasInactive && (
                 <>
                     <div className={styles.workersSectionHeader}>
-                        🚫 Рабочие в статусе не активные
+                        Работники в статусе не активные
                     </div>
                     <div className={styles.workersGrid}>
                         {cachedWorkers.inactive.map((worker) => {
@@ -287,8 +287,8 @@ export function WorkersList({ workers, onWorkerClick }) {
                                         <span 
                                             className={styles.workerStatusDot}
                                             style={{ 
-                                                backgroundColor: isActive ? 'rgb(20, 231, 0)' : 'rgb(141, 141, 141)',
-                                                boxShadow: isActive ? '0 0 6px rgba(20, 231, 0, 0.6)' : 'none'
+                                                backgroundColor: isActive ? 'rgb(16, 180, 0)' : 'rgb(141, 141, 141)',
+                                                boxShadow: isActive ? '0 0 6px rgba(16, 180, 0, 0.5)' : 'none'
                                             }}
                                         />
                                         <span className={styles.workerGridName}>{worker?.name || 'Без имени'}</span>
