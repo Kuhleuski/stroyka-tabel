@@ -165,7 +165,10 @@ export function WorkersList({ workers, onWorkerClick }) {
                         <div className={styles.workerGridNameWrapper}>
                             <span 
                                 className={styles.workerStatusDot}
-                                style={{ backgroundColor: isActive ? '#2d7d46' : '#78909C' }}
+                                style={{ 
+                                    backgroundColor: isActive ? 'rgb(20, 231, 0)' : 'rgb(141, 141, 141)',
+                                    boxShadow: isActive ? '0 0 6px rgba(20, 231, 0, 0.6)' : 'none'
+                                }}
                             />
                             <span className={styles.workerGridName}>{worker?.name || 'Без имени'}</span>
                         </div>
