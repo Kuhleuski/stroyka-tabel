@@ -103,13 +103,22 @@ export function WorkersPage({ shifts }) {
 
     if (selectedWorker) {
         return (
-            <WorkerDetailPage 
-                worker={selectedWorker}
-                onClose={handleCloseDetail}
-                onDelete={handleDelete}
-                onEdit={handleOpenEditModal}
-                shifts={shifts}
-            />
+            <>
+                <WorkerDetailPage 
+                    worker={selectedWorker}
+                    onClose={handleCloseDetail}
+                    onDelete={handleDelete}
+                    onEdit={handleOpenEditModal}
+                    shifts={shifts}
+                />
+                {/* МОДАЛКА РЕДАКТИРОВАНИЯ — ВНУТРИ УСЛОВИЯ */}
+                <EditWorkerModal 
+                    isOpen={showEditModal}
+                    onClose={() => setShowEditModal(false)}
+                    onSave={handleUpdate}
+                    worker={editingWorker}
+                />
+            </>
         )
     }
 
@@ -142,13 +151,6 @@ export function WorkersPage({ shifts }) {
                 isOpen={showAddModal}
                 onClose={() => setShowAddModal(false)}
                 onSave={handleSave}
-            />
-
-            <EditWorkerModal 
-                isOpen={showEditModal}
-                onClose={() => setShowEditModal(false)}
-                onSave={handleUpdate}
-                worker={editingWorker}
             />
         </>
     )
