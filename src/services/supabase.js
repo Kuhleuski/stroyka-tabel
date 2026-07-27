@@ -199,7 +199,8 @@ export async function addWorker(name, avatarFile = null) {
             },
             body: JSON.stringify([{ 
                 name, 
-                avatar: avatarBase64
+                avatar: avatarBase64,
+                status: 'active'  // ← Новый работник сразу активен
             }])
         })
         
@@ -389,6 +390,7 @@ export async function updateSiteStatus(siteId, status) {
         throw error
     }
 }
+
 // === ОБНОВЛЕНИЕ СТАТУСА РАБОТНИКА ===
 export async function updateWorkerStatus(workerId, status) {
     try {
