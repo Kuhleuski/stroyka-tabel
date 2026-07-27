@@ -1,11 +1,15 @@
-import { useState } from 'react'
+// src/pages/WorkerDetailPage.jsx
+
+import { useState, useRef, useEffect } from 'react'
 import { WorkerCalendar } from '../components/Workers/WorkerCalendar'
 import styles from '../styles/workers.module.css'
 import compStyles from '../styles/components.module.css'
 
-export function WorkerDetailPage({ worker, onClose, onDelete, shifts }) {
+export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit }) {
     const [showConfirm, setShowConfirm] = useState(false)
     const [deleting, setDeleting] = useState(false)
+    const [showMenu, setShowMenu] = useState(false)
+    const menuRef = useRef(null)
 
     // Функция для получения цвета аватарки на основе имени
     const getAvatarColor = (name) => {
@@ -46,6 +50,31 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts }) {
         }
     }
 
+    const handleEdit = () => {
+        setShowMenu(false)
+        if (onEdit) {
+            onEdit(worker)
+        }
+    }
+
+    const handleMenuToggle = () => {
+        setShowMenu(!showMenu)
+    }
+
+    // Закрываем меню при клике вне его
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setShowMenu(false)
+            }
+        }
+
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside)
+        }
+    }, [])
+
     // Фильтруем смены только для этого работника
     const workerShifts = shifts ? shifts.filter(s => s.worker_name === worker.name) : []
 
@@ -55,8 +84,9 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts }) {
 
     return (
         <div className={styles.workerDetailPage}>
+            {/* === ХЕДЕР === */}
             <div className={styles.workerDetailHeader}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
                     {/* АВАТАРКА */}
                     <div style={{
                         width: '52px',
@@ -93,13 +123,49 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts }) {
                             initials
                         )}
                     </div>
-                    <span className={styles.workerDetailTitle}>👷 {worker.name}</span>
+                    <span className={styles.workerDetailTitle}>{worker.name}</span>
                 </div>
-                <button className={styles.workerDetailClose} onClick={onClose}>
-                    ✕
-                </button>
+
+                {/* === ТРИ ТОЧКИ (МЕНЮ) === */}
+                <div className={styles.workerDetailMenuWrapper} ref={menuRef}>
+                    <button 
+                        className={styles.workerDetailMenuBtn}
+                        onClick={handleMenuToggle}
+                        aria-label="Меню"
+                    >
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="5" r="2.5" />
+                            <circle cx="12" cy="12" r="2.5" />
+                            <circle cx="12" cy="19" r="2.5" />
+                        </svg>
+                    </button>
+
+                    {/* ВЫПАДАЮЩЕЕ МЕНЮ */}
+                    {showMenu && (
+                        <div className={styles.workerDetailMenu}>
+                            <button 
+                                className={styles.workerDetailMenuItem}
+                                onClick={handleEdit}
+                            >
+                                <span className={styles.workerDetailMenuItemIcon}>✏️</span>
+                                Редактировать информацию
+                            </button>
+                            <button 
+                                className={`${styles.workerDetailMenuItem} ${styles.workerDetailMenuItemDanger}`}
+                                onClick={() => {
+                                    setShowMenu(false)
+                                    setShowConfirm(true)
+                                }}
+                            >
+                                <span className={styles.workerDetailMenuItemIcon}>🗑️</span>
+                                Удалить работника
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
             
+            {/* === КОНТЕНТ === */}
             <div className={styles.workerDetailContent}>
                 <div className={styles.workerDetailField}>
                     <span className={styles.workerDetailLabel}>Имя</span>
@@ -123,16 +189,19 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts }) {
                 <div className={styles.workerDetailHint}>
                     Здесь будет статистика по работнику
                 </div>
+            </div>
 
+            {/* === КНОПКА "ЗАКРЫТЬ" ВНИЗУ === */}
+            <div className={styles.workerDetailFooter}>
                 <button 
-                    className={styles.workerDetailDelete}
-                    onClick={() => setShowConfirm(true)}
-                    disabled={deleting}
+                    className={styles.workerDetailCloseBtn}
+                    onClick={onClose}
                 >
-                    {deleting ? '⏳ Удаление...' : '🗑️ Удалить работника'}
+                    Закрыть
                 </button>
             </div>
 
+            {/* === ПОДТВЕРЖДЕНИЕ УДАЛЕНИЯ === */}
             {showConfirm && (
                 <div className={compStyles.confirmOverlay}>
                     <div className={compStyles.confirmModal}>
