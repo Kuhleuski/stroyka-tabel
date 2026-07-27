@@ -72,8 +72,9 @@ export function WorkersPage({ shifts }) {
             // Обновляем кеш аватарок
             await refreshAvatars()
             
-            // Принудительно обновляем список
+            // Принудительно обновляем список (дважды для надёжности)
             forceRefresh()
+            setTimeout(() => forceRefresh(), 50)
             
             // Закрываем модалку
             setShowAddModal(false)
@@ -82,7 +83,7 @@ export function WorkersPage({ shifts }) {
             setTimeout(() => {
                 console.log('🔄 Переход на страницу деталей нового работника:', workerData.name)
                 setSelectedWorker(workerData)
-            }, 100)
+            }, 150)
         } catch (err) {
             console.error('❌ Ошибка при создании работника:', err)
             throw err
