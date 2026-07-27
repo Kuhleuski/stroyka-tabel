@@ -38,6 +38,19 @@ export function SitesPage({ onAddSite }) {
         localStorage.setItem('sitesFilter', newFilter)
     }
 
+    // === СОХРАНЕНИЕ ДАТЫ ПОСЛЕДНЕГО ОТКРЫТИЯ ===
+    const saveLastOpened = (siteId) => {
+        try {
+            const now = new Date().toISOString()
+            const stored = localStorage.getItem('siteLastOpened')
+            const data = stored ? JSON.parse(stored) : {}
+            data[siteId] = now
+            localStorage.setItem('siteLastOpened', JSON.stringify(data))
+        } catch (e) {
+            console.warn('Ошибка сохранения даты открытия:', e)
+        }
+    }
+
     const handleSave = async (name, address, color) => {
         try {
             const newSite = await addSite(name, address, color)
@@ -73,9 +86,23 @@ export function SitesPage({ onAddSite }) {
     const handleDelete = async (siteId) => {
         await deleteSite(siteId)
         removeSiteFromState(siteId)
+        // Удаляем запись о последнем открытии
+        try {
+            const stored = localStorage.getItem('siteLastOpened')
+            if (stored) {
+                const data = JSON.parse(stored)
+                delete data[siteId]
+                localStorage.setItem('siteLastOpened', JSON.stringify(data))
+            }
+        } catch (e) {
+            console.warn('Ошибка удаления даты открытия:', e)
+        }
     }
 
     const handleSiteClick = (site) => {
+        // Сохраняем дату открытия
+        saveLastOpened(site.id)
+        
         const container = document.querySelector('.sites-grid')
         if (container) {
             setScrollPosition(container.scrollTop)
