@@ -245,14 +245,16 @@ export async function updateWorker(workerId, name, avatarFile = null) {
             console.log('📸 Фото сжато, длина:', avatarBase64.length)
         }
 
-        const updateData = { name }
+        const updateData = { name: name.trim() }
         if (avatarBase64) {
             updateData.avatar = avatarBase64
         }
 
-        console.log('📤 Обновляем работника:', workerId, updateData)
+        console.log('📤 Отправляем на обновление:', JSON.stringify(updateData, null, 2))
 
         const url = `${SUPABASE_URL}/rest/v1/workers?id=eq.${workerId}&apikey=${SUPABASE_ANON_KEY}`
+        console.log('📤 URL запроса:', url)
+        
         const response = await fetch(url, {
             method: 'PATCH',
             headers: {
@@ -262,6 +264,8 @@ export async function updateWorker(workerId, name, avatarFile = null) {
             body: JSON.stringify(updateData)
         })
         
+        console.log('📡 Статус ответа:', response.status)
+        
         if (!response.ok) {
             const errorText = await response.text()
             console.error('❌ Ошибка ответа:', response.status, errorText)
@@ -269,19 +273,30 @@ export async function updateWorker(workerId, name, avatarFile = null) {
         }
         
         const result = await response.json()
-        console.log('✅ Результат обновления:', result)
+        console.log('✅ Результат обновления (сырой):', result)
         
+        // Если результат — пустой массив, значит работник не найден или обновление не произошло
         if (!result || result.length === 0) {
-            console.warn('⚠️ Обновление вернуло пустой результат, пробуем получить работника...')
+            console.warn('⚠️ Обновление вернуло пустой результат')
+            
+            // Проверяем, существует ли работник
             const getUrl = `${SUPABASE_URL}/rest/v1/workers?id=eq.${workerId}&apikey=${SUPABASE_ANON_KEY}`
             const getResponse = await fetch(getUrl, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' }
             })
+            
             if (getResponse.ok) {
                 const getResult = await getResponse.json()
+                console.log('📥 Текущие данные работника:', getResult)
+                
                 if (getResult && getResult.length > 0) {
-                    console.log('✅ Работник получен отдельно:', getResult[0])
+                    // Проверяем, изменилось ли имя
+                    const currentName = getResult[0].name
+                    if (currentName !== name.trim()) {
+                        console.warn(`⚠️ Имя не изменилось: было "${currentName}", пытались установить "${name.trim()}"`)
+                        console.warn('⚠️ Возможно, в Supabase есть ограничение на обновление поля name')
+                    }
                     return getResult[0]
                 }
             }
