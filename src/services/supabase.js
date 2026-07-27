@@ -10,7 +10,6 @@ export const compressImage = (file, maxWidth = 300, maxHeight = 300, quality = 0
             const img = new Image()
             img.src = event.target.result
             img.onload = () => {
-                // Вычисляем новые размеры с сохранением пропорций
                 let width = img.width
                 let height = img.height
                 
@@ -26,14 +25,12 @@ export const compressImage = (file, maxWidth = 300, maxHeight = 300, quality = 0
                     }
                 }
 
-                // Создаем canvas и рисуем сжатое изображение
                 const canvas = document.createElement('canvas')
                 canvas.width = width
                 canvas.height = height
                 const ctx = canvas.getContext('2d')
                 ctx.drawImage(img, 0, 0, width, height)
 
-                // Конвертируем в Base64 с качеством
                 const compressedBase64 = canvas.toDataURL('image/jpeg', quality)
                 resolve(compressedBase64)
             }
@@ -188,7 +185,6 @@ export async function addWorker(name, avatarFile = null) {
     try {
         let avatarBase64 = null
         if (avatarFile) {
-            // Сжимаем фото до 300x300
             console.log('📸 Сжимаем фото...')
             avatarBase64 = await compressImage(avatarFile, 300, 300, 0.7)
             console.log('📸 Фото сжато, длина:', avatarBase64.length)
@@ -237,9 +233,12 @@ export async function deleteWorker(workerId) {
 // === ОБНОВЛЕНИЕ РАБОТНИКА ===
 export async function updateWorker(workerId, name, avatarFile = null) {
     try {
+        if (!workerId) {
+            throw new Error('ID работника не указан')
+        }
+
         let avatarBase64 = null
         
-        // Если загружено новое фото — сжимаем
         if (avatarFile) {
             console.log('📸 Сжимаем фото для обновления...')
             avatarBase64 = await compressImage(avatarFile, 300, 300, 0.7)
@@ -250,6 +249,8 @@ export async function updateWorker(workerId, name, avatarFile = null) {
         if (avatarBase64) {
             updateData.avatar = avatarBase64
         }
+
+        console.log('📤 Обновляем работника:', workerId, updateData)
 
         const url = `${SUPABASE_URL}/rest/v1/workers?id=eq.${workerId}&apikey=${SUPABASE_ANON_KEY}`
         const response = await fetch(url, {
@@ -263,13 +264,33 @@ export async function updateWorker(workerId, name, avatarFile = null) {
         
         if (!response.ok) {
             const errorText = await response.text()
+            console.error('❌ Ошибка ответа:', response.status, errorText)
             throw new Error(`Ошибка обновления: ${response.status} ${errorText}`)
         }
         
         const result = await response.json()
+        console.log('✅ Результат обновления:', result)
+        
+        if (!result || result.length === 0) {
+            console.warn('⚠️ Обновление вернуло пустой результат, пробуем получить работника...')
+            const getUrl = `${SUPABASE_URL}/rest/v1/workers?id=eq.${workerId}&apikey=${SUPABASE_ANON_KEY}`
+            const getResponse = await fetch(getUrl, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            if (getResponse.ok) {
+                const getResult = await getResponse.json()
+                if (getResult && getResult.length > 0) {
+                    console.log('✅ Работник получен отдельно:', getResult[0])
+                    return getResult[0]
+                }
+            }
+            throw new Error(`Работник с ID ${workerId} не найден`)
+        }
+        
         return result[0] || result
     } catch (error) {
-        console.error('Ошибка в updateWorker:', error)
+        console.error('❌ Ошибка в updateWorker:', error)
         throw error
     }
 }
