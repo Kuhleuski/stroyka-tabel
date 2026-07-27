@@ -1,3 +1,5 @@
+// src/pages/WorkersPage.jsx
+
 import { useState } from 'react'
 import { WorkersList } from '../components/Workers/WorkersList'
 import { WorkerDetailPage } from './WorkerDetailPage'
