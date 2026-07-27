@@ -255,7 +255,8 @@ export function WorkersPage({ shifts }) {
                                 <WorkersIcon />
                                 Бригада
                             </div>
-                            <div className={styles.pageSubtitle}>Все рабочие</div>
+                            {/* ❌ УДАЛЯЕМ "Все рабочие" */}
+                            {/* <div className={styles.pageSubtitle}>Все рабочие</div> */}
                         </div>
                     </div>
 
