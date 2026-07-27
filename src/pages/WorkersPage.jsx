@@ -42,14 +42,26 @@ export function WorkersPage({ shifts }) {
 
     const handleUpdate = async (workerId, name, avatarFile) => {
         try {
+            console.log('🔄 handleUpdate вызван:', { workerId, name, avatarFile })
             const updated = await updateWorker(workerId, name, avatarFile)
-            updateWorkerInState(updated)
-            // Обновляем данные в детальной странице
+            console.log('🔄 updated получен:', updated)
+            
+            let workerData = updated
+            if (Array.isArray(updated)) {
+                if (updated.length === 0) {
+                    throw new Error('Работник не найден')
+                }
+                workerData = updated[0]
+            }
+            
+            updateWorkerInState(workerData)
+            
             if (selectedWorker && selectedWorker.id === workerId) {
-                setSelectedWorker(updated)
+                setSelectedWorker(workerData)
             }
             setShowEditModal(false)
         } catch (err) {
+            console.error('❌ Ошибка обновления:', err)
             throw err
         }
     }
@@ -111,7 +123,6 @@ export function WorkersPage({ shifts }) {
                     onEdit={handleOpenEditModal}
                     shifts={shifts}
                 />
-                {/* МОДАЛКА РЕДАКТИРОВАНИЯ — ВНУТРИ УСЛОВИЯ */}
                 <EditWorkerModal 
                     isOpen={showEditModal}
                     onClose={() => setShowEditModal(false)}
