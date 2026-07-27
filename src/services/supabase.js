@@ -233,3 +233,43 @@ export async function deleteWorker(workerId) {
     }
     return true
 }
+
+// === ОБНОВЛЕНИЕ РАБОТНИКА ===
+export async function updateWorker(workerId, name, avatarFile = null) {
+    try {
+        let avatarBase64 = null
+        
+        // Если загружено новое фото — сжимаем
+        if (avatarFile) {
+            console.log('📸 Сжимаем фото для обновления...')
+            avatarBase64 = await compressImage(avatarFile, 300, 300, 0.7)
+            console.log('📸 Фото сжато, длина:', avatarBase64.length)
+        }
+
+        const updateData = { name }
+        if (avatarBase64) {
+            updateData.avatar = avatarBase64
+        }
+
+        const url = `${SUPABASE_URL}/rest/v1/workers?id=eq.${workerId}&apikey=${SUPABASE_ANON_KEY}`
+        const response = await fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            },
+            body: JSON.stringify(updateData)
+        })
+        
+        if (!response.ok) {
+            const errorText = await response.text()
+            throw new Error(`Ошибка обновления: ${response.status} ${errorText}`)
+        }
+        
+        const result = await response.json()
+        return result[0] || result
+    } catch (error) {
+        console.error('Ошибка в updateWorker:', error)
+        throw error
+    }
+}
