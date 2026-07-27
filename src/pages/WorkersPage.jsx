@@ -255,13 +255,12 @@ export function WorkersPage({ shifts }) {
                                 <WorkersIcon />
                                 Бригада
                             </div>
-                            {/* ❌ УДАЛЯЕМ "Все рабочие" */}
-                            {/* <div className={styles.pageSubtitle}>Все рабочие</div> */}
                         </div>
                     </div>
 
                     <WorkersList 
                         key={refreshKey}
+                        refreshKey={refreshKey}
                         workers={workers} 
                         onWorkerClick={handleWorkerClick}
                     />
