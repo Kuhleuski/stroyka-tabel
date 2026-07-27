@@ -1136,3 +1136,49 @@
     min-width: 0;
     overflow: hidden;
 }
+/* ============================================================
+   РАЗДЕЛЕНИЕ АКТИВНЫХ И НЕАКТИВНЫХ РАБОТНИКОВ
+   ============================================================ */
+
+.workersGridContainer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-xs) 0;
+}
+
+.workersGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-lg);
+}
+
+.workersSectionHeader {
+    font-size: var(--font-size-md);
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: var(--spacing-sm) 0 var(--spacing-xs) 0;
+    border-bottom: 1px solid var(--border-light);
+    margin-bottom: var(--spacing-xs);
+}
+
+.workersDivider {
+    height: 1px;
+    background: var(--border-color);
+    margin: var(--spacing-sm) 0;
+}
+
+/* Адаптив для сетки */
+@media (max-width: 420px) {
+    .workersGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-md);
+    }
+}
+
+@media (max-width: 320px) {
+    .workersGrid {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-sm);
+    }
+}
