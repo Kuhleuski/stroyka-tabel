@@ -1001,3 +1001,15 @@
         font-size: 12px;
     }
 }
+/* ============================================================
+   СТАТУС НА СТРАНИЦЕ ДЕТАЛЕЙ
+   ============================================================ */
+
+.siteDetailStatusBadge {
+    display: inline-block;
+    padding: 4px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+}
