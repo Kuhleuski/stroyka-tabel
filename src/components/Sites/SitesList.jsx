@@ -3,8 +3,32 @@
 import styles from '../../styles/sites.module.css'
 
 export function SitesList({ sites, filter = 'all', onSiteClick }) {
-    // Сортируем от новых к старым
+    // === ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ ДАТЫ ПОСЛЕДНЕГО ОТКРЫТИЯ ===
+    const getLastOpened = (siteId) => {
+        try {
+            const stored = localStorage.getItem('siteLastOpened')
+            if (!stored) return null
+            const data = JSON.parse(stored)
+            return data[siteId] || null
+        } catch (e) {
+            return null
+        }
+    }
+
+    // === СОРТИРОВКА ===
     const sortedSites = [...(sites || [])].sort((a, b) => {
+        const lastOpenedA = getLastOpened(a.id)
+        const lastOpenedB = getLastOpened(b.id)
+        
+        // Если оба открывались — сортируем по дате открытия (новые сверху)
+        if (lastOpenedA && lastOpenedB) {
+            return new Date(lastOpenedB) - new Date(lastOpenedA)
+        }
+        // Если открывался только A — он выше
+        if (lastOpenedA) return -1
+        // Если открывался только B — он выше
+        if (lastOpenedB) return 1
+        // Если никто не открывался — по дате создания (новые сверху)
         const dateA = new Date(a.created_at || a.id)
         const dateB = new Date(b.created_at || b.id)
         return dateB - dateA
