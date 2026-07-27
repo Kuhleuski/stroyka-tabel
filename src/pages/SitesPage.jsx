@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { SitesList } from '../components/Sites/SitesList'
 import { SiteDetailPage } from './SiteDetailPage'
 import { AddSiteModal } from '../components/AddSiteModal'
-import { addSite, deleteSite } from '../services/supabase'
+import { addSite, deleteSite, updateSiteStatus } from '../services/supabase'
 import { useSites } from '../hooks/useSites'
 import { Plus } from 'lucide-react'
 import styles from '../styles/sites.module.css'
@@ -21,7 +21,7 @@ export function SitesPage({ onAddSite }) {
     const [showAddModal, setShowAddModal] = useState(false)
     const [selectedSite, setSelectedSite] = useState(null)
     const [scrollPosition, setScrollPosition] = useState(0)
-    const { sites, loading, error, addSiteToState, removeSiteFromState } = useSites()
+    const { sites, loading, error, addSiteToState, removeSiteFromState, updateSiteInState } = useSites()
 
     const handleSave = async (name, address, color) => {
         try {
@@ -40,6 +40,15 @@ export function SitesPage({ onAddSite }) {
     const handleDelete = async (siteId) => {
         await deleteSite(siteId)
         removeSiteFromState(siteId)
+    }
+
+    const handleStatusChange = async (siteId, status) => {
+        const updated = await updateSiteStatus(siteId, status)
+        updateSiteInState(updated)
+        // Обновляем данные в детальной странице
+        if (selectedSite && selectedSite.id === siteId) {
+            setSelectedSite(updated)
+        }
     }
 
     const handleSiteClick = (site) => {
@@ -80,11 +89,19 @@ export function SitesPage({ onAddSite }) {
 
     if (selectedSite) {
         return (
-            <SiteDetailPage 
-                site={selectedSite}
-                onClose={handleCloseDetail}
-                onDelete={handleDelete}
-            />
+            <>
+                <SiteDetailPage 
+                    site={selectedSite}
+                    onClose={handleCloseDetail}
+                    onDelete={handleDelete}
+                    onStatusChange={handleStatusChange}
+                    onEdit={(updatedSite) => {
+                        // Обновляем состояние при изменении из детальной страницы
+                        updateSiteInState(updatedSite)
+                        setSelectedSite(updatedSite)
+                    }}
+                />
+            </>
         )
     }
 
