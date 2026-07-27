@@ -28,6 +28,7 @@ export function WorkersPage({ shifts }) {
     const [selectedWorker, setSelectedWorker] = useState(null)
     const [editingWorker, setEditingWorker] = useState(null)
     const [scrollPosition, setScrollPosition] = useState(0)
+    const [refreshKey, setRefreshKey] = useState(0) // ← Добавляем ключ для принудительного обновления
     const { workers, loading, error, addWorkerToState, removeWorkerFromState, updateWorkerInState } = useWorkers()
     const { refreshAvatars } = useAvatars()
 
@@ -44,10 +45,17 @@ export function WorkersPage({ shifts }) {
         }
     }
 
+    // === ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ ===
+    const forceRefresh = () => {
+        setRefreshKey(prev => prev + 1)
+    }
+
     const handleSave = async (name, avatarFile) => {
         try {
             const newWorker = await addWorker(name, avatarFile)
             const workerData = newWorker[0] || newWorker
+            
+            console.log('📝 Создан работник:', workerData)
             
             // Добавляем в состояние
             addWorkerToState(workerData)
@@ -55,12 +63,18 @@ export function WorkersPage({ shifts }) {
             // Обновляем кеш аватарок
             await refreshAvatars()
             
+            // Принудительно обновляем список
+            forceRefresh()
+            
             // Закрываем модалку
             setShowAddModal(false)
             
             // === ПЕРЕХОД НА СТРАНИЦУ ДЕТАЛЕЙ НОВОГО РАБОТНИКА ===
-            console.log('🔄 Переход на страницу деталей нового работника:', workerData.name)
-            setSelectedWorker(workerData)
+            // Небольшая задержка для обновления контекста
+            setTimeout(() => {
+                console.log('🔄 Переход на страницу деталей нового работника:', workerData.name)
+                setSelectedWorker(workerData)
+            }, 100)
         } catch (err) {
             console.error('❌ Ошибка при создании работника:', err)
             throw err
@@ -71,11 +85,16 @@ export function WorkersPage({ shifts }) {
         try {
             const updated = await updateWorker(workerId, name, avatarFile)
             
+            console.log('📝 Обновлён работник:', updated)
+            
             // Обновляем в состоянии
             updateWorkerInState(updated)
             
             // Обновляем кеш аватарок
             await refreshAvatars()
+            
+            // Принудительно обновляем список
+            forceRefresh()
             
             // Обновляем данные в детальной странице
             if (selectedWorker && selectedWorker.id === workerId) {
@@ -95,6 +114,9 @@ export function WorkersPage({ shifts }) {
         
         // Обновляем кеш аватарок
         await refreshAvatars()
+        
+        // Принудительно обновляем список
+        forceRefresh()
         
         // Удаляем запись о последнем открытии
         try {
@@ -158,6 +180,7 @@ export function WorkersPage({ shifts }) {
         return (
             <>
                 <WorkerDetailPage 
+                    key={refreshKey} // ← Принудительно пересоздаём компонент
                     worker={selectedWorker}
                     onClose={handleCloseDetail}
                     onDelete={handleDelete}
@@ -187,6 +210,7 @@ export function WorkersPage({ shifts }) {
             </div>
 
             <WorkersList 
+                key={refreshKey} // ← Принудительно пересоздаём компонент
                 workers={workers} 
                 onWorkerClick={handleWorkerClick}
             />
