@@ -1,8 +1,11 @@
+// src/pages/SitesPage.jsx
+
 import { useState } from 'react'
 import { SitesList } from '../components/Sites/SitesList'
 import { SiteDetailPage } from './SiteDetailPage'
 import { AddSiteModal } from '../components/AddSiteModal'
-import { addSite, deleteSite, updateSiteStatus } from '../services/supabase'
+import { EditSiteModal } from '../components/EditSiteModal'
+import { addSite, deleteSite, updateSite } from '../services/supabase'
 import { useSites } from '../hooks/useSites'
 import { Plus } from 'lucide-react'
 import styles from '../styles/sites.module.css'
@@ -19,7 +22,9 @@ const SitesIcon = () => (
 
 export function SitesPage({ onAddSite }) {
     const [showAddModal, setShowAddModal] = useState(false)
+    const [showEditModal, setShowEditModal] = useState(false)
     const [selectedSite, setSelectedSite] = useState(null)
+    const [editingSite, setEditingSite] = useState(null)
     const [scrollPosition, setScrollPosition] = useState(0)
     const { sites, loading, error, addSiteToState, removeSiteFromState, updateSiteInState } = useSites()
 
@@ -37,18 +42,28 @@ export function SitesPage({ onAddSite }) {
         }
     }
 
+    const handleUpdate = async (siteId, name, address, color) => {
+        try {
+            console.log('🔄 handleUpdate вызван:', { siteId, name, address, color })
+            const updated = await updateSite(siteId, name, address, color)
+            console.log('🔄 updated получен:', updated)
+            
+            updateSiteInState(updated)
+            
+            // Обновляем данные в детальной странице
+            if (selectedSite && selectedSite.id === siteId) {
+                setSelectedSite(updated)
+            }
+            setShowEditModal(false)
+        } catch (err) {
+            console.error('❌ Ошибка обновления:', err)
+            throw err
+        }
+    }
+
     const handleDelete = async (siteId) => {
         await deleteSite(siteId)
         removeSiteFromState(siteId)
-    }
-
-    const handleStatusChange = async (siteId, status) => {
-        const updated = await updateSiteStatus(siteId, status)
-        updateSiteInState(updated)
-        // Обновляем данные в детальной странице
-        if (selectedSite && selectedSite.id === siteId) {
-            setSelectedSite(updated)
-        }
     }
 
     const handleSiteClick = (site) => {
@@ -73,6 +88,12 @@ export function SitesPage({ onAddSite }) {
         setShowAddModal(true)
     }
 
+    const handleOpenEditModal = (site) => {
+        console.log('🔄 Открываем редактирование для:', site.name)
+        setEditingSite(site)
+        setShowEditModal(true)
+    }
+
     if (loading) {
         return <div className={globalsStyles.loadingText}>⏳ Загрузка...</div>
     }
@@ -94,12 +115,13 @@ export function SitesPage({ onAddSite }) {
                     site={selectedSite}
                     onClose={handleCloseDetail}
                     onDelete={handleDelete}
-                    onStatusChange={handleStatusChange}
-                    onEdit={(updatedSite) => {
-                        // Обновляем состояние при изменении из детальной страницы
-                        updateSiteInState(updatedSite)
-                        setSelectedSite(updatedSite)
-                    }}
+                    onEdit={handleOpenEditModal}
+                />
+                <EditSiteModal 
+                    isOpen={showEditModal}
+                    onClose={() => setShowEditModal(false)}
+                    onSave={handleUpdate}
+                    site={editingSite}
                 />
             </>
         )
