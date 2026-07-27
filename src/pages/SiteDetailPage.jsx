@@ -1,11 +1,16 @@
-import { useState } from 'react'
+// src/pages/SiteDetailPage.jsx
+
+import { useState, useRef, useEffect } from 'react'
 import styles from '../styles/sites.module.css'
 import compStyles from '../styles/components.module.css'
-import { ConfirmModal } from '../components/ConfirmModal'
 
-export function SiteDetailPage({ site, onClose, onDelete }) {
+export function SiteDetailPage({ site, onClose, onDelete, onEdit, onStatusChange }) {
     const [showConfirm, setShowConfirm] = useState(false)
     const [deleting, setDeleting] = useState(false)
+    const [showMenu, setShowMenu] = useState(false)
+    const [status, setStatus] = useState(site.status || 'в работе')
+    const [isUpdating, setIsUpdating] = useState(false)
+    const menuRef = useRef(null)
 
     const formatDate = (dateString) => {
         if (!dateString) return ''
@@ -19,58 +24,136 @@ export function SiteDetailPage({ site, onClose, onDelete }) {
 
     const handleDelete = async () => {
         setDeleting(true)
-        console.log('🗑️ Начинаем удаление объекта:', site.id, site.name)
         try {
             await onDelete(site.id)
-            console.log('✅ Объект удалён, закрываем детали')
             onClose()
         } catch (error) {
-            console.error('❌ Ошибка удаления:', error)
+            console.error('Ошибка удаления:', error)
             alert(`Не удалось удалить объект: ${error.message}`)
-            setShowConfirm(false)
         } finally {
             setDeleting(false)
+            setShowConfirm(false)
         }
     }
 
+    const handleEdit = () => {
+        setShowMenu(false)
+        if (onEdit) {
+            onEdit(site)
+        }
+    }
+
+    const handleMenuToggle = () => {
+        setShowMenu(!showMenu)
+    }
+
+    const handleStatusChange = async (newStatus) => {
+        if (newStatus === status || isUpdating) return
+        
+        setIsUpdating(true)
+        try {
+            await onStatusChange(site.id, newStatus)
+            setStatus(newStatus)
+            // Обновляем объект в родителе
+            if (onEdit) {
+                onEdit({ ...site, status: newStatus })
+            }
+        } catch (error) {
+            console.error('Ошибка обновления статуса:', error)
+            alert('Не удалось обновить статус')
+        } finally {
+            setIsUpdating(false)
+        }
+    }
+
+    // Закрываем меню при клике вне его
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setShowMenu(false)
+            }
+        }
+
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside)
+        }
+    }, [])
+
+    // Обновляем статус при изменении site
+    useEffect(() => {
+        if (site.status) {
+            setStatus(site.status)
+        }
+    }, [site.status])
+
     return (
         <div className={styles.siteDetailPage}>
+            {/* === ХЕДЕР === */}
             <div className={styles.siteDetailHeader}>
-                <span className={styles.siteDetailTitle}>{site.name}</span>
-                <button 
-                    className={styles.siteDetailDeleteBtn}
-                    onClick={() => setShowConfirm(true)}
-                    disabled={deleting}
-                    aria-label="Удалить объект"
-                >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M3 6h18"/>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                        <line x1="10" y1="11" x2="10" y2="17"/>
-                        <line x1="14" y1="11" x2="14" y2="17"/>
-                    </svg>
-                </button>
-            </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+                    {/* ЦВЕТНОЙ КРУГ */}
+                    <div style={{
+                        width: '52px',
+                        height: '52px',
+                        borderRadius: '50%',
+                        backgroundColor: site.color || '#2d7d46',
+                        flexShrink: 0,
+                        border: '2px solid #e8eaed'
+                    }} />
+                    <span className={styles.siteDetailTitle}>{site.name}</span>
+                </div>
 
-            <div className={styles.siteDetailActions}>
-                <button className={styles.siteDetailBack} onClick={onClose}>
-                    ← Назад
-                </button>
-                <button 
-                    className={styles.siteDetailDeleteAction}
-                    onClick={() => setShowConfirm(true)}
-                    disabled={deleting}
-                >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M3 6h18"/>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                        <line x1="10" y1="11" x2="10" y2="17"/>
-                        <line x1="14" y1="11" x2="14" y2="17"/>
-                    </svg>
-                    <span>Удалить</span>
-                </button>
+                {/* === ТРИ ТОЧКИ (МЕНЮ) === */}
+                <div className={styles.siteDetailMenuWrapper} ref={menuRef}>
+                    <button 
+                        className={styles.siteDetailMenuBtn}
+                        onClick={handleMenuToggle}
+                        aria-label="Меню"
+                    >
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="5" r="2.5" />
+                            <circle cx="12" cy="12" r="2.5" />
+                            <circle cx="12" cy="19" r="2.5" />
+                        </svg>
+                    </button>
+
+                    {/* ВЫПАДАЮЩЕЕ МЕНЮ */}
+                    {showMenu && (
+                        <div className={styles.siteDetailMenu}>
+                            <button 
+                                className={styles.siteDetailMenuItem}
+                                onClick={handleEdit}
+                            >
+                                <span className={styles.siteDetailMenuItemIcon}>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M12 20h9"/>
+                                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                                    </svg>
+                                </span>
+                                Редактировать объект
+                            </button>
+                            <button 
+                                className={styles.siteDetailMenuItem}
+                                onClick={() => {
+                                    setShowMenu(false)
+                                    setShowConfirm(true)
+                                }}
+                            >
+                                <span className={styles.siteDetailMenuItemIcon}>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M3 6h18"/>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                    </svg>
+                                </span>
+                                Удалить объект
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
             
+            {/* === КОНТЕНТ === */}
             <div className={styles.siteDetailContent}>
                 <div className={styles.siteDetailField}>
                     <span className={styles.siteDetailLabel}>Название</span>
@@ -88,28 +171,81 @@ export function SiteDetailPage({ site, onClose, onDelete }) {
                     <span className={styles.siteDetailLabel}>Дата создания</span>
                     <span className={styles.siteDetailValue}>{formatDate(site.created_at)}</span>
                 </div>
+
+                {/* === СТАТУС С ПЕРЕКЛЮЧАТЕЛЕМ === */}
+                <div className={styles.siteDetailField}>
+                    <span className={styles.siteDetailLabel}>Статус</span>
+                    <div className={styles.statusToggleWrapper}>
+                        <button 
+                            className={`${styles.statusToggleBtn} ${status === 'в работе' ? styles.statusActive : ''}`}
+                            onClick={() => handleStatusChange('в работе')}
+                            disabled={isUpdating}
+                        >
+                            <span className={styles.statusDot} style={{ backgroundColor: '#2d7d46' }} />
+                            В работе
+                        </button>
+                        <button 
+                            className={`${styles.statusToggleBtn} ${status === 'завершен' ? styles.statusActive : ''}`}
+                            onClick={() => handleStatusChange('завершен')}
+                            disabled={isUpdating}
+                        >
+                            <span className={styles.statusDot} style={{ backgroundColor: '#78909C' }} />
+                            Завершен
+                        </button>
+                    </div>
+                    {isUpdating && (
+                        <span style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                            Обновление...
+                        </span>
+                    )}
+                </div>
                 
                 <div className={styles.siteDetailHint}>
                     Здесь будет статистика по объекту
                 </div>
             </div>
 
+            {/* === КНОПКА "ЗАКРЫТЬ" ВНИЗУ (ФИКСИРОВАННАЯ) === */}
+            <div className={styles.siteDetailFooter}>
+                <button 
+                    className={styles.siteDetailCloseBtn}
+                    onClick={onClose}
+                >
+                    Закрыть
+                </button>
+            </div>
+
+            {/* === ПОДТВЕРЖДЕНИЕ УДАЛЕНИЯ === */}
             {showConfirm && (
-                <ConfirmModal
-                    title="Удалить объект?"
-                    message={
-                        <>
+                <div className={compStyles.confirmOverlay}>
+                    <div className={compStyles.confirmModal}>
+                        <div className={compStyles.confirmIcon}>⚠️</div>
+                        <div className={compStyles.confirmTitle}>Удалить объект?</div>
+                        <div className={compStyles.confirmText}>
                             Вы уверены, что хотите удалить объект <strong>«{site.name}»</strong>?
                             <br />
                             <span style={{ fontSize: '13px', color: '#999' }}>
                                 Это действие нельзя отменить.
                             </span>
-                        </>
-                    }
-                    onConfirm={handleDelete}
-                    onCancel={() => setShowConfirm(false)}
-                    loading={deleting}
-                />
+                        </div>
+                        <div className={compStyles.confirmButtons}>
+                            <button 
+                                className={`${compStyles.confirmBtn} ${compStyles.cancel}`}
+                                onClick={() => setShowConfirm(false)}
+                                disabled={deleting}
+                            >
+                                Отмена
+                            </button>
+                            <button 
+                                className={`${compStyles.confirmBtn} ${compStyles.delete}`}
+                                onClick={handleDelete}
+                                disabled={deleting}
+                            >
+                                {deleting ? 'Удаление...' : 'Удалить'}
+                            </button>
+                        </div>
+                    </div>
+    </div>
             )}
         </div>
     )
