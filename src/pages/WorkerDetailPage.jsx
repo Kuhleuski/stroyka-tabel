@@ -7,7 +7,7 @@ import { updateWorkerStatus } from '../services/supabase'
 import styles from '../styles/workers.module.css'
 import compStyles from '../styles/components.module.css'
 
-export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit, onStatusChange }) {
+export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit, onStatusChange, onRefresh }) {
     const [showConfirm, setShowConfirm] = useState(false)
     const [deleting, setDeleting] = useState(false)
     const [showMenu, setShowMenu] = useState(false)
@@ -74,9 +74,15 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit, on
         try {
             const updated = await updateWorkerStatus(worker.id, newStatus)
             setStatus(newStatus)
+            
             // Обновляем данные в родителе
             if (onStatusChange) {
                 onStatusChange({ ...worker, status: newStatus })
+            }
+            
+            // Принудительно обновляем список
+            if (onRefresh) {
+                onRefresh()
             }
         } catch (error) {
             console.error('Ошибка обновления статуса:', error)
