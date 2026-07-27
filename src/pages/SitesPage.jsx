@@ -42,10 +42,10 @@ export function SitesPage({ onAddSite }) {
         }
     }
 
-    const handleUpdate = async (siteId, name, address, color) => {
+    const handleUpdate = async (siteId, name, address, color, status) => {
         try {
-            console.log('🔄 handleUpdate вызван:', { siteId, name, address, color })
-            const updated = await updateSite(siteId, name, address, color)
+            console.log('🔄 handleUpdate вызван:', { siteId, name, address, color, status })
+            const updated = await updateSite(siteId, name, address, color, status)
             console.log('🔄 updated получен:', updated)
             
             updateSiteInState(updated)
