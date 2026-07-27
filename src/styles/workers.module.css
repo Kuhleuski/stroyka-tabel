@@ -1012,24 +1012,19 @@
 
 .workerDetailFooter {
     position: fixed;
-    bottom: 8px;
+    bottom: 0;
     left: 0;
     right: 0;
     max-width: var(--max-width);
     margin: 0 auto;
-    padding: 12px var(--spacing-lg) 20px;
+    padding: 12px var(--spacing-lg) 24px;
     display: flex;
     justify-content: center;
-    background: var(--bg-nav);
-    border-top: 1px solid var(--border-color);
+    background: transparent;
     z-index: 9999;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
 }
 
-[data-theme="dark"] .workerDetailFooter {
-    background: rgba(26, 26, 26, 0.92);
-}
+/* Убираем всё лишнее, фон прозрачный */
 
 .workerDetailCloseBtn {
     padding: 12px 48px;
@@ -1058,7 +1053,7 @@
 /* === АДАПТИВ ДЛЯ КНОПКИ === */
 @media (max-width: 480px) {
     .workerDetailFooter {
-        padding: 10px var(--spacing-md) 16px;
+        padding: 10px var(--spacing-md) 20px;
     }
 
     .workerDetailCloseBtn {
@@ -1070,7 +1065,7 @@
 
 @media (max-width: 400px) {
     .workerDetailFooter {
-        padding: 8px var(--spacing-sm) 14px;
+        padding: 8px var(--spacing-sm) 16px;
     }
 
     .workerDetailCloseBtn {
