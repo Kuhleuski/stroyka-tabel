@@ -57,13 +57,12 @@ export function WorkersPage({ shifts }) {
             
             console.log('📝 Создан работник:', workerData)
             
-            // === СОХРАНЯЕМ ДАТУ СОЗДАНИЯ НОВОГО РАБОТНИКА ===
+            // === СОХРАНЯЕМ ID НОВОГО РАБОТНИКА ===
             try {
-                const now = new Date().toISOString()
-                localStorage.setItem('newWorkerCreated', now)
-                console.log('📝 Сохранена дата нового работника:', now)
+                localStorage.setItem('newWorkerId', String(workerData.id))
+                console.log('📝 Сохранён ID нового работника:', workerData.id)
             } catch (e) {
-                console.warn('Ошибка сохранения даты нового работника:', e)
+                console.warn('Ошибка сохранения ID нового работника:', e)
             }
             
             // Добавляем в состояние
