@@ -6,7 +6,7 @@ import styles from '../../styles/workers.module.css'
 
 // === ПЛОСКАЯ ИКОНКА ДЛЯ БРИГАДЫ ===
 const WorkersIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokelinejoin="round">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
         <circle cx="9" cy="7" r="4"/>
         <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
@@ -50,7 +50,8 @@ export function WorkersList({ workers, onWorkerClick }) {
     const getNewWorkerDate = () => {
         try {
             const stored = localStorage.getItem('newWorkerCreated')
-            return stored || null
+            if (!stored) return null
+            return stored
         } catch (e) {
             return null
         }
@@ -61,16 +62,19 @@ export function WorkersList({ workers, onWorkerClick }) {
         if (!workers || !Array.isArray(workers)) return []
         
         const newWorkerDate = getNewWorkerDate()
+        console.log('📅 Дата нового работника из localStorage:', newWorkerDate)
         
         return [...workers].sort((a, b) => {
-            const lastOpenedA = getLastOpened(a?.id)
-            const lastOpenedB = getLastOpened(b?.id)
+            // Проверяем даты создания
+            const dateA = new Date(a?.created_at || 0)
+            const dateB = new Date(b?.created_at || 0)
             
-            // Проверяем, является ли сотрудник новым (создан в этой сессии)
-            const isNewA = a?.created_at && newWorkerDate && 
-                new Date(a.created_at).getTime() >= new Date(newWorkerDate).getTime()
-            const isNewB = b?.created_at && newWorkerDate && 
-                new Date(b.created_at).getTime() >= new Date(newWorkerDate).getTime()
+            // Проверяем, является ли сотрудник новым (создан после newWorkerDate)
+            const isNewA = newWorkerDate && dateA >= new Date(newWorkerDate)
+            const isNewB = newWorkerDate && dateB >= new Date(newWorkerDate)
+            
+            console.log(`🔍 ${a?.name}: created=${a?.created_at}, isNew=${isNewA}`)
+            console.log(`🔍 ${b?.name}: created=${b?.created_at}, isNew=${isNewB}`)
             
             // 1. Новые сотрудники — всегда в начале
             if (isNewA && !isNewB) return -1
@@ -78,21 +82,23 @@ export function WorkersList({ workers, onWorkerClick }) {
             
             // 2. Если оба новые — по дате создания (новые сверху)
             if (isNewA && isNewB) {
-                return new Date(b.created_at) - new Date(a.created_at)
+                return dateB - dateA
             }
             
-            // 3. Если оба открывались — по дате открытия
+            // 3. Проверяем даты последнего открытия
+            const lastOpenedA = getLastOpened(a?.id)
+            const lastOpenedB = getLastOpened(b?.id)
+            
+            // 4. Если оба открывались — по дате открытия (новые сверху)
             if (lastOpenedA && lastOpenedB) {
                 return new Date(lastOpenedB) - new Date(lastOpenedA)
             }
-            // 4. Если открывался только A — он выше
+            // 5. Если открывался только A — он выше
             if (lastOpenedA) return -1
-            // 5. Если открывался только B — он выше
+            // 6. Если открывался только B — он выше
             if (lastOpenedB) return 1
             
-            // 6. По дате создания (новые сверху)
-            const dateA = new Date(a?.created_at || 0)
-            const dateB = new Date(b?.created_at || 0)
+            // 7. По дате создания (новые сверху)
             return dateB - dateA
         })
     }, [workers])
