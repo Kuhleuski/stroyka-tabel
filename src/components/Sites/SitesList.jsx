@@ -1,6 +1,8 @@
+// src/components/Sites/SitesList.jsx
+
 import styles from '../../styles/sites.module.css'
 
-export function SitesList({ sites, onSiteClick }) {
+export function SitesList({ sites, filter = 'all', onSiteClick }) {
     // Сортируем от новых к старым
     const sortedSites = [...(sites || [])].sort((a, b) => {
         const dateA = new Date(a.created_at || a.id)
@@ -8,11 +10,23 @@ export function SitesList({ sites, onSiteClick }) {
         return dateB - dateA
     })
 
-    if (!sortedSites || sortedSites.length === 0) {
+    // === ФИЛЬТРАЦИЯ ===
+    const filteredSites = sortedSites.filter(site => {
+        if (filter === 'all') return true
+        if (filter === 'active') return site.status === 'в работе'
+        if (filter === 'completed') return site.status === 'завершен'
+        return true
+    })
+
+    if (!filteredSites || filteredSites.length === 0) {
+        let emptyMessage = 'Нет объектов'
+        if (filter === 'active') emptyMessage = 'Нет объектов в работе'
+        if (filter === 'completed') emptyMessage = 'Нет завершенных объектов'
+        
         return (
             <div className={styles.emptyState}>
                 <div className={styles.emptyIcon}>🏗️</div>
-                <div className={styles.emptyText}>Пока нет объектов</div>
+                <div className={styles.emptyText}>{emptyMessage}</div>
             </div>
         )
     }
@@ -43,7 +57,7 @@ export function SitesList({ sites, onSiteClick }) {
 
     return (
         <div className={styles.sitesList}>
-            {sortedSites.map((site) => {
+            {filteredSites.map((site) => {
                 const status = getStatus(site.status)
 
                 return (
