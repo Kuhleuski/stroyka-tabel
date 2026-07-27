@@ -4,7 +4,8 @@ import { useState } from 'react'
 import { WorkersList } from '../components/Workers/WorkersList'
 import { WorkerDetailPage } from './WorkerDetailPage'
 import { AddWorkerModal } from '../components/AddWorkerModal'
-import { addWorker, deleteWorker } from '../services/supabase'
+import { EditWorkerModal } from '../components/EditWorkerModal'
+import { addWorker, deleteWorker, updateWorker } from '../services/supabase'
 import { useWorkers } from '../hooks/useWorkers'
 import { Plus } from 'lucide-react'
 import styles from '../styles/workers.module.css'
@@ -22,9 +23,11 @@ const WorkersIcon = () => (
 
 export function WorkersPage({ shifts }) {
     const [showAddModal, setShowAddModal] = useState(false)
+    const [showEditModal, setShowEditModal] = useState(false)
     const [selectedWorker, setSelectedWorker] = useState(null)
+    const [editingWorker, setEditingWorker] = useState(null)
     const [scrollPosition, setScrollPosition] = useState(0)
-    const { workers, loading, error, addWorkerToState, removeWorkerFromState } = useWorkers()
+    const { workers, loading, error, addWorkerToState, removeWorkerFromState, updateWorkerInState } = useWorkers()
 
     const handleSave = async (name, avatarFile) => {
         try {
@@ -32,6 +35,20 @@ export function WorkersPage({ shifts }) {
             const workerData = newWorker[0] || newWorker
             addWorkerToState(workerData)
             setShowAddModal(false)
+        } catch (err) {
+            throw err
+        }
+    }
+
+    const handleUpdate = async (workerId, name, avatarFile) => {
+        try {
+            const updated = await updateWorker(workerId, name, avatarFile)
+            updateWorkerInState(updated)
+            // Обновляем данные в детальной странице
+            if (selectedWorker && selectedWorker.id === workerId) {
+                setSelectedWorker(updated)
+            }
+            setShowEditModal(false)
         } catch (err) {
             throw err
         }
@@ -64,6 +81,11 @@ export function WorkersPage({ shifts }) {
         setShowAddModal(true)
     }
 
+    const handleOpenEditModal = (worker) => {
+        setEditingWorker(worker)
+        setShowEditModal(true)
+    }
+
     if (loading) {
         return <div className={globalsStyles.loadingText}>⏳ Загрузка...</div>
     }
@@ -84,6 +106,7 @@ export function WorkersPage({ shifts }) {
                 worker={selectedWorker}
                 onClose={handleCloseDetail}
                 onDelete={handleDelete}
+                onEdit={handleOpenEditModal}
                 shifts={shifts}
             />
         )
@@ -118,6 +141,13 @@ export function WorkersPage({ shifts }) {
                 isOpen={showAddModal}
                 onClose={() => setShowAddModal(false)}
                 onSave={handleSave}
+            />
+
+            <EditWorkerModal 
+                isOpen={showEditModal}
+                onClose={() => setShowEditModal(false)}
+                onSave={handleUpdate}
+                worker={editingWorker}
             />
         </>
     )
