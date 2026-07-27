@@ -28,7 +28,7 @@ export function WorkersPage({ shifts }) {
     const [selectedWorker, setSelectedWorker] = useState(null)
     const [editingWorker, setEditingWorker] = useState(null)
     const [scrollPosition, setScrollPosition] = useState(0)
-    const [refreshKey, setRefreshKey] = useState(0) // ← Добавляем ключ для принудительного обновления
+    const [refreshKey, setRefreshKey] = useState(0)
     const { workers, loading, error, addWorkerToState, removeWorkerFromState, updateWorkerInState } = useWorkers()
     const { refreshAvatars } = useAvatars()
 
@@ -57,6 +57,15 @@ export function WorkersPage({ shifts }) {
             
             console.log('📝 Создан работник:', workerData)
             
+            // === СОХРАНЯЕМ ДАТУ СОЗДАНИЯ НОВОГО РАБОТНИКА ===
+            try {
+                const now = new Date().toISOString()
+                localStorage.setItem('newWorkerCreated', now)
+                console.log('📝 Сохранена дата нового работника:', now)
+            } catch (e) {
+                console.warn('Ошибка сохранения даты нового работника:', e)
+            }
+            
             // Добавляем в состояние
             addWorkerToState(workerData)
             
@@ -70,7 +79,6 @@ export function WorkersPage({ shifts }) {
             setShowAddModal(false)
             
             // === ПЕРЕХОД НА СТРАНИЦУ ДЕТАЛЕЙ НОВОГО РАБОТНИКА ===
-            // Небольшая задержка для обновления контекста
             setTimeout(() => {
                 console.log('🔄 Переход на страницу деталей нового работника:', workerData.name)
                 setSelectedWorker(workerData)
@@ -180,7 +188,7 @@ export function WorkersPage({ shifts }) {
         return (
             <>
                 <WorkerDetailPage 
-                    key={refreshKey} // ← Принудительно пересоздаём компонент
+                    key={refreshKey}
                     worker={selectedWorker}
                     onClose={handleCloseDetail}
                     onDelete={handleDelete}
@@ -210,7 +218,7 @@ export function WorkersPage({ shifts }) {
             </div>
 
             <WorkersList 
-                key={refreshKey} // ← Принудительно пересоздаём компонент
+                key={refreshKey}
                 workers={workers} 
                 onWorkerClick={handleWorkerClick}
             />
