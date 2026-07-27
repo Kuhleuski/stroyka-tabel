@@ -1,3 +1,5 @@
+// src/components/AddSiteModal.jsx
+
 import { useState } from 'react'
 import styles from '../styles/components.module.css'
 
@@ -68,7 +70,6 @@ export function AddSiteModal({ isOpen, onClose, onSave }) {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="Например: Дом на Ленина"
-                            autoFocus
                         />
                     </div>
 
