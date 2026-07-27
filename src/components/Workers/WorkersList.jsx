@@ -60,7 +60,6 @@ export function WorkersList({ workers, onWorkerClick }) {
         if (!workers || !Array.isArray(workers)) return []
         
         const newWorkerId = getNewWorkerId()
-        console.log('🆔 ID нового работника из localStorage:', newWorkerId)
         
         return [...workers].sort((a, b) => {
             // 1. Новый работник — всегда в начале
@@ -97,7 +96,8 @@ export function WorkersList({ workers, onWorkerClick }) {
                 hasPhoto: !!avatar,
                 avatarData: avatar,
                 initials: getInitials(worker?.name),
-                avatarColor: getAvatarColor(worker?.name)
+                avatarColor: getAvatarColor(worker?.name),
+                status: worker?.status || 'active'
             }
         })
     }, [sortedWorkers, getAvatar])
@@ -116,7 +116,8 @@ export function WorkersList({ workers, onWorkerClick }) {
     return (
         <div ref={containerRef} className={styles.workersGridContainer}>
             {cachedWorkers.map((worker) => {
-                const { hasPhoto, avatarData, initials, avatarColor } = worker
+                const { hasPhoto, avatarData, initials, avatarColor, status } = worker
+                const isActive = status === 'active'
 
                 return (
                     <div 
@@ -161,7 +162,13 @@ export function WorkersList({ workers, onWorkerClick }) {
                                 initials
                             )}
                         </div>
-                        <div className={styles.workerGridName}>{worker?.name || 'Без имени'}</div>
+                        <div className={styles.workerGridNameWrapper}>
+                            <span 
+                                className={styles.workerStatusDot}
+                                style={{ backgroundColor: isActive ? '#2d7d46' : '#78909C' }}
+                            />
+                            <span className={styles.workerGridName}>{worker?.name || 'Без имени'}</span>
+                        </div>
                     </div>
                 )
             })}
