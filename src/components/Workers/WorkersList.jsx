@@ -6,7 +6,7 @@ import styles from '../../styles/workers.module.css'
 
 // === ПЛОСКАЯ ИКОНКА ДЛЯ БРИГАДЫ ===
 const WorkersIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokelinejoin="round">
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
         <circle cx="9" cy="7" r="4"/>
         <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
@@ -46,20 +46,51 @@ export function WorkersList({ workers, onWorkerClick }) {
         }
     }
 
+    // === ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ ДАТЫ СОЗДАНИЯ НОВОГО РАБОТНИКА ===
+    const getNewWorkerDate = () => {
+        try {
+            const stored = localStorage.getItem('newWorkerCreated')
+            return stored || null
+        } catch (e) {
+            return null
+        }
+    }
+
     // === СОРТИРОВКА ===
     const sortedWorkers = useMemo(() => {
         if (!workers || !Array.isArray(workers)) return []
+        
+        const newWorkerDate = getNewWorkerDate()
         
         return [...workers].sort((a, b) => {
             const lastOpenedA = getLastOpened(a?.id)
             const lastOpenedB = getLastOpened(b?.id)
             
+            // Проверяем, является ли сотрудник новым (создан в этой сессии)
+            const isNewA = a?.created_at && newWorkerDate && 
+                new Date(a.created_at).getTime() >= new Date(newWorkerDate).getTime()
+            const isNewB = b?.created_at && newWorkerDate && 
+                new Date(b.created_at).getTime() >= new Date(newWorkerDate).getTime()
+            
+            // 1. Новые сотрудники — всегда в начале
+            if (isNewA && !isNewB) return -1
+            if (isNewB && !isNewA) return 1
+            
+            // 2. Если оба новые — по дате создания (новые сверху)
+            if (isNewA && isNewB) {
+                return new Date(b.created_at) - new Date(a.created_at)
+            }
+            
+            // 3. Если оба открывались — по дате открытия
             if (lastOpenedA && lastOpenedB) {
                 return new Date(lastOpenedB) - new Date(lastOpenedA)
             }
+            // 4. Если открывался только A — он выше
             if (lastOpenedA) return -1
+            // 5. Если открывался только B — он выше
             if (lastOpenedB) return 1
             
+            // 6. По дате создания (новые сверху)
             const dateA = new Date(a?.created_at || 0)
             const dateB = new Date(b?.created_at || 0)
             return dateB - dateA
