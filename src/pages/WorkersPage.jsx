@@ -22,6 +22,14 @@ const WorkersIcon = () => (
     </svg>
 )
 
+// === ПРЕЛОАДЕР ===
+const SavingOverlay = () => (
+    <div className={styles.savingOverlay}>
+        <div className={styles.savingSpinner}></div>
+        <div className={styles.savingText}>Сохранение...</div>
+    </div>
+)
+
 export function WorkersPage({ shifts }) {
     const [showAddModal, setShowAddModal] = useState(false)
     const [showEditModal, setShowEditModal] = useState(false)
@@ -29,6 +37,7 @@ export function WorkersPage({ shifts }) {
     const [editingWorker, setEditingWorker] = useState(null)
     const [scrollPosition, setScrollPosition] = useState(0)
     const [refreshKey, setRefreshKey] = useState(0)
+    const [isSaving, setIsSaving] = useState(false)
     const { workers, loading, error, addWorkerToState, removeWorkerFromState, updateWorkerInState } = useWorkers()
     const { refreshAvatars } = useAvatars()
 
@@ -51,13 +60,16 @@ export function WorkersPage({ shifts }) {
     }
 
     const handleSave = async (name, avatarFile) => {
+        // Показываем прелоадер
+        setIsSaving(true)
+        
         try {
             const newWorker = await addWorker(name, avatarFile)
             const workerData = newWorker[0] || newWorker
             
             console.log('📝 Создан работник:', workerData)
             
-            // === СОХРАНЯЕМ ID НОВОГО РАБОТНИКА ===
+            // Сохраняем ID нового работника
             try {
                 localStorage.setItem('newWorkerId', String(workerData.id))
                 console.log('📝 Сохранён ID нового работника:', workerData.id)
@@ -71,25 +83,35 @@ export function WorkersPage({ shifts }) {
             // Обновляем кеш аватарок
             await refreshAvatars()
             
-            // Принудительно обновляем список (дважды для надёжности)
+            // Принудительно обновляем список
             forceRefresh()
-            setTimeout(() => forceRefresh(), 50)
             
             // Закрываем модалку
             setShowAddModal(false)
             
-            // === ПЕРЕХОД НА СТРАНИЦУ ДЕТАЛЕЙ НОВОГО РАБОТНИКА ===
-            setTimeout(() => {
-                console.log('🔄 Переход на страницу деталей нового работника:', workerData.name)
-                setSelectedWorker(workerData)
-            }, 150)
+            // Даём время на обновление списка
+            await new Promise(resolve => setTimeout(resolve, 200))
+            
+            // Переход на страницу деталей нового работника
+            console.log('🔄 Переход на страницу деталей нового работника:', workerData.name)
+            setSelectedWorker(workerData)
+            
+            // Даём время на рендер деталей
+            await new Promise(resolve => setTimeout(resolve, 150))
+            
         } catch (err) {
             console.error('❌ Ошибка при создании работника:', err)
             throw err
+        } finally {
+            // Скрываем прелоадер
+            setIsSaving(false)
         }
     }
 
     const handleUpdate = async (workerId, name, avatarFile) => {
+        // Показываем прелоадер
+        setIsSaving(true)
+        
         try {
             const updated = await updateWorker(workerId, name, avatarFile)
             
@@ -110,32 +132,51 @@ export function WorkersPage({ shifts }) {
             }
             
             setShowEditModal(false)
+            
+            // Даём время на обновление
+            await new Promise(resolve => setTimeout(resolve, 200))
+            
         } catch (err) {
             console.error('❌ Ошибка при обновлении работника:', err)
             throw err
+        } finally {
+            // Скрываем прелоадер
+            setIsSaving(false)
         }
     }
 
     const handleDelete = async (workerId) => {
-        await deleteWorker(workerId)
-        removeWorkerFromState(workerId)
+        setIsSaving(true)
         
-        // Обновляем кеш аватарок
-        await refreshAvatars()
-        
-        // Принудительно обновляем список
-        forceRefresh()
-        
-        // Удаляем запись о последнем открытии
         try {
-            const stored = localStorage.getItem('workerLastOpened')
-            if (stored) {
-                const data = JSON.parse(stored)
-                delete data[workerId]
-                localStorage.setItem('workerLastOpened', JSON.stringify(data))
+            await deleteWorker(workerId)
+            removeWorkerFromState(workerId)
+            
+            // Обновляем кеш аватарок
+            await refreshAvatars()
+            
+            // Принудительно обновляем список
+            forceRefresh()
+            
+            // Удаляем запись о последнем открытии
+            try {
+                const stored = localStorage.getItem('workerLastOpened')
+                if (stored) {
+                    const data = JSON.parse(stored)
+                    delete data[workerId]
+                    localStorage.setItem('workerLastOpened', JSON.stringify(data))
+                }
+            } catch (e) {
+                console.warn('Ошибка удаления даты открытия работника:', e)
             }
-        } catch (e) {
-            console.warn('Ошибка удаления даты открытия работника:', e)
+            
+            await new Promise(resolve => setTimeout(resolve, 200))
+            
+        } catch (err) {
+            console.error('❌ Ошибка при удалении работника:', err)
+            throw err
+        } finally {
+            setIsSaving(false)
         }
     }
 
@@ -184,58 +225,61 @@ export function WorkersPage({ shifts }) {
         )
     }
 
-    if (selectedWorker) {
-        return (
-            <>
-                <WorkerDetailPage 
-                    key={refreshKey}
-                    worker={selectedWorker}
-                    onClose={handleCloseDetail}
-                    onDelete={handleDelete}
-                    onEdit={handleOpenEditModal}
-                    shifts={shifts}
-                />
-                <EditWorkerModal 
-                    isOpen={showEditModal}
-                    onClose={() => setShowEditModal(false)}
-                    onSave={handleUpdate}
-                    worker={editingWorker}
-                />
-            </>
-        )
-    }
-
     return (
         <>
-            <div className={styles.pageHeader}>
-                <div>
-                    <div className={styles.pageTitle}>
-                        <WorkersIcon />
-                        Бригада
+            {/* ПРЕЛОАДЕР ПРИ СОХРАНЕНИИ */}
+            {isSaving && <SavingOverlay />}
+
+            {selectedWorker ? (
+                <>
+                    <WorkerDetailPage 
+                        key={refreshKey}
+                        worker={selectedWorker}
+                        onClose={handleCloseDetail}
+                        onDelete={handleDelete}
+                        onEdit={handleOpenEditModal}
+                        shifts={shifts}
+                    />
+                    <EditWorkerModal 
+                        isOpen={showEditModal}
+                        onClose={() => setShowEditModal(false)}
+                        onSave={handleUpdate}
+                        worker={editingWorker}
+                    />
+                </>
+            ) : (
+                <>
+                    <div className={styles.pageHeader}>
+                        <div>
+                            <div className={styles.pageTitle}>
+                                <WorkersIcon />
+                                Бригада
+                            </div>
+                            <div className={styles.pageSubtitle}>Все рабочие</div>
+                        </div>
                     </div>
-                    <div className={styles.pageSubtitle}>Все рабочие</div>
-                </div>
-            </div>
 
-            <WorkersList 
-                key={refreshKey}
-                workers={workers} 
-                onWorkerClick={handleWorkerClick}
-            />
+                    <WorkersList 
+                        key={refreshKey}
+                        workers={workers} 
+                        onWorkerClick={handleWorkerClick}
+                    />
 
-            <button 
-                className={styles.fabAddWorker}
-                onClick={handleOpenAddModal}
-                aria-label="Добавить работника"
-            >
-                <Plus size={28} strokeWidth={2.5} />
-            </button>
+                    <button 
+                        className={styles.fabAddWorker}
+                        onClick={handleOpenAddModal}
+                        aria-label="Добавить работника"
+                    >
+                        <Plus size={28} strokeWidth={2.5} />
+                    </button>
 
-            <AddWorkerModal 
-                isOpen={showAddModal}
-                onClose={() => setShowAddModal(false)}
-                onSave={handleSave}
-            />
+                    <AddWorkerModal 
+                        isOpen={showAddModal}
+                        onClose={() => setShowAddModal(false)}
+                        onSave={handleSave}
+                    />
+                </>
+            )}
         </>
     )
 }
