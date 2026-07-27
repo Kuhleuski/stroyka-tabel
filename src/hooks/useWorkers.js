@@ -11,7 +11,7 @@ export function useWorkers() {
             try {
                 setLoading(true)
                 const data = await fetchWorkers()
-                setWorkers(data)
+                setWorkers(data || [])
                 setError(null)
             } catch (err) {
                 setError(err.message)
@@ -32,6 +32,10 @@ export function useWorkers() {
 
     // === ОБНОВЛЕНИЕ РАБОТНИКА В СОСТОЯНИИ ===
     const updateWorkerInState = (updatedWorker) => {
+        if (!updatedWorker || !updatedWorker.id) {
+            console.warn('⚠️ updateWorkerInState: получен некорректный worker:', updatedWorker)
+            return
+        }
         setWorkers(prev => prev.map(w => 
             w.id === updatedWorker.id ? updatedWorker : w
         ))
