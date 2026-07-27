@@ -4,12 +4,10 @@ import { useState, useRef, useEffect } from 'react'
 import styles from '../styles/sites.module.css'
 import compStyles from '../styles/components.module.css'
 
-export function SiteDetailPage({ site, onClose, onDelete, onEdit, onStatusChange }) {
+export function SiteDetailPage({ site, onClose, onDelete, onEdit }) {
     const [showConfirm, setShowConfirm] = useState(false)
     const [deleting, setDeleting] = useState(false)
     const [showMenu, setShowMenu] = useState(false)
-    const [status, setStatus] = useState(site.status || 'в работе')
-    const [isUpdating, setIsUpdating] = useState(false)
     const menuRef = useRef(null)
 
     const formatDate = (dateString) => {
@@ -47,25 +45,6 @@ export function SiteDetailPage({ site, onClose, onDelete, onEdit, onStatusChange
         setShowMenu(!showMenu)
     }
 
-    const handleStatusChange = async (newStatus) => {
-        if (newStatus === status || isUpdating) return
-        
-        setIsUpdating(true)
-        try {
-            await onStatusChange(site.id, newStatus)
-            setStatus(newStatus)
-            // Обновляем объект в родителе
-            if (onEdit) {
-                onEdit({ ...site, status: newStatus })
-            }
-        } catch (error) {
-            console.error('Ошибка обновления статуса:', error)
-            alert('Не удалось обновить статус')
-        } finally {
-            setIsUpdating(false)
-        }
-    }
-
     // Закрываем меню при клике вне его
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -80,12 +59,19 @@ export function SiteDetailPage({ site, onClose, onDelete, onEdit, onStatusChange
         }
     }, [])
 
-    // Обновляем статус при изменении site
-    useEffect(() => {
-        if (site.status) {
-            setStatus(site.status)
+    // Получаем статус для отображения
+    const getStatusDisplay = (status) => {
+        switch (status) {
+            case 'в работе':
+                return { label: 'В работе', color: '#2d7d46' }
+            case 'завершен':
+                return { label: 'Завершен', color: '#78909C' }
+            default:
+                return { label: 'Не указан', color: '#FFB300' }
         }
-    }, [site.status])
+    }
+
+    const statusDisplay = getStatusDisplay(site.status)
 
     return (
         <div className={styles.siteDetailPage}>
@@ -172,32 +158,20 @@ export function SiteDetailPage({ site, onClose, onDelete, onEdit, onStatusChange
                     <span className={styles.siteDetailValue}>{formatDate(site.created_at)}</span>
                 </div>
 
-                {/* === СТАТУС С ПЕРЕКЛЮЧАТЕЛЕМ === */}
+                {/* === СТАТУС (ТОЛЬКО ОТОБРАЖЕНИЕ) === */}
                 <div className={styles.siteDetailField}>
                     <span className={styles.siteDetailLabel}>Статус</span>
-                    <div className={styles.statusToggleWrapper}>
-                        <button 
-                            className={`${styles.statusToggleBtn} ${status === 'в работе' ? styles.statusActive : ''}`}
-                            onClick={() => handleStatusChange('в работе')}
-                            disabled={isUpdating}
+                    <span className={styles.siteDetailValue}>
+                        <span 
+                            className={styles.siteDetailStatusBadge}
+                            style={{ 
+                                backgroundColor: statusDisplay.color,
+                                color: statusDisplay.color === '#2d7d46' ? 'white' : '#333'
+                            }}
                         >
-                            <span className={styles.statusDot} style={{ backgroundColor: '#2d7d46' }} />
-                            В работе
-                        </button>
-                        <button 
-                            className={`${styles.statusToggleBtn} ${status === 'завершен' ? styles.statusActive : ''}`}
-                            onClick={() => handleStatusChange('завершен')}
-                            disabled={isUpdating}
-                        >
-                            <span className={styles.statusDot} style={{ backgroundColor: '#78909C' }} />
-                            Завершен
-                        </button>
-                    </div>
-                    {isUpdating && (
-                        <span style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
-                            Обновление...
+                            {statusDisplay.label}
                         </span>
-                    )}
+                    </span>
                 </div>
                 
                 <div className={styles.siteDetailHint}>
@@ -245,7 +219,7 @@ export function SiteDetailPage({ site, onClose, onDelete, onEdit, onStatusChange
                             </button>
                         </div>
                     </div>
-    </div>
+                </div>
             )}
         </div>
     )
