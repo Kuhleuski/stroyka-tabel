@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { WorkerCalendar } from '../components/Workers/WorkerCalendar'
+import { useAvatars } from '../context/AvatarContext'
 import styles from '../styles/workers.module.css'
 import compStyles from '../styles/components.module.css'
 
@@ -10,6 +11,7 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit }) 
     const [deleting, setDeleting] = useState(false)
     const [showMenu, setShowMenu] = useState(false)
     const menuRef = useRef(null)
+    const { getAvatar } = useAvatars()
 
     // Функция для получения цвета аватарки на основе имени
     const getAvatarColor = (name) => {
@@ -78,7 +80,9 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit }) 
     // Фильтруем смены только для этого работника
     const workerShifts = shifts ? shifts.filter(s => s.worker_name === worker.name) : []
 
-    const hasPhoto = worker.avatar_url && worker.avatar_url.startsWith('http')
+    // === ПОЛУЧАЕМ АВАТАРКУ ИЗ КОНТЕКСТА ===
+    const avatarUrl = getAvatar(worker.name)
+    const hasPhoto = !!avatarUrl
     const initials = getInitials(worker.name)
     const avatarColor = getAvatarColor(worker.name)
 
@@ -105,7 +109,7 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit }) 
                     }}>
                         {hasPhoto ? (
                             <img 
-                                src={worker.avatar_url} 
+                                src={avatarUrl} 
                                 alt={worker.name}
                                 style={{
                                     width: '100%',
@@ -116,6 +120,7 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit }) 
                                 onError={(e) => {
                                     e.target.style.display = 'none'
                                     e.target.parentNode.style.backgroundColor = avatarColor
+                                    e.target.parentNode.style.border = 'none'
                                     e.target.parentNode.textContent = initials
                                 }}
                             />
