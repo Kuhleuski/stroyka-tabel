@@ -29,6 +29,19 @@ export function WorkersPage({ shifts }) {
     const [scrollPosition, setScrollPosition] = useState(0)
     const { workers, loading, error, addWorkerToState, removeWorkerFromState, updateWorkerInState } = useWorkers()
 
+    // === СОХРАНЕНИЕ ДАТЫ ПОСЛЕДНЕГО ОТКРЫТИЯ ===
+    const saveLastOpened = (workerId) => {
+        try {
+            const now = new Date().toISOString()
+            const stored = localStorage.getItem('workerLastOpened')
+            const data = stored ? JSON.parse(stored) : {}
+            data[workerId] = now
+            localStorage.setItem('workerLastOpened', JSON.stringify(data))
+        } catch (e) {
+            console.warn('Ошибка сохранения даты открытия работника:', e)
+        }
+    }
+
     const handleSave = async (name, avatarFile) => {
         try {
             const newWorker = await addWorker(name, avatarFile)
@@ -42,26 +55,13 @@ export function WorkersPage({ shifts }) {
 
     const handleUpdate = async (workerId, name, avatarFile) => {
         try {
-            console.log('🔄 handleUpdate вызван:', { workerId, name, avatarFile })
             const updated = await updateWorker(workerId, name, avatarFile)
-            console.log('🔄 updated получен:', updated)
-            
-            let workerData = updated
-            if (Array.isArray(updated)) {
-                if (updated.length === 0) {
-                    throw new Error('Работник не найден')
-                }
-                workerData = updated[0]
-            }
-            
-            updateWorkerInState(workerData)
-            
+            updateWorkerInState(updated)
             if (selectedWorker && selectedWorker.id === workerId) {
-                setSelectedWorker(workerData)
+                setSelectedWorker(updated)
             }
             setShowEditModal(false)
         } catch (err) {
-            console.error('❌ Ошибка обновления:', err)
             throw err
         }
     }
@@ -69,9 +69,23 @@ export function WorkersPage({ shifts }) {
     const handleDelete = async (workerId) => {
         await deleteWorker(workerId)
         removeWorkerFromState(workerId)
+        // Удаляем запись о последнем открытии
+        try {
+            const stored = localStorage.getItem('workerLastOpened')
+            if (stored) {
+                const data = JSON.parse(stored)
+                delete data[workerId]
+                localStorage.setItem('workerLastOpened', JSON.stringify(data))
+            }
+        } catch (e) {
+            console.warn('Ошибка удаления даты открытия работника:', e)
+        }
     }
 
     const handleWorkerClick = (worker) => {
+        // Сохраняем дату открытия
+        saveLastOpened(worker.id)
+        
         const container = document.querySelector('.workers-grid-container')
         if (container) {
             setScrollPosition(container.scrollTop)
