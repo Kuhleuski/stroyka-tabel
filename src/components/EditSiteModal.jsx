@@ -34,6 +34,7 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
     // Заполняем форму при открытии
     useEffect(() => {
         if (site && isOpen) {
+            console.log('📝 Заполняем форму для:', site.name, 'статус:', site.status)
             setName(site.name || '')
             setAddress(site.address || '')
             // Находим цвет в палитре или используем первый
@@ -56,6 +57,13 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
         setError('')
 
         try {
+            console.log('📤 Отправляем в onSave:', {
+                id: site.id,
+                name: name.trim(),
+                address: address.trim(),
+                color: selectedColor,
+                status: status
+            })
             await onSave(site.id, name.trim(), address.trim(), selectedColor, status)
             onClose()
         } catch (err) {
