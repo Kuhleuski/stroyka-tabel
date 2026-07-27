@@ -46,12 +46,10 @@ export function WorkersList({ workers, onWorkerClick }) {
         }
     }
 
-    // === ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ ДАТЫ СОЗДАНИЯ НОВОГО РАБОТНИКА ===
-    const getNewWorkerDate = () => {
+    // === ПОЛУЧАЕМ ID НОВОГО РАБОТНИКА ===
+    const getNewWorkerId = () => {
         try {
-            const stored = localStorage.getItem('newWorkerCreated')
-            if (!stored) return null
-            return new Date(stored).getTime()
+            return localStorage.getItem('newWorkerId') || null
         } catch (e) {
             return null
         }
@@ -61,41 +59,32 @@ export function WorkersList({ workers, onWorkerClick }) {
     const sortedWorkers = useMemo(() => {
         if (!workers || !Array.isArray(workers)) return []
         
-        const newWorkerTimestamp = getNewWorkerDate()
-        console.log('📅 Timestamp нового работника из localStorage:', newWorkerTimestamp)
+        const newWorkerId = getNewWorkerId()
+        console.log('🆔 ID нового работника из localStorage:', newWorkerId)
         
         return [...workers].sort((a, b) => {
-            const timestampA = new Date(a?.created_at || 0).getTime()
-            const timestampB = new Date(b?.created_at || 0).getTime()
+            // 1. Новый работник — всегда в начале
+            const isNewA = newWorkerId && a?.id === parseInt(newWorkerId)
+            const isNewB = newWorkerId && b?.id === parseInt(newWorkerId)
             
-            // Проверяем, является ли сотрудник новым (создан после или одновременно с newWorkerTimestamp)
-            const isNewA = newWorkerTimestamp && timestampA >= newWorkerTimestamp
-            const isNewB = newWorkerTimestamp && timestampB >= newWorkerTimestamp
-            
-            // 1. Новые сотрудники — всегда в начале
             if (isNewA && !isNewB) return -1
             if (isNewB && !isNewA) return 1
             
-            // 2. Если оба новые — по дате создания (новые сверху)
-            if (isNewA && isNewB) {
-                return timestampB - timestampA
-            }
-            
-            // 3. Проверяем даты последнего открытия
+            // 2. Проверяем даты последнего открытия
             const lastOpenedA = getLastOpened(a?.id)
             const lastOpenedB = getLastOpened(b?.id)
             
-            // 4. Если оба открывались — по дате открытия (новые сверху)
+            // 3. Если оба открывались — по дате открытия (новые сверху)
             if (lastOpenedA && lastOpenedB) {
                 return new Date(lastOpenedB).getTime() - new Date(lastOpenedA).getTime()
             }
-            // 5. Если открывался только A — он выше
+            // 4. Если открывался только A — он выше
             if (lastOpenedA) return -1
-            // 6. Если открывался только B — он выше
+            // 5. Если открывался только B — он выше
             if (lastOpenedB) return 1
             
-            // 7. По дате создания (новые сверху)
-            return timestampB - timestampA
+            // 6. По дате создания (новые сверху)
+            return new Date(b?.created_at || 0).getTime() - new Date(a?.created_at || 0).getTime()
         })
     }, [workers])
 
