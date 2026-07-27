@@ -1,3 +1,5 @@
+// src/components/Workers/WorkersList.jsx
+
 import { useRef, useMemo } from 'react'
 import { useAvatars } from '../../context/AvatarContext'
 import styles from '../../styles/workers.module.css'
@@ -18,7 +20,7 @@ export function WorkersList({ workers, onWorkerClick }) {
 
     const getAvatarColor = (name) => {
         const colors = ['#E53935', '#D81B60', '#8E24AA', '#5E35B1', '#1E88E5', '#039BE5', '#00ACC1', '#00897B', '#43A047', '#7CB342', '#FDD835', '#FFB300', '#FB8C00', '#F4511E', '#6D4C41', '#78909C']
-        const index = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+        const index = name.split('').reduce((acc, char) => acc + acc.charCodeAt(0), 0)
         return colors[index % colors.length]
     }
 
@@ -29,12 +31,36 @@ export function WorkersList({ workers, onWorkerClick }) {
         return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
     }
 
-    // === СОРТИРОВКА: ПОСЛЕДНИЙ СОЗДАННЫЙ — ПЕРВЫЙ ===
+    // === ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ ДАТЫ ПОСЛЕДНЕГО ОТКРЫТИЯ ===
+    const getLastOpened = (workerId) => {
+        try {
+            const stored = localStorage.getItem('workerLastOpened')
+            if (!stored) return null
+            const data = JSON.parse(stored)
+            return data[workerId] || null
+        } catch (e) {
+            return null
+        }
+    }
+
+    // === СОРТИРОВКА ===
     const sortedWorkers = useMemo(() => {
         return [...workers].sort((a, b) => {
+            const lastOpenedA = getLastOpened(a.id)
+            const lastOpenedB = getLastOpened(b.id)
+            
+            // Если оба открывались — сортируем по дате открытия (новые сверху)
+            if (lastOpenedA && lastOpenedB) {
+                return new Date(lastOpenedB) - new Date(lastOpenedA)
+            }
+            // Если открывался только A — он выше
+            if (lastOpenedA) return -1
+            // Если открывался только B — он выше
+            if (lastOpenedB) return 1
+            // Если никто не открывался — по дате создания (новые сверху)
             const dateA = new Date(a.created_at || 0)
             const dateB = new Date(b.created_at || 0)
-            return dateB - dateA // по убыванию (новые сверху)
+            return dateB - dateA
         })
     }, [workers])
 
