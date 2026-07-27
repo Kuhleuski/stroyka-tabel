@@ -1386,3 +1386,61 @@
 .modalSaveBtn:active {
     transform: scale(0.97);
 }
+/* ============================================================
+   СТАТУС В МОДАЛКЕ РЕДАКТИРОВАНИЯ ОБЪЕКТА
+   ============================================================ */
+
+.modalStatusWrapper {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.modalStatusBtn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.25s ease;
+}
+
+.modalStatusBtn:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+}
+
+.modalStatusBtn:active {
+    transform: scale(0.97);
+}
+
+.modalStatusBtn.modalStatusActive {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+.modalStatusDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+@media (max-width: 400px) {
+    .modalStatusBtn {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+}
