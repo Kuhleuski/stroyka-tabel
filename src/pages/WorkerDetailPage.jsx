@@ -54,8 +54,11 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit }) 
 
     const handleEdit = () => {
         setShowMenu(false)
+        console.log('🔄 Нажали "Редактировать инфо", onEdit:', onEdit)
         if (onEdit) {
             onEdit(worker)
+        } else {
+            console.warn('⚠️ onEdit НЕ передан!')
         }
     }
 
