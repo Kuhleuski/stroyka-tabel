@@ -28,6 +28,16 @@ export function SitesPage({ onAddSite }) {
     const [scrollPosition, setScrollPosition] = useState(0)
     const { sites, loading, error, addSiteToState, removeSiteFromState, updateSiteInState } = useSites()
 
+    // === ФИЛЬТР С СОХРАНЕНИЕМ В localStorage ===
+    const [filter, setFilter] = useState(() => {
+        return localStorage.getItem('sitesFilter') || 'all'
+    })
+
+    const handleFilterChange = (newFilter) => {
+        setFilter(newFilter)
+        localStorage.setItem('sitesFilter', newFilter)
+    }
+
     const handleSave = async (name, address, color) => {
         try {
             const newSite = await addSite(name, address, color)
@@ -50,7 +60,6 @@ export function SitesPage({ onAddSite }) {
             
             updateSiteInState(updated)
             
-            // Обновляем данные в детальной странице
             if (selectedSite && selectedSite.id === siteId) {
                 setSelectedSite(updated)
             }
@@ -139,8 +148,36 @@ export function SitesPage({ onAddSite }) {
                 </div>
             </div>
 
+            {/* === ФИЛЬТР === */}
+            <div className={styles.filterWrapper}>
+                <span className={styles.filterLabel}>Показывать:</span>
+                <div className={styles.filterButtons}>
+                    <button 
+                        className={`${styles.filterBtn} ${filter === 'all' ? styles.filterActive : ''}`}
+                        onClick={() => handleFilterChange('all')}
+                    >
+                        Все
+                    </button>
+                    <button 
+                        className={`${styles.filterBtn} ${filter === 'active' ? styles.filterActive : ''}`}
+                        onClick={() => handleFilterChange('active')}
+                    >
+                        <span className={styles.filterDot} style={{ backgroundColor: '#2d7d46' }} />
+                        В работе
+                    </button>
+                    <button 
+                        className={`${styles.filterBtn} ${filter === 'completed' ? styles.filterActive : ''}`}
+                        onClick={() => handleFilterChange('completed')}
+                    >
+                        <span className={styles.filterDot} style={{ backgroundColor: '#78909C' }} />
+                        Завершенные
+                    </button>
+                </div>
+            </div>
+
             <SitesList 
                 sites={sites} 
+                filter={filter}
                 onSiteClick={handleSiteClick}
             />
 
