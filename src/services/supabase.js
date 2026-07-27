@@ -389,3 +389,39 @@ export async function updateSiteStatus(siteId, status) {
         throw error
     }
 }
+// === ОБНОВЛЕНИЕ СТАТУСА РАБОТНИКА ===
+export async function updateWorkerStatus(workerId, status) {
+    try {
+        if (!workerId) {
+            throw new Error('ID работника не указан')
+        }
+
+        const updateData = { status }
+
+        console.log('📤 Обновляем статус работника:', workerId, status)
+
+        const url = `${SUPABASE_URL}/rest/v1/workers?id=eq.${workerId}&apikey=${SUPABASE_ANON_KEY}`
+        const response = await fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            },
+            body: JSON.stringify(updateData)
+        })
+        
+        if (!response.ok) {
+            const errorText = await response.text()
+            console.error('❌ Ошибка ответа:', response.status, errorText)
+            throw new Error(`Ошибка обновления статуса: ${response.status} ${errorText}`)
+        }
+        
+        const result = await response.json()
+        console.log('✅ Результат обновления статуса:', result)
+        
+        return result[0] || result
+    } catch (error) {
+        console.error('❌ Ошибка в updateWorkerStatus:', error)
+        throw error
+    }
+}
