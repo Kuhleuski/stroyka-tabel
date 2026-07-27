@@ -574,7 +574,7 @@
 
 .workerDetailFooter {
     position: fixed;
-    bottom: 60px;
+    bottom: 80px;
     left: 0;
     right: 0;
     max-width: var(--max-width);
@@ -582,12 +582,14 @@
     padding: 12px var(--spacing-lg) 20px;
     display: flex;
     justify-content: center;
-    background: #f5f7f6;
-    border-top: 0;
+    background: var(--bg-nav);
+    border-top: 1px solid var(--border-color);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
 }
 
 [data-theme="dark"] .workerDetailFooter {
-    background: #121212;
+    background: rgba(26, 26, 26, 0.92);
 }
 
 .workerDetailCloseBtn {
@@ -613,7 +615,6 @@
 .workerDetailCloseBtn:active {
     transform: scale(0.97);
 }
-
 /* ============================================================
    КАЛЕНДАРЬ РАБОТНИКА
    ============================================================ */
