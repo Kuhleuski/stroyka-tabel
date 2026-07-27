@@ -346,3 +346,47 @@ export async function updateSiteStatus(siteId, status) {
         throw error
     }
 }
+// === ОБНОВЛЕНИЕ ОБЪЕКТА ===
+export async function updateSite(siteId, name, address, color) {
+    try {
+        if (!siteId) {
+            throw new Error('ID объекта не указан')
+        }
+
+        const updateData = { 
+            name: name.trim(), 
+            address: address.trim(), 
+            color 
+        }
+
+        console.log('📤 Обновляем объект:', siteId, updateData)
+
+        const url = `${SUPABASE_URL}/rest/v1/sites?id=eq.${siteId}&apikey=${SUPABASE_ANON_KEY}`
+        const response = await fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            },
+            body: JSON.stringify(updateData)
+        })
+        
+        if (!response.ok) {
+            const errorText = await response.text()
+            console.error('❌ Ошибка ответа:', response.status, errorText)
+            throw new Error(`Ошибка обновления: ${response.status} ${errorText}`)
+        }
+        
+        const result = await response.json()
+        console.log('✅ Результат обновления:', result)
+        
+        if (!result || result.length === 0) {
+            throw new Error(`Объект с ID ${siteId} не найден`)
+        }
+        
+        return result[0] || result
+    } catch (error) {
+        console.error('❌ Ошибка в updateSite:', error)
+        throw error
+    }
+}
