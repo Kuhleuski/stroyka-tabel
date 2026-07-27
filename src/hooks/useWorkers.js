@@ -30,5 +30,19 @@ export function useWorkers() {
         setWorkers(prev => prev.filter(w => w.id !== workerId))
     }
 
-    return { workers, loading, error, addWorkerToState, removeWorkerFromState }
+    // === ОБНОВЛЕНИЕ РАБОТНИКА В СОСТОЯНИИ ===
+    const updateWorkerInState = (updatedWorker) => {
+        setWorkers(prev => prev.map(w => 
+            w.id === updatedWorker.id ? updatedWorker : w
+        ))
+    }
+
+    return { 
+        workers, 
+        loading, 
+        error, 
+        addWorkerToState, 
+        removeWorkerFromState,
+        updateWorkerInState 
+    }
 }
