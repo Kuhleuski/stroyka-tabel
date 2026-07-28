@@ -42,7 +42,7 @@ export default function TestPage() {
 
   return (
     <div className={styles.testPage}>
-      <h1 className={styles.pageTitle}>🧪 Тест: Календарь iOS стиль</h1>
+    
       
       <div className={styles.calendarWrapper}>
         <AnimatePresence mode="popLayout" custom={direction}>
