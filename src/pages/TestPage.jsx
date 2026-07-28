@@ -4,7 +4,9 @@ import Calendar from 'react-calendar'
 import 'react-calendar/dist/Calendar.css'
 import { useShifts } from '../hooks/useShifts'
 import { useSites } from '../hooks/useSites'
+import { useWorkers } from '../hooks/useWorkers'
 import { ColoredDay } from '../components/TestCalendar/ColoredDay'
+import { DayDetails } from '../components/TestCalendar/DayDetails'
 import styles from '../styles/test.module.css'
 
 export default function TestPage() {
@@ -14,6 +16,7 @@ export default function TestPage() {
   
   const { shifts } = useShifts()
   const { sites } = useSites()
+  const { workers } = useWorkers()
 
   const formatMonth = (date) => {
     const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
@@ -132,6 +135,14 @@ export default function TestPage() {
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {/* Детали дня */}
+      <DayDetails 
+        selectedDate={date}
+        shifts={shifts}
+        sites={sites}
+        workers={workers}
+      />
     </div>
   )
 }
