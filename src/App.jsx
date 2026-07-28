@@ -17,7 +17,7 @@ import { LoginPage } from './pages/LoginPage'
 import { NotificationsPage } from './pages/NotificationsPage'
 import { StatisticsPage } from './pages/StatisticsPage'
 import { CostsPage } from './pages/CostsPage'
-import { TestPage } from './pages/TestPage'
+import TestPage from './pages/TestPage'
 import layoutStyles from './styles/layout.module.css'
 
 function AppContent() {
@@ -118,7 +118,6 @@ function AppContent() {
 
     return (
         <div className={layoutStyles.app}>
-            {/* === ХЭДЕР === */}
             <Header 
                 onSettings={handleOpenSettings}
                 onNotifications={handleOpenNotifications}
