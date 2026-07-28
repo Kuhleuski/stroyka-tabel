@@ -670,7 +670,8 @@
 
 .workerDetailFooter {
     position: fixed;
-    bottom: 80px;
+   z-index:300;
+    bottom: 0px;
     left: 0;
     right: 0;
     max-width: var(--max-width);
@@ -969,7 +970,7 @@
     }
 
     .workerDetailFooter {
-        padding: 10px var(--spacing-md) 16px;
+        padding: 16px var(--spacing-md) 16px;
         bottom: 65px;
     }
 
