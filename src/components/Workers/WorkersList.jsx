@@ -1,6 +1,6 @@
 // src/components/Workers/WorkersList.jsx
 
-import { useRef, useMemo } from 'react'
+import { useRef } from 'react'
 import { useAvatars } from '../../context/AvatarContext'
 import styles from '../../styles/workers.module.css'
 
@@ -55,8 +55,8 @@ export function WorkersList({ workers, onWorkerClick, refreshKey }) {
         }
     }
 
-    // === СОРТИРОВКА ===
-    const sortedWorkers = useMemo(() => {
+    // === СОРТИРОВКА (пересчитывается при каждом рендере, но это быстро) ===
+    const sortedWorkers = (() => {
         if (!workers || !Array.isArray(workers)) return { active: [], inactive: [] }
         
         const newWorkerId = getNewWorkerId()
@@ -67,14 +67,12 @@ export function WorkersList({ workers, onWorkerClick, refreshKey }) {
         
         // Сортируем активных
         const sortedActive = [...activeWorkers].sort((a, b) => {
-            // Новый работник — всегда в начале активных
             const isNewA = newWorkerId && a?.id === parseInt(newWorkerId)
             const isNewB = newWorkerId && b?.id === parseInt(newWorkerId)
             
             if (isNewA && !isNewB) return -1
             if (isNewB && !isNewA) return 1
             
-            // По дате последнего открытия
             const lastOpenedA = getLastOpened(a?.id)
             const lastOpenedB = getLastOpened(b?.id)
             
@@ -84,13 +82,11 @@ export function WorkersList({ workers, onWorkerClick, refreshKey }) {
             if (lastOpenedA) return -1
             if (lastOpenedB) return 1
             
-            // По дате создания
             return new Date(b?.created_at || 0).getTime() - new Date(a?.created_at || 0).getTime()
         })
         
         // Сортируем неактивных
         const sortedInactive = [...inactiveWorkers].sort((a, b) => {
-            // По дате последнего открытия
             const lastOpenedA = getLastOpened(a?.id)
             const lastOpenedB = getLastOpened(b?.id)
             
@@ -100,44 +96,39 @@ export function WorkersList({ workers, onWorkerClick, refreshKey }) {
             if (lastOpenedA) return -1
             if (lastOpenedB) return 1
             
-            // По дате создания
             return new Date(b?.created_at || 0).getTime() - new Date(a?.created_at || 0).getTime()
         })
         
         return { active: sortedActive, inactive: sortedInactive }
-    }, [workers, refreshKey]) // ← ДОБАВЛЯЕМ refreshKey В ЗАВИСИМОСТИ
+    })()
 
-    // === КЕШИРОВАННЫЙ СПИСОК ===
-    const cachedWorkers = useMemo(() => {
-        const activeCached = sortedWorkers.active.map((worker) => {
-            const avatar = getAvatar(worker?.name)
-            return {
-                ...worker,
-                hasPhoto: !!avatar,
-                avatarData: avatar,
-                initials: getInitials(worker?.name),
-                avatarColor: getAvatarColor(worker?.name),
-                status: worker?.status || 'active'
-            }
-        })
-        
-        const inactiveCached = sortedWorkers.inactive.map((worker) => {
-            const avatar = getAvatar(worker?.name)
-            return {
-                ...worker,
-                hasPhoto: !!avatar,
-                avatarData: avatar,
-                initials: getInitials(worker?.name),
-                avatarColor: getAvatarColor(worker?.name),
-                status: worker?.status || 'inactive'
-            }
-        })
-        
-        return { active: activeCached, inactive: inactiveCached }
-    }, [sortedWorkers, getAvatar])
+    // === КЕШИРОВАННЫЙ СПИСОК (пересчитываем при каждом рендере) ===
+    const cachedActive = sortedWorkers.active.map((worker) => {
+        const avatar = getAvatar(worker?.name)
+        return {
+            ...worker,
+            hasPhoto: !!avatar,
+            avatarData: avatar,
+            initials: getInitials(worker?.name),
+            avatarColor: getAvatarColor(worker?.name),
+            status: worker?.status || 'active'
+        }
+    })
 
-    const hasActive = cachedWorkers.active.length > 0
-    const hasInactive = cachedWorkers.inactive.length > 0
+    const cachedInactive = sortedWorkers.inactive.map((worker) => {
+        const avatar = getAvatar(worker?.name)
+        return {
+            ...worker,
+            hasPhoto: !!avatar,
+            avatarData: avatar,
+            initials: getInitials(worker?.name),
+            avatarColor: getAvatarColor(worker?.name),
+            status: worker?.status || 'inactive'
+        }
+    })
+
+    const hasActive = cachedActive.length > 0
+    const hasInactive = cachedInactive.length > 0
 
     if (!workers || workers.length === 0) {
         return (
@@ -151,7 +142,7 @@ export function WorkersList({ workers, onWorkerClick, refreshKey }) {
     }
 
     return (
-        <div ref={containerRef} className={styles.workersGridContainer}>
+        <div ref={containerRef} className={styles.workersGridContainer} key={refreshKey}>
             {/* АКТИВНЫЕ РАБОТНИКИ */}
             {hasActive && (
                 <>
@@ -159,7 +150,7 @@ export function WorkersList({ workers, onWorkerClick, refreshKey }) {
                         Работники в статусе активные
                     </div>
                     <div className={styles.workersGrid}>
-                        {cachedWorkers.active.map((worker) => {
+                        {cachedActive.map((worker) => {
                             const { hasPhoto, avatarData, initials, avatarColor, status } = worker
                             const isActive = status === 'active'
 
@@ -235,7 +226,7 @@ export function WorkersList({ workers, onWorkerClick, refreshKey }) {
                         Работники в статусе не активные
                     </div>
                     <div className={styles.workersGrid}>
-                        {cachedWorkers.inactive.map((worker) => {
+                        {cachedInactive.map((worker) => {
                             const { hasPhoto, avatarData, initials, avatarColor, status } = worker
                             const isActive = status === 'active'
 
