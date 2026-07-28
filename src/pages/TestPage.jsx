@@ -1,6 +1,6 @@
 // src/pages/TestPage.jsx
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Calendar from 'react-calendar'
 import { useSwipeable } from 'react-swipeable'
 import 'react-calendar/dist/Calendar.css'
@@ -13,64 +13,61 @@ export default function TestPage() {
   // Для drag-анимации
   const [offsetX, setOffsetX] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
-  const [direction, setDirection] = useState(null) // 'left' или 'right'
+  const [isAnimating, setIsAnimating] = useState(false)
 
-  const formatMonth = (date) => {
-    const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-      'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
-    return `${months[date.getMonth()]} ${date.getFullYear()}`
-  }
-
-  // Получаем даты для соседних месяцев
-  const getAdjacentMonth = (date, delta) => {
-    const newDate = new Date(date)
+  // Получаем даты для 3 месяцев
+  const getMonthDate = (delta) => {
+    const newDate = new Date(activeStartDate)
     newDate.setMonth(newDate.getMonth() + delta)
     return newDate
   }
 
+  // Переключение месяца
+  const changeMonth = (direction) => {
+    if (isAnimating) return
+    
+    setIsAnimating(true)
+    const newDate = new Date(activeStartDate)
+    newDate.setMonth(newDate.getMonth() + direction)
+    setActiveStartDate(newDate)
+    
+    setTimeout(() => {
+      setIsAnimating(false)
+    }, 300)
+  }
+
   const handlers = useSwipeable({
     onSwiping: (eventData) => {
+      if (isAnimating) return
+      
       const deltaX = eventData.deltaX
       const absDeltaX = Math.abs(deltaX)
       
-      if (absDeltaX > 20) {
+      if (absDeltaX > 10) {
         setIsDragging(true)
         setOffsetX(deltaX)
-        
-        if (deltaX < 0) {
-          setDirection('left')
-        } else {
-          setDirection('right')
-        }
       }
     },
     onSwiped: (eventData) => {
+      if (isAnimating) return
+      
       const deltaX = eventData.deltaX
       
-      if (Math.abs(deltaX) > 50) {
-        // Свайп закончен - переключаем месяц
-        if (deltaX < 0) {
-          // Влево - следующий месяц
-          const newDate = new Date(activeStartDate)
-          newDate.setMonth(newDate.getMonth() + 1)
-          setActiveStartDate(newDate)
-        } else {
-          // Вправо - предыдущий месяц
-          const newDate = new Date(activeStartDate)
-          newDate.setMonth(newDate.getMonth() - 1)
-          setActiveStartDate(newDate)
-        }
+      if (deltaX < -50) {
+        // Свайп влево → следующий месяц
+        changeMonth(1)
+      } else if (deltaX > 50) {
+        // Свайп вправо → предыдущий месяц
+        changeMonth(-1)
       }
       
       // Сброс анимации
       setIsDragging(false)
       setOffsetX(0)
-      setDirection(null)
     },
     onTap: () => {
       setIsDragging(false)
       setOffsetX(0)
-      setDirection(null)
     },
     trackMouse: false,
     threshold: 10,
@@ -78,6 +75,8 @@ export default function TestPage() {
 
   // Вычисляем стили для анимации
   const getContainerStyle = () => {
+    const maxOffset = window.innerWidth * 0.7
+    
     if (!isDragging) {
       return {
         transform: 'translateX(0)',
@@ -85,16 +84,27 @@ export default function TestPage() {
       }
     }
     
+    const clampedOffset = Math.max(-maxOffset, Math.min(maxOffset, offsetX))
     return {
-      transform: `translateX(${offsetX}px)`,
+      transform: `translateX(${clampedOffset}px)`,
       transition: 'none',
     }
   }
 
-  // Получаем месяцы для отображения
-  const prevMonth = getAdjacentMonth(activeStartDate, -1)
-  const currentMonth = activeStartDate
-  const nextMonth = getAdjacentMonth(activeStartDate, 1)
+  // Получаем 3 месяца
+  const prevMonth = getMonthDate(-1)
+  const currentMonth = getMonthDate(0)
+  const nextMonth = getMonthDate(1)
+
+  const formatMonth = (date) => {
+    const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+      'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
+    return `${months[date.getMonth()]} ${date.getFullYear()}`
+  }
+
+  // Обработчик кликов по кнопкам навигации
+  const handlePrevClick = () => changeMonth(-1)
+  const handleNextClick = () => changeMonth(1)
 
   return (
     <div className={styles.testPage}>
@@ -133,8 +143,8 @@ export default function TestPage() {
               minDetail="month"
               maxDetail="month"
               navigationLabel={({ date }) => formatMonth(date)}
-              prevLabel="‹"
-              nextLabel="›"
+              prevLabel={<span onClick={handlePrevClick}>‹</span>}
+              nextLabel={<span onClick={handleNextClick}>›</span>}
               next2Label={null}
               prev2Label={null}
               showNeighboringMonth={false}
@@ -164,7 +174,7 @@ export default function TestPage() {
       <div className={styles.debugInfo}>
         <p>Текущий: {formatMonth(activeStartDate)}</p>
         <p>Offset: {offsetX}px</p>
-        <p>Direction: {direction || 'нет'}</p>
+        <p>Dragging: {isDragging ? 'Да' : 'Нет'}</p>
       </div>
     </div>
   )
