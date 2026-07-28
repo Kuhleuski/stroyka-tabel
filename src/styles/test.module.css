@@ -13,13 +13,46 @@
 }
 
 .calendarWrapper {
-  touch-action: pan-y;
-  user-select: none;
-  -webkit-user-select: none;
   border-radius: 12px;
   background: var(--bg-card, #ffffff);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   padding: 16px;
+  overflow: hidden;
+  position: relative;
+}
+
+.calendarContainer {
+  display: flex;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+}
+
+.calendarSlide {
+  min-width: 100%;
+  flex-shrink: 0;
+}
+
+/* Скрываем навигационные кнопки react-calendar */
+.calendarSlide :global(.react-calendar__navigation) {
+  /* Оставляем только для центрального */
+}
+
+.calendarSlide :global(.react-calendar__navigation__prev-button),
+.calendarSlide :global(.react-calendar__navigation__next-button) {
+  display: none;
+}
+
+.calendarSlide:first-child :global(.react-calendar__navigation__prev-button),
+.calendarSlide:last-child :global(.react-calendar__navigation__next-button) {
+  display: none;
+}
+
+/* Центральный слайд показывает кнопки */
+.calendarSlide:nth-child(2) :global(.react-calendar__navigation__prev-button),
+.calendarSlide:nth-child(2) :global(.react-calendar__navigation__next-button) {
+  display: flex;
 }
 
 .debugInfo {
