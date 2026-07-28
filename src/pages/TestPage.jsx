@@ -1,6 +1,6 @@
 // src/pages/TestPage.jsx
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Calendar from 'react-calendar'
 import { useSwipeable } from 'react-swipeable'
 import 'react-calendar/dist/Calendar.css'
@@ -10,41 +10,41 @@ export default function TestPage() {
   const [date, setDate] = useState(new Date())
   const [activeStartDate, setActiveStartDate] = useState(new Date())
   
-  // Для drag-анимации
+  // Для анимации
   const [offsetX, setOffsetX] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
+  const [direction, setDirection] = useState(null)
+  
+  // Для fade анимации при переключении
+  const [fadeState, setFadeState] = useState('visible') // 'visible' | 'fading' | 'hidden'
+  
   const containerRef = useRef(null)
 
-  // Получаем ширину одного слайда
-  const getSlideWidth = () => {
-    if (containerRef.current) {
-      return containerRef.current.offsetWidth / 3
-    }
-    return window.innerWidth
-  }
-
-  // Переключение месяца с плавной анимацией
+  // Переключение месяца с fade анимацией
   const changeMonth = (direction) => {
     if (isAnimating) return
     
     setIsAnimating(true)
-    const slideWidth = getSlideWidth()
+    setDirection(direction === 1 ? 'left' : 'right')
     
-    // Сразу сдвигаем на полную ширину
-    const targetOffset = direction === 1 ? -slideWidth : slideWidth
-    setOffsetX(targetOffset)
+    // 1. Сначала затемняем
+    setFadeState('fading')
     
-    // Ждем окончания анимации
+    // 2. Меняем дату
     setTimeout(() => {
       const newDate = new Date(activeStartDate)
       newDate.setMonth(newDate.getMonth() + direction)
       setActiveStartDate(newDate)
+      setFadeState('hidden')
       
-      // Сбрасываем позицию без анимации
-      setOffsetX(0)
-      setIsAnimating(false)
-    }, 400)
+      // 3. Показываем с анимацией
+      setTimeout(() => {
+        setFadeState('visible')
+        setIsAnimating(false)
+        setDirection(null)
+      }, 150)
+    }, 200)
   }
 
   const handlers = useSwipeable({
@@ -52,57 +52,49 @@ export default function TestPage() {
       if (isAnimating) return
       
       const deltaX = eventData.deltaX
-      const slideWidth = getSlideWidth()
-      
-      // Ограничиваем смещение - максимум 60% ширины слайда
-      const maxOffset = slideWidth * 0.6
+      const maxOffset = 100 // Максимум 100px смещения
       const clampedOffset = Math.max(-maxOffset, Math.min(maxOffset, deltaX))
       
       setIsDragging(true)
       setOffsetX(clampedOffset)
+      
+      if (deltaX < -10) {
+        setDirection('left')
+      } else if (deltaX > 10) {
+        setDirection('right')
+      } else {
+        setDirection(null)
+      }
     },
     onSwiped: (eventData) => {
       if (isAnimating) return
       
       const deltaX = eventData.deltaX
-      const slideWidth = getSlideWidth()
-      
-      // Порог - 20% ширины слайда (более отзывчивый)
-      const threshold = slideWidth * 0.2
+      const threshold = 30 // 30px порог
       
       if (deltaX < -threshold) {
-        // Свайп влево - следующий месяц
         changeMonth(1)
       } else if (deltaX > threshold) {
-        // Свайп вправо - предыдущий месяц
         changeMonth(-1)
       } else {
-        // Возврат на место
         setIsDragging(false)
         setOffsetX(0)
+        setDirection(null)
       }
     },
     onTap: () => {
       if (!isAnimating) {
         setIsDragging(false)
         setOffsetX(0)
+        setDirection(null)
       }
     },
     trackMouse: false,
-    threshold: 5, // Меньше порог для более отзывчивого свайпа
+    threshold: 5,
   })
 
   // Стили для контейнера
   const getContainerStyle = () => {
-    // Во время анимации переключения
-    if (isAnimating) {
-      return {
-        transform: `translateX(${offsetX}px)`,
-        transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-      }
-    }
-    
-    // Во время драга
     if (isDragging) {
       return {
         transform: `translateX(${offsetX}px)`,
@@ -110,10 +102,33 @@ export default function TestPage() {
       }
     }
     
-    // В покое
     return {
       transform: 'translateX(0)',
-      transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+      transition: 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+    }
+  }
+
+  // Стили для календаря (fade анимация)
+  const getCalendarStyle = () => {
+    if (fadeState === 'fading') {
+      return {
+        opacity: 0,
+        transform: 'scale(0.95)',
+        transition: 'opacity 0.2s ease, transform 0.2s ease',
+      }
+    }
+    
+    if (fadeState === 'hidden') {
+      return {
+        opacity: 0,
+        transform: 'scale(0.95)',
+      }
+    }
+    
+    return {
+      opacity: 1,
+      transform: 'scale(1)',
+      transition: 'opacity 0.25s ease, transform 0.25s ease',
     }
   }
 
@@ -148,8 +163,8 @@ export default function TestPage() {
           {...handlers}
           style={getContainerStyle()}
         >
-          {/* Предыдущий месяц */}
-          <div className={styles.calendarSlide}>
+          {/* Предыдущий месяц (всегда скрыт) */}
+          <div className={styles.calendarSlide} style={{ opacity: 0, pointerEvents: 'none' }}>
             <Calendar
               value={date}
               onChange={setDate}
@@ -165,8 +180,11 @@ export default function TestPage() {
             />
           </div>
 
-          {/* Текущий месяц */}
-          <div className={styles.calendarSlide}>
+          {/* Текущий месяц (с анимацией) */}
+          <div 
+            className={styles.calendarSlide}
+            style={getCalendarStyle()}
+          >
             <Calendar
               value={date}
               onChange={setDate}
@@ -182,8 +200,8 @@ export default function TestPage() {
             />
           </div>
 
-          {/* Следующий месяц */}
-          <div className={styles.calendarSlide}>
+          {/* Следующий месяц (всегда скрыт) */}
+          <div className={styles.calendarSlide} style={{ opacity: 0, pointerEvents: 'none' }}>
             <Calendar
               value={date}
               onChange={setDate}
@@ -206,7 +224,8 @@ export default function TestPage() {
         <p>Текущий: {formatMonth(activeStartDate)}</p>
         <p>Offset: {Math.round(offsetX)}px</p>
         <p>Dragging: {isDragging ? 'Да' : 'Нет'}</p>
-        <p>Animating: {isAnimating ? 'Да' : 'Нет'}</p>
+        <p>Fade: {fadeState}</p>
+        <p>Направление: {direction || 'нет'}</p>
       </div>
     </div>
   )
