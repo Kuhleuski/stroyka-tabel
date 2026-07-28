@@ -1,7 +1,7 @@
 // src/components/Layout/BottomNav.jsx
 
 import { useRef, useEffect } from 'react'
-import { useAuth } from '../../context/AvatarContext'
+import { useAuth } from '../../context/AuthContext'  // ← ИСПРАВЛЕНО
 import styles from '../../styles/layout.module.css'
 
 // === ПЛОСКИЕ SVG-ИКОНКИ (Lucide) ===
