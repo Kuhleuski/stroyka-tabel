@@ -238,6 +238,7 @@ export function WorkersPage({ shifts }) {
                         onClose={handleCloseDetail}
                         onDelete={handleDelete}
                         onEdit={handleOpenEditModal}
+                        onRefresh={forceRefresh}
                         shifts={shifts}
                     />
                     <EditWorkerModal 
