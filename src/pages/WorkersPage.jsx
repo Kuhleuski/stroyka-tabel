@@ -60,7 +60,6 @@ export function WorkersPage({ shifts }) {
     }
 
     const handleSave = async (name, avatarFile) => {
-        // Показываем прелоадер
         setIsSaving(true)
         
         try {
@@ -69,7 +68,6 @@ export function WorkersPage({ shifts }) {
             
             console.log('📝 Создан работник:', workerData)
             
-            // Сохраняем ID нового работника
             try {
                 localStorage.setItem('newWorkerId', String(workerData.id))
                 console.log('📝 Сохранён ID нового работника:', workerData.id)
@@ -77,70 +75,48 @@ export function WorkersPage({ shifts }) {
                 console.warn('Ошибка сохранения ID нового работника:', e)
             }
             
-            // Добавляем в состояние
             addWorkerToState(workerData)
-            
-            // Обновляем кеш аватарок
             await refreshAvatars()
-            
-            // Принудительно обновляем список
             forceRefresh()
-            
-            // Закрываем модалку
             setShowAddModal(false)
             
-            // Даём время на обновление списка
             await new Promise(resolve => setTimeout(resolve, 200))
             
-            // Переход на страницу деталей нового работника
             console.log('🔄 Переход на страницу деталей нового работника:', workerData.name)
             setSelectedWorker(workerData)
-            
-            // Даём время на рендер деталей
             await new Promise(resolve => setTimeout(resolve, 150))
             
         } catch (err) {
             console.error('❌ Ошибка при создании работника:', err)
             throw err
         } finally {
-            // Скрываем прелоадер
             setIsSaving(false)
         }
     }
 
-    const handleUpdate = async (workerId, name, avatarFile) => {
-        // Показываем прелоадер
+    const handleUpdate = async (workerId, name, avatarFile, status) => {
         setIsSaving(true)
         
         try {
-            const updated = await updateWorker(workerId, name, avatarFile)
+            const updated = await updateWorker(workerId, name, avatarFile, status)
             
             console.log('📝 Обновлён работник:', updated)
             
-            // Обновляем в состоянии
             updateWorkerInState(updated)
-            
-            // Обновляем кеш аватарок
             await refreshAvatars()
-            
-            // Принудительно обновляем список
             forceRefresh()
             
-            // Обновляем данные в детальной странице
             if (selectedWorker && selectedWorker.id === workerId) {
                 setSelectedWorker(updated)
             }
             
             setShowEditModal(false)
-            
-            // Даём время на обновление
             await new Promise(resolve => setTimeout(resolve, 200))
             
         } catch (err) {
             console.error('❌ Ошибка при обновлении работника:', err)
             throw err
         } finally {
-            // Скрываем прелоадер
             setIsSaving(false)
         }
     }
@@ -151,14 +127,9 @@ export function WorkersPage({ shifts }) {
         try {
             await deleteWorker(workerId)
             removeWorkerFromState(workerId)
-            
-            // Обновляем кеш аватарок
             await refreshAvatars()
-            
-            // Принудительно обновляем список
             forceRefresh()
             
-            // Удаляем запись о последнем открытии
             try {
                 const stored = localStorage.getItem('workerLastOpened')
                 if (stored) {
@@ -181,7 +152,6 @@ export function WorkersPage({ shifts }) {
     }
 
     const handleWorkerClick = (worker) => {
-        // Сохраняем дату открытия
         saveLastOpened(worker.id)
         
         const container = document.querySelector('.workers-grid-container')
@@ -227,7 +197,6 @@ export function WorkersPage({ shifts }) {
 
     return (
         <>
-            {/* ПРЕЛОАДЕР ПРИ СОХРАНЕНИИ */}
             {isSaving && <SavingOverlay />}
 
             {selectedWorker ? (
