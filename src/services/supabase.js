@@ -232,7 +232,7 @@ export async function deleteWorker(workerId) {
 }
 
 // === ОБНОВЛЕНИЕ РАБОТНИКА ===
-export async function updateWorker(workerId, name, avatarFile = null) {
+export async function updateWorker(workerId, name, avatarFile = null, status = null) {
     try {
         if (!workerId) {
             throw new Error('ID работника не указан')
@@ -249,6 +249,9 @@ export async function updateWorker(workerId, name, avatarFile = null) {
         const updateData = { name: name.trim() }
         if (avatarBase64) {
             updateData.avatar = avatarBase64
+        }
+        if (status) {
+            updateData.status = status
         }
 
         console.log('📤 Отправляем на обновление:', JSON.stringify(updateData, null, 2))
@@ -290,11 +293,6 @@ export async function updateWorker(workerId, name, avatarFile = null) {
                 console.log('📥 Текущие данные работника:', getResult)
                 
                 if (getResult && getResult.length > 0) {
-                    const currentName = getResult[0].name
-                    if (currentName !== name.trim()) {
-                        console.warn(`⚠️ Имя не изменилось: было "${currentName}", пытались установить "${name.trim()}"`)
-                        console.warn('⚠️ Возможно, в Supabase есть ограничение на обновление поля name')
-                    }
                     return getResult[0]
                 }
             }
@@ -307,7 +305,6 @@ export async function updateWorker(workerId, name, avatarFile = null) {
         throw error
     }
 }
-
 // === ОБНОВЛЕНИЕ ОБЪЕКТА ===
 export async function updateSite(siteId, name, address, color, status) {
     try {
