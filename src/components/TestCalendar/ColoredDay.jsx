@@ -1,23 +1,18 @@
 import React from 'react'
+import { formatDateLocal } from '../../utils/dateHelpers'
 import styles from '../../styles/test.module.css'
 
-/**
- * Компонент для отображения раскрашенного дня
- */
 export function ColoredDay({ date, shifts, sites }) {
-  const dateStr = date.toISOString().split('T')[0]
+  const dateStr = formatDateLocal(date)
   
-  // Находим смены за этот день
   const dayShifts = shifts.filter(s => s.work_date === dateStr)
   
   if (dayShifts.length === 0) {
     return null
   }
   
-  // Получаем уникальные site_id
   const siteIds = [...new Set(dayShifts.map(s => s.site_id))]
   
-  // Маппим на цвета
   const colors = siteIds
     .map(id => {
       const site = sites.find(s => s.id === id)
@@ -33,24 +28,19 @@ export function ColoredDay({ date, shifts, sites }) {
   const displayColors = showPlus ? colors.slice(0, 4) : colors
   const colorCount = displayColors.length
   
-  // Строим стиль для цвета фона
   let backgroundStyle = {}
   
   if (colorCount === 1) {
-    // Один цвет - просто заливка
     backgroundStyle = { backgroundColor: displayColors[0] }
   } else if (colorCount === 2) {
-    // Два цвета - делим пополам
     backgroundStyle = {
       background: `conic-gradient(from 0deg, ${displayColors[0]} 0deg, ${displayColors[0]} 180deg, ${displayColors[1]} 180deg, ${displayColors[1]} 360deg)`
     }
   } else if (colorCount === 3) {
-    // Три цвета - делим на 3 части
     backgroundStyle = {
       background: `conic-gradient(from 0deg, ${displayColors[0]} 0deg, ${displayColors[0]} 120deg, ${displayColors[1]} 120deg, ${displayColors[1]} 240deg, ${displayColors[2]} 240deg, ${displayColors[2]} 360deg)`
     }
   } else if (colorCount === 4) {
-    // Четыре цвета - делим на 4 части
     backgroundStyle = {
       background: `conic-gradient(from 0deg, ${displayColors[0]} 0deg, ${displayColors[0]} 90deg, ${displayColors[1]} 90deg, ${displayColors[1]} 180deg, ${displayColors[2]} 180deg, ${displayColors[2]} 270deg, ${displayColors[3]} 270deg, ${displayColors[3]} 360deg)`
     }
