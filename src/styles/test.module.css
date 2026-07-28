@@ -35,6 +35,7 @@
   width: 33.333%;
   flex-shrink: 0;
   padding: 0 4px;
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
 /* Скрываем навигацию у боковых месяцев */
