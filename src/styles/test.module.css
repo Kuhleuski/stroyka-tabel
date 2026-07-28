@@ -1,155 +1,35 @@
-/* ============================================================
-   ТЕСТОВАЯ СТРАНИЦА
-   ============================================================ */
-
 .testPage {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    background: var(--bg-body);
+  padding: 16px;
+  max-width: 500px;
+  margin: 0 auto;
 }
 
-.testHeader {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: var(--spacing-md) var(--spacing-xs) var(--spacing-lg) var(--spacing-xs);
-    border-bottom: 2px solid var(--border-color);
-    margin-bottom: var(--spacing-xl);
+.pageTitle {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--text-primary, #1a1a1a);
 }
 
-.testTitle {
-    font-size: var(--font-size-xl);
-    font-weight: 700;
-    color: var(--text-primary);
+.calendarWrapper {
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  border-radius: 12px;
+  background: var(--bg-card, #ffffff);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 16px;
 }
 
-.testContent {
-    flex: 1;
-    padding: 0 var(--spacing-lg);
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xl);
+.debugInfo {
+  margin-top: 20px;
+  padding: 12px;
+  background: var(--bg-card, #ffffff);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--text-secondary, #666);
 }
 
-.testCard {
-    background: var(--bg-card);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-xl);
-    box-shadow: var(--shadow-sm);
-    text-align: center;
-}
-
-.testText {
-    font-size: var(--font-size-lg);
-    color: var(--text-secondary);
-    margin-bottom: var(--spacing-xl);
-}
-
-.testCounter {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-lg);
-    margin: var(--spacing-lg) 0;
-}
-
-.testBtn {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    border: 1.5px solid var(--border-color);
-    background: var(--bg-card);
-    color: var(--text-primary);
-    font-size: 24px;
-    font-weight: 300;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: inherit;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.testBtn:hover {
-    border-color: var(--color-primary);
-    background: var(--color-primary-light);
-}
-
-.testBtn:active {
-    transform: scale(0.92);
-}
-
-.testCount {
-    font-size: 32px;
-    font-weight: 600;
-    color: var(--text-primary);
-    min-width: 48px;
-    text-align: center;
-}
-
-.testHint {
-    font-size: var(--font-size-md);
-    color: var(--text-muted);
-    margin-top: var(--spacing-md);
-}
-
-.testPlaceholder {
-    background: var(--bg-card);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-3xl) var(--spacing-xl);
-    box-shadow: var(--shadow-sm);
-    text-align: center;
-    border: 2px dashed var(--border-color);
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-md);
-}
-
-.testPlaceholderIcon {
-    font-size: 48px;
-}
-
-.testPlaceholderText {
-    font-size: var(--font-size-lg);
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.testPlaceholderSub {
-    font-size: var(--font-size-md);
-    color: var(--text-muted);
-}
-
-/* Адаптив */
-@media (max-width: 480px) {
-    .testContent {
-        padding: 0 var(--spacing-md);
-    }
-
-    .testCard {
-        padding: var(--spacing-lg);
-    }
-
-    .testBtn {
-        width: 40px;
-        height: 40px;
-        font-size: 20px;
-    }
-
-    .testCount {
-        font-size: 28px;
-        min-width: 40px;
-    }
-
-    .testPlaceholder {
-        padding: var(--spacing-xl);
-    }
-
-    .testPlaceholderIcon {
-        font-size: 36px;
-    }
+.debugInfo p {
+  margin: 4px 0;
 }
