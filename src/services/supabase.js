@@ -10,7 +10,6 @@ export const compressImage = (file, maxWidth = 300, maxHeight = 300, quality = 0
             const img = new Image()
             img.src = event.target.result
             img.onload = () => {
-                // Вычисляем новые размеры с сохранением пропорций
                 let width = img.width
                 let height = img.height
                 
@@ -26,14 +25,12 @@ export const compressImage = (file, maxWidth = 300, maxHeight = 300, quality = 0
                     }
                 }
 
-                // Создаем canvas и рисуем сжатое изображение
                 const canvas = document.createElement('canvas')
                 canvas.width = width
                 canvas.height = height
                 const ctx = canvas.getContext('2d')
                 ctx.drawImage(img, 0, 0, width, height)
 
-                // Конвертируем в Base64 с качеством
                 const compressedBase64 = canvas.toDataURL('image/jpeg', quality)
                 resolve(compressedBase64)
             }
@@ -188,7 +185,6 @@ export async function addWorker(name, avatarFile = null) {
     try {
         let avatarBase64 = null
         if (avatarFile) {
-            // Сжимаем фото до 300x300
             console.log('📸 Сжимаем фото...')
             avatarBase64 = await compressImage(avatarFile, 300, 300, 0.7)
             console.log('📸 Фото сжато, длина:', avatarBase64.length)
@@ -203,7 +199,8 @@ export async function addWorker(name, avatarFile = null) {
             },
             body: JSON.stringify([{ 
                 name, 
-                avatar: avatarBase64
+                avatar: avatarBase64,
+                status: 'active'  // ← Новый работник сразу активен
             }])
         })
         
@@ -232,4 +229,198 @@ export async function deleteWorker(workerId) {
         throw new Error(`Ошибка удаления: ${response.status} ${errorText}`)
     }
     return true
+}
+
+// === ОБНОВЛЕНИЕ РАБОТНИКА ===
+export async function updateWorker(workerId, name, avatarFile = null, status = null) {
+    try {
+        if (!workerId) {
+            throw new Error('ID работника не указан')
+        }
+
+        let avatarBase64 = null
+        
+        if (avatarFile) {
+            console.log('📸 Сжимаем фото для обновления...')
+            avatarBase64 = await compressImage(avatarFile, 300, 300, 0.7)
+            console.log('📸 Фото сжато, длина:', avatarBase64.length)
+        }
+
+        const updateData = { name: name.trim() }
+        if (avatarBase64) {
+            updateData.avatar = avatarBase64
+        }
+        if (status) {
+            updateData.status = status
+        }
+
+        console.log('📤 Отправляем на обновление:', JSON.stringify(updateData, null, 2))
+
+        const url = `${SUPABASE_URL}/rest/v1/workers?id=eq.${workerId}&apikey=${SUPABASE_ANON_KEY}`
+        console.log('📤 URL запроса:', url)
+        
+        const response = await fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            },
+            body: JSON.stringify(updateData)
+        })
+        
+        console.log('📡 Статус ответа:', response.status)
+        
+        if (!response.ok) {
+            const errorText = await response.text()
+            console.error('❌ Ошибка ответа:', response.status, errorText)
+            throw new Error(`Ошибка обновления: ${response.status} ${errorText}`)
+        }
+        
+        const result = await response.json()
+        console.log('✅ Результат обновления (сырой):', result)
+        
+        if (!result || result.length === 0) {
+            console.warn('⚠️ Обновление вернуло пустой результат')
+            
+            const getUrl = `${SUPABASE_URL}/rest/v1/workers?id=eq.${workerId}&apikey=${SUPABASE_ANON_KEY}`
+            const getResponse = await fetch(getUrl, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            
+            if (getResponse.ok) {
+                const getResult = await getResponse.json()
+                console.log('📥 Текущие данные работника:', getResult)
+                
+                if (getResult && getResult.length > 0) {
+                    return getResult[0]
+                }
+            }
+            throw new Error(`Работник с ID ${workerId} не найден`)
+        }
+        
+        return result[0] || result
+    } catch (error) {
+        console.error('❌ Ошибка в updateWorker:', error)
+        throw error
+    }
+}
+// === ОБНОВЛЕНИЕ ОБЪЕКТА ===
+export async function updateSite(siteId, name, address, color, status) {
+    try {
+        if (!siteId) {
+            throw new Error('ID объекта не указан')
+        }
+
+        const updateData = { 
+            name: name.trim(), 
+            address: address.trim(), 
+            color,
+            status
+        }
+
+        console.log('📤 Обновляем объект:', siteId, updateData)
+
+        const url = `${SUPABASE_URL}/rest/v1/sites?id=eq.${siteId}&apikey=${SUPABASE_ANON_KEY}`
+        const response = await fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            },
+            body: JSON.stringify(updateData)
+        })
+        
+        if (!response.ok) {
+            const errorText = await response.text()
+            console.error('❌ Ошибка ответа:', response.status, errorText)
+            throw new Error(`Ошибка обновления: ${response.status} ${errorText}`)
+        }
+        
+        const result = await response.json()
+        console.log('✅ Результат обновления:', result)
+        
+        if (!result || result.length === 0) {
+            throw new Error(`Объект с ID ${siteId} не найден`)
+        }
+        
+        return result[0] || result
+    } catch (error) {
+        console.error('❌ Ошибка в updateSite:', error)
+        throw error
+    }
+}
+
+// === ОБНОВЛЕНИЕ СТАТУСА ОБЪЕКТА ===
+export async function updateSiteStatus(siteId, status) {
+    try {
+        if (!siteId) {
+            throw new Error('ID объекта не указан')
+        }
+
+        const updateData = { status }
+
+        console.log('📤 Обновляем статус объекта:', siteId, status)
+
+        const url = `${SUPABASE_URL}/rest/v1/sites?id=eq.${siteId}&apikey=${SUPABASE_ANON_KEY}`
+        const response = await fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            },
+            body: JSON.stringify(updateData)
+        })
+        
+        if (!response.ok) {
+            const errorText = await response.text()
+            console.error('❌ Ошибка ответа:', response.status, errorText)
+            throw new Error(`Ошибка обновления статуса: ${response.status} ${errorText}`)
+        }
+        
+        const result = await response.json()
+        console.log('✅ Результат обновления статуса:', result)
+        
+        return result[0] || result
+    } catch (error) {
+        console.error('❌ Ошибка в updateSiteStatus:', error)
+        throw error
+    }
+}
+
+// === ОБНОВЛЕНИЕ СТАТУСА РАБОТНИКА ===
+export async function updateWorkerStatus(workerId, status) {
+    try {
+        if (!workerId) {
+            throw new Error('ID работника не указан')
+        }
+
+        const updateData = { status }
+
+        console.log('📤 Обновляем статус работника:', workerId, status)
+
+        const url = `${SUPABASE_URL}/rest/v1/workers?id=eq.${workerId}&apikey=${SUPABASE_ANON_KEY}`
+        const response = await fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            },
+            body: JSON.stringify(updateData)
+        })
+        
+        if (!response.ok) {
+            const errorText = await response.text()
+            console.error('❌ Ошибка ответа:', response.status, errorText)
+            throw new Error(`Ошибка обновления статуса: ${response.status} ${errorText}`)
+        }
+        
+        const result = await response.json()
+        console.log('✅ Результат обновления статуса:', result)
+        
+        return result[0] || result
+    } catch (error) {
+        console.error('❌ Ошибка в updateWorkerStatus:', error)
+        throw error
+    }
 }

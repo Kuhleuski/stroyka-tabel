@@ -11,7 +11,7 @@ export function useWorkers() {
             try {
                 setLoading(true)
                 const data = await fetchWorkers()
-                setWorkers(data)
+                setWorkers(data || [])
                 setError(null)
             } catch (err) {
                 setError(err.message)
@@ -23,6 +23,13 @@ export function useWorkers() {
     }, [])
 
     const addWorkerToState = (newWorker) => {
+        if (Array.isArray(newWorker)) {
+            newWorker = newWorker[0]
+        }
+        if (!newWorker || !newWorker.id) {
+            console.warn('⚠️ addWorkerToState: получен некорректный worker:', newWorker)
+            return
+        }
         setWorkers(prev => [...prev, newWorker])
     }
 
@@ -30,5 +37,33 @@ export function useWorkers() {
         setWorkers(prev => prev.filter(w => w.id !== workerId))
     }
 
-    return { workers, loading, error, addWorkerToState, removeWorkerFromState }
+    // === ОБНОВЛЕНИЕ РАБОТНИКА В СОСТОЯНИИ ===
+    const updateWorkerInState = (updatedWorker) => {
+        if (Array.isArray(updatedWorker)) {
+            if (updatedWorker.length === 0) {
+                console.warn('⚠️ updateWorkerInState: получен пустой массив')
+                return
+            }
+            updatedWorker = updatedWorker[0]
+        }
+        
+        if (!updatedWorker || !updatedWorker.id) {
+            console.warn('⚠️ updateWorkerInState: получен некорректный worker:', updatedWorker)
+            return
+        }
+        
+        console.log('🔄 Обновляем работника в состоянии:', updatedWorker)
+        setWorkers(prev => prev.map(w => 
+            w.id === updatedWorker.id ? updatedWorker : w
+        ))
+    }
+
+    return { 
+        workers, 
+        loading, 
+        error, 
+        addWorkerToState, 
+        removeWorkerFromState,
+        updateWorkerInState 
+    }
 }

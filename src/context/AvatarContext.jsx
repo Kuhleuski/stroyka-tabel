@@ -1,3 +1,5 @@
+// src/context/AvatarContext.jsx
+
 import React, { createContext, useContext, useMemo, useState, useEffect } from 'react'
 import { fetchWorkers } from '../services/supabase'
 
@@ -63,10 +65,12 @@ export const AvatarProvider = ({ children }) => {
     // === ФУНКЦИЯ ДЛЯ ОБНОВЛЕНИЯ КЕША ===
     const refreshAvatars = async () => {
         try {
+            console.log('🔄 Обновляем кеш аватарок...')
             const data = await fetchWorkers()
             setWorkers(data || [])
+            console.log('✅ Кеш аватарок обновлён, работников:', data.length)
         } catch (err) {
-            console.error('Ошибка обновления аватарок:', err)
+            console.error('❌ Ошибка обновления аватарок:', err)
         }
     }
 

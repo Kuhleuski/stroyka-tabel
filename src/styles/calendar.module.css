@@ -1,43 +1,4 @@
 /* ============================================================
-   КНОПКИ ПЕРЕКЛЮЧЕНИЯ РЕЖИМОВ
-   ============================================================ */
-
-.viewModeWrapper {
-    padding: 0 0 var(--spacing-md) 0;
-    margin-bottom: var(--spacing-xs);
-}
-
-.viewModeButtons {
-    display: flex;
-    gap: var(--spacing-sm);
-    justify-content: flex-start;
-}
-
-.viewModeBtn {
-    padding: var(--spacing-sm) var(--spacing-xl);
-    border: 1.5px solid #e0e0e0;
-    background: white;
-    border-radius: 24px;
-    font-size: 15px;
-    font-weight: 500;
-    color: #666;
-    cursor: pointer;
-    transition: var(--transition-normal);
-    font-family: inherit;
-    white-space: nowrap;
-}
-
-.viewModeBtn.active {
-    background: var(--color-primary);
-    color: white;
-    border-color: var(--color-primary);
-}
-
-.viewModeBtn:hover:not(.active) {
-    background: var(--bg-body);
-}
-
-/* ============================================================
    КАЛЕНДАРЬ
    ============================================================ */
 
@@ -49,29 +10,16 @@
     box-shadow: var(--shadow-sm);
 }
 
-.calendarWrapper.feedMode {
-    background: var(--bg-card);
-    border-radius: 0;
-    padding: 0 0 0 var(--spacing-sm);
-    margin: 0 -16px 0 -16px;
-    box-shadow: none;
-    width: calc(100% + 32px);
-}
-
-.calendarWrapper.feedMode .calendarHeader {
-    padding: var(--spacing-md) var(--spacing-lg) 0 var(--spacing-sm);
-    margin-bottom: var(--spacing-xs);
-}
-
-.calendarWrapper.feedMode .feedContainer {
-    padding: 0 var(--spacing-lg) var(--spacing-sm) var(--spacing-sm);
-}
+/* ============================================================
+   ХЕДЕР КАЛЕНДАРЯ
+   ============================================================ */
 
 .calendarHeader {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     margin-bottom: var(--spacing-lg);
+    padding: 0 var(--spacing-sm);
 }
 
 .calendarHeader .monthTitle {
@@ -79,27 +27,17 @@
     font-weight: 600;
 }
 
-.calendarNavBtn {
-    background: none;
-    border: none;
-    font-size: 28px;
-    font-weight: 300;
-    padding: var(--spacing-xs) var(--spacing-lg);
-    cursor: pointer;
-    border-radius: 10px;
-    transition: var(--transition-normal);
-    font-family: inherit;
-    line-height: 1;
-    color: var(--text-primary);
-}
-
-.calendarNavBtn:hover {
-    background: #f0f0f0;
-}
-
 /* ============================================================
-   РЕЖИМ "МЕСЯЦ"
+   СЕТКА КАЛЕНДАРЯ
    ============================================================ */
+
+.calendarGridWrapper {
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+    will-change: transform;
+    overflow: hidden;
+}
 
 .calendarGrid {
     display: grid;
@@ -152,26 +90,6 @@
     color: white;
 }
 
-.dayCell.hasWork {
-    background: var(--color-primary-bg);
-}
-
-.dayCell.hasWork.selected {
-    background: var(--color-primary);
-}
-
-.dayCell .dayDot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--color-primary);
-    margin-top: 2px;
-}
-
-.dayCell.selected .dayDot {
-    background: white;
-}
-
 .dayCell .dayCount {
     position: absolute;
     top: 2px;
@@ -196,80 +114,117 @@
 }
 
 /* ============================================================
-   РЕЖИМ "ДЕНЬ"
+   НАВИГАЦИЯ ВНИЗУ — СТРЕЛКИ
    ============================================================ */
 
-.feedContainer {
-    padding: 0 var(--spacing-sm) var(--spacing-sm) var(--spacing-sm);
-    overflow-y: auto;
+.calendarNav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--border-light);
 }
 
-.feedItem {
-    padding: var(--spacing-sm) 10px;
-    margin-bottom: 2px;
-    background: var(--bg-card);
-    border-radius: 6px;
-    cursor: pointer;
-    border-left: 3px solid transparent;
-}
-
-.feedItem.today {
-    background: #f5faf6;
-}
-
-.feedItem.selected {
-    border-left-color: var(--color-primary);
-    background: var(--color-primary-light);
-}
-
-/* ============================================================
-   РАЗДЕЛИТЕЛЬ МЕСЯЦЕВ
-   ============================================================ */
-
-.feedMonthDivider {
+.calendarNavBtn {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: var(--spacing-sm) 0 var(--spacing-xs) 0;
-    position: relative;
+    width: 48px;
+    height: 48px;
+    border: none;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(45, 125, 70, 0.3);
+    font-family: inherit;
 }
 
-.feedMonthDivider::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 0px;
-    background: var(--border-color);
-    transform: translateY(-50%);
+.calendarNavBtn:hover {
+    background: var(--color-primary-hover);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(45, 125, 70, 0.4);
 }
 
-.feedMonthLabel {
-    background: var(--bg-card);
-    padding: 0 10px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    position: relative;
-    z-index: 1;
+.calendarNavBtn:active {
+    transform: scale(0.92);
+}
+
+.calendarNavBtn svg {
+    stroke: white;
+    width: 24px;
+    height: 24px;
+}
+
+/* Кнопка "Сегодня" — немного меньше */
+.calendarNavBtn:last-child {
+    width: 48px;
+    height: 48px;
+}
+
+.calendarNavBtn:last-child svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Тёмная тема */
+[data-theme="dark"] .calendarNavBtn {
+    background: var(--color-primary);
+    box-shadow: 0 2px 8px rgba(45, 125, 70, 0.2);
+}
+
+[data-theme="dark"] .calendarNavBtn:hover {
+    background: var(--color-primary-hover);
+    box-shadow: 0 4px 12px rgba(45, 125, 70, 0.3);
 }
 
 /* ============================================================
-   АДАПТИВ КАЛЕНДАРЯ
+   АДАПТИВ
    ============================================================ */
 
 @media (max-width: 640px) {
     .calendarWrapper {
         padding: var(--spacing-md);
     }
+    
+    .calendarNav {
+        gap: 16px;
+        margin-top: var(--spacing-md);
+        padding-top: var(--spacing-sm);
+    }
+    
+    .calendarNavBtn {
+        width: 44px;
+        height: 44px;
+    }
+    
+    .calendarNavBtn svg {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .calendarNavBtn:last-child svg {
+        width: 18px;
+        height: 18px;
+    }
 }
 
 @media (max-width: 400px) {
-    .viewModeBtn {
-        padding: 6px 14px;
-        font-size: 13px;
+    .calendarNav {
+        gap: 12px;
+    }
+    
+    .calendarNavBtn {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .calendarNavBtn svg {
+        width: 18px;
+        height: 18px;
     }
     
     .dayCell .dayNumber {
