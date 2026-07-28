@@ -105,7 +105,7 @@ export function WorkersList({ workers, onWorkerClick, refreshKey }) {
         })
         
         return { active: sortedActive, inactive: sortedInactive }
-    }, [workers]) // refreshKey не нужен в зависимостях, он нужен для пересоздания компонента
+    }, [workers, refreshKey]) // ← ДОБАВЛЯЕМ refreshKey В ЗАВИСИМОСТИ
 
     // === КЕШИРОВАННЫЙ СПИСОК ===
     const cachedWorkers = useMemo(() => {
@@ -151,7 +151,7 @@ export function WorkersList({ workers, onWorkerClick, refreshKey }) {
     }
 
     return (
-        <div ref={containerRef} className={styles.workersGridContainer} key={refreshKey}>
+        <div ref={containerRef} className={styles.workersGridContainer}>
             {/* АКТИВНЫЕ РАБОТНИКИ */}
             {hasActive && (
                 <>
