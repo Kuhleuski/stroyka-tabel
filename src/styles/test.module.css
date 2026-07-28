@@ -19,21 +19,21 @@
   padding: 16px;
   overflow: hidden;
   position: relative;
-  min-height: 400px;
-  touch-action: none; /* ← добавил для лучшей обработки тачей */
+  min-height: 410px;
+  touch-action: none;
 }
 
 .calendarMotion {
   width: 100%;
   cursor: grab;
-  touch-action: none; /* ← добавил */
+  touch-action: none;
 }
 
 .calendarMotion:active {
   cursor: grabbing;
 }
 
-/* Остальные стили react-calendar */
+/* Стили для react-calendar */
 .calendarMotion :global(.react-calendar) {
   width: 100%;
   border: none;
@@ -61,29 +61,17 @@
   cursor: default;
 }
 
+/* Скрываем кнопки навигации */
 .calendarMotion :global(.react-calendar__navigation__prev-button),
-.calendarMotion :global(.react-calendar__navigation__next-button) {
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  background: none;
-  border: none;
-  font-size: 24px;
-  color: var(--text-primary, #1a1a1a);
-  padding: 8px 16px;
-  border-radius: 8px;
-  transition: background 0.2s;
-}
-
-.calendarMotion :global(.react-calendar__navigation__prev-button):hover,
-.calendarMotion :global(.react-calendar__navigation__next-button):hover {
-  background: rgba(0, 0, 0, 0.05);
-}
-
+.calendarMotion :global(.react-calendar__navigation__next-button),
 .calendarMotion :global(.react-calendar__navigation__prev2-button),
 .calendarMotion :global(.react-calendar__navigation__next2-button) {
   display: none !important;
+}
+
+/* Делаем прозрачным disabled состояние (если оно есть) */
+.calendarMotion :global(.react-calendar__navigation button:disabled) {
+  background-color: transparent !important;
 }
 
 .calendarMotion :global(.react-calendar__month-view__weekdays) {
@@ -138,38 +126,4 @@
 
 .calendarMotion :global(.react-calendar__tile--now:hover) {
   background: rgba(45, 125, 70, 0.25);
-}
-
-.dots {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 16px;
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #ddd;
-  transition: all 0.3s ease;
-}
-
-.dot.active {
-  background: #2d7d46;
-  width: 24px;
-  border-radius: 4px;
-}
-
-.debugInfo {
-  margin-top: 20px;
-  padding: 12px;
-  background: var(--bg-card, #ffffff);
-  border-radius: 8px;
-  font-size: 14px;
-  color: var(--text-secondary, #666);
-}
-
-.debugInfo p {
-  margin: 4px 0;
 }
