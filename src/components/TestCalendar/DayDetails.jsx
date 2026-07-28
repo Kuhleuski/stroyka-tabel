@@ -81,23 +81,32 @@ export function DayDetails({ selectedDate, shifts, sites, workers }) {
             className={styles.timelineItem}
             style={{ animationDelay: `${index * 0.06}s` }}
           >
-            <div 
-              className={styles.timelineDot}
-              style={{ 
-                background: group.color,
-                boxShadow: `0 0 12px ${group.color}40, 0 0 24px ${group.color}20`
-              }}
-            />
+            {/* Точка */}
+            <div className={styles.timelineDotWrapper}>
+              <div 
+                className={styles.timelineDot}
+                style={{ 
+                  background: group.color,
+                  boxShadow: `0 0 12px ${group.color}40, 0 0 24px ${group.color}20`
+                }}
+              />
+            </div>
             
-            <div className={styles.timelineContent}>
-              <div className={styles.objectLabel}>Объект</div>
-              <div className={styles.siteName}>{group.siteName}</div>
-              {group.address && (
-                <div className={styles.siteAddress}>{group.address}</div>
-              )}
-              <div className={styles.workersLabel}>Работали на объекте:</div>
-              <div className={styles.workers}>
-                {group.workers.join(', ')}
+            {/* Карточка */}
+            <div className={styles.timelineCard}>
+              <div className={styles.cardHeader}>
+                <div className={styles.siteName}>{group.siteName}</div>
+                {group.address && (
+                  <div className={styles.siteAddress}>· {group.address}</div>
+                )}
+              </div>
+              
+              <div className={styles.workersContainer}>
+                {group.workers.map((name, idx) => (
+                  <span key={idx} className={styles.workerChip}>
+                    {name}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
