@@ -406,6 +406,25 @@
    ТЕМНАЯ ТЕМА
    ============================================================ */
 
+[data-theme="dark"] .calendarWrapper {
+  background: #1a1a1a;
+}
+
+[data-theme="dark"] .todayButton {
+  background: #2d7d46;
+  color: white;
+  box-shadow: 0 2px 6px rgba(45, 125, 70, 0.3);
+}
+
+[data-theme="dark"] .todayButton:hover {
+  background: #237a3e;
+  box-shadow: 0 4px 10px rgba(45, 125, 70, 0.4);
+}
+
+[data-theme="dark"] .todayButton svg {
+  stroke: white;
+}
+
 [data-theme="dark"] .dayDetailsDate {
   color: rgba(255, 255, 255, 0.5);
   border-bottom-color: rgba(255, 255, 255, 0.08);
@@ -446,4 +465,10 @@
 
 [data-theme="dark"] .workerChip:hover {
   background: rgba(255, 255, 255, 0.16);
+}
+
+[data-theme="dark"] .dayPlus {
+  color: #ffffff;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.7);
 }
