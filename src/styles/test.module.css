@@ -191,3 +191,61 @@
   text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
   background: rgba(0, 0, 0, 0.7);
 }
+/* ============================================================
+   КНОПКА "СЕГОДНЯ"
+   ============================================================ */
+
+.todayButton {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-card, #ffffff);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  color: var(--text-primary, #1a1a1a);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  touch-action: none;
+}
+
+.todayButton:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.todayButton:active {
+  transform: scale(0.92);
+}
+
+.todayButtonActive {
+  background: #2d7d46;
+  color: white;
+  box-shadow: 0 2px 8px rgba(45, 125, 70, 0.3);
+}
+
+.todayButtonActive:hover {
+  box-shadow: 0 4px 12px rgba(45, 125, 70, 0.4);
+}
+
+.todayButton svg {
+  stroke: currentColor;
+}
+
+/* Для темной темы */
+[data-theme="dark"] .todayButton {
+  background: #2a2a2a;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .todayButtonActive {
+  background: #2d7d46;
+  color: white;
+}
