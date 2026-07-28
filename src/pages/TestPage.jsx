@@ -2,12 +2,18 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Calendar from 'react-calendar'
 import 'react-calendar/dist/Calendar.css'
+import { useShifts } from '../hooks/useShifts'
+import { useSites } from '../hooks/useSites'
+import { ColoredDay } from '../components/TestCalendar/ColoredDay'
 import styles from '../styles/test.module.css'
 
 export default function TestPage() {
   const [date, setDate] = useState(new Date())
   const [activeStartDate, setActiveStartDate] = useState(new Date())
   const [direction, setDirection] = useState(0)
+  
+  const { shifts } = useShifts()
+  const { sites } = useSites()
 
   const formatMonth = (date) => {
     const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
@@ -20,6 +26,13 @@ export default function TestPage() {
     const newDate = new Date(activeStartDate)
     newDate.setMonth(newDate.getMonth() + newDirection)
     setActiveStartDate(newDate)
+  }
+
+  const goToToday = () => {
+    const today = new Date()
+    setActiveStartDate(today)
+    setDate(today)
+    setDirection(0)
   }
 
   const variants = {
@@ -40,11 +53,36 @@ export default function TestPage() {
     }),
   }
 
+  const tileContent = ({ date: tileDate, view }) => {
+    if (view !== 'month') return null
+    
+    return (
+      <ColoredDay 
+        date={tileDate} 
+        shifts={shifts} 
+        sites={sites} 
+      />
+    )
+  }
+
   return (
     <div className={styles.testPage}>
-    
-      
       <div className={styles.calendarWrapper}>
+        {/* Кнопка "Сегодня" */}
+        <button 
+          className={styles.todayButton}
+          onClick={goToToday}
+          aria-label="Перейти к сегодня"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 2v6h-6" />
+            <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
+            <path d="M3 22v-6h6" />
+            <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
+          </svg>
+          <span>Сегодня</span>
+        </button>
+
         <AnimatePresence mode="popLayout" custom={direction}>
           <motion.div
             key={activeStartDate.getMonth() + '-' + activeStartDate.getFullYear()}
@@ -89,6 +127,7 @@ export default function TestPage() {
               next2Label={null}
               prev2Label={null}
               showNeighboringMonth={false}
+              tileContent={tileContent}
             />
           </motion.div>
         </AnimatePresence>
