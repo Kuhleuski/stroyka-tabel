@@ -257,3 +257,160 @@
 [data-theme="dark"] .todayButton svg {
   stroke: rgba(255, 255, 255, 0.6);
 }
+/* ============================================================
+   DAY DETAILS - ТАЙМЛАЙН
+   ============================================================ */
+
+.dayDetails {
+  margin-top: 16px;
+  padding: 0 4px;
+}
+
+.dayDetailsDate {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary, #666);
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-light, #e8eaed);
+}
+
+/* Пустое состояние */
+.dayDetailsEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px 0;
+  color: var(--text-secondary, #888);
+  font-size: 15px;
+}
+
+.emptyIcon {
+  font-size: 24px;
+}
+
+/* Таймлайн */
+.timeline {
+  position: relative;
+  padding-left: 28px;
+}
+
+/* Вертикальная линия */
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: var(--border-light, #e8eaed);
+  border-radius: 2px;
+}
+
+.timelineItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 8px 0;
+  position: relative;
+  opacity: 0;
+  animation: timelineFadeIn 0.3s ease forwards;
+}
+
+.timelineItem:first-child {
+  padding-top: 0;
+}
+
+.timelineItem:last-child {
+  padding-bottom: 0;
+}
+
+/* Точка */
+.timelineDot {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-body, #f5f5f5);
+  flex-shrink: 0;
+  margin-top: 2px;
+  z-index: 1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease;
+}
+
+.timelineItem:hover .timelineDot {
+  transform: scale(1.15);
+}
+
+/* Контент */
+.timelineContent {
+  flex: 1;
+  min-width: 0;
+  padding-top: 1px;
+}
+
+.siteName {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary, #1a1a1a);
+  line-height: 1.3;
+}
+
+.siteAddress {
+  font-size: 13px;
+  color: var(--text-secondary, #666);
+  margin-top: 1px;
+  line-height: 1.3;
+}
+
+.workers {
+  font-size: 14px;
+  color: var(--text-primary, #1a1a1a);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+/* Анимация появления */
+@keyframes timelineFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Для темной темы */
+[data-theme="dark"] .dayDetailsDate {
+  color: rgba(255, 255, 255, 0.6);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .dayDetailsEmpty {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="dark"] .timeline::before {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .timelineDot {
+  border-color: #1a1a1a;
+}
+
+[data-theme="dark"] .siteName {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .siteAddress {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="dark"] .workers {
+  color: rgba(255, 255, 255, 0.85);
+}
