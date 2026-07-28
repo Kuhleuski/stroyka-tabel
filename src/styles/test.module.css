@@ -21,8 +21,13 @@
   position: relative;
   min-height: 410px;
   touch-action: none;
+  /* Добавляем градиент к фону */
+  background: linear-gradient(
+    to bottom,
+    var(--bg-card, #ffffff) 70%,
+    transparent 100%
+  );
 }
-
 .calendarMotion {
   width: 100%;
   cursor: grab;
