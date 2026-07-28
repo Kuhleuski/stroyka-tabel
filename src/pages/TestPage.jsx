@@ -8,7 +8,6 @@ export default function TestPage() {
   const [date, setDate] = useState(new Date())
   const [activeStartDate, setActiveStartDate] = useState(new Date())
 
-  // === СВАЙП ===
   const handlers = useSwipeable({
     onSwipedLeft: () => {
       const newDate = new Date(activeStartDate)
@@ -24,7 +23,6 @@ export default function TestPage() {
     threshold: 30,
   })
 
-  // === ФОРМАТИРОВАНИЕ НАЗВАНИЯ МЕСЯЦА ===
   const formatMonth = (date) => {
     const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
       'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
@@ -54,7 +52,6 @@ export default function TestPage() {
         />
       </div>
 
-      {/* ДЛЯ ОТЛАДКИ */}
       <div className={styles.debugInfo}>
         <p>Выбрано: {date.toLocaleDateString('ru-RU')}</p>
         <p>Текущий месяц: {formatMonth(activeStartDate)}</p>
