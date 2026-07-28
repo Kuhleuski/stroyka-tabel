@@ -1,14 +1,21 @@
-/* Блок для календаря - без паддингов, на всю ширину */
-.calendarPageWrapper {
-  margin: 0 -16px; /* Компенсируем паддинг контейнера */
-  padding: 0;
-  background: #121212;
+.testPage {
+  padding: 16px 16px 80px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.pageTitle {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--text-primary, #1a1a1a);
 }
 
 .calendarWrapper {
   border-radius: 12px;
-  background: #121212;
+  background: var(--bg-card, #ffffff);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 16px;
   overflow: hidden;
   position: relative;
   touch-action: none;
@@ -24,25 +31,7 @@
   cursor: grabbing;
 }
 
-/* Основной блок с паддингами */
-.testPage {
-  padding: 16px 16px 80px;
-  max-width: 500px;
-  margin: 0 auto;
-}
-
-.pageTitle {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: var(--text-primary, #1a1a1a);
-}
-
-.contentBlock {
-  /* Стили для остального контента */
-}
-
-/* Остальные стили для react-calendar */
+/* Стили для react-calendar */
 .calendarMotion :global(.react-calendar) {
   width: 100%;
   border: none;
@@ -61,7 +50,7 @@
 .calendarMotion :global(.react-calendar__navigation__label) {
   font-size: 16px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-primary, #1a1a1a);
   background: none;
   border: none;
   padding: 8px 16px;
@@ -85,7 +74,7 @@
   text-align: center;
   font-size: 12px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-muted, #888);
   padding: 4px 0;
 }
 
@@ -107,7 +96,7 @@
   justify-content: center;
   font-size: 14px;
   font-weight: 500;
-  color: #ffffff;
+  color: var(--text-primary, #1a1a1a);
   background: none;
   border: none;
   border-radius: 8px;
@@ -117,7 +106,7 @@
 }
 
 .calendarMotion :global(.react-calendar__tile:hover) {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .calendarMotion :global(.react-calendar__tile--active) {
@@ -126,11 +115,11 @@
 }
 
 .calendarMotion :global(.react-calendar__tile--now) {
-  background: rgba(45, 125, 70, 0.3);
-  color: #4CAF50;
+  background: rgba(45, 125, 70, 0.15);
+  color: #2d7d46;
   font-weight: 600;
 }
 
 .calendarMotion :global(.react-calendar__tile--now:hover) {
-  background: rgba(45, 125, 70, 0.4);
+  background: rgba(45, 125, 70, 0.25);
 }
