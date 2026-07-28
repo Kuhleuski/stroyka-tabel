@@ -197,31 +197,30 @@
 
 .todayButton {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 8px;
+  right: 8px;
   z-index: 10;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  padding: 6px 14px;
+  border-radius: 20px;
   border: none;
   background: var(--bg-card, #ffffff);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
   color: var(--text-primary, #1a1a1a);
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   transition: all 0.2s ease;
   touch-action: none;
+  font-family: inherit;
 }
 
 .todayButton:hover {
-  transform: scale(1.05);
+  transform: scale(1.04);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .todayButton:active {
-  transform: scale(0.92);
+  transform: scale(0.94);
 }
 
 .todayButtonActive {
@@ -232,10 +231,6 @@
 
 .todayButtonActive:hover {
   box-shadow: 0 4px 12px rgba(45, 125, 70, 0.4);
-}
-
-.todayButton svg {
-  stroke: currentColor;
 }
 
 /* Для темной темы */
