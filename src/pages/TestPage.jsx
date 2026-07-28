@@ -2,12 +2,19 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Calendar from 'react-calendar'
 import 'react-calendar/dist/Calendar.css'
+import { useShifts } from '../hooks/useShifts'
+import { useSites } from '../hooks/useSites'
+import { ColoredDay } from '../components/TestCalendar/ColoredDay'
 import styles from '../styles/test.module.css'
 
 export default function TestPage() {
   const [date, setDate] = useState(new Date())
   const [activeStartDate, setActiveStartDate] = useState(new Date())
   const [direction, setDirection] = useState(0)
+  
+  // Загружаем данные
+  const { shifts } = useShifts()
+  const { sites } = useSites()
 
   const formatMonth = (date) => {
     const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
@@ -40,9 +47,22 @@ export default function TestPage() {
     }),
   }
 
+  // Компонент для отображения содержимого дня
+  const tileContent = ({ date: tileDate, view }) => {
+    if (view !== 'month') return null
+    
+    return (
+      <ColoredDay 
+        date={tileDate} 
+        shifts={shifts} 
+        sites={sites} 
+      />
+    )
+  }
+
   return (
     <div className={styles.testPage}>
-    
+      <h1 className={styles.pageTitle}>🧪 Тест: Календарь iOS стиль</h1>
       
       <div className={styles.calendarWrapper}>
         <AnimatePresence mode="popLayout" custom={direction}>
@@ -89,6 +109,7 @@ export default function TestPage() {
               next2Label={null}
               prev2Label={null}
               showNeighboringMonth={false}
+              tileContent={tileContent}
             />
           </motion.div>
         </AnimatePresence>
