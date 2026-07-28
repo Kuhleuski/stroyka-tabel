@@ -5,14 +5,11 @@ import styles from '../../styles/test.module.css'
 export function DayDetails({ selectedDate, shifts, sites, workers }) {
   const dateStr = formatDateLocal(selectedDate)
 
-  // Группируем смены по объектам
   const dayGroups = useMemo(() => {
-    // Фильтруем смены за выбранную дату
     const dayShifts = shifts.filter(s => s.work_date === dateStr)
     
     if (dayShifts.length === 0) return []
 
-    // Группируем по site_id
     const groupsMap = {}
     dayShifts.forEach(shift => {
       if (!groupsMap[shift.site_id]) {
@@ -24,11 +21,9 @@ export function DayDetails({ selectedDate, shifts, sites, workers }) {
       groupsMap[shift.site_id].workerIds.push(shift.worker_id)
     })
 
-    // Добавляем данные объектов и работников
     return Object.values(groupsMap).map(group => {
       const site = sites.find(s => s.id === group.siteId)
       
-      // Получаем имена работников
       const workerNames = group.workerIds
         .map(id => {
           const worker = workers.find(w => w.id === id)
@@ -46,7 +41,6 @@ export function DayDetails({ selectedDate, shifts, sites, workers }) {
     })
   }, [dateStr, shifts, sites, workers])
 
-  // Форматируем дату для отображения
   const formatDateDisplay = (date) => {
     const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота']
     const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 
@@ -60,7 +54,6 @@ export function DayDetails({ selectedDate, shifts, sites, workers }) {
     return `${dayName}, ${day} ${month} ${year}`
   }
 
-  // Если смен нет - показываем пустое состояние
   if (dayGroups.length === 0) {
     return (
       <div className={styles.dayDetails}>
@@ -77,33 +70,34 @@ export function DayDetails({ selectedDate, shifts, sites, workers }) {
 
   return (
     <div className={styles.dayDetails}>
-      {/* Дата */}
       <div className={styles.dayDetailsDate}>
         {formatDateDisplay(selectedDate)}
       </div>
 
-      {/* Таймлайн */}
       <div className={styles.timeline}>
         {dayGroups.map((group, index) => (
           <div 
             key={group.siteId} 
             className={styles.timelineItem}
-            style={{ animationDelay: `${index * 0.05}s` }}
+            style={{ animationDelay: `${index * 0.06}s` }}
           >
-            {/* Точка */}
             <div 
               className={styles.timelineDot}
-              style={{ background: group.color }}
+              style={{ 
+                background: group.color,
+                boxShadow: `0 0 12px ${group.color}40, 0 0 24px ${group.color}20`
+              }}
             />
             
-            {/* Контент */}
             <div className={styles.timelineContent}>
+              <div className={styles.objectLabel}>Объект</div>
               <div className={styles.siteName}>{group.siteName}</div>
               {group.address && (
                 <div className={styles.siteAddress}>{group.address}</div>
               )}
+              <div className={styles.workersLabel}>Работали на объекте:</div>
               <div className={styles.workers}>
-                👷 {group.workers.join(', ')}
+                {group.workers.join(', ')}
               </div>
             </div>
           </div>
