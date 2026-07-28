@@ -1,52 +1,64 @@
-// src/pages/TestPage.jsx
-
 import { useState } from 'react'
+import Calendar from 'react-calendar'
+import { useSwipeable } from 'react-swipeable'
+import 'react-calendar/dist/Calendar.css'
 import styles from '../styles/test.module.css'
 
-export function TestPage() {
-    const [count, setCount] = useState(0)
+export default function TestPage() {
+  const [date, setDate] = useState(new Date())
+  const [activeStartDate, setActiveStartDate] = useState(new Date())
 
-    return (
-        <div className={styles.testPage}>
-            <div className={styles.testHeader}>
-                <span className={styles.testTitle}>🧪 Тестовая страница</span>
-            </div>
+  // === СВАЙП ===
+  const handlers = useSwipeable({
+    onSwipedLeft: () => {
+      const newDate = new Date(activeStartDate)
+      newDate.setMonth(newDate.getMonth() + 1)
+      setActiveStartDate(newDate)
+    },
+    onSwipedRight: () => {
+      const newDate = new Date(activeStartDate)
+      newDate.setMonth(newDate.getMonth() - 1)
+      setActiveStartDate(newDate)
+    },
+    trackMouse: false, // только тач
+    threshold: 30, // минимальное расстояние для свайпа
+  })
 
-            <div className={styles.testContent}>
-                <div className={styles.testCard}>
-                    <p className={styles.testText}>
-                        Здесь будет новый календарь или другой эксперимент.
-                    </p>
-                    <div className={styles.testCounter}>
-                        <button 
-                            className={styles.testBtn}
-                            onClick={() => setCount(prev => prev - 1)}
-                        >
-                            −
-                        </button>
-                        <span className={styles.testCount}>{count}</span>
-                        <button 
-                            className={styles.testBtn}
-                            onClick={() => setCount(prev => prev + 1)}
-                        >
-                            +
-                        </button>
-                    </div>
-                    <p className={styles.testHint}>
-                        Тестируй, экспериментируй, не бойся сломать!
-                    </p>
-                </div>
+  // === ФОРМАТИРОВАНИЕ НАЗВАНИЯ МЕСЯЦА ===
+  const formatMonth = (date) => {
+    const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+      'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
+    return `${months[date.getMonth()]} ${date.getFullYear()}`
+  }
 
-                <div className={styles.testPlaceholder}>
-                    <div className={styles.testPlaceholderIcon}>📅</div>
-                    <div className={styles.testPlaceholderText}>
-                        Здесь будет новый календарь
-                    </div>
-                    <div className={styles.testPlaceholderSub}>
-                        Когда будет готов — заменим старый
-                    </div>
-                </div>
-            </div>
-        </div>
-    )
+  return (
+    <div className={styles.testPage}>
+      <h1 className={styles.pageTitle}>🧪 Тест: Новый календарь</h1>
+      
+      <div className={styles.calendarWrapper} {...handlers}>
+        <Calendar
+          value={date}
+          onChange={setDate}
+          activeStartDate={activeStartDate}
+          onActiveStartDateChange={({ activeStartDate: newDate }) => {
+            setActiveStartDate(newDate)
+          }}
+          minDetail="month"
+          maxDetail="month"
+          navigationLabel={({ date }) => formatMonth(date)}
+          prevLabel="‹"
+          nextLabel="›"
+          next2Label={null}
+          prev2Label={null}
+          showNeighboringMonth={false}
+        />
+      </div>
+
+      {/* ПРОСТО ДЛЯ ОТЛАДКИ */}
+      <div className={styles.debugInfo}>
+        <p>Выбрано: {date.toLocaleDateString('ru-RU')}</p>
+        <p>Текущий месяц: {formatMonth(activeStartDate)}</p>
+      </div>
+    </div>
+  )
 }
