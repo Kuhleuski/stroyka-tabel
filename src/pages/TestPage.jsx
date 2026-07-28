@@ -1,6 +1,6 @@
 // src/pages/TestPage.jsx
 
-import { useState, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import Calendar from 'react-calendar'
 import { useSwipeable } from 'react-swipeable'
 import 'react-calendar/dist/Calendar.css'
@@ -14,46 +14,33 @@ export default function TestPage() {
   const [offsetX, setOffsetX] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
-  const [direction, setDirection] = useState(null) // 'left' или 'right'
-  
-  // Для отображения названия месяца с анимацией
-  const [displayMonth, setDisplayMonth] = useState(activeStartDate)
-  const [monthTransition, setMonthTransition] = useState(false)
+  const containerRef = useRef(null)
 
-  // Обновляем displayMonth при изменении activeStartDate
-  useEffect(() => {
-    if (!isDragging) {
-      setDisplayMonth(activeStartDate)
-    }
-  }, [activeStartDate, isDragging])
-
-  // Получаем даты для 3 месяцев
-  const getMonthDate = (delta) => {
-    const newDate = new Date(activeStartDate)
-    newDate.setMonth(newDate.getMonth() + delta)
-    return newDate
+  // Получаем ширину экрана для анимации
+  const getContainerWidth = () => {
+    return window.innerWidth
   }
 
-  // Переключение месяца с анимацией
+  // Переключение месяца с полной анимацией
   const changeMonth = (direction) => {
     if (isAnimating) return
     
     setIsAnimating(true)
-    setDirection(direction === 1 ? 'left' : 'right')
+    const containerWidth = getContainerWidth()
     
-    const newDate = new Date(activeStartDate)
-    newDate.setMonth(newDate.getMonth() + direction)
-    setActiveStartDate(newDate)
+    // Сдвигаем в нужную сторону на полную ширину
+    const targetOffset = direction === 1 ? -containerWidth : containerWidth
+    setOffsetX(targetOffset)
     
-    // Анимация названия месяца
-    setMonthTransition(true)
+    // Ждем окончания анимации
     setTimeout(() => {
-      setMonthTransition(false)
-    }, 300)
-    
-    setTimeout(() => {
+      const newDate = new Date(activeStartDate)
+      newDate.setMonth(newDate.getMonth() + direction)
+      setActiveStartDate(newDate)
+      
+      // Сбрасываем позицию без анимации
+      setOffsetX(0)
       setIsAnimating(false)
-      setDirection(null)
     }, 350)
   }
 
@@ -66,35 +53,38 @@ export default function TestPage() {
       
       if (absDeltaX > 10) {
         setIsDragging(true)
-        setOffsetX(deltaX)
-        
-        if (deltaX < 0) {
-          setDirection('left')
-        } else if (deltaX > 0) {
-          setDirection('right')
-        }
+        // Ограничиваем смещение, чтобы не уехать слишком далеко
+        const maxOffset = getContainerWidth() * 0.6
+        const clampedOffset = Math.max(-maxOffset, Math.min(maxOffset, deltaX))
+        setOffsetX(clampedOffset)
       }
     },
     onSwiped: (eventData) => {
       if (isAnimating) return
       
       const deltaX = eventData.deltaX
+      const containerWidth = getContainerWidth()
       
-      if (deltaX < -50) {
+      // Порог свайпа - 30% ширины экрана
+      const threshold = containerWidth * 0.3
+      
+      if (deltaX < -threshold) {
+        // Свайп влево
         changeMonth(1)
-      } else if (deltaX > 50) {
+      } else if (deltaX > threshold) {
+        // Свайп вправо
         changeMonth(-1)
       } else {
-        // Сброс если свайп был маленький
+        // Свайп слишком короткий - возвращаем на место
         setIsDragging(false)
         setOffsetX(0)
-        setDirection(null)
       }
     },
     onTap: () => {
-      setIsDragging(false)
-      setOffsetX(0)
-      setDirection(null)
+      if (!isAnimating) {
+        setIsDragging(false)
+        setOffsetX(0)
+      }
     },
     trackMouse: false,
     threshold: 10,
@@ -102,32 +92,33 @@ export default function TestPage() {
 
   // Вычисляем стили для анимации
   const getContainerStyle = () => {
-    const maxOffset = window.innerWidth * 0.7
-    
-    if (!isDragging && !isAnimating) {
-      return {
-        transform: 'translateX(0)',
-        transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-      }
-    }
-    
     if (isAnimating) {
-      // Анимация перехода
-      const targetOffset = direction === 'left' ? -window.innerWidth : window.innerWidth
       return {
-        transform: `translateX(${targetOffset}px)`,
-        transition: 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        transform: `translateX(${offsetX}px)`,
+        transition: 'transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
       }
     }
     
-    const clampedOffset = Math.max(-maxOffset, Math.min(maxOffset, offsetX))
+    if (isDragging) {
+      return {
+        transform: `translateX(${offsetX}px)`,
+        transition: 'none',
+      }
+    }
+    
     return {
-      transform: `translateX(${clampedOffset}px)`,
-      transition: 'none',
+      transform: 'translateX(0)',
+      transition: 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
     }
   }
 
   // Получаем 3 месяца
+  const getMonthDate = (delta) => {
+    const newDate = new Date(activeStartDate)
+    newDate.setMonth(newDate.getMonth() + delta)
+    return newDate
+  }
+
   const prevMonth = getMonthDate(-1)
   const currentMonth = getMonthDate(0)
   const nextMonth = getMonthDate(1)
@@ -138,39 +129,17 @@ export default function TestPage() {
     return `${months[date.getMonth()]} ${date.getFullYear()}`
   }
 
-  // Визуальный индикатор переключения
-  const getMonthTitle = () => {
-    const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-      'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
-    
-    let month = monthNames[displayMonth.getMonth()]
-    let year = displayMonth.getFullYear()
-    
-    let directionText = ''
-    if (direction === 'left') directionText = ' →'
-    if (direction === 'right') directionText = ' ←'
-    
-    return `${month} ${year}${directionText}`
-  }
+  // Кнопки навигации
+  const handlePrevClick = () => changeMonth(-1)
+  const handleNextClick = () => changeMonth(1)
 
   return (
     <div className={styles.testPage}>
       <h1 className={styles.pageTitle}>🧪 Тест: Календарь со свайпом</h1>
       
-      {/* Визуальный индикатор месяца */}
-      <div className={styles.monthIndicator}>
-        <span className={`${styles.monthText} ${monthTransition ? styles.monthTransition : ''}`}>
-          {getMonthTitle()}
-        </span>
-        {isDragging && (
-          <span className={styles.dragIndicator}>
-            {offsetX < -20 ? '◀' : offsetX > 20 ? '▶' : ''}
-          </span>
-        )}
-      </div>
-      
       <div className={styles.calendarWrapper}>
         <div 
+          ref={containerRef}
           className={styles.calendarContainer}
           {...handlers}
           style={getContainerStyle()}
@@ -201,8 +170,8 @@ export default function TestPage() {
               minDetail="month"
               maxDetail="month"
               navigationLabel={({ date }) => formatMonth(date)}
-              prevLabel="‹"
-              nextLabel="›"
+              prevLabel={<span onClick={handlePrevClick}>‹</span>}
+              nextLabel={<span onClick={handleNextClick}>›</span>}
               next2Label={null}
               prev2Label={null}
               showNeighboringMonth={false}
@@ -232,9 +201,8 @@ export default function TestPage() {
       <div className={styles.debugInfo}>
         <p>Текущий: {formatMonth(activeStartDate)}</p>
         <p>Offset: {offsetX}px</p>
-        <p>Направление: {direction || 'нет'}</p>
-        <p>Анимация: {isAnimating ? 'Да' : 'Нет'}</p>
-        <p>Дрэг: {isDragging ? 'Да' : 'Нет'}</p>
+        <p>Dragging: {isDragging ? 'Да' : 'Нет'}</p>
+        <p>Animating: {isAnimating ? 'Да' : 'Нет'}</p>
       </div>
     </div>
   )
