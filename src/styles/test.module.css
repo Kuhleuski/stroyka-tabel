@@ -20,19 +20,20 @@
   overflow: hidden;
   position: relative;
   min-height: 400px;
+  touch-action: none; /* ← добавил для лучшей обработки тачей */
 }
 
 .calendarMotion {
   width: 100%;
   cursor: grab;
-  touch-action: none;
+  touch-action: none; /* ← добавил */
 }
 
 .calendarMotion:active {
   cursor: grabbing;
 }
 
-/* Стили для react-calendar */
+/* Остальные стили react-calendar */
 .calendarMotion :global(.react-calendar) {
   width: 100%;
   border: none;
@@ -139,7 +140,6 @@
   background: rgba(45, 125, 70, 0.25);
 }
 
-/* Точки индикаторы */
 .dots {
   display: flex;
   justify-content: center;
@@ -161,7 +161,6 @@
   border-radius: 4px;
 }
 
-/* Отладка */
 .debugInfo {
   margin-top: 20px;
   padding: 12px;
