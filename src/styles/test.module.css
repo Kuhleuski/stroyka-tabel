@@ -12,64 +12,6 @@
   color: var(--text-primary, #1a1a1a);
 }
 
-/* --- ИНДИКАТОР МЕСЯЦА --- */
-.monthIndicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 16px;
-  padding: 8px 12px;
-  background: var(--bg-card, #ffffff);
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-  min-height: 44px;
-}
-
-.monthText {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-primary, #1a1a1a);
-  transition: all 0.3s ease;
-}
-
-.monthTransition {
-  animation: monthPulse 0.3s ease;
-}
-
-@keyframes monthPulse {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.1);
-    color: #2d7d46;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-.dragIndicator {
-  font-size: 20px;
-  color: #2d7d46;
-  animation: indicatorPulse 0.5s ease infinite alternate;
-}
-
-@keyframes indicatorPulse {
-  0% {
-    opacity: 0.4;
-    transform: translateX(-4px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(4px);
-  }
-}
-
-/* --- КАЛЕНДАРЬ --- */
 .calendarWrapper {
   border-radius: 12px;
   background: var(--bg-card, #ffffff);
@@ -125,7 +67,6 @@
   border-radius: 8px;
 }
 
-/* --- ОТЛАДКА --- */
 .debugInfo {
   margin-top: 20px;
   padding: 12px;
