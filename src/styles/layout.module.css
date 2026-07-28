@@ -251,14 +251,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
+    width: 36px;
+    height: 36px;
 }
 
 .navIcon svg {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     stroke: currentColor;
+    stroke-width: 2.5;
 }
 
 .navLabel {
@@ -383,13 +384,14 @@
     }
 
     .navIcon {
-        width: 24px;
-        height: 24px;
+        width: 30px;
+        height: 30px;
     }
 
     .navIcon svg {
-        width: 20px;
-        height: 20px;
+        width: 26px;
+        height: 26px;
+        stroke-width: 2.5;
     }
 
     .navLabel {
@@ -432,17 +434,18 @@
 
     .navItem {
         padding: 4px 10px;
-        min-width: 52px;
+        min-width: 48px;
     }
 
     .navIcon {
-        width: 24px;
-        height: 24px;
+        width: 26px;
+        height: 26px;
     }
 
     .navIcon svg {
-        width: 20px;
-        height: 20px;
+        width: 22px;
+        height: 22px;
+        stroke-width: 2.5;
     }
 
     .navLabel {
@@ -454,6 +457,17 @@
     .navItem {
         padding: 6px 12px;
         min-width: 58px;
+    }
+
+    .navIcon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .navIcon svg {
+        width: 28px;
+        height: 28px;
+        stroke-width: 2.5;
     }
 }
 
