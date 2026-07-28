@@ -27,32 +27,40 @@
   user-select: none;
   -webkit-user-select: none;
   will-change: transform;
+  width: 300%;
+  margin-left: -100%;
 }
 
 .calendarSlide {
-  min-width: 100%;
+  width: 33.333%;
   flex-shrink: 0;
+  padding: 0 4px;
 }
 
-/* Скрываем навигационные кнопки react-calendar */
-.calendarSlide :global(.react-calendar__navigation) {
-  /* Оставляем только для центрального */
-}
-
-.calendarSlide :global(.react-calendar__navigation__prev-button),
-.calendarSlide :global(.react-calendar__navigation__next-button) {
-  display: none;
-}
-
+/* Скрываем навигационные кнопки у боковых месяцев */
 .calendarSlide:first-child :global(.react-calendar__navigation__prev-button),
+.calendarSlide:first-child :global(.react-calendar__navigation__next-button),
+.calendarSlide:last-child :global(.react-calendar__navigation__prev-button),
 .calendarSlide:last-child :global(.react-calendar__navigation__next-button) {
-  display: none;
+  display: none !important;
 }
 
-/* Центральный слайд показывает кнопки */
+/* Центральный месяц показывает кнопки */
 .calendarSlide:nth-child(2) :global(.react-calendar__navigation__prev-button),
 .calendarSlide:nth-child(2) :global(.react-calendar__navigation__next-button) {
-  display: flex;
+  display: flex !important;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--text-primary, #1a1a1a);
+  padding: 8px 12px;
+}
+
+.calendarSlide:nth-child(2) :global(.react-calendar__navigation__prev-button):hover,
+.calendarSlide:nth-child(2) :global(.react-calendar__navigation__next-button):hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
 }
 
 .debugInfo {
