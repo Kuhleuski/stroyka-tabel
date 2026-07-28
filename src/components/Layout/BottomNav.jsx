@@ -1,7 +1,7 @@
 // src/components/Layout/BottomNav.jsx
 
 import { useRef, useEffect } from 'react'
-import { useAuth } from '../../context/AuthContext'
+import { useAuth } from '../../context/AuthContext'  // ← ИСПРАВЛЕНО
 import styles from '../../styles/layout.module.css'
 
 // === ПЛОСКИЕ SVG-ИКОНКИ (Lucide) ===
@@ -61,6 +61,15 @@ const icons = {
             <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
         </svg>
     ),
+    'test': (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="2.18"/>
+            <line x1="8" y1="2" x2="8" y2="22"/>
+            <line x1="16" y1="2" x2="16" y2="22"/>
+            <line x1="2" y1="8" x2="22" y2="8"/>
+            <line x1="2" y1="16" x2="22" y2="16"/>
+        </svg>
+    ),
 }
 
 export function BottomNav({ currentPage, onNavigate }) {
@@ -69,7 +78,6 @@ export function BottomNav({ currentPage, onNavigate }) {
     const isAdmin = user?.role === 'admin'
 
     // Все пункты меню (для админа — все, для работника — без админских)
-    // НАСТРОЙКИ УДАЛЕНЫ
     const allItems = isAdmin ? [
         { key: 'calendar', icon: icons.calendar, label: 'Главная' },
         { key: 'my-tabel', icon: icons['my-tabel'], label: 'Мой табель' },
@@ -78,11 +86,13 @@ export function BottomNav({ currentPage, onNavigate }) {
         { key: 'statistics', icon: icons.statistics, label: 'Статистика' },
         { key: 'costs', icon: icons.costs, label: 'Затраты' },
         { key: 'salary', icon: icons.salary, label: 'Зарплата' },
+        { key: 'test', icon: icons.test, label: 'Тест' },
     ] : [
         { key: 'calendar', icon: icons.calendar, label: 'Главная' },
         { key: 'my-tabel', icon: icons['my-tabel'], label: 'Мой табель' },
         { key: 'workers', icon: icons.workers, label: 'Бригада' },
         { key: 'sites', icon: icons.sites, label: 'Объекты' },
+        { key: 'test', icon: icons.test, label: 'Тест' },
     ]
 
     // При загрузке и при смене страницы — прокручиваем к активному пункту

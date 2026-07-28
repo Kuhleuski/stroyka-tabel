@@ -1,10 +1,178 @@
 /* ============================================================
-   ШАПКА — СКРЫТА
+   LAYOUT — ОБЩИЕ СТИЛИ
    ============================================================ */
 
-/* 
-.header { ... }
-*/
+.app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: var(--bg-body);
+    position: relative;
+}
+
+/* ============================================================
+   ХЕДЕР
+   ============================================================ */
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    min-height: 64px;
+}
+
+[data-theme="dark"] .header {
+    background: rgba(26, 26, 26, 0.95);
+}
+
+.headerBrand {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+}
+
+.headerUserInfo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: default;
+    min-width: 0;
+}
+
+.headerAvatarSmall {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+    user-select: none;
+}
+
+.headerAvatarImage {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 2px solid var(--color-primary);
+}
+
+.headerUserText {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+    min-width: 0;
+}
+
+.headerUserLabel {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.headerUserName {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.headerActions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.headerNotificationsBtn {
+    position: relative;
+    background: none;
+    border: none;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+}
+
+.headerNotificationsBtn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.headerNotificationsBtn:active {
+    transform: scale(0.92);
+}
+
+.headerNotificationsBadge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: #e53935;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    border: 2px solid var(--bg-card);
+}
+
+.headerSettingsBtn {
+    background: none;
+    border: none;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+}
+
+.headerSettingsBtn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.headerSettingsBtn:active {
+    transform: scale(0.92);
+}
+
+.headerNotificationsBtn svg,
+.headerSettingsBtn svg {
+    width: 26px;
+    height: 26px;
+}
 
 /* ============================================================
    НИЖНЯЯ НАВИГАЦИЯ
@@ -15,274 +183,93 @@
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: var(--z-nav);
-    max-width: var(--max-width);
-    margin: 0 auto;
-    padding: 12px 16px 20px;
-    background: transparent;
+    background: var(--bg-nav);
+    border-top: 1px solid var(--border-color);
+    z-index: 200;
+    padding: 6px 0 env(safe-area-inset-bottom);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+[data-theme="dark"] .bottomNav {
+    background: rgba(26, 26, 26, 0.92);
 }
 
 .navContainer {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 4px;
+    overflow: hidden;
+}
+
+.scrollWrapper {
     display: flex;
-    align-items: center;
-    gap: 12px;
-    position: relative;
-    min-height: 64px;
-    margin-right: 66px;
+    gap: 2px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px 8px 8px;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
-.groupsWrapper {
-    flex: 1;
-    position: relative;
-    min-height: 60px;
+.scrollWrapper::-webkit-scrollbar {
+    display: none;
 }
 
-/* ============================================================
-   БУРГЕР — position: fixed
-   ============================================================ */
-
-.burgerBtn {
-    position: fixed;
-    bottom: 20px;
-    right: 16px;
-    background: rgba(22, 25, 29, 0.97);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: none;
-    width: 54px;
-    height: 54px;
-    border-radius: 50%;
-    color: #ffffff;
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-    z-index: 30;
-}
-
-[data-theme="dark"] .burgerBtn {
-    background: #ffffff;
-    color: #000000;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-}
-
-.burgerBtn .navIcon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.burgerBtn .navIcon svg {
-    width: 28px;
-    height: 28px;
-    stroke: currentColor;
-}
-
-.burgerBtn:hover {
-    transform: scale(1.05);
-}
-
-.burgerBtn:active {
-    transform: scale(0.92);
-}
-
-.burgerActive {
-    background: rgba(22, 25, 29, 0.85) !important;
-}
-
-[data-theme="dark"] .burgerActive {
-    background: rgba(255, 255, 255, 0.9) !important;
-}
-
-/* ============================================================
-   ОСНОВНАЯ ГРУППА — ПЛАВНАЯ АНИМАЦИЯ
-   ============================================================ */
-
-.mainGroup {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
-    background: rgba(22, 25, 29, 0.97);
-    border-radius: 50px;
-    padding: 6px 8px;
-    align-items: center;
-    min-height: 60px;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    transform-origin: center;
-    will-change: transform, opacity;
-}
-
-[data-theme="dark"] .mainGroup {
-    background: #ffffff;
-}
-
-.mainGroupVisible {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    pointer-events: all;
-}
-
-.mainGroupHidden {
-    opacity: 0;
-    transform: translateY(-10px) scale(0.95);
-    pointer-events: none;
-}
-
-/* ============================================================
-   ДОПОЛНИТЕЛЬНАЯ ГРУППА — ПЛАВНАЯ АНИМАЦИЯ
-   ============================================================ */
-
-.extraGroup {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
-    background: rgba(22, 25, 29, 0.97);
-    border-radius: 50px;
-    padding: 6px 8px;
-    align-items: center;
-    min-height: 60px;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    transform-origin: center;
-    will-change: transform, opacity;
-}
-
-[data-theme="dark"] .extraGroup {
-    background: #ffffff;
-}
-
-.extraGroupVisible {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    pointer-events: all;
-}
-
-.extraGroupHidden {
-    opacity: 0;
-    transform: translateY(10px) scale(0.95);
-    pointer-events: none;
-}
-
-/* ============================================================
-   ОБЩИЕ СТИЛИ ДЛЯ ПУНКТОВ
-   ============================================================ */
-
-.mainItem,
-.extraItem {
-    background: none;
-    border: none;
-    padding: 4px 0;
-    color: rgba(255, 255, 255, 0.7);
+.navItem {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 2px;
+    background: none;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: all 0.3s ease;
     font-family: inherit;
-    border-radius: 50px;
-    padding: 6px 4px;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    min-width: 64px;
+    transition: none;
+    color: var(--text-muted);
 }
 
-[data-theme="dark"] .mainItem,
-[data-theme="dark"] .extraItem {
-    color: rgba(0, 0, 0, 0.6);
+.navItem:hover {
+    color: var(--text-muted);
+    background: none;
 }
 
-.mainItem .iconWrap,
-.extraItem .extraIconWrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-}
-
-.mainItem .iconWrap svg,
-.extraItem .extraIconWrap svg {
-    width: 28px;
-    height: 28px;
-    stroke: currentColor;
-    color: #ffffff;
-    transition: color 0.3s ease;
-}
-
-[data-theme="dark"] .mainItem .iconWrap svg,
-[data-theme="dark"] .extraItem .extraIconWrap svg {
-    color: #000000;
-}
-
-.mainItem.active .iconWrap svg,
-.extraItem.active .extraIconWrap svg {
-    color: var(--color-primary);
-}
-
-.mainItem.active,
-.extraItem.active {
+.navItem.active {
     color: var(--color-primary);
     background: var(--color-primary-light);
 }
 
-[data-theme="dark"] .mainItem.active,
-[data-theme="dark"] .extraItem.active {
-    background: rgba(45, 125, 70, 0.3);
-}
-
-.mainLabel,
-.extraLabel {
-    font-size: 9px;
-    color: inherit;
-    font-weight: 500;
-    text-align: center;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    opacity: 0.8;
-    transition: opacity 0.3s ease;
-}
-
-.mainItem.active .mainLabel,
-.extraItem.active .extraLabel {
-    opacity: 1;
-}
-
-/* ============================================================
-   БЕЙДЖ
-   ============================================================ */
-
-.badgeDot {
-    position: absolute;
-    top: -6px;
-    right: -8px;
-    background: #c62828;
-    color: white;
-    font-size: 9px;
-    font-weight: 700;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
+.navIcon {
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid rgba(22, 25, 29, 0.97);
+    width: 36px;
+    height: 36px;
 }
 
-[data-theme="dark"] .badgeDot {
-    border-color: #ffffff;
+.navIcon svg {
+    width: 32px;
+    height: 32px;
+    stroke: currentColor;
+    stroke-width: 2.5;
+}
+
+.navLabel {
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
 }
 
 /* ============================================================
-   УВЕДОМЛЕНИЯ — ПРАВЫЙ ВЕРХНИЙ УГОЛ
+   УВЕДОМЛЕНИЯ (FLOATING)
    ============================================================ */
 
 .notificationBadge {
@@ -334,53 +321,83 @@
     align-items: center;
     justify-content: center;
     padding: 0 4px;
-    /* БЕЗ ЧЕРНОЙ ОБВОДКИ */
 }
 
 /* ============================================================
    АДАПТИВ
    ============================================================ */
 
-@media (max-width: 400px) {
-    .bottomNav {
-        padding: 10px 12px 16px;
-    }
-
-    .navContainer {
-        margin-right: 58px;
+@media (max-width: 480px) {
+    .header {
+        padding: 10px 12px;
         min-height: 56px;
-        gap: 8px;
     }
 
-    .mainGroup,
-    .extraGroup {
-        padding: 4px 6px;
-        gap: 2px;
-        min-height: 52px;
-        border-radius: 40px;
+    .headerAvatarSmall {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
     }
 
-    .mainItem .iconWrap svg,
-    .extraItem .extraIconWrap svg {
+    .headerAvatarImage {
+        width: 32px;
+        height: 32px;
+    }
+
+    .headerUserName {
+        font-size: 14px;
+    }
+
+    .headerUserLabel {
+        font-size: 9px;
+    }
+
+    .headerNotificationsBtn,
+    .headerSettingsBtn {
+        width: 38px;
+        height: 38px;
+        padding: 8px;
+    }
+
+    .headerNotificationsBtn svg,
+    .headerSettingsBtn svg {
         width: 22px;
         height: 22px;
     }
 
-    .mainLabel,
-    .extraLabel {
-        font-size: 8px;
+    .bottomNav {
+        padding: 4px 0 env(safe-area-inset-bottom);
     }
 
-    .burgerBtn {
-        width: 48px;
-        height: 48px;
-        bottom: 16px;
-        right: 12px;
+    .navContainer {
+        padding: 0 2px;
     }
 
-    .burgerBtn .navIcon svg {
-        width: 24px;
-        height: 24px;
+    .scrollWrapper {
+        padding: 4px 4px 6px;
+        gap: 2px;
+    }
+
+    .navItem {
+        padding: 4px 10px;
+        min-width: 52px;
+    }
+
+    .navIcon {
+        width: 30px;
+        height: 30px;
+    }
+
+    .navIcon svg {
+        width: 26px;
+        height: 26px;
+        stroke-width: 2.5;
+    }
+
+    .navLabel {
+        font-size: 9px;
+        font-weight: 500;
+        white-space: nowrap;
     }
 
     .notificationBadge {
@@ -403,411 +420,6 @@
     }
 }
 
-/* ============================================================
-   ХЕДЕР — ИНФОРМАЦИЯ О ПОЛЬЗОВАТЕЛЕ
-   ============================================================ */
-
-.headerUserInfo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: default;
-}
-
-.headerAvatarSmall {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: var(--color-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    font-weight: 600;
-    color: white;
-    flex-shrink: 0;
-    user-select: none;
-}
-
-.headerUserText {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.2;
-}
-
-.headerUserLabel {
-    font-size: 10px;
-    font-weight: 400;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-}
-
-.headerUserName {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-/* Адаптив для маленьких экранов */
-@media (max-width: 480px) {
-    .headerUserInfo {
-        gap: 8px;
-    }
-
-    .headerAvatarSmall {
-        width: 32px;
-        height: 32px;
-        font-size: 14px;
-    }
-
-    .headerUserName {
-        font-size: 14px;
-    }
-
-    .headerUserLabel {
-        font-size: 9px;
-    }
-}
-/* ============================================================
-   ХЕДЕР
-   ============================================================ */
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 16px;
-    background: var(--bg-card);
-    border-bottom: 1px solid var(--border-color);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    min-height: 64px;
-}
-
-[data-theme="dark"] .header {
-    background: rgba(26, 26, 26, 0.95);
-}
-
-/* Левая часть — информация о пользователе */
-.headerBrand {
-    display: flex;
-    align-items: center;
-    flex: 1;
-    min-width: 0;
-}
-
-.headerUserInfo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: default;
-    min-width: 0;
-}
-
-.headerAvatarSmall {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    background: var(--color-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    font-weight: 600;
-    color: white;
-    flex-shrink: 0;
-    user-select: none;
-}
-
-.headerUserText {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.2;
-    min-width: 0;
-}
-
-.headerUserLabel {
-    font-size: 10px;
-    font-weight: 400;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-}
-
-.headerUserName {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Правая часть — кнопки */
-.headerActions {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-shrink: 0;
-}
-
-/* Кнопка уведомлений */
-.headerNotificationsBtn {
-    position: relative;
-    background: none;
-    border: none;
-    padding: 8px;
-    border-radius: 50%;
-    cursor: pointer;
-    color: var(--text-secondary);
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-}
-
-.headerNotificationsBtn:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
-}
-
-.headerNotificationsBtn:active {
-    transform: scale(0.92);
-}
-
-.headerNotificationsBadge {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    background: #e53935;
-    color: white;
-    font-size: 10px;
-    font-weight: 700;
-    min-width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 4px;
-    border: 2px solid var(--bg-card);
-}
-
-/* Кнопка настроек */
-.headerSettingsBtn {
-    background: none;
-    border: none;
-    padding: 8px;
-    border-radius: 50%;
-    cursor: pointer;
-    color: var(--text-secondary);
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-}
-
-.headerSettingsBtn:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
-}
-
-.headerSettingsBtn:active {
-    transform: scale(0.92);
-}
-
-/* ============================================================
-   АДАПТИВ ДЛЯ ХЕДЕРА
-   ============================================================ */
-
-@media (max-width: 480px) {
-    .header {
-        padding: 10px 12px;
-        min-height: 56px;
-    }
-
-    .headerAvatarSmall {
-        width: 32px;
-        height: 32px;
-        font-size: 14px;
-    }
-
-    .headerUserName {
-        font-size: 14px;
-    }
-
-    .headerUserLabel {
-        font-size: 9px;
-    }
-
-    .headerNotificationsBtn,
-    .headerSettingsBtn {
-        width: 36px;
-        height: 36px;
-        padding: 6px;
-    }
-
-    .headerNotificationsBtn svg,
-    .headerSettingsBtn svg {
-        width: 18px;
-        height: 18px;
-    }
-}
-
-@media (min-width: 481px) and (max-width: 768px) {
-    .header {
-        padding: 14px 20px;
-    }
-}
-/* Аватарка с фото */
-.headerAvatarImage {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
-    border: 2px solid var(--color-primary);
-}
-
-/* Немного увеличиваем кнопки */
-.headerNotificationsBtn,
-.headerSettingsBtn {
-    width: 44px;
-    height: 44px;
-    padding: 10px;
-}
-
-.headerNotificationsBtn svg,
-.headerSettingsBtn svg {
-    width: 26px;
-    height: 26px;
-}
-
-/* Адаптив для мобильных */
-@media (max-width: 480px) {
-    .headerAvatarImage {
-        width: 32px;
-        height: 32px;
-    }
-    
-    .headerNotificationsBtn,
-    .headerSettingsBtn {
-        width: 38px;
-        height: 38px;
-        padding: 8px;
-    }
-    
-    .headerNotificationsBtn svg,
-    .headerSettingsBtn svg {
-        width: 22px;
-        height: 22px;
-    }
-}
-/* ============================================================
-   НИЖНЯЯ НАВИГАЦИЯ — БЕЗ ХОВЕРОВ
-   ============================================================ */
-
-.bottomNav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: var(--bg-nav);
-    border-top: 1px solid var(--border-color);
-    z-index: 200;
-    padding: 6px 0 env(safe-area-inset-bottom);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-}
-
-[data-theme="dark"] .bottomNav {
-    background: rgba(26, 26, 26, 0.92);
-}
-
-.navContainer {
-    max-width: 480px;
-    margin: 0 auto;
-    padding: 0 4px;
-    overflow: hidden;
-}
-
-/* Горизонтальный скролл */
-.scrollWrapper {
-    display: flex;
-    gap: 2px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 4px 8px 8px;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x proximity;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
-
-.scrollWrapper::-webkit-scrollbar {
-    display: none;
-}
-
-/* Каждый пункт меню — ТОЛЬКО два состояния */
-.navItem {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    background: none;
-    border: none;
-    padding: 6px 14px;
-    border-radius: 12px;
-    cursor: pointer;
-    font-family: inherit;
-    flex-shrink: 0;
-    scroll-snap-align: start;
-    min-width: 64px;
-    transition: none;
-    /* ❌ Убираем все переходы и ховеры */
-    color: var(--text-muted);
-}
-
-/* ❌ Убираем ховер */
-.navItem:hover {
-    color: var(--text-muted);
-    background: none;
-}
-
-/* ✅ Активное состояние */
-.navItem.active {
-    color: var(--color-primary);
-    background: var(--color-primary-light);
-}
-
-.navIcon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-}
-
-.navIcon svg {
-    width: 24px;
-    height: 24px;
-    stroke: currentColor;
-}
-
-.navLabel {
-    font-size: 10px;
-    font-weight: 500;
-    white-space: nowrap;
-}
-
-/* Адаптив для маленьких экранов */
 @media (max-width: 400px) {
     .bottomNav {
         padding: 4px 0 env(safe-area-inset-bottom);
@@ -824,21 +436,24 @@
 
     .navItem {
         padding: 4px 10px;
-        min-width: 52px;
+        min-width: 48px;
     }
 
     .navIcon {
-        width: 24px;
-        height: 24px;
+        width: 26px;
+        height: 26px;
     }
 
     .navIcon svg {
-        width: 20px;
-        height: 20px;
+        width: 22px;
+        height: 22px;
+        stroke-width: 2.5;
     }
 
     .navLabel {
-        font-size: 8px;
+        font-size: 9px;
+        font-weight: 500;
+        white-space: nowrap;
     }
 }
 
@@ -846,5 +461,28 @@
     .navItem {
         padding: 6px 12px;
         min-width: 58px;
+    }
+
+    .navIcon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .navIcon svg {
+        width: 28px;
+        height: 28px;
+        stroke-width: 2.5;
+    }
+
+    .navLabel {
+        font-size: 9px;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+    .header {
+        padding: 14px 20px;
     }
 }

@@ -48,7 +48,7 @@
 }
 
 /* ============================================================
-   СПИСОК ОБЪЕКТОВ (ОДИН ПОД ОДНИМ)
+   СПИСОК ОБЪЕКТОВ
    ============================================================ */
 
 .sitesList {
@@ -76,7 +76,6 @@
     transform: scale(0.98);
 }
 
-/* === ВЕРХНЯЯ ЧАСТЬ === */
 .siteCardTop {
     display: flex;
     align-items: center;
@@ -92,7 +91,6 @@
     min-width: 0;
 }
 
-/* === ЦВЕТНОЙ КРУГ === */
 .siteColorDot {
     width: 56px;
     height: 56px;
@@ -111,7 +109,6 @@
     white-space: nowrap;
 }
 
-/* === СТАТУС === */
 .siteStatusBadge {
     display: inline-flex;
     align-items: center;
@@ -133,7 +130,6 @@
     flex-shrink: 0;
 }
 
-/* === АДРЕС === */
 .siteAddress {
     font-size: 13px;
     color: var(--text-light);
@@ -145,7 +141,7 @@
 }
 
 /* ============================================================
-   ПЛАВАЮЩАЯ КНОПКА ДЛЯ ОБЪЕКТОВ
+   ПЛАВАЮЩАЯ КНОПКА
    ============================================================ */
 
 .fabAddSite {
@@ -181,475 +177,69 @@
     color: white;
 }
 
-/* === АДАПТИВ === */
-@media (max-width: 480px) {
-    .siteCardRow {
-        padding: 14px 16px;
-    }
-    
-    .siteColorDot {
-        width: 44px;
-        height: 44px;
-    }
-    
-    .siteName {
-        font-size: var(--font-size-md);
-    }
-    
-    .siteStatusBadge {
-        font-size: 11px;
-        padding: 3px 10px 3px 8px;
-    }
-    
-    .statusDot {
-        width: 6px;
-        height: 6px;
-    }
-    
-    .siteAddress {
-        font-size: var(--font-size-sm);
-        padding-left: 56px;
-    }
-}
-
-@media (max-width: 400px) {
-    .fabAddSite {
-        width: 52px;
-        height: 52px;
-        bottom: 80px;
-        right: 16px;
-    }
-    
-    .fabAddSite svg {
-        width: 24px;
-        height: 24px;
-    }
-}
-
-@media (max-width: 380px) {
-    .siteColorDot {
-        width: 36px;
-        height: 36px;
-    }
-    
-    .siteAddress {
-        padding-left: 48px;
-    }
-}
-
-@media (min-width: 500px) {
-    .fabAddSite {
-        right: calc(50% - 250px + 24px);
-    }
-}
-
 /* ============================================================
-   СТРАНИЦА ДОБАВЛЕНИЯ ОБЪЕКТА
+   ФИЛЬТР
    ============================================================ */
 
-.addSitePage {
-    animation: fadeIn 0.25s ease;
-}
-
-.addSiteHeader {
+.filterWrapper {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: var(--spacing-md) var(--spacing-xs) var(--spacing-lg) var(--spacing-xs);
-    border-bottom: 2px solid var(--border-color);
-    margin-bottom: var(--spacing-xl);
-}
-
-.addSiteTitle {
-    font-size: var(--font-size-xl);
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.addSiteForm {
-    padding: 0 var(--spacing-xs);
-}
-
-.addSiteError {
-    background: #ffebee;
-    color: #c62828;
-    padding: 10px var(--spacing-md);
-    border-radius: var(--radius-sm);
-    font-size: var(--font-size-md);
+    gap: 12px;
     margin-bottom: var(--spacing-lg);
+    flex-wrap: wrap;
 }
 
-.addSiteField {
-    margin-bottom: var(--spacing-xl);
-}
-
-.addSiteLabel {
-    display: block;
-    font-size: var(--font-size-md);
-    font-weight: 500;
-    color: var(--text-primary);
-    margin-bottom: 6px;
-}
-
-.addSiteInput {
-    width: 100%;
-    padding: var(--spacing-md) var(--spacing-md);
-    border: 1.5px solid var(--border-input);
-    border-radius: 10px;
-    font-size: var(--font-size-lg);
-    font-family: inherit;
-    transition: var(--transition-normal);
-    background: var(--bg-input);
-    color: var(--text-primary);
-}
-
-.addSiteInput:focus {
-    outline: none;
-    border-color: var(--color-primary);
-}
-
-.addSiteHint {
+.filterLabel {
     font-size: 13px;
-    color: var(--text-muted);
-    margin-top: var(--spacing-sm);
-}
-
-/* ============================================================
-   КНОПКИ ВНИЗУ ФОРМЫ ДОБАВЛЕНИЯ
-   ============================================================ */
-
-.addSiteActions {
-    display: flex;
-    gap: 10px;
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border-color);
-}
-
-.addSiteCancel {
-    flex: 1;
-    padding: 12px;
-    background: #f0f0f0;
-    color: var(--text-secondary);
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
     font-weight: 500;
+    color: var(--text-muted);
+}
+
+.filterButtons {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.filterBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 1.5px solid var(--border-color);
+    border-radius: 20px;
+    background: var(--bg-card);
+    color: var(--text-secondary);
     cursor: pointer;
     font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
     transition: all 0.2s ease;
+    white-space: nowrap;
 }
 
-.addSiteCancel:hover {
-    background: #e0e0e0;
+.filterBtn:hover {
+    border-color: var(--color-primary);
+    color: var(--text-primary);
 }
 
-.addSiteSave {
-    flex: 1;
-    padding: 12px;
-    background: var(--color-primary);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
+.filterBtn.filterActive {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+    color: var(--color-primary);
     font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.2s ease;
 }
 
-.addSiteSave:hover:not(:disabled) {
-    background: var(--color-primary-hover);
-}
-
-.addSiteSave:disabled {
-    opacity: 0.5;
-    cursor: default;
+.filterDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
 }
 
 /* ============================================================
    СТРАНИЦА ДЕТАЛЕЙ ОБЪЕКТА
-   ============================================================ */
-
-.siteDetailPage {
-    animation: fadeIn 0.25s ease;
-}
-
-/* ШАПКА ДЕТАЛЕЙ */
-.siteDetailHeader {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 4px 16px 4px;
-    border-bottom: 2px solid var(--border-color);
-    margin-bottom: 8px;
-    gap: 10px;
-}
-
-.siteDetailTitle {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text-primary);
-    flex: 1;
-}
-
-/* КНОПКА УДАЛИТЬ В ШАПКЕ (корзина) */
-.siteDetailDeleteBtn {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    padding: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    border-radius: 8px;
-    flex-shrink: 0;
-}
-
-.siteDetailDeleteBtn:hover:not(:disabled) {
-    background: #f0f0f0;
-    color: #c62828;
-}
-
-.siteDetailDeleteBtn:disabled {
-    opacity: 0.4;
-    cursor: default;
-}
-
-/* БЛОК С КНОПКАМИ ПОД ШАПКОЙ */
-.siteDetailActions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 4px 4px 16px 4px;
-    border-bottom: 1px solid var(--border-light);
-    margin-bottom: 16px;
-}
-
-.siteDetailBack {
-    background: none;
-    border: none;
-    font-size: 16px;
-    color: var(--color-primary);
-    cursor: pointer;
-    padding: 6px 4px;
-    font-weight: 500;
-    font-family: inherit;
-}
-
-.siteDetailBack:hover {
-    opacity: 0.7;
-}
-
-/* КНОПКА УДАЛИТЬ В БЛОКЕ ДЕЙСТВИЙ */
-.siteDetailDeleteAction {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    padding: 6px 12px;
-    font-size: 14px;
-    font-weight: 500;
-    font-family: inherit;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-}
-
-.siteDetailDeleteAction:hover:not(:disabled) {
-    background: #f0f0f0;
-    color: #c62828;
-}
-
-.siteDetailDeleteAction:disabled {
-    opacity: 0.4;
-    cursor: default;
-}
-
-/* КОНТЕНТ ДЕТАЛЕЙ */
-.siteDetailContent {
-    padding: 0 var(--spacing-xs);
-}
-
-.siteDetailField {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-    padding: var(--spacing-md) 0;
-    border-bottom: 1px solid var(--border-light);
-}
-
-.siteDetailField:last-of-type {
-    border-bottom: none;
-}
-
-.siteDetailLabel {
-    font-size: 13px;
-    color: var(--text-muted);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-}
-
-.siteDetailValue {
-    font-size: 17px;
-    color: var(--text-primary);
-    font-weight: 500;
-}
-
-.siteDetailHint {
-    margin-top: var(--spacing-xl);
-    padding: var(--spacing-lg);
-    background: #f5f5f5;
-    border-radius: 10px;
-    font-size: var(--font-size-md);
-    color: var(--text-muted);
-    text-align: center;
-}
-
-/* === ДОПОЛНИТЕЛЬНЫЕ СТИЛИ === */
-
-.addSiteBack {
-    background: none;
-    border: none;
-    font-size: var(--font-size-lg);
-    color: var(--color-primary);
-    cursor: pointer;
-    padding: var(--spacing-sm) var(--spacing-xs);
-    font-weight: 500;
-    font-family: inherit;
-}
-
-.addSiteBack:hover {
-    opacity: 0.7;
-}
-
-.addSiteSave {
-    background: var(--color-primary);
-    color: white;
-    border: none;
-    padding: var(--spacing-sm) var(--spacing-xl);
-    border-radius: 20px;
-    font-size: var(--font-size-md);
-    font-weight: 500;
-    cursor: pointer;
-    font-family: inherit;
-    transition: var(--transition-normal);
-}
-
-.addSiteSave:hover:not(:disabled) {
-    background: var(--color-primary-hover);
-}
-
-.addSiteSave:disabled {
-    opacity: 0.4;
-    cursor: default;
-}
-/* ============================================================
-   МОДАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ
-   ============================================================ */
-
-.confirmOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.4);
-    z-index: var(--z-modal);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: fadeIn 0.2s ease;
-}
-
-.confirmModal {
-    background: var(--bg-card);
-    border-radius: var(--radius-xl);
-    padding: var(--spacing-2xl) 28px var(--spacing-xl);
-    max-width: 340px;
-    width: 90%;
-    text-align: center;
-    box-shadow: var(--shadow-xl);
-    animation: slideUp 0.25s ease;
-}
-
-.confirmIconWrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: var(--spacing-md);
-    color: #c62828;
-}
-
-.confirmIconWrapper svg {
-    stroke: currentColor;
-}
-
-.confirmTitle {
-    font-size: var(--font-size-xl);
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: var(--spacing-sm);
-}
-
-.confirmText {
-    font-size: 15px;
-    color: #555;
-    line-height: 1.5;
-    margin-bottom: var(--spacing-xl);
-}
-
-.confirmText strong {
-    color: var(--text-primary);
-}
-
-.confirmButtons {
-    display: flex;
-    gap: 10px;
-}
-
-.confirmBtn {
-    flex: 1;
-    padding: var(--spacing-md);
-    border: none;
-    border-radius: var(--radius-md);
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    transition: var(--transition-normal);
-}
-
-.confirmBtn:disabled {
-    opacity: 0.5;
-    cursor: default;
-}
-
-.confirmBtn.cancel {
-    background: #f0f0f0;
-    color: var(--text-secondary);
-}
-
-.confirmBtn.cancel:hover:not(:disabled) {
-    background: #e0e0e0;
-}
-
-.confirmBtn.delete {
-    background: #c62828;
-    color: white;
-}
-
-.confirmBtn.delete:hover:not(:disabled) {
-    background: #b71c1c;
-}
-/* ============================================================
-   СТРАНИЦА ДЕТАЛЕЙ ОБЪЕКТА — НОВЫЕ СТИЛИ
    ============================================================ */
 
 .siteDetailPage {
@@ -678,10 +268,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
-
-/* ============================================================
-   МЕНЮ С ТРЕМЯ ТОЧКАМИ
-   ============================================================ */
 
 .siteDetailMenuWrapper {
     position: relative;
@@ -717,10 +303,6 @@
     height: 28px;
     color: currentColor;
 }
-
-/* ============================================================
-   ВЫПАДАЮЩЕЕ МЕНЮ
-   ============================================================ */
 
 .siteDetailMenu {
     position: absolute;
@@ -788,9 +370,55 @@
     text-align: center;
 }
 
-/* ============================================================
-   КНОПКА "ЗАКРЫТЬ" ВНИЗУ
-   ============================================================ */
+.siteDetailContent {
+    padding: 0 var(--spacing-lg);
+    flex: 1;
+}
+
+.siteDetailField {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md) 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.siteDetailField:last-of-type {
+    border-bottom: none;
+}
+
+.siteDetailLabel {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.siteDetailValue {
+    font-size: 17px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.siteDetailStatusBadge {
+    display: inline-block;
+    padding: 4px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.siteDetailHint {
+    margin-top: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    background: #f5f5f5;
+    border-radius: 10px;
+    font-size: var(--font-size-md);
+    color: var(--text-muted);
+    text-align: center;
+}
 
 .siteDetailFooter {
     position: fixed;
@@ -837,67 +465,38 @@
 }
 
 /* ============================================================
-   ПЕРЕКЛЮЧАТЕЛЬ СТАТУСА
-   ============================================================ */
-
-.statusToggleWrapper {
-    display: flex;
-    gap: 8px;
-    margin-top: 4px;
-}
-
-.statusToggleBtn {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 10px 16px;
-    border: 2px solid var(--border-color);
-    border-radius: 10px;
-    background: var(--bg-card);
-    color: var(--text-secondary);
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.25s ease;
-}
-
-.statusToggleBtn:hover:not(:disabled) {
-    border-color: var(--color-primary);
-    transform: translateY(-1px);
-}
-
-.statusToggleBtn:disabled {
-    opacity: 0.6;
-    cursor: default;
-}
-
-.statusToggleBtn .statusDot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    display: inline-block;
-    flex-shrink: 0;
-}
-
-.statusToggleBtn.statusActive {
-    border-color: var(--color-primary);
-    background: var(--color-primary-light);
-    color: var(--color-primary);
-    font-weight: 600;
-}
-
-.statusToggleBtn:active {
-    transform: scale(0.97);
-}
-
-/* ============================================================
    АДАПТИВ
    ============================================================ */
 
 @media (max-width: 480px) {
+    .siteCardRow {
+        padding: 14px 16px;
+    }
+    
+    .siteColorDot {
+        width: 44px;
+        height: 44px;
+    }
+    
+    .siteName {
+        font-size: var(--font-size-md);
+    }
+    
+    .siteStatusBadge {
+        font-size: 11px;
+        padding: 3px 10px 3px 8px;
+    }
+    
+    .statusDot {
+        width: 6px;
+        height: 6px;
+    }
+    
+    .siteAddress {
+        font-size: var(--font-size-sm);
+        padding-left: 56px;
+    }
+
     .siteDetailHeader {
         padding: var(--spacing-md) var(--spacing-md) var(--spacing-lg);
     }
@@ -942,13 +541,34 @@
         min-width: 120px;
     }
 
-    .statusToggleBtn {
-        padding: 8px 12px;
-        font-size: 13px;
+    .filterWrapper {
+        gap: 8px;
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .filterLabel {
+        font-size: 12px;
+    }
+    
+    .filterBtn {
+        padding: 4px 10px;
+        font-size: 12px;
     }
 }
 
 @media (max-width: 400px) {
+    .fabAddSite {
+        width: 52px;
+        height: 52px;
+        bottom: 80px;
+        right: 16px;
+    }
+    
+    .fabAddSite svg {
+        width: 24px;
+        height: 24px;
+    }
+
     .siteDetailHeader {
         padding: 12px var(--spacing-sm) var(--spacing-md);
     }
@@ -996,105 +616,26 @@
         border-radius: 10px;
     }
 
-    .statusToggleBtn {
-        padding: 6px 10px;
-        font-size: 12px;
-    }
-}
-/* ============================================================
-   СТАТУС НА СТРАНИЦЕ ДЕТАЛЕЙ
-   ============================================================ */
-
-.siteDetailStatusBadge {
-    display: inline-block;
-    padding: 4px 16px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 500;
-    white-space: nowrap;
-}
-/* ============================================================
-   ФИЛЬТР
-   ============================================================ */
-
-.filterWrapper {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: var(--spacing-lg);
-    flex-wrap: wrap;
-}
-
-.filterLabel {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-muted);
-}
-
-.filterButtons {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-}
-
-.filterBtn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    border: 1.5px solid var(--border-color);
-    border-radius: 20px;
-    background: var(--bg-card);
-    color: var(--text-secondary);
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-}
-
-.filterBtn:hover {
-    border-color: var(--color-primary);
-    color: var(--text-primary);
-}
-
-.filterBtn.filterActive {
-    border-color: var(--color-primary);
-    background: var(--color-primary-light);
-    color: var(--color-primary);
-    font-weight: 600;
-}
-
-.filterDot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    display: inline-block;
-    flex-shrink: 0;
-}
-
-/* === АДАПТИВ === */
-@media (max-width: 480px) {
-    .filterWrapper {
-        gap: 8px;
-        margin-bottom: var(--spacing-md);
-    }
-    
-    .filterLabel {
-        font-size: 12px;
-    }
-    
-    .filterBtn {
-        padding: 4px 10px;
-        font-size: 12px;
-    }
-}
-
-@media (max-width: 400px) {
     .filterWrapper {
         flex-direction: column;
         align-items: flex-start;
         gap: 6px;
+    }
+}
+
+@media (max-width: 380px) {
+    .siteColorDot {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .siteAddress {
+        padding-left: 48px;
+    }
+}
+
+@media (min-width: 500px) {
+    .fabAddSite {
+        right: calc(50% - 250px + 24px);
     }
 }

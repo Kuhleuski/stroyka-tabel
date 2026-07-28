@@ -10,10 +10,6 @@
     box-shadow: var(--shadow-sm);
 }
 
-/* ============================================================
-   ХЕДЕР КАЛЕНДАРЯ
-   ============================================================ */
-
 .calendarHeader {
     display: flex;
     justify-content: center;
@@ -26,10 +22,6 @@
     font-size: 18px;
     font-weight: 600;
 }
-
-/* ============================================================
-   СЕТКА КАЛЕНДАРЯ
-   ============================================================ */
 
 .calendarGridWrapper {
     touch-action: pan-y;
@@ -113,10 +105,6 @@
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
-/* ============================================================
-   НАВИГАЦИЯ ВНИЗУ — СТРЕЛКИ
-   ============================================================ */
-
 .calendarNav {
     display: flex;
     justify-content: center;
@@ -159,7 +147,6 @@
     height: 24px;
 }
 
-/* Кнопка "Сегодня" — немного меньше */
 .calendarNavBtn:last-child {
     width: 48px;
     height: 48px;
@@ -170,7 +157,6 @@
     height: 20px;
 }
 
-/* Тёмная тема */
 [data-theme="dark"] .calendarNavBtn {
     background: var(--color-primary);
     box-shadow: 0 2px 8px rgba(45, 125, 70, 0.2);
@@ -180,10 +166,6 @@
     background: var(--color-primary-hover);
     box-shadow: 0 4px 12px rgba(45, 125, 70, 0.3);
 }
-
-/* ============================================================
-   АДАПТИВ
-   ============================================================ */
 
 @media (max-width: 640px) {
     .calendarWrapper {

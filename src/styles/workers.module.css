@@ -48,7 +48,7 @@
 }
 
 /* ============================================================
-   СЕТКА РАБОТНИКОВ (3 в ряд)
+   СЕТКА РАБОТНИКОВ
    ============================================================ */
 
 .workersGridContainer {
@@ -103,10 +103,6 @@
     margin-bottom: var(--spacing-sm);
 }
 
-/* ============================================================
-   ИМЯ РАБОТНИКА С СТАТУСОМ
-   ============================================================ */
-
 .workerGridNameWrapper {
     display: flex;
     align-items: center;
@@ -140,7 +136,7 @@
 }
 
 /* ============================================================
-   РАЗДЕЛЕНИЕ АКТИВНЫХ И НЕАКТИВНЫХ РАБОТНИКОВ
+   РАЗДЕЛЕНИЕ АКТИВНЫХ И НЕАКТИВНЫХ
    ============================================================ */
 
 .workersSectionHeader {
@@ -158,7 +154,7 @@
 }
 
 /* ============================================================
-   СТАРЫЙ СПИСОК РАБОТНИКОВ (если используется)
+   СТАРЫЙ СПИСОК (если используется)
    ============================================================ */
 
 .workerCard {
@@ -209,7 +205,7 @@
 }
 
 /* ============================================================
-   ПЛАВАЮЩАЯ КНОПКА ДЛЯ БРИГАДЫ
+   ПЛАВАЮЩАЯ КНОПКА
    ============================================================ */
 
 .fabAddWorker {
@@ -246,7 +242,7 @@
 }
 
 /* ============================================================
-   СТРАНИЦА ДОБАВЛЕНИЯ РАБОТНИКА
+   СТРАНИЦА ДОБАВЛЕНИЯ РАБОТНИКА (устаревшая, но для совместимости)
    ============================================================ */
 
 .addWorkerPage {
@@ -340,10 +336,6 @@
     color: var(--text-muted);
     margin-top: var(--spacing-sm);
 }
-
-/* ============================================================
-   КНОПКИ ВНИЗУ (НА УРОВНЕ МЕНЮ)
-   ============================================================ */
 
 .addWorkerActions {
     position: fixed;
@@ -440,10 +432,6 @@
     text-overflow: ellipsis;
 }
 
-/* ============================================================
-   КНОПКА НАЗАД
-   ============================================================ */
-
 .workerDetailBackBtn {
     background: none;
     border: none;
@@ -507,10 +495,6 @@
     height: 28px;
     color: currentColor;
 }
-
-/* ============================================================
-   ВЫПАДАЮЩЕЕ МЕНЮ (СПРАВА)
-   ============================================================ */
 
 .workerDetailMenu {
     position: absolute;
@@ -605,7 +589,7 @@
 }
 
 /* ============================================================
-   КОНТЕНТ
+   КОНТЕНТ ДЕТАЛЕЙ
    ============================================================ */
 
 .workerDetailContent {
@@ -665,20 +649,20 @@
 }
 
 /* ============================================================
-   КНОПКА "ЗАКРЫТЬ" ВНИЗУ (ФИКСИРОВАННАЯ)
+   КНОПКИ ВНИЗУ (ФИКСИРОВАННЫЕ)
    ============================================================ */
 
 .workerDetailFooter {
     position: fixed;
-   z-index:300;
-    bottom: 6px;
+    z-index: 300;
+    bottom: 3px;
     left: 0;
     right: 0;
     max-width: var(--max-width);
     margin: 0 auto;
     padding: 12px var(--spacing-lg) 20px;
     display: flex;
-    justify-content: center;
+    gap: 10px;
     background: var(--bg-nav);
     border-top: 1px solid var(--border-color);
     backdrop-filter: blur(20px);
@@ -689,8 +673,42 @@
     background: rgba(26, 26, 26, 0.92);
 }
 
+.workerDetailEditBtn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1.5px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    min-width: 100px;
+}
+
+.workerDetailEditBtn:hover {
+    background: var(--bg-hover);
+    transform: scale(1.01);
+}
+
+.workerDetailEditBtn:active {
+    transform: scale(0.97);
+}
+
+.workerDetailEditBtn svg {
+    stroke: currentColor;
+    flex-shrink: 0;
+}
+
 .workerDetailCloseBtn {
-    padding: 12px 48px;
+    flex: 1;
+    padding: 12px 20px;
     background: var(--color-primary);
     color: white;
     border: none;
@@ -700,7 +718,7 @@
     cursor: pointer;
     font-family: inherit;
     transition: all 0.2s ease;
-    min-width: 140px;
+    min-width: 100px;
     box-shadow: var(--shadow-primary);
 }
 
@@ -931,10 +949,6 @@
     }
 }
 
-/* ============================================================
-   АДАПТИВ ДЛЯ СТРАНИЦЫ ДЕТАЛЕЙ РАБОТНИКА
-   ============================================================ */
-
 @media (max-width: 480px) {
     .workerDetailHeader {
         padding: var(--spacing-md) var(--spacing-md) var(--spacing-lg);
@@ -970,14 +984,21 @@
     }
 
     .workerDetailFooter {
-        padding: 16px var(--spacing-md) 16px;
-        bottom: 6px;
+        padding: 10px var(--spacing-md) 16px;
+        bottom: 3px;
+        gap: 8px;
+    }
+
+    .workerDetailEditBtn {
+        padding: 10px 16px;
+        font-size: 14px;
+        min-width: 80px;
     }
 
     .workerDetailCloseBtn {
-        padding: 10px 36px;
-        font-size: 15px;
-        min-width: 120px;
+        padding: 10px 16px;
+        font-size: 14px;
+        min-width: 80px;
     }
 
     .workerStatusSection {
@@ -1023,127 +1044,6 @@
 
     .workerDetailFooter {
         padding: 8px var(--spacing-sm) 14px;
-        bottom: 40px;
-    }
-
-    .workerDetailCloseBtn {
-        padding: 8px 28px;
-        font-size: 14px;
-        min-width: 100px;
-        border-radius: 10px;
-    }
-
-    .workerStatusSection {
-        padding: 0 var(--spacing-sm) var(--spacing-md);
-    }
-}
-/* ============================================================
-   КНОПКИ ВНИЗУ: РЕДАКТИРОВАТЬ + ЗАКРЫТЬ
-   ============================================================ */
-
-.workerDetailFooter {
-    position: fixed;
-    z-index: 300;
-    bottom: 3px;
-    left: 0;
-    right: 0;
-    max-width: var(--max-width);
-    margin: 0 auto;
-    padding: 12px var(--spacing-lg) 20px;
-    display: flex;
-    gap: 10px;
-    background: var(--bg-nav);
-    border-top: 1px solid var(--border-color);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-}
-
-[data-theme="dark"] .workerDetailFooter {
-    background: rgba(26, 26, 26, 0.92);
-}
-
-.workerDetailEditBtn {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px 20px;
-    background: var(--bg-card);
-    color: var(--text-primary);
-    border: 1.5px solid var(--border-color);
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.2s ease;
-    min-width: 100px;
-}
-
-.workerDetailEditBtn:hover {
-    background: var(--bg-hover);
-    transform: scale(1.01);
-}
-
-.workerDetailEditBtn:active {
-    transform: scale(0.97);
-}
-
-.workerDetailEditBtn svg {
-    stroke: currentColor;
-    flex-shrink: 0;
-}
-
-.workerDetailCloseBtn {
-    flex: 1;
-    padding: 12px 20px;
-    background: var(--color-primary);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.2s ease;
-    min-width: 100px;
-    box-shadow: var(--shadow-primary);
-}
-
-.workerDetailCloseBtn:hover {
-    background: var(--color-primary-hover);
-    transform: scale(1.02);
-}
-
-.workerDetailCloseBtn:active {
-    transform: scale(0.97);
-}
-
-/* Адаптив для кнопок */
-@media (max-width: 480px) {
-    .workerDetailFooter {
-        padding: 10px var(--spacing-md) 16px;
-        bottom: 3px;
-        gap: 8px;
-    }
-
-    .workerDetailEditBtn {
-        padding: 10px 16px;
-        font-size: 14px;
-        min-width: 80px;
-    }
-
-    .workerDetailCloseBtn {
-        padding: 10px 16px;
-        font-size: 14px;
-        min-width: 80px;
-    }
-}
-
-@media (max-width: 400px) {
-    .workerDetailFooter {
-        padding: 8px var(--spacing-sm) 14px;
         bottom: 3px;
         gap: 6px;
     }
@@ -1164,5 +1064,9 @@
         font-size: 13px;
         min-width: 60px;
         border-radius: 8px;
+    }
+
+    .workerStatusSection {
+        padding: 0 var(--spacing-sm) var(--spacing-md);
     }
 }

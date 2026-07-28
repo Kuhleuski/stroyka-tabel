@@ -6,8 +6,6 @@ import { useAuth, AuthProvider } from './context/AuthContext'
 import { AvatarProvider } from './context/AvatarContext'
 import { Header } from './components/Layout/Header'
 import { BottomNav } from './components/Layout/BottomNav'
-// ❌ УДАЛЯЕМ импорт NotificationBadge
-// import { NotificationBadge } from './components/Layout/NotificationBadge'
 import { SettingsModal } from './components/SettingsModal'
 import { MainPage } from './pages/MainPage'
 import { SitesPage } from './pages/SitesPage'
@@ -19,6 +17,7 @@ import { LoginPage } from './pages/LoginPage'
 import { NotificationsPage } from './pages/NotificationsPage'
 import { StatisticsPage } from './pages/StatisticsPage'
 import { CostsPage } from './pages/CostsPage'
+import TestPage from './pages/TestPage'
 import layoutStyles from './styles/layout.module.css'
 
 function AppContent() {
@@ -110,6 +109,8 @@ function AppContent() {
                 return <StatisticsPage key={`statistics-${pageKey}`} />
             case 'costs':
                 return <CostsPage key={`costs-${pageKey}`} />
+            case 'test':
+                return <TestPage key={`test-${pageKey}`} />
             default:
                 return <MainPage key={`calendar-${pageKey}`} shifts={shifts} loading={loading} refetchShifts={refetch} />
         }
@@ -117,18 +118,11 @@ function AppContent() {
 
     return (
         <div className={layoutStyles.app}>
-            {/* === ХЭДЕР === */}
             <Header 
                 onSettings={handleOpenSettings}
                 onNotifications={handleOpenNotifications}
                 unreadCount={unreadCount}
             />
-
-            {/* ❌ УДАЛЯЕМ NotificationBadge */}
-            {/* <NotificationBadge 
-                unreadCount={unreadCount} 
-                onClick={handleOpenNotifications} 
-            /> */}
             
             <div className="container">
                 {renderPage()}
