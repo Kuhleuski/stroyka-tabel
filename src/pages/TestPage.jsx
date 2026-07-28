@@ -1,6 +1,6 @@
 // src/pages/TestPage.jsx
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import Calendar from 'react-calendar'
 import { useSwipeable } from 'react-swipeable'
 import 'react-calendar/dist/Calendar.css'
@@ -14,13 +14,12 @@ export default function TestPage() {
   const [offsetX, setOffsetX] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
-  const [direction, setDirection] = useState(null)
   const containerRef = useRef(null)
 
-  // Получаем ширину контейнера
-  const getContainerWidth = () => {
+  // Получаем ширину одного слайда
+  const getSlideWidth = () => {
     if (containerRef.current) {
-      return containerRef.current.offsetWidth / 3 // Ширина одного слайда
+      return containerRef.current.offsetWidth / 3
     }
     return window.innerWidth
   }
@@ -30,12 +29,11 @@ export default function TestPage() {
     if (isAnimating) return
     
     setIsAnimating(true)
-    const slideWidth = getContainerWidth()
+    const slideWidth = getSlideWidth()
     
-    // Смещаем на полную ширину слайда
+    // Сразу сдвигаем на полную ширину
     const targetOffset = direction === 1 ? -slideWidth : slideWidth
     setOffsetX(targetOffset)
-    setDirection(direction === 1 ? 'left' : 'right')
     
     // Ждем окончания анимации
     setTimeout(() => {
@@ -43,11 +41,10 @@ export default function TestPage() {
       newDate.setMonth(newDate.getMonth() + direction)
       setActiveStartDate(newDate)
       
-      // Мгновенно сбрасываем позицию (без анимации)
+      // Сбрасываем позицию без анимации
       setOffsetX(0)
       setIsAnimating(false)
-      setDirection(null)
-    }, 350)
+    }, 400)
   }
 
   const handlers = useSwipeable({
@@ -55,54 +52,44 @@ export default function TestPage() {
       if (isAnimating) return
       
       const deltaX = eventData.deltaX
-      const slideWidth = getContainerWidth()
+      const slideWidth = getSlideWidth()
       
-      // Ограничиваем смещение максимум 60% ширины слайда
+      // Ограничиваем смещение - максимум 60% ширины слайда
       const maxOffset = slideWidth * 0.6
       const clampedOffset = Math.max(-maxOffset, Math.min(maxOffset, deltaX))
       
       setIsDragging(true)
       setOffsetX(clampedOffset)
-      
-      if (deltaX < -10) {
-        setDirection('left')
-      } else if (deltaX > 10) {
-        setDirection('right')
-      } else {
-        setDirection(null)
-      }
     },
     onSwiped: (eventData) => {
       if (isAnimating) return
       
       const deltaX = eventData.deltaX
-      const slideWidth = getContainerWidth()
+      const slideWidth = getSlideWidth()
       
-      // Порог - 25% ширины слайда
-      const threshold = slideWidth * 0.25
+      // Порог - 20% ширины слайда (более отзывчивый)
+      const threshold = slideWidth * 0.2
       
       if (deltaX < -threshold) {
-        // Свайп влево
+        // Свайп влево - следующий месяц
         changeMonth(1)
       } else if (deltaX > threshold) {
-        // Свайп вправо
+        // Свайп вправо - предыдущий месяц
         changeMonth(-1)
       } else {
-        // Возврат на место с анимацией
+        // Возврат на место
         setIsDragging(false)
         setOffsetX(0)
-        setDirection(null)
       }
     },
     onTap: () => {
       if (!isAnimating) {
         setIsDragging(false)
         setOffsetX(0)
-        setDirection(null)
       }
     },
     trackMouse: false,
-    threshold: 10,
+    threshold: 5, // Меньше порог для более отзывчивого свайпа
   })
 
   // Стили для контейнера
@@ -111,7 +98,7 @@ export default function TestPage() {
     if (isAnimating) {
       return {
         transform: `translateX(${offsetX}px)`,
-        transition: 'transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
       }
     }
     
@@ -126,7 +113,7 @@ export default function TestPage() {
     // В покое
     return {
       transform: 'translateX(0)',
-      transition: 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+      transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
     }
   }
 
@@ -220,7 +207,6 @@ export default function TestPage() {
         <p>Offset: {Math.round(offsetX)}px</p>
         <p>Dragging: {isDragging ? 'Да' : 'Нет'}</p>
         <p>Animating: {isAnimating ? 'Да' : 'Нет'}</p>
-        <p>Направление: {direction || 'нет'}</p>
       </div>
     </div>
   )
