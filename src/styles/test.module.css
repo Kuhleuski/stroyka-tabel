@@ -1,21 +1,22 @@
+/* ============================================================
+   TEST PAGE - ОСНОВНЫЕ СТИЛИ
+   ============================================================ */
+
 .testPage {
-  padding: 0px 16px 80px;
+  padding: 16px 16px 80px;
   max-width: 500px;
   margin: 0 auto;
 }
 
-.pageTitle {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: var(--text-primary, #1a1a1a);
-}
+/* ============================================================
+   КАЛЕНДАРЬ
+   ============================================================ */
 
 .calendarWrapper {
   border-radius: 12px;
-  background: var(--bg-body, #ffffff);
-
-  padding: 0px;
+  background: var(--bg-card, #ffffff);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 16px;
   overflow: hidden;
   position: relative;
   touch-action: none;
@@ -31,166 +32,6 @@
   cursor: grabbing;
 }
 
-/* Стили для react-calendar */
-.calendarMotion :global(.react-calendar) {
-  width: 100%;
-  border: none;
-  background: transparent;
-  font-family: inherit;
-}
-
-.calendarMotion :global(.react-calendar__navigation) {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: -12px;
-  padding: 0 4px;
-}
-
-.calendarMotion :global(.react-calendar__navigation__label) {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-primary, #1a1a1a);
-  background: none;
-  border: none;
-  padding: 8px 16px;
-  flex: 1;
-  text-align: center;
-  cursor: default;
-}
-
-.calendarMotion :global(.react-calendar__navigation__prev-button),
-.calendarMotion :global(.react-calendar__navigation__next-button),
-.calendarMotion :global(.react-calendar__navigation__prev2-button),
-.calendarMotion :global(.react-calendar__navigation__next2-button) {
-  display: none !important;
-}
-
-.calendarMotion :global(.react-calendar__navigation button:disabled) {
-  background-color: transparent !important;
-}
-
-.calendarMotion :global(.react-calendar__month-view__weekdays) {
-  text-align: center;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-muted, #888);
-  padding: 4px 0;
-}
-
-.calendarMotion :global(.react-calendar__month-view__weekdays__weekday) {
-  padding: 6px 0;
-  text-transform: uppercase;
-  font-size: 11px;
-}
-
-.calendarMotion :global(.react-calendar__month-view__weekdays__weekday abbr) {
-  text-decoration: none;
-  cursor: default;
-}
-
-.calendarMotion :global(.react-calendar__tile) {
-  aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary, #1a1a1a);
-  background: none;
-  border: none;
-  border-radius: 8px;
-  padding: 0;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.calendarMotion :global(.react-calendar__tile:hover) {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.calendarMotion :global(.react-calendar__tile--active) {
-  background: #2d7d46 !important;
-  color: white !important;
-}
-
-.calendarMotion :global(.react-calendar__tile--now) {
-  background: rgba(45, 125, 70, 0.15);
-  color: #2d7d46;
-  font-weight: 600;
-}
-
-.calendarMotion :global(.react-calendar__tile--now:hover) {
-  background: rgba(45, 125, 70, 0.25);
-}
-/* ... все остальные стили остаются без изменений ... */
-
-/* ============================================================
-   СТИЛИ ДЛЯ РАСКРАШЕННОГО ДНЯ
-   ============================================================ */
-
-.coloredDay {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  right: 2px;
-  bottom: 2px;
-  border-radius: 6px;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.dayPlus {
-  position: absolute;
-  bottom: 1px;
-  right: 3px;
-  font-size: 10px;
-  font-weight: 700;
-  color: #1a1a1a;
-  text-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
-  z-index: 2;
-  line-height: 1;
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 50%;
-  width: 14px;
-  height: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 9px;
-}
-
-/* Адаптация для react-calendar tiles */
-.calendarMotion :global(.react-calendar__tile) {
-  position: relative;
-  aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary, #1a1a1a);
-  background: none;
-  border: none;
-  border-radius: 8px;
-  padding: 0;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-/* Чтобы число было поверх цветного фона */
-.calendarMotion :global(.react-calendar__tile abbr) {
-  position: relative;
-  z-index: 2;
-  font-weight: 500;
-}
-
-/* Для темной темы */
-[data-theme="dark"] .dayPlus {
-  color: #ffffff;
-  text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
-  background: rgba(0, 0, 0, 0.7);
-}
 /* ============================================================
    КНОПКА "СЕГОДНЯ"
    ============================================================ */
@@ -238,7 +79,306 @@
   line-height: 1;
 }
 
-/* Для темной темы */
+/* ============================================================
+   REACT-CALENDAR СТИЛИ
+   ============================================================ */
+
+.calendarMotion :global(.react-calendar) {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+}
+
+.calendarMotion :global(.react-calendar__navigation) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+
+.calendarMotion :global(.react-calendar__navigation__label) {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary, #1a1a1a);
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  flex: 1;
+  text-align: center;
+  cursor: default;
+}
+
+.calendarMotion :global(.react-calendar__navigation__prev-button),
+.calendarMotion :global(.react-calendar__navigation__next-button),
+.calendarMotion :global(.react-calendar__navigation__prev2-button),
+.calendarMotion :global(.react-calendar__navigation__next2-button) {
+  display: none !important;
+}
+
+.calendarMotion :global(.react-calendar__navigation button:disabled) {
+  background-color: transparent !important;
+}
+
+.calendarMotion :global(.react-calendar__month-view__weekdays) {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted, #888);
+  padding: 4px 0;
+}
+
+.calendarMotion :global(.react-calendar__month-view__weekdays__weekday) {
+  padding: 6px 0;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+.calendarMotion :global(.react-calendar__month-view__weekdays__weekday abbr) {
+  text-decoration: none;
+  cursor: default;
+}
+
+.calendarMotion :global(.react-calendar__tile) {
+  position: relative;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary, #1a1a1a);
+  background: none;
+  border: none;
+  border-radius: 8px;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.calendarMotion :global(.react-calendar__tile abbr) {
+  position: relative;
+  z-index: 2;
+  font-weight: 500;
+}
+
+.calendarMotion :global(.react-calendar__tile:hover) {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.calendarMotion :global(.react-calendar__tile--active) {
+  background: #2d7d46 !important;
+  color: white !important;
+}
+
+.calendarMotion :global(.react-calendar__tile--active abbr) {
+  color: white !important;
+}
+
+.calendarMotion :global(.react-calendar__tile--now) {
+  background: rgba(45, 125, 70, 0.15);
+  color: #2d7d46;
+  font-weight: 600;
+}
+
+.calendarMotion :global(.react-calendar__tile--now:hover) {
+  background: rgba(45, 125, 70, 0.25);
+}
+
+/* ============================================================
+   СТИЛИ ДЛЯ РАСКРАШЕННОГО ДНЯ
+   ============================================================ */
+
+.coloredDay {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.dayPlus {
+  position: absolute;
+  bottom: 1px;
+  right: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #1a1a1a;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+  z-index: 2;
+  line-height: 1;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+}
+
+/* ============================================================
+   DAY DETAILS - ТАЙМЛАЙН
+   ============================================================ */
+
+.dayDetails {
+  margin-top: 20px;
+  padding: 0 4px;
+}
+
+.dayDetailsDate {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary, #666);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-light, #e8eaed);
+}
+
+.dayDetailsEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 32px 0;
+  color: var(--text-secondary, #888);
+  font-size: 15px;
+}
+
+.emptyIcon {
+  font-size: 28px;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 36px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 12px;
+  bottom: 12px;
+  width: 2.5px;
+  background: var(--border-light, #e8eaed);
+  border-radius: 2px;
+}
+
+.timelineItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 14px 0;
+  position: relative;
+  opacity: 0;
+  animation: timelineFadeIn 0.4s ease forwards;
+}
+
+.timelineItem:first-child {
+  padding-top: 0;
+}
+
+.timelineItem:last-child {
+  padding-bottom: 0;
+}
+
+.timelineDot {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  border-radius: 50%;
+  border: 3px solid var(--bg-body, #f5f5f5);
+  flex-shrink: 0;
+  margin-top: 0;
+  z-index: 2;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.timelineDot::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: inherit;
+  opacity: 0.3;
+  filter: blur(8px);
+  z-index: -1;
+}
+
+.timelineItem:hover .timelineDot {
+  transform: scale(1.15);
+}
+
+.timelineContent {
+  flex: 1;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.objectLabel {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted, #999);
+  margin-bottom: 2px;
+}
+
+.siteName {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary, #1a1a1a);
+  line-height: 1.3;
+}
+
+.siteAddress {
+  font-size: 13px;
+  color: var(--text-secondary, #666);
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+.workersLabel {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary, #666);
+  margin-top: 6px;
+}
+
+.workers {
+  font-size: 14px;
+  color: var(--text-primary, #1a1a1a);
+  margin-top: 2px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+@keyframes timelineFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ============================================================
+   ТЕМНАЯ ТЕМА
+   ============================================================ */
+
+[data-theme="dark"] .calendarWrapper {
+  background: #1a1a1a;
+}
+
 [data-theme="dark"] .todayButton {
   background: #2d7d46;
   color: white;
@@ -254,145 +394,13 @@
   stroke: white;
 }
 
-[data-theme="dark"] .todayButton svg {
-  stroke: rgba(255, 255, 255, 0.6);
-}
-/* ============================================================
-   DAY DETAILS - ТАЙМЛАЙН
-   ============================================================ */
-
-.dayDetails {
-  margin-top: 16px;
-  padding: 0 4px;
-}
-
-.dayDetailsDate {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-secondary, #666);
-  margin-bottom: 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border-light, #e8eaed);
-}
-
-/* Пустое состояние */
-.dayDetailsEmpty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 24px 0;
-  color: var(--text-secondary, #888);
-  font-size: 15px;
-}
-
-.emptyIcon {
-  font-size: 24px;
-}
-
-/* Таймлайн */
-.timeline {
-  position: relative;
-  padding-left: 28px;
-}
-
-/* Вертикальная линия */
-.timeline::before {
-  content: '';
-  position: absolute;
-  left: 7px;
-  top: 8px;
-  bottom: 8px;
-  width: 2px;
-  background: var(--border-light, #e8eaed);
-  border-radius: 2px;
-}
-
-.timelineItem {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 8px 0;
-  position: relative;
-  opacity: 0;
-  animation: timelineFadeIn 0.3s ease forwards;
-}
-
-.timelineItem:first-child {
-  padding-top: 0;
-}
-
-.timelineItem:last-child {
-  padding-bottom: 0;
-}
-
-/* Точка */
-.timelineDot {
-  width: 16px;
-  height: 16px;
-  min-width: 16px;
-  min-height: 16px;
-  border-radius: 50%;
-  border: 2px solid var(--bg-body, #f5f5f5);
-  flex-shrink: 0;
-  margin-top: 2px;
-  z-index: 1;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease;
-}
-
-.timelineItem:hover .timelineDot {
-  transform: scale(1.15);
-}
-
-/* Контент */
-.timelineContent {
-  flex: 1;
-  min-width: 0;
-  padding-top: 1px;
-}
-
-.siteName {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-primary, #1a1a1a);
-  line-height: 1.3;
-}
-
-.siteAddress {
-  font-size: 13px;
-  color: var(--text-secondary, #666);
-  margin-top: 1px;
-  line-height: 1.3;
-}
-
-.workers {
-  font-size: 14px;
-  color: var(--text-primary, #1a1a1a);
-  margin-top: 3px;
-  line-height: 1.4;
-}
-
-/* Анимация появления */
-@keyframes timelineFadeIn {
-  from {
-    opacity: 0;
-    transform: translateX(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-/* Для темной темы */
 [data-theme="dark"] .dayDetailsDate {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.5);
   border-bottom-color: rgba(255, 255, 255, 0.08);
 }
 
 [data-theme="dark"] .dayDetailsEmpty {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 [data-theme="dark"] .timeline::before {
@@ -403,14 +411,28 @@
   border-color: #1a1a1a;
 }
 
+[data-theme="dark"] .objectLabel {
+  color: rgba(255, 255, 255, 0.3);
+}
+
 [data-theme="dark"] .siteName {
   color: #ffffff;
 }
 
 [data-theme="dark"] .siteAddress {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.4);
+}
+
+[data-theme="dark"] .workersLabel {
+  color: rgba(255, 255, 255, 0.4);
 }
 
 [data-theme="dark"] .workers {
   color: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="dark"] .dayPlus {
+  color: #ffffff;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.7);
 }
