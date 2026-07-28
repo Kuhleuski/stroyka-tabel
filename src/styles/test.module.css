@@ -123,3 +123,71 @@
 .calendarMotion :global(.react-calendar__tile--now:hover) {
   background: rgba(45, 125, 70, 0.25);
 }
+/* ... все остальные стили остаются без изменений ... */
+
+/* ============================================================
+   СТИЛИ ДЛЯ РАСКРАШЕННОГО ДНЯ
+   ============================================================ */
+
+.coloredDay {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.dayPlus {
+  position: absolute;
+  bottom: 1px;
+  right: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #1a1a1a;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+  z-index: 2;
+  line-height: 1;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+}
+
+/* Адаптация для react-calendar tiles */
+.calendarMotion :global(.react-calendar__tile) {
+  position: relative;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary, #1a1a1a);
+  background: none;
+  border: none;
+  border-radius: 8px;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+/* Чтобы число было поверх цветного фона */
+.calendarMotion :global(.react-calendar__tile abbr) {
+  position: relative;
+  z-index: 2;
+  font-weight: 500;
+}
+
+/* Для темной темы */
+[data-theme="dark"] .dayPlus {
+  color: #ffffff;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.7);
+}
