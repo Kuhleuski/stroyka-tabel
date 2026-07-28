@@ -9,7 +9,7 @@ import styles from '../styles/test.module.css'
 export default function TestPage() {
   const [date, setDate] = useState(new Date())
   const [activeStartDate, setActiveStartDate] = useState(new Date())
-  const [direction, setDirection] = useState(0) // -1 влево, 1 вправо
+  const [direction, setDirection] = useState(0)
 
   const formatMonth = (date) => {
     const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
@@ -17,7 +17,6 @@ export default function TestPage() {
     return `${months[date.getMonth()]} ${date.getFullYear()}`
   }
 
-  // Переключение месяца
   const changeMonth = (newDirection) => {
     setDirection(newDirection)
     const newDate = new Date(activeStartDate)
@@ -28,12 +27,11 @@ export default function TestPage() {
   const handlePrev = () => changeMonth(-1)
   const handleNext = () => changeMonth(1)
 
-  // Варианты анимации
   const variants = {
     enter: (direction) => ({
-      x: direction > 0 ? 300 : -300,
+      x: direction > 0 ? 200 : -200,
       opacity: 0,
-      scale: 0.95,
+      scale: 0.92,
     }),
     center: {
       x: 0,
@@ -41,9 +39,9 @@ export default function TestPage() {
       scale: 1,
     },
     exit: (direction) => ({
-      x: direction < 0 ? 300 : -300,
+      x: direction < 0 ? 200 : -200,
       opacity: 0,
-      scale: 0.95,
+      scale: 0.92,
     }),
   }
 
@@ -61,15 +59,21 @@ export default function TestPage() {
             animate="center"
             exit="exit"
             transition={{
-              x: { type: "spring", stiffness: 300, damping: 30 },
-              opacity: { duration: 0.2 },
-              scale: { duration: 0.2 }
+              x: { 
+                type: "spring", 
+                stiffness: 500,      // ← увеличил для более быстрой реакции
+                damping: 35,          // ← уменьшил для меньшего "прыгания"
+                mass: 0.5            // ← уменьшил для легкости
+              },
+              opacity: { duration: 0.15 },  // ← быстрее
+              scale: { duration: 0.15 }     // ← быстрее
             }}
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.7}
+            dragElastic={0.5}        // ← уменьшил для меньшего "растяжения"
+            dragMomentum={false}      // ← отключил инерцию для более предсказуемого поведения
             onDragEnd={(event, info) => {
-              const threshold = 50
+              const threshold = 30    // ← уменьшил порог для более чуткого свайпа
               if (info.offset.x < -threshold) {
                 changeMonth(1)
               } else if (info.offset.x > threshold) {
@@ -95,14 +99,12 @@ export default function TestPage() {
         </AnimatePresence>
       </div>
 
-      {/* Индикатор страниц */}
       <div className={styles.dots}>
         <span className={`${styles.dot} ${direction === -1 ? styles.active : ''}`} />
         <span className={`${styles.dot} ${direction === 0 ? styles.active : ''}`} />
         <span className={`${styles.dot} ${direction === 1 ? styles.active : ''}`} />
       </div>
 
-      {/* Отладка */}
       <div className={styles.debugInfo}>
         <p>Текущий: {formatMonth(activeStartDate)}</p>
         <p>Направление: {direction === 1 ? '→ вправо' : direction === -1 ? '← влево' : 'центр'}</p>
