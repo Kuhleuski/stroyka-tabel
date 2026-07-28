@@ -20,8 +20,8 @@ export default function TestPage() {
       newDate.setMonth(newDate.getMonth() - 1)
       setActiveStartDate(newDate)
     },
-    trackMouse: false, // только тач
-    threshold: 30, // минимальное расстояние для свайпа
+    trackMouse: false,
+    threshold: 30,
   })
 
   // === ФОРМАТИРОВАНИЕ НАЗВАНИЯ МЕСЯЦА ===
@@ -54,7 +54,7 @@ export default function TestPage() {
         />
       </div>
 
-      {/* ПРОСТО ДЛЯ ОТЛАДКИ */}
+      {/* ДЛЯ ОТЛАДКИ */}
       <div className={styles.debugInfo}>
         <p>Выбрано: {date.toLocaleDateString('ru-RU')}</p>
         <p>Текущий месяц: {formatMonth(activeStartDate)}</p>
