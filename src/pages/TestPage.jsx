@@ -1,5 +1,3 @@
-// src/pages/TestPage.jsx
-
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Calendar from 'react-calendar'
@@ -30,7 +28,6 @@ export default function TestPage() {
     setActiveStartDate(newDate)
   }
 
-  // Возврат к сегодня
   const goToToday = () => {
     const today = new Date()
     setActiveStartDate(today)
@@ -68,7 +65,6 @@ export default function TestPage() {
     )
   }
 
-  // Проверяем, находится ли календарь на сегодня
   const isToday = () => {
     const today = new Date()
     return activeStartDate.getMonth() === today.getMonth() && 
@@ -77,8 +73,6 @@ export default function TestPage() {
 
   return (
     <div className={styles.testPage}>
-      <h1 className={styles.pageTitle}>🧪 Тест: Календарь iOS стиль</h1>
-      
       <div className={styles.calendarWrapper}>
         {/* Кнопка "Сегодня" */}
         <button 
@@ -86,10 +80,7 @@ export default function TestPage() {
           onClick={goToToday}
           aria-label="Перейти к сегодня"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <polyline points="12 6 12 12 16 14"/>
-          </svg>
+          Сегодня
         </button>
 
         <AnimatePresence mode="popLayout" custom={direction}>
