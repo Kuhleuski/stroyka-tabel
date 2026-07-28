@@ -65,22 +65,20 @@ export default function TestPage() {
     )
   }
 
-  const isToday = () => {
-    const today = new Date()
-    return activeStartDate.getMonth() === today.getMonth() && 
-           activeStartDate.getFullYear() === today.getFullYear()
-  }
-
   return (
     <div className={styles.testPage}>
       <div className={styles.calendarWrapper}>
         {/* Кнопка "Сегодня" */}
         <button 
-          className={`${styles.todayButton} ${isToday() ? styles.todayButtonActive : ''}`}
+          className={styles.todayButton}
           onClick={goToToday}
           aria-label="Перейти к сегодня"
         >
-          Сегодня
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <span>Сегодня</span>
         </button>
 
         <AnimatePresence mode="popLayout" custom={direction}>
