@@ -198,15 +198,17 @@
 .todayButton {
   position: absolute;
   top: 8px;
-  right: 8px;
+  right: 4px;
   z-index: 10;
-  padding: 6px 14px;
-  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px 5px 8px;
+  border-radius: 16px;
   border: none;
-  background: var(--bg-card, #ffffff);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
-  color: var(--text-primary, #1a1a1a);
-  font-size: 13px;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text-secondary, #666);
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -215,32 +217,35 @@
 }
 
 .todayButton:hover {
-  transform: scale(1.04);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: rgba(0, 0, 0, 0.10);
+  transform: scale(1.02);
 }
 
 .todayButton:active {
   transform: scale(0.94);
 }
 
-.todayButtonActive {
-  background: #2d7d46;
-  color: white;
-  box-shadow: 0 2px 8px rgba(45, 125, 70, 0.3);
+.todayButton svg {
+  width: 14px;
+  height: 14px;
+  stroke: var(--text-secondary, #666);
+  flex-shrink: 0;
 }
 
-.todayButtonActive:hover {
-  box-shadow: 0 4px 12px rgba(45, 125, 70, 0.4);
+.todayButton span {
+  line-height: 1;
 }
 
 /* Для темной темы */
 [data-theme="dark"] .todayButton {
-  background: #2a2a2a;
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.6);
 }
 
-[data-theme="dark"] .todayButtonActive {
-  background: #2d7d46;
-  color: white;
+[data-theme="dark"] .todayButton:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+[data-theme="dark"] .todayButton svg {
+  stroke: rgba(255, 255, 255, 0.6);
 }
