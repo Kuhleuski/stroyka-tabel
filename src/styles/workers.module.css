@@ -971,7 +971,7 @@
 
     .workerDetailFooter {
         padding: 16px var(--spacing-md) 16px;
-        bottom: 65px;
+        bottom: 0px;
     }
 
     .workerDetailCloseBtn {
