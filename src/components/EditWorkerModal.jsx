@@ -13,7 +13,6 @@ export function EditWorkerModal({ isOpen, onClose, onSave, worker }) {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
 
-    // Заполняем форму при открытии
     useEffect(() => {
         if (worker && isOpen) {
             const workerName = worker.name || ''
@@ -121,13 +120,15 @@ export function EditWorkerModal({ isOpen, onClose, onSave, worker }) {
                             <button 
                                 className={`${styles.modalStatusBtn} ${status === 'active' ? styles.modalStatusActive : ''}`}
                                 onClick={() => setStatus('active')}
+                                type="button"
                             >
-                                <span className={styles.modalStatusDot} style={{ backgroundColor: '#2d7d46' }} />
+                                <span className={styles.modalStatusDot} style={{ backgroundColor: 'rgb(16, 180, 0)' }} />
                                 Активен
                             </button>
                             <button 
                                 className={`${styles.modalStatusBtn} ${status === 'inactive' ? styles.modalStatusActive : ''}`}
                                 onClick={() => setStatus('inactive')}
+                                type="button"
                             >
                                 <span className={styles.modalStatusDot} style={{ backgroundColor: '#78909C' }} />
                                 Неактивен
