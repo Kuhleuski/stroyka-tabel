@@ -1,3 +1,5 @@
+// src/pages/TestPage.jsx
+
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Calendar from 'react-calendar'
@@ -12,7 +14,6 @@ export default function TestPage() {
   const [activeStartDate, setActiveStartDate] = useState(new Date())
   const [direction, setDirection] = useState(0)
   
-  // Загружаем данные
   const { shifts } = useShifts()
   const { sites } = useSites()
 
@@ -27,6 +28,14 @@ export default function TestPage() {
     const newDate = new Date(activeStartDate)
     newDate.setMonth(newDate.getMonth() + newDirection)
     setActiveStartDate(newDate)
+  }
+
+  // Возврат к сегодня
+  const goToToday = () => {
+    const today = new Date()
+    setActiveStartDate(today)
+    setDate(today)
+    setDirection(0)
   }
 
   const variants = {
@@ -47,7 +56,6 @@ export default function TestPage() {
     }),
   }
 
-  // Компонент для отображения содержимого дня
   const tileContent = ({ date: tileDate, view }) => {
     if (view !== 'month') return null
     
@@ -60,11 +68,30 @@ export default function TestPage() {
     )
   }
 
+  // Проверяем, находится ли календарь на сегодня
+  const isToday = () => {
+    const today = new Date()
+    return activeStartDate.getMonth() === today.getMonth() && 
+           activeStartDate.getFullYear() === today.getFullYear()
+  }
+
   return (
     <div className={styles.testPage}>
       <h1 className={styles.pageTitle}>🧪 Тест: Календарь iOS стиль</h1>
       
       <div className={styles.calendarWrapper}>
+        {/* Кнопка "Сегодня" */}
+        <button 
+          className={`${styles.todayButton} ${isToday() ? styles.todayButtonActive : ''}`}
+          onClick={goToToday}
+          aria-label="Перейти к сегодня"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </button>
+
         <AnimatePresence mode="popLayout" custom={direction}>
           <motion.div
             key={activeStartDate.getMonth() + '-' + activeStartDate.getFullYear()}
