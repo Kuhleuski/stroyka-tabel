@@ -6,6 +6,14 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE и Edge */
+}
+
+*::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+    width: 0;
+    height: 0;
 }
 
 body {
@@ -14,6 +22,15 @@ body {
     color: var(--text-primary);
     padding-bottom: 80px;
     -webkit-tap-highlight-color: transparent;
+    overflow-y: scroll; /* Оставляем возможность скролла */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE и Edge */
+}
+
+body::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+    width: 0;
+    height: 0;
 }
 
 .app {
@@ -23,6 +40,15 @@ body {
 
 .container {
     padding: var(--spacing-lg);
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.container::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
 }
 
 @media (max-width: 640px) {
