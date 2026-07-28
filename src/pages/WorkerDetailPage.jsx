@@ -3,16 +3,13 @@
 import { useState, useRef, useEffect } from 'react'
 import { WorkerCalendar } from '../components/Workers/WorkerCalendar'
 import { useAvatars } from '../context/AvatarContext'
-import { updateWorkerStatus } from '../services/supabase'
 import styles from '../styles/workers.module.css'
 import compStyles from '../styles/components.module.css'
 
-export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit, onStatusChange, onRefresh }) {
+export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit, onRefresh }) {
     const [showConfirm, setShowConfirm] = useState(false)
     const [deleting, setDeleting] = useState(false)
     const [showMenu, setShowMenu] = useState(false)
-    const [status, setStatus] = useState(worker.status || 'active')
-    const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
     const menuRef = useRef(null)
     const { getAvatar } = useAvatars()
 
@@ -66,32 +63,6 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit, on
         setShowMenu(!showMenu)
     }
 
-    // === ОБРАБОТЧИК ИЗМЕНЕНИЯ СТАТУСА ===
-    const handleStatusChange = async (newStatus) => {
-        if (newStatus === status || isUpdatingStatus) return
-        
-        setIsUpdatingStatus(true)
-        try {
-            const updated = await updateWorkerStatus(worker.id, newStatus)
-            setStatus(newStatus)
-            
-            // Обновляем данные в родителе
-            if (onStatusChange) {
-                onStatusChange({ ...worker, status: newStatus })
-            }
-            
-            // Принудительно обновляем список
-            if (onRefresh) {
-                onRefresh()
-            }
-        } catch (error) {
-            console.error('Ошибка обновления статуса:', error)
-            alert('Не удалось обновить статус')
-        } finally {
-            setIsUpdatingStatus(false)
-        }
-    }
-
     // Закрываем меню при клике вне его
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -106,13 +77,6 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit, on
         }
     }, [])
 
-    // Обновляем статус при изменении worker
-    useEffect(() => {
-        if (worker.status) {
-            setStatus(worker.status)
-        }
-    }, [worker.status])
-
     // Фильтруем смены только для этого работника
     const workerShifts = shifts ? shifts.filter(s => s.worker_name === worker.name) : []
 
@@ -121,6 +85,13 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit, on
     const hasPhoto = !!avatarUrl
     const initials = getInitials(worker.name)
     const avatarColor = getAvatarColor(worker.name)
+
+    // === СТАТУС ДЛЯ ОТОБРАЖЕНИЯ ===
+    const statusLabels = {
+        active: { label: 'Активен', color: '#2d7d46' },
+        inactive: { label: 'Неактивен', color: '#78909C' }
+    }
+    const currentStatus = statusLabels[worker.status] || statusLabels.active
 
     return (
         <div className={styles.workerDetailPage}>
@@ -226,33 +197,21 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit, on
                     )}
                 </div>
             </div>
-
-            {/* === СТАТУС (ПЕРЕКЛЮЧАТЕЛЬ) === */}
+            
+            {/* === СТАТУС (ТОЛЬКО ОТОБРАЖЕНИЕ) === */}
             <div className={styles.workerStatusSection}>
                 <div className={styles.workerStatusLabel}>Статус</div>
-                <div className={styles.workerStatusToggle}>
-                    <button 
-                        className={`${styles.workerStatusBtn} ${status === 'active' ? styles.workerStatusActive : ''}`}
-                        onClick={() => handleStatusChange('active')}
-                        disabled={isUpdatingStatus}
-                    >
-                        <span className={styles.workerStatusDot} style={{ backgroundColor: '#2d7d46' }} />
-                        Активен
-                    </button>
-                    <button 
-                        className={`${styles.workerStatusBtn} ${status === 'inactive' ? styles.workerStatusActive : ''}`}
-                        onClick={() => handleStatusChange('inactive')}
-                        disabled={isUpdatingStatus}
-                    >
-                        <span className={styles.workerStatusDot} style={{ backgroundColor: '#78909C' }} />
-                        Неактивен
-                    </button>
-                </div>
-                {isUpdatingStatus && (
-                    <span className={styles.workerStatusUpdating}>Обновление...</span>
-                )}
+                <span 
+                    className={styles.workerStatusBadge}
+                    style={{ 
+                        backgroundColor: currentStatus.color,
+                        color: currentStatus.color === '#2d7d46' ? 'white' : '#333'
+                    }}
+                >
+                    {currentStatus.label}
+                </span>
             </div>
-            
+
             {/* === КОНТЕНТ === */}
             <div className={styles.workerDetailContent}>
                 <div className={styles.workerDetailField}>
