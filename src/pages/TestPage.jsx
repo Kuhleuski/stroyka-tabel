@@ -1,5 +1,3 @@
-// src/pages/TestPage.jsx
-
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Calendar from 'react-calendar'
@@ -23,9 +21,6 @@ export default function TestPage() {
     newDate.setMonth(newDate.getMonth() + newDirection)
     setActiveStartDate(newDate)
   }
-
-  const handlePrev = () => changeMonth(-1)
-  const handleNext = () => changeMonth(1)
 
   const variants = {
     enter: (direction) => ({
@@ -61,19 +56,19 @@ export default function TestPage() {
             transition={{
               x: { 
                 type: "spring", 
-                stiffness: 500,      // ← увеличил для более быстрой реакции
-                damping: 35,          // ← уменьшил для меньшего "прыгания"
-                mass: 0.5            // ← уменьшил для легкости
+                stiffness: 500,
+                damping: 35,
+                mass: 0.5
               },
-              opacity: { duration: 0.15 },  // ← быстрее
-              scale: { duration: 0.15 }     // ← быстрее
+              opacity: { duration: 0.15 },
+              scale: { duration: 0.15 }
             }}
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.5}        // ← уменьшил для меньшего "растяжения"
-            dragMomentum={false}      // ← отключил инерцию для более предсказуемого поведения
+            dragElastic={0.5}
+            dragMomentum={false}
             onDragEnd={(event, info) => {
-              const threshold = 30    // ← уменьшил порог для более чуткого свайпа
+              const threshold = 30
               if (info.offset.x < -threshold) {
                 changeMonth(1)
               } else if (info.offset.x > threshold) {
@@ -89,25 +84,14 @@ export default function TestPage() {
               minDetail="month"
               maxDetail="month"
               navigationLabel={({ date }) => formatMonth(date)}
-              prevLabel={<span onClick={handlePrev}>‹</span>}
-              nextLabel={<span onClick={handleNext}>›</span>}
+              prevLabel={null}
+              nextLabel={null}
               next2Label={null}
               prev2Label={null}
               showNeighboringMonth={false}
             />
           </motion.div>
         </AnimatePresence>
-      </div>
-
-      <div className={styles.dots}>
-        <span className={`${styles.dot} ${direction === -1 ? styles.active : ''}`} />
-        <span className={`${styles.dot} ${direction === 0 ? styles.active : ''}`} />
-        <span className={`${styles.dot} ${direction === 1 ? styles.active : ''}`} />
-      </div>
-
-      <div className={styles.debugInfo}>
-        <p>Текущий: {formatMonth(activeStartDate)}</p>
-        <p>Направление: {direction === 1 ? '→ вправо' : direction === -1 ? '← влево' : 'центр'}</p>
       </div>
     </div>
   )
