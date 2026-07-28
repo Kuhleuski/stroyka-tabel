@@ -1,5 +1,3 @@
-// src/pages/TestPage.jsx
-
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Calendar from 'react-calendar'
@@ -43,70 +41,58 @@ export default function TestPage() {
   }
 
   return (
-    <>
-      {/* Блок для календаря - без паддингов */}
-      <div className={styles.calendarPageWrapper}>
-        <div className={styles.calendarWrapper}>
-          <AnimatePresence mode="popLayout" custom={direction}>
-            <motion.div
-              key={activeStartDate.getMonth() + '-' + activeStartDate.getFullYear()}
-              custom={direction}
-              variants={variants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{
-                x: { 
-                  type: "spring", 
-                  stiffness: 500,
-                  damping: 35,
-                  mass: 0.5
-                },
-                opacity: { duration: 0.15 },
-                scale: { duration: 0.15 }
-              }}
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.5}
-              dragMomentum={false}
-              onDragEnd={(event, info) => {
-                const threshold = 30
-                if (info.offset.x < -threshold) {
-                  changeMonth(1)
-                } else if (info.offset.x > threshold) {
-                  changeMonth(-1)
-                }
-              }}
-              className={styles.calendarMotion}
-            >
-              <Calendar
-                value={date}
-                onChange={setDate}
-                activeStartDate={activeStartDate}
-                minDetail="month"
-                maxDetail="month"
-                navigationLabel={({ date }) => formatMonth(date)}
-                prevLabel={null}
-                nextLabel={null}
-                next2Label={null}
-                prev2Label={null}
-                showNeighboringMonth={false}
-              />
-            </motion.div>
-          </AnimatePresence>
-        </div>
+    <div className={styles.testPage}>
+      <h1 className={styles.pageTitle}>🧪 Тест: Календарь iOS стиль</h1>
+      
+      <div className={styles.calendarWrapper}>
+        <AnimatePresence mode="popLayout" custom={direction}>
+          <motion.div
+            key={activeStartDate.getMonth() + '-' + activeStartDate.getFullYear()}
+            custom={direction}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { 
+                type: "spring", 
+                stiffness: 500,
+                damping: 35,
+                mass: 0.5
+              },
+              opacity: { duration: 0.15 },
+              scale: { duration: 0.15 }
+            }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.5}
+            dragMomentum={false}
+            onDragEnd={(event, info) => {
+              const threshold = 30
+              if (info.offset.x < -threshold) {
+                changeMonth(1)
+              } else if (info.offset.x > threshold) {
+                changeMonth(-1)
+              }
+            }}
+            className={styles.calendarMotion}
+          >
+            <Calendar
+              value={date}
+              onChange={setDate}
+              activeStartDate={activeStartDate}
+              minDetail="month"
+              maxDetail="month"
+              navigationLabel={({ date }) => formatMonth(date)}
+              prevLabel={null}
+              nextLabel={null}
+              next2Label={null}
+              prev2Label={null}
+              showNeighboringMonth={false}
+            />
+          </motion.div>
+        </AnimatePresence>
       </div>
-
-      {/* Блок для остального контента - с паддингами */}
-      <div className={styles.testPage}>
-        <h1 className={styles.pageTitle}>🧪 Тест: Календарь iOS стиль</h1>
-        
-        {/* Здесь может быть любой другой контент */}
-        <div className={styles.contentBlock}>
-          <p>Здесь будет остальной контент страницы</p>
-          <p>С паддингами как обычно</p>
-        </div>
-      </div>
-    </>
+    </div>
   )
 }
