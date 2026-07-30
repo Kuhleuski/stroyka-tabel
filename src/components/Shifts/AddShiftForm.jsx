@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
-import { addShift } from '../../services/supabase'
+import { saveShift } from '../../services/supabase'
 import { formatDateLocal } from '../../utils/dateHelpers'
 import styles from '../../styles/shifts.module.css'
 
@@ -45,22 +45,17 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
     try {
       const localDate = formatDateLocal(selectedDate)
       console.log('📅 Сохраняем смену на дату:', localDate)
+      console.log('📍 Объект ID:', selectedSite)
+      console.log('👷 Работники ID:', selectedWorkers)
       
-      const shiftPromises = selectedWorkers.map(workerId => 
-        addShift({
-          worker_id: workerId,
-          site_id: selectedSite,
-          work_date: localDate,
-          hours: 8,
-          status: 'pending'
-        })
-      )
+      // Вызываем saveShift
+      await saveShift(selectedSite, localDate, selectedWorkers)
       
-      await Promise.all(shiftPromises)
+      console.log('✅ Смена успешно сохранена!')
       onSuccess()
     } catch (error) {
-      console.error('Ошибка:', error)
-      alert('Не удалось создать смену')
+      console.error('❌ Ошибка:', error)
+      alert('Не удалось создать смену: ' + error.message)
       setLoading(false)
     }
   }
@@ -71,7 +66,6 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
     return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`
   }
 
-  // === ФУНКЦИИ ДЛЯ АВАТАРОК ===
   const getInitials = (name) => {
     if (!name) return '?'
     const parts = name.trim().split(' ')
@@ -91,7 +85,6 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
 
   return (
     <div className={styles.shiftFormScreen}>
-      {/* Шапка */}
       <div className={styles.shiftFormHeader}>
         <button onClick={onClose} className={styles.shiftFormBack}>
           <ArrowLeft size={24} />
@@ -100,11 +93,10 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
         <span className={styles.shiftFormTitle} style={{ flex: 1, textAlign: 'center' }}>
           Новая смена на {formatDate(selectedDate)}
         </span>
-        <div style={{ width: '60px' }} /> {/* Пустой блок для баланса */}
+        <div style={{ width: '60px' }} />
       </div>
 
       <form id="shift-form" onSubmit={handleSubmit} className={styles.shiftFormBody}>
-        {/* БЛОК: ОБЪЕКТЫ */}
         <div className={styles.shiftFormBlock}>
           <label className={styles.shiftFormLabel} style={{ fontSize: '16px', fontWeight: 600, marginBottom: '12px' }}>
             Выберите объект:
@@ -146,7 +138,6 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
           </div>
         </div>
 
-        {/* БЛОК: РАБОТНИКИ */}
         <div className={styles.shiftFormBlock}>
           <div className={styles.shiftFormWorkersHeader} style={{ marginBottom: '12px' }}>
             <label className={styles.shiftFormLabel} style={{ fontSize: '16px', fontWeight: 600 }}>
@@ -223,7 +214,6 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
           </div>
         </div>
 
-        {/* КНОПКИ */}
         <div className={styles.shiftFormActions}>
           <button 
             type="submit" 

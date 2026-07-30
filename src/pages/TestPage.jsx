@@ -5,18 +5,26 @@ import 'react-calendar/dist/Calendar.css'
 import { useShifts } from '../hooks/useShifts'
 import { useSites } from '../hooks/useSites'
 import { useWorkers } from '../hooks/useWorkers'
+import { useAuth } from '../context/AuthContext'
 import { ColoredDay } from '../components/TestCalendar/ColoredDay'
 import { DayDetails } from '../components/TestCalendar/DayDetails'
+import { AddShiftForm } from '../components/Shifts/AddShiftForm'
+import { Plus } from 'lucide-react'
 import styles from '../styles/test.module.css'
+import componentsStyles from '../styles/components.module.css'
 
 export default function TestPage() {
   const [date, setDate] = useState(new Date())
   const [activeStartDate, setActiveStartDate] = useState(new Date())
   const [direction, setDirection] = useState(0)
+  const [showAddShift, setShowAddShift] = useState(false)
+  const [showSavingScreen, setShowSavingScreen] = useState(false)
+  const [updateKey, setUpdateKey] = useState(0)
   
-  const { shifts } = useShifts()
+  const { shifts, loading, refetch } = useShifts()
   const { sites } = useSites()
   const { workers } = useWorkers()
+  const { user } = useAuth()
 
   const formatMonth = (date) => {
     const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
@@ -40,6 +48,23 @@ export default function TestPage() {
 
   const handleDayClick = (value) => {
     setDate(value)
+  }
+
+  const handleOpenAddShift = () => {
+    setShowAddShift(true)
+  }
+
+  const handleShiftAdded = async () => {
+    setShowSavingScreen(true)
+    setShowAddShift(false)
+    
+    if (refetch) {
+      await refetch()
+    }
+    
+    await new Promise(resolve => setTimeout(resolve, 1200))
+    setShowSavingScreen(false)
+    setUpdateKey(prev => prev + 1)
   }
 
   const variants = {
@@ -72,17 +97,53 @@ export default function TestPage() {
     )
   }
 
-  // Проверяем, является ли текущий месяц активным
   const isCurrentMonth = () => {
     const today = new Date()
     return activeStartDate.getMonth() === today.getMonth() && 
            activeStartDate.getFullYear() === today.getFullYear()
   }
 
+  // Проверка: видна ли выбранная дата в текущем месяце
+  const isDateVisible = () => {
+    const selectedMonth = date.getMonth()
+    const selectedYear = date.getFullYear()
+    const currentMonth = activeStartDate.getMonth()
+    const currentYear = activeStartDate.getFullYear()
+    
+    return selectedMonth === currentMonth && selectedYear === currentYear
+  }
+
+  if (showSavingScreen) {
+    return (
+      <div className={componentsStyles.savingScreen}>
+        <div className={componentsStyles.savingContent}>
+          <div className={componentsStyles.savingSpinner}>
+            <div className={componentsStyles.savingDot}></div>
+            <div className={componentsStyles.savingDot}></div>
+            <div className={componentsStyles.savingDot}></div>
+          </div>
+          <h2 className={componentsStyles.savingTitle}>Сохраняем смену</h2>
+          <p className={componentsStyles.savingText}>Пожалуйста, подождите</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (showAddShift) {
+    return (
+      <AddShiftForm
+        selectedDate={date}
+        onClose={() => setShowAddShift(false)}
+        onSuccess={handleShiftAdded}
+        sites={sites}
+        workers={workers}
+      />
+    )
+  }
+
   return (
     <div className={styles.testPage}>
       <div className={styles.calendarWrapper}>
-        {/* Кнопка "Сегодня" - показываем только если НЕ текущий месяц */}
         {!isCurrentMonth() && (
           <button 
             className={styles.todayButton}
@@ -149,13 +210,31 @@ export default function TestPage() {
         </AnimatePresence>
       </div>
 
-      {/* Детали дня */}
-      <DayDetails 
-        selectedDate={date}
-        shifts={shifts}
-        sites={sites}
-        workers={workers}
-      />
+      {/* Детали дня - показываем только если выбранная дата видна в календаре */}
+      {isDateVisible() ? (
+        <DayDetails 
+          key={updateKey}
+          selectedDate={date}
+          shifts={shifts}
+          sites={sites}
+          workers={workers}
+        />
+      ) : (
+        <div className={styles.dateNotVisible}>
+          <span>Выберите день в текущем месяце</span>
+        </div>
+      )}
+
+      {/* FAB кнопка - показываем только если дата выбрана и видна */}
+      {user?.role === 'admin' && isDateVisible() && (
+        <button 
+          className={componentsStyles.fabAddShift}
+          onClick={handleOpenAddShift}
+          aria-label="Добавить смену"
+        >
+          <Plus size={28} strokeWidth={2.5} />
+        </button>
+      )}
     </div>
   )
 }
