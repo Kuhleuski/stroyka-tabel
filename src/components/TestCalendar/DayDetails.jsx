@@ -38,11 +38,12 @@ export function DayDetails({ selectedDate, shifts, sites, workers }) {
         color: site?.color || '#999',
         workers: workerData,
         shiftIds: group.shiftIds,
+        // Уникальный ключ для каждого элемента
+        uniqueKey: `${group.siteId}-${dateStr}`
       }
     })
   }, [dateStr, shifts, sites, workers])
 
-  // Закрытие меню при клике вне его
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -113,8 +114,7 @@ export function DayDetails({ selectedDate, shifts, sites, workers }) {
       key={dateStr}
     >
       {dayGroups.map((group) => (
-        <div key={group.siteId} className={styles.dayDetailsCard}>
-          {/* Заголовок карточки: дата + три точки */}
+        <div key={group.uniqueKey} className={styles.dayDetailsCard}>
           <div className={styles.cardHeader}>
             <div className={styles.detailsHeader}>
               {formatDateDisplay(selectedDate)}
@@ -152,7 +152,6 @@ export function DayDetails({ selectedDate, shifts, sites, workers }) {
             </div>
           </div>
 
-          {/* Объект */}
           <div className={styles.cardBody}>
             <div className={styles.detailsItem}>
               <div 
@@ -166,13 +165,13 @@ export function DayDetails({ selectedDate, shifts, sites, workers }) {
                 <div className={styles.detailsSite}>{group.siteName}</div>
                 {group.address && <div className={styles.detailsAddress}>{group.address}</div>}
                 <div className={styles.detailsChips}>
-                  {group.workers.map((worker) => {
+                  {group.workers.map((worker, index) => {
                     const hasPhoto = isBase64Image(worker.avatar)
                     const initials = getInitials(worker.name)
                     const avatarColor = getAvatarColor(worker.name)
                     
                     return (
-                      <div key={worker.id} className={styles.detailsChip}>
+                      <div key={`${worker.id}-${index}-${dateStr}`} className={styles.detailsChip}>
                         <div 
                           className={styles.detailsAvatar}
                           style={{
