@@ -3,20 +3,19 @@
    ============================================================ */
 
 .testPage {
-  padding: 16px 16px 80px;
+  padding: 0px 16px 80px;
   max-width: 500px;
   margin: 0 auto;
 }
 
-/* =============================
+/* ============================================================
    КАЛЕНДАРЬ
    ============================================================ */
 
 .calendarWrapper {
   border-radius: 12px;
-  background: var(--bg-card, #ffffff);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  padding: 16px;
+  background: transparent;
+  padding: 0;
   overflow: hidden;
   position: relative;
   touch-action: none;
@@ -33,7 +32,7 @@
 }
 
 /* ============================================================
-   КНОПКА "СЕГОДНЯ"
+   КНОПКА "СЕГОДНЯ" (СЕРАЯ)
    ============================================================ */
 
 .todayButton {
@@ -47,21 +46,19 @@
   padding: 5px 12px 5px 10px;
   border-radius: 16px;
   border: none;
-  background: #2d7d46;
-  color: white;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text-secondary, #666);
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   touch-action: none;
   font-family: inherit;
-  box-shadow: 0 2px 6px rgba(45, 125, 70, 0.25);
 }
 
 .todayButton:hover {
-  background: #237a3e;
-  transform: scale(1.03);
-  box-shadow: 0 4px 10px rgba(45, 125, 70, 0.35);
+  background: rgba(0, 0, 0, 0.10);
+  transform: scale(1.02);
 }
 
 .todayButton:active {
@@ -71,7 +68,7 @@
 .todayButton svg {
   width: 14px;
   height: 14px;
-  stroke: white;
+  stroke: var(--text-secondary, #666);
   flex-shrink: 0;
 }
 
@@ -94,7 +91,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 12px;
+  margin-bottom: -10px;
   padding: 0 4px;
 }
 
@@ -222,184 +219,201 @@
 }
 
 /* ============================================================
-   DAY DETAILS - ТАЙМЛАЙН
+   ДЕТАЛИ ДНЯ - КАРТОЧКИ
    ============================================================ */
 
-.dayDetails {
-  margin-top: 20px;
-  padding: 0 4px;
-}
-
-.dayDetailsDate {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-secondary, #666);
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border-light, #e8eaed);
-}
-
-.dayDetailsEmpty {
+.dayDetailsWrapper {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
   gap: 10px;
-  padding: 32px 0;
-  color: var(--text-secondary, #888);
-  font-size: 15px;
+  margin-top: 10px;
 }
 
-.emptyIcon {
-  font-size: 28px;
+.dayDetailsEmptyWrapper {
+  margin-top: 20px;
 }
 
-/* Таймлайн */
-.timeline {
-  position: relative;
-  padding-left: 20px;
+.dayDetailsCard {
+  margin: 0 -10px;
+  padding: 12px 16px 16px;
+  background: var(--bg-card, #ffffff);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border-light, #e8eaed);
 }
 
-/* Вертикальная линия - проходит по центру кружков */
-.timeline::before {
-  content: '';
-  position: absolute;
-  left: 12px;
-  top: 16px;
-  bottom: 16px;
-  width: 2.5px;
-  background: var(--border-light, #e8eaed);
-  border-radius: 2px;
-}
-
-.timelineItem {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  padding: 8px 0;
-  position: relative;
-  opacity: 0;
-  animation: timelineFadeIn 0.4s ease forwards;
-}
-
-.timelineItem:first-child {
-  padding-top: 0;
-}
-
-.timelineItem:last-child {
-  padding-bottom: 0;
-}
-
-/* Обертка для точки - фиксированная ширина */
-.timelineDotWrapper {
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Точка - ровно по центру линии */
-.timelineDot {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 3px solid var(--bg-body, #f5f5f5);
-  flex-shrink: 0;
-  z-index: 2;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-/* Glow эффект */
-.timelineDot::after {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  background: inherit;
-  opacity: 0.25;
-  filter: blur(8px);
-  z-index: -1;
-}
-
-.timelineItem:hover .timelineDot {
-  transform: scale(1.15);
-}
-
-/* Карточка с фоном */
-.timelineCard {
-  flex: 1;
-  min-width: 0;
-  background: var(--bg-card-hover, #f8f9fa);
-  border-radius: 12px;
-  padding: 12px 16px;
-  transition: background 0.2s ease;
-}
-
-.timelineItem:hover .timelineCard {
-  background: var(--bg-card-hover-active, #f0f1f3);
-}
-
-/* Заголовок карточки - в одну строку */
+/* Заголовок карточки */
 .cardHeader {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--border-light, #e8eaed);
 }
 
-.siteName {
+.detailsHeader {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary, #666);
+}
+
+/* Три точки (меню) - горизонтальные точки */
+.cardMenu {
+  position: relative;
+}
+
+.menuButton {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text-secondary, #666);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+  padding: 0;
+}
+
+.menuButton:hover {
+  background: rgba(0, 0, 0, 0.10);
+}
+
+.menuButton svg {
+  fill: var(--text-secondary, #666);
+}
+
+.menuDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 10;
+  min-width: 180px;
+  background: var(--bg-card, #ffffff);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--border-light, #e8eaed);
+  overflow: hidden;
+  padding: 4px 0;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary, #1a1a1a);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.menuItem:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.menuItem svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--text-secondary, #666);
+  flex-shrink: 0;
+}
+
+/* Тело карточки */
+.cardBody {
+  /* стили для тела */
+}
+
+.detailsItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.detailsDot {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 50%;
+  margin-top: 2px;
+  border: 2px solid var(--bg-body, #f5f5f5);
+  transition: all 0.2s ease;
+}
+
+.detailsContent {
+  flex: 1;
+}
+
+.detailsSite {
   font-size: 15px;
   font-weight: 600;
   color: var(--text-primary, #1a1a1a);
-  line-height: 1.3;
 }
 
-.siteAddress {
+.detailsAddress {
   font-size: 13px;
   color: var(--text-secondary, #666);
-  line-height: 1.3;
+  margin-top: 1px;
 }
 
-/* Контейнер для чипсов */
-.workersContainer {
+.detailsChips {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
-/* Чипсы - работники */
-.workerChip {
-  display: inline-flex;
+.detailsChip {
+  display: flex;
   align-items: center;
-  padding: 3px 12px;
-  border-radius: 20px;
+  gap: 6px;
+  padding: 4px 10px 4px 4px;
+  border-radius: 24px;
   background: var(--bg-chip, #e8eaed);
   color: var(--text-primary, #1a1a1a);
   font-size: 13px;
   font-weight: 500;
-  line-height: 1.4;
-  transition: all 0.2s ease;
 }
 
-.workerChip:hover {
-  background: var(--bg-chip-hover, #d5d8dd);
-  transform: scale(1.02);
+.detailsAvatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
-/* Анимация появления */
-@keyframes timelineFadeIn {
-  from {
-    opacity: 0;
-    transform: translateX(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+.detailsAvatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.detailsEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 0;
+  background: var(--bg-card-hover, #f5f5f5);
+  border-radius: 12px;
+  color: var(--text-secondary, #888);
+  font-size: 14px;
 }
 
 /* ============================================================
@@ -407,68 +421,88 @@
    ============================================================ */
 
 [data-theme="dark"] .calendarWrapper {
-  background: #1a1a1a;
+  background: transparent;
 }
 
 [data-theme="dark"] .todayButton {
-  background: #2d7d46;
-  color: white;
-  box-shadow: 0 2px 6px rgba(45, 125, 70, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 [data-theme="dark"] .todayButton:hover {
-  background: #237a3e;
-  box-shadow: 0 4px 10px rgba(45, 125, 70, 0.4);
+  background: rgba(255, 255, 255, 0.14);
 }
 
 [data-theme="dark"] .todayButton svg {
-  stroke: white;
+  stroke: rgba(255, 255, 255, 0.6);
 }
 
-[data-theme="dark"] .dayDetailsDate {
+[data-theme="dark"] .dayDetailsCard {
+  background: #1e1e1e;
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .cardHeader {
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .detailsHeader {
   color: rgba(255, 255, 255, 0.5);
-  border-bottom-color: rgba(255, 255, 255, 0.08);
 }
 
-[data-theme="dark"] .dayDetailsEmpty {
+[data-theme="dark"] .detailsEmpty {
+  background: rgba(255, 255, 255, 0.06);
   color: rgba(255, 255, 255, 0.4);
 }
 
-[data-theme="dark"] .timeline::before {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-[data-theme="dark"] .timelineDot {
-  border-color: #1a1a1a;
-}
-
-[data-theme="dark"] .timelineCard {
-  background: rgba(255, 255, 255, 0.06);
-}
-
-[data-theme="dark"] .timelineItem:hover .timelineCard {
-  background: rgba(255, 255, 255, 0.10);
-}
-
-[data-theme="dark"] .siteName {
+[data-theme="dark"] .detailsSite {
   color: #ffffff;
 }
 
-[data-theme="dark"] .siteAddress {
+[data-theme="dark"] .detailsAddress {
   color: rgba(255, 255, 255, 0.4);
 }
 
-[data-theme="dark"] .workerChip {
-  background: rgba(255, 255, 255, 0.10);
+[data-theme="dark"] .detailsChip {
+  background: rgba(255, 255, 255, 0.08);
   color: rgba(255, 255, 255, 0.85);
 }
 
-[data-theme="dark"] .workerChip:hover {
-  background: rgba(255, 255, 255, 0.16);
+[data-theme="dark"] .detailsDot {
+  border-color: #1a1a1a;
 }
 
 [data-theme="dark"] .dayPlus {
   color: #ffffff;
   text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
   background: rgba(0, 0, 0, 0.7);
+}
+
+[data-theme="dark"] .menuButton {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .menuButton:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+[data-theme="dark"] .menuButton svg {
+  fill: rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="dark"] .menuDropdown {
+  background: #2a2a2a;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .menuItem {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="dark"] .menuItem:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .menuItem svg {
+  stroke: rgba(255, 255, 255, 0.5);
 }

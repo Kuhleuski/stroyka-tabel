@@ -38,6 +38,10 @@ export default function TestPage() {
     setDirection(0)
   }
 
+  const handleDayClick = (value) => {
+    setDate(value)
+  }
+
   const variants = {
     enter: (direction) => ({
       x: direction > 0 ? 200 : -200,
@@ -68,22 +72,32 @@ export default function TestPage() {
     )
   }
 
+  // Проверяем, является ли текущий месяц активным
+  const isCurrentMonth = () => {
+    const today = new Date()
+    return activeStartDate.getMonth() === today.getMonth() && 
+           activeStartDate.getFullYear() === today.getFullYear()
+  }
+
   return (
     <div className={styles.testPage}>
       <div className={styles.calendarWrapper}>
-        <button 
-          className={styles.todayButton}
-          onClick={goToToday}
-          aria-label="Перейти к сегодня"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 2v6h-6" />
-            <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
-            <path d="M3 22v-6h6" />
-            <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
-          </svg>
-          <span>Сегодня</span>
-        </button>
+        {/* Кнопка "Сегодня" - показываем только если НЕ текущий месяц */}
+        {!isCurrentMonth() && (
+          <button 
+            className={styles.todayButton}
+            onClick={goToToday}
+            aria-label="Перейти к сегодня"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 2v6h-6" />
+              <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
+              <path d="M3 22v-6h6" />
+              <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
+            </svg>
+            <span>Сегодня</span>
+          </button>
+        )}
 
         <AnimatePresence mode="popLayout" custom={direction}>
           <motion.div
@@ -119,7 +133,7 @@ export default function TestPage() {
           >
             <Calendar
               value={date}
-              onChange={setDate}
+              onChange={handleDayClick}
               activeStartDate={activeStartDate}
               minDetail="month"
               maxDetail="month"
@@ -135,6 +149,7 @@ export default function TestPage() {
         </AnimatePresence>
       </div>
 
+      {/* Детали дня */}
       <DayDetails 
         selectedDate={date}
         shifts={shifts}
