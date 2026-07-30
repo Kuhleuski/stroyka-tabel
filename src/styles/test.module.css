@@ -1,21 +1,21 @@
+/* ============================================================
+   TEST PAGE - ОСНОВНЫЕ СТИЛИ
+   ============================================================ */
+
 .testPage {
   padding: 0px 16px 80px;
   max-width: 500px;
   margin: 0 auto;
 }
 
-.pageTitle {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: var(--text-primary, #1a1a1a);
-}
+/* ============================================================
+   КАЛЕНДАРЬ
+   ============================================================ */
 
 .calendarWrapper {
   border-radius: 12px;
-  background: var(--bg-body, #ffffff);
-
-  padding: 0px;
+  background: transparent;
+  padding: 0;
   overflow: hidden;
   position: relative;
   touch-action: none;
@@ -31,7 +31,55 @@
   cursor: grabbing;
 }
 
-/* Стили для react-calendar */
+/* ============================================================
+   КНОПКА "СЕГОДНЯ" (СЕРАЯ)
+   ============================================================ */
+
+.todayButton {
+  position: absolute;
+  top: 8px;
+  right: 4px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px 5px 10px;
+  border-radius: 16px;
+  border: none;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text-secondary, #666);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  touch-action: none;
+  font-family: inherit;
+}
+
+.todayButton:hover {
+  background: rgba(0, 0, 0, 0.10);
+  transform: scale(1.02);
+}
+
+.todayButton:active {
+  transform: scale(0.94);
+}
+
+.todayButton svg {
+  width: 14px;
+  height: 14px;
+  stroke: var(--text-secondary, #666);
+  flex-shrink: 0;
+}
+
+.todayButton span {
+  line-height: 1;
+}
+
+/* ============================================================
+   REACT-CALENDAR СТИЛИ
+   ============================================================ */
+
 .calendarMotion :global(.react-calendar) {
   width: 100%;
   border: none;
@@ -43,7 +91,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: -12px;
+  margin-bottom: -10px;
   padding: 0 4px;
 }
 
@@ -90,6 +138,7 @@
 }
 
 .calendarMotion :global(.react-calendar__tile) {
+  position: relative;
   aspect-ratio: 1;
   display: flex;
   align-items: center;
@@ -105,12 +154,22 @@
   transition: all 0.15s ease;
 }
 
+.calendarMotion :global(.react-calendar__tile abbr) {
+  position: relative;
+  z-index: 2;
+  font-weight: 500;
+}
+
 .calendarMotion :global(.react-calendar__tile:hover) {
   background: rgba(0, 0, 0, 0.05);
 }
 
 .calendarMotion :global(.react-calendar__tile--active) {
   background: #2d7d46 !important;
+  color: white !important;
+}
+
+.calendarMotion :global(.react-calendar__tile--active abbr) {
   color: white !important;
 }
 
@@ -123,7 +182,6 @@
 .calendarMotion :global(.react-calendar__tile--now:hover) {
   background: rgba(45, 125, 70, 0.25);
 }
-/* ... все остальные стили остаются без изменений ... */
 
 /* ============================================================
    СТИЛИ ДЛЯ РАСКРАШЕННОГО ДНЯ
@@ -160,100 +218,291 @@
   font-size: 9px;
 }
 
-/* Адаптация для react-calendar tiles */
-.calendarMotion :global(.react-calendar__tile) {
+/* ============================================================
+   ДЕТАЛИ ДНЯ - КАРТОЧКИ
+   ============================================================ */
+
+.dayDetailsWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.dayDetailsEmptyWrapper {
+  margin-top: 20px;
+}
+
+.dayDetailsCard {
+  margin: 0 -10px;
+  padding: 12px 16px 16px;
+  background: var(--bg-card, #ffffff);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border-light, #e8eaed);
+}
+
+/* Заголовок карточки */
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--border-light, #e8eaed);
+}
+
+.detailsHeader {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary, #666);
+}
+
+/* Три точки (меню) - горизонтальные точки */
+.cardMenu {
   position: relative;
-  aspect-ratio: 1;
+}
+
+.menuButton {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text-secondary, #666);
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background 0.2s ease;
+  padding: 0;
+}
+
+.menuButton:hover {
+  background: rgba(0, 0, 0, 0.10);
+}
+
+.menuButton svg {
+  fill: var(--text-secondary, #666);
+}
+
+.menuDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 10;
+  min-width: 180px;
+  background: var(--bg-card, #ffffff);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--border-light, #e8eaed);
+  overflow: hidden;
+  padding: 4px 0;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary, #1a1a1a);
   font-size: 14px;
   font-weight: 500;
-  color: var(--text-primary, #1a1a1a);
-  background: none;
-  border: none;
-  border-radius: 8px;
-  padding: 0;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background 0.15s ease;
+  font-family: inherit;
+  white-space: nowrap;
 }
 
-/* Чтобы число было поверх цветного фона */
-.calendarMotion :global(.react-calendar__tile abbr) {
-  position: relative;
-  z-index: 2;
+.menuItem:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.menuItem svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--text-secondary, #666);
+  flex-shrink: 0;
+}
+
+/* Тело карточки */
+.cardBody {
+  /* стили для тела */
+}
+
+.detailsItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.detailsDot {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 50%;
+  margin-top: 2px;
+  border: 2px solid var(--bg-body, #f5f5f5);
+  transition: all 0.2s ease;
+}
+
+.detailsContent {
+  flex: 1;
+}
+
+.detailsSite {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary, #1a1a1a);
+}
+
+.detailsAddress {
+  font-size: 13px;
+  color: var(--text-secondary, #666);
+  margin-top: 1px;
+}
+
+.detailsChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.detailsChip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 4px;
+  border-radius: 24px;
+  background: var(--bg-chip, #e8eaed);
+  color: var(--text-primary, #1a1a1a);
+  font-size: 13px;
   font-weight: 500;
 }
 
-/* Для темной темы */
+.detailsAvatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.detailsAvatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.detailsEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 0;
+  background: var(--bg-card-hover, #f5f5f5);
+  border-radius: 12px;
+  color: var(--text-secondary, #888);
+  font-size: 14px;
+}
+
+/* ============================================================
+   ТЕМНАЯ ТЕМА
+   ============================================================ */
+
+[data-theme="dark"] .calendarWrapper {
+  background: transparent;
+}
+
+[data-theme="dark"] .todayButton {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+[data-theme="dark"] .todayButton:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+[data-theme="dark"] .todayButton svg {
+  stroke: rgba(255, 255, 255, 0.6);
+}
+
+[data-theme="dark"] .dayDetailsCard {
+  background: #1e1e1e;
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .cardHeader {
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .detailsHeader {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="dark"] .detailsEmpty {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.4);
+}
+
+[data-theme="dark"] .detailsSite {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .detailsAddress {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+[data-theme="dark"] .detailsChip {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="dark"] .detailsDot {
+  border-color: #1a1a1a;
+}
+
 [data-theme="dark"] .dayPlus {
   color: #ffffff;
   text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
   background: rgba(0, 0, 0, 0.7);
 }
-/* ============================================================
-   КНОПКА "СЕГОДНЯ"
-   ============================================================ */
 
-.todayButton {
-  position: absolute;
-  top: 8px;
-  right: 4px;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 12px 5px 10px;
-  border-radius: 16px;
-  border: none;
-  background: #2d7d46;
-  color: white;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  touch-action: none;
-  font-family: inherit;
-  box-shadow: 0 2px 6px rgba(45, 125, 70, 0.25);
+[data-theme="dark"] .menuButton {
+  background: rgba(255, 255, 255, 0.08);
 }
 
-.todayButton:hover {
-  background: #237a3e;
-  transform: scale(1.03);
-  box-shadow: 0 4px 10px rgba(45, 125, 70, 0.35);
+[data-theme="dark"] .menuButton:hover {
+  background: rgba(255, 255, 255, 0.14);
 }
 
-.todayButton:active {
-  transform: scale(0.94);
+[data-theme="dark"] .menuButton svg {
+  fill: rgba(255, 255, 255, 0.5);
 }
 
-.todayButton svg {
-  width: 14px;
-  height: 14px;
-  stroke: white;
-  flex-shrink: 0;
+[data-theme="dark"] .menuDropdown {
+  background: #2a2a2a;
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
-.todayButton span {
-  line-height: 1;
+[data-theme="dark"] .menuItem {
+  color: rgba(255, 255, 255, 0.85);
 }
 
-/* Для темной темы */
-[data-theme="dark"] .todayButton {
-  background: #2d7d46;
-  color: white;
-  box-shadow: 0 2px 6px rgba(45, 125, 70, 0.3);
+[data-theme="dark"] .menuItem:hover {
+  background: rgba(255, 255, 255, 0.06);
 }
 
-[data-theme="dark"] .todayButton:hover {
-  background: #237a3e;
-  box-shadow: 0 4px 10px rgba(45, 125, 70, 0.4);
-}
-
-[data-theme="dark"] .todayButton svg {
-  stroke: white;
-}
-
-[data-theme="dark"] .todayButton svg {
-  stroke: rgba(255, 255, 255, 0.6);
+[data-theme="dark"] .menuItem svg {
+  stroke: rgba(255, 255, 255, 0.5);
 }
