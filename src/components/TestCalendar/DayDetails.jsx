@@ -1,12 +1,18 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { formatDateLocal } from '../../utils/dateHelpers'
+import { deleteShiftById } from '../../services/supabase'
 import styles from '../../styles/test.module.css'
 
-export function DayDetails({ selectedDate, shifts, sites, workers }) {
+export function DayDetails({ selectedDate, shifts, sites, workers, onShiftDeleted }) {
   const dateStr = formatDateLocal(selectedDate)
   const [openMenuId, setOpenMenuId] = useState(null)
-  const menuRef = useRef(null)
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [shiftToDelete, setShiftToDelete] = useState(null)
+  const [deleting, setDeleting] = useState(false)
+  
+  // Храним DOM-элементы для каждого меню
+  const menuElements = useRef({})
 
   const dayGroups = useMemo(() => {
     const dayShifts = shifts.filter(s => s.work_date === dateStr)
@@ -38,15 +44,24 @@ export function DayDetails({ selectedDate, shifts, sites, workers }) {
         color: site?.color || '#999',
         workers: workerData,
         shiftIds: group.shiftIds,
-        // Уникальный ключ для каждого элемента
         uniqueKey: `${group.siteId}-${dateStr}`
       }
     })
   }, [dateStr, shifts, sites, workers])
 
+  // Закрытие меню при клике вне его
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+      // Проверяем все сохраненные DOM-элементы
+      let isOutside = true
+      for (const key in menuElements.current) {
+        const element = menuElements.current[key]
+        if (element && element.contains && element.contains(event.target)) {
+          isOutside = false
+          break
+        }
+      }
+      if (isOutside) {
         setOpenMenuId(null)
       }
     }
@@ -83,8 +98,87 @@ export function DayDetails({ selectedDate, shifts, sites, workers }) {
     return str && str.startsWith('data:image')
   }
 
-  const toggleMenu = (id) => {
-    setOpenMenuId(openMenuId === id ? null : id)
+  const toggleMenu = (siteId) => {
+    setOpenMenuId(openMenuId === siteId ? null : siteId)
+  }
+
+  // === ОБРАБОТЧИК УДАЛЕНИЯ ===
+  const handleDeleteClick = (shiftIds, siteName) => {
+    console.log('🗑️ Клик удаления:', { shiftIds, siteName })
+    setOpenMenuId(null)
+    setShiftToDelete({ shiftIds, siteName })
+    setShowConfirmDialog(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!shiftToDelete) return
+    
+    console.log('🗑️ Подтверждение удаления:', shiftToDelete)
+    setDeleting(true)
+    setShowConfirmDialog(false)
+    
+    try {
+      let deletedCount = 0
+      for (const shiftId of shiftToDelete.shiftIds) {
+        console.log(`🗑️ Удаляем смену ID: ${shiftId}`)
+        const result = await deleteShiftById(shiftId)
+        if (result && result.length > 0) {
+          deletedCount++
+        }
+      }
+      
+      console.log(`✅ Удалено смен: ${deletedCount}`)
+      
+      if (onShiftDeleted) {
+        console.log('🔄 Вызываем onShiftDeleted')
+        await onShiftDeleted()
+      }
+    } catch (error) {
+      console.error('❌ Ошибка удаления:', error)
+      alert('Не удалось удалить смену: ' + error.message)
+    } finally {
+      setDeleting(false)
+      setShiftToDelete(null)
+    }
+  }
+
+  const handleCancelDelete = () => {
+    setShowConfirmDialog(false)
+    setShiftToDelete(null)
+  }
+
+  // === ДИАЛОГ ПОДТВЕРЖДЕНИЯ УДАЛЕНИЯ ===
+  if (showConfirmDialog && shiftToDelete) {
+    return (
+      <div className={styles.confirmDeleteOverlay}>
+        <div className={styles.confirmDeleteModal}>
+          <div className={styles.confirmDeleteIcon}>!</div>
+          <h3 className={styles.confirmDeleteTitle}>Подтверждение удаления</h3>
+          <p className={styles.confirmDeleteMessage}>
+            Вы уверены, что хотите удалить смену на объекте <strong>{shiftToDelete.siteName}</strong>?
+          </p>
+          <p className={styles.confirmDeleteSubMessage}>
+            Это действие нельзя отменить.
+          </p>
+          <div className={styles.confirmDeleteActions}>
+            <button 
+              className={styles.confirmDeleteCancel}
+              onClick={handleCancelDelete}
+              disabled={deleting}
+            >
+              Отмена
+            </button>
+            <button 
+              className={styles.confirmDeleteConfirm}
+              onClick={handleConfirmDelete}
+              disabled={deleting}
+            >
+              {deleting ? 'Удаление...' : 'Удалить'}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (dayGroups.length === 0) {
@@ -113,96 +207,124 @@ export function DayDetails({ selectedDate, shifts, sites, workers }) {
       transition={{ duration: 0.2 }}
       key={dateStr}
     >
-      {dayGroups.map((group) => (
-        <div key={group.uniqueKey} className={styles.dayDetailsCard}>
-          <div className={styles.cardHeader}>
-            <div className={styles.detailsHeader}>
-              {formatDateDisplay(selectedDate)}
-            </div>
-            <div className={styles.cardMenu} ref={menuRef}>
-              <button 
-                className={styles.menuButton}
-                onClick={() => toggleMenu(group.siteId)}
-                aria-label="Меню"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <circle cx="12" cy="5" r="2.5" />
-                  <circle cx="12" cy="12" r="2.5" />
-                  <circle cx="12" cy="19" r="2.5" />
-                </svg>
-              </button>
-              {openMenuId === group.siteId && (
-                <div className={styles.menuDropdown}>
-                  <button className={styles.menuItem}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34" />
-                      <polygon points="18 2 22 6 12 16 8 16 8 12 18 2" />
-                    </svg>
-                    Редактировать смену
-                  </button>
-                  <button className={styles.menuItem}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="3 6 5 6 21 6" />
-                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                    </svg>
-                    Удалить смену
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className={styles.cardBody}>
-            <div className={styles.detailsItem}>
+      {dayGroups.map((group) => {
+        const menuKey = `menu-${group.siteId}-${dateStr}`
+        
+        return (
+          <div key={group.uniqueKey} className={styles.dayDetailsCard}>
+            <div className={styles.cardHeader}>
+              <div className={styles.detailsHeader}>
+                {formatDateDisplay(selectedDate)}
+              </div>
               <div 
-                className={styles.detailsDot} 
-                style={{ 
-                  background: group.color,
-                  boxShadow: `0 0 20px ${group.color}60, 0 0 40px ${group.color}30`
-                }} 
-              />
-              <div className={styles.detailsContent}>
-                <div className={styles.detailsSite}>{group.siteName}</div>
-                {group.address && <div className={styles.detailsAddress}>{group.address}</div>}
-                <div className={styles.detailsChips}>
-                  {group.workers.map((worker, index) => {
-                    const hasPhoto = isBase64Image(worker.avatar)
-                    const initials = getInitials(worker.name)
-                    const avatarColor = getAvatarColor(worker.name)
-                    
-                    return (
-                      <div key={`${worker.id}-${index}-${dateStr}`} className={styles.detailsChip}>
-                        <div 
-                          className={styles.detailsAvatar}
-                          style={{
-                            backgroundColor: hasPhoto ? 'transparent' : avatarColor,
-                          }}
-                        >
-                          {hasPhoto ? (
-                            <img 
-                              src={worker.avatar} 
-                              alt={worker.name}
-                              className={styles.detailsAvatarImg}
-                              onError={(e) => {
-                                e.target.style.display = 'none'
-                                e.target.parentNode.style.backgroundColor = avatarColor
-                                e.target.parentNode.textContent = initials
-                              }}
-                            />
-                          ) : (
-                            initials
-                          )}
+                className={styles.cardMenu} 
+                ref={(el) => {
+                  if (el) {
+                    menuElements.current[menuKey] = el
+                  } else {
+                    delete menuElements.current[menuKey]
+                  }
+                }}
+              >
+                <button 
+                  className={styles.menuButton}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    toggleMenu(group.siteId)
+                  }}
+                  aria-label="Меню"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="12" cy="5" r="2.5" />
+                    <circle cx="12" cy="12" r="2.5" />
+                    <circle cx="12" cy="19" r="2.5" />
+                  </svg>
+                </button>
+                {openMenuId === group.siteId && (
+                  <div className={styles.menuDropdown}>
+                    <button 
+                      className={styles.menuItem}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        console.log('📝 Редактировать смену для:', group.siteName)
+                      }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34" />
+                        <polygon points="18 2 22 6 12 16 8 16 8 12 18 2" />
+                      </svg>
+                      Редактировать смену
+                    </button>
+                    <button 
+                      className={styles.menuItem}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleDeleteClick(group.shiftIds, group.siteName)
+                      }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                      </svg>
+                      Удалить смену
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className={styles.cardBody}>
+              <div className={styles.detailsItem}>
+                <div 
+                  className={styles.detailsDot} 
+                  style={{ 
+                    background: group.color,
+                    boxShadow: `0 0 20px ${group.color}60, 0 0 40px ${group.color}30`
+                  }} 
+                />
+                <div className={styles.detailsContent}>
+                  <div className={styles.detailsSite}>{group.siteName}</div>
+                  {group.address && <div className={styles.detailsAddress}>{group.address}</div>}
+                  <div className={styles.detailsChips}>
+                    {group.workers.map((worker, index) => {
+                      const hasPhoto = isBase64Image(worker.avatar)
+                      const initials = getInitials(worker.name)
+                      const avatarColor = getAvatarColor(worker.name)
+                      
+                      return (
+                        <div key={`${worker.id}-${index}-${dateStr}`} className={styles.detailsChip}>
+                          <div 
+                            className={styles.detailsAvatar}
+                            style={{
+                              backgroundColor: hasPhoto ? 'transparent' : avatarColor,
+                            }}
+                          >
+                            {hasPhoto ? (
+                              <img 
+                                src={worker.avatar} 
+                                alt={worker.name}
+                                className={styles.detailsAvatarImg}
+                                onError={(e) => {
+                                  e.target.style.display = 'none'
+                                  e.target.parentNode.style.backgroundColor = avatarColor
+                                  e.target.parentNode.textContent = initials
+                                }}
+                              />
+                            ) : (
+                              initials
+                            )}
+                          </div>
+                          <span>{worker.name.split(' ')[0]}</span>
                         </div>
-                        <span>{worker.name.split(' ')[0]}</span>
-                      </div>
-                    )
-                  })}
+                      )
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      ))}
+        )
+      })}
     </motion.div>
   )
 }

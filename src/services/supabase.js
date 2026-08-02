@@ -129,6 +129,75 @@ export async function addShift(shiftData) {
    }
 }
 
+// === УДАЛЕНИЕ СМЕНЫ ПО ID ===
+export async function deleteShiftById(shiftId) {
+   try {
+      console.log('🗑️ Удаляем смену ID:', shiftId)
+
+      const url = `${SUPABASE_URL}/rest/v1/shifts?id=eq.${shiftId}`
+      const response = await fetch(url, {
+         method: 'DELETE',
+         headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Prefer': 'return=representation'
+         }
+      })
+
+      console.log('📡 Статус удаления:', response.status)
+
+      if (!response.ok) {
+         const errorText = await response.text()
+         console.error('❌ Ошибка удаления:', response.status, errorText)
+         throw new Error(`Ошибка удаления: ${response.status} ${errorText}`)
+      }
+
+      const result = await response.json()
+      console.log('✅ Удалено смен:', result ? result.length : 0)
+      return result
+   } catch (error) {
+      console.error('❌ Ошибка в deleteShiftById:', error)
+      throw error
+   }
+}
+
+// === УДАЛЕНИЕ ВСЕХ СМЕН ДЛЯ ОБЪЕКТА И ДАТЫ ===
+export async function deleteShiftsForSiteAndDate(siteId, workDate) {
+   try {
+      // Находим все смены для объекта и даты
+      const existingShifts = await findShiftsForSiteAndDate(siteId, workDate)
+
+      if (!existingShifts || existingShifts.length === 0) {
+         console.log('ℹ️ Нет смен для удаления')
+         return []
+      }
+
+      console.log(`🗑️ Удаляем ${existingShifts.length} смен...`)
+
+      let deletedCount = 0
+      const deletedShifts = []
+
+      for (const shift of existingShifts) {
+         try {
+            const result = await deleteShiftById(shift.id)
+            if (result && result.length > 0) {
+               deletedCount++
+               deletedShifts.push(result[0])
+            }
+         } catch (err) {
+            console.error(`❌ Ошибка при удалении смены ${shift.id}:`, err)
+         }
+      }
+
+      console.log(`✅ Удалено смен: ${deletedCount} из ${existingShifts.length}`)
+      return deletedShifts
+   } catch (error) {
+      console.error('❌ Ошибка в deleteShiftsForSiteAndDate:', error)
+      throw error
+   }
+}
+
 // === СОХРАНЕНИЕ СМЕНЫ (СОЗДАНИЕ ИЛИ ОБНОВЛЕНИЕ) ===
 export async function saveShift(siteId, workDate, workerIds) {
    try {
@@ -141,34 +210,7 @@ export async function saveShift(siteId, workDate, workerIds) {
       // 2. Если есть существующие смены - удаляем их по ID
       if (existingShifts && existingShifts.length > 0) {
          console.log(`🗑️ Удаляем ${existingShifts.length} старых смен...`)
-
-         let deletedCount = 0
-         for (const shift of existingShifts) {
-            try {
-               const deleteUrl = `${SUPABASE_URL}/rest/v1/shifts?id=eq.${shift.id}`
-               console.log(`🗑️ Удаляем смену ID: ${shift.id}`)
-
-               const response = await fetch(deleteUrl, {
-                  method: 'DELETE',
-                  headers: {
-                     'Content-Type': 'application/json',
-                     'apikey': SUPABASE_ANON_KEY,
-                     'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                     'Prefer': 'return=representation'
-                  }
-               })
-
-               if (response.ok) {
-                  deletedCount++
-                  console.log(`✅ Удалена смена ID: ${shift.id}`)
-               } else {
-                  console.error(`❌ Ошибка удаления смены ${shift.id}:`, response.status)
-               }
-            } catch (err) {
-               console.error(`❌ Ошибка при удалении смены ${shift.id}:`, err)
-            }
-         }
-         console.log(`✅ Удалено смен: ${deletedCount} из ${existingShifts.length}`)
+         await deleteShiftsForSiteAndDate(siteId, workDate)
       }
 
       // 3. Создаем новые смены для каждого работника

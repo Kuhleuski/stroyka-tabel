@@ -67,6 +67,19 @@ export default function TestPage() {
     setUpdateKey(prev => prev + 1)
   }
 
+  // === ОБРАБОТЧИК УДАЛЕНИЯ СМЕНЫ ===
+  const handleShiftDeleted = async () => {
+    setShowSavingScreen(true)
+    
+    if (refetch) {
+      await refetch()
+    }
+    
+    await new Promise(resolve => setTimeout(resolve, 1200))
+    setShowSavingScreen(false)
+    setUpdateKey(prev => prev + 1)
+  }
+
   const variants = {
     enter: (direction) => ({
       x: direction > 0 ? 200 : -200,
@@ -103,7 +116,6 @@ export default function TestPage() {
            activeStartDate.getFullYear() === today.getFullYear()
   }
 
-  // Проверка: видна ли выбранная дата в текущем месяце
   const isDateVisible = () => {
     const selectedMonth = date.getMonth()
     const selectedYear = date.getFullYear()
@@ -122,7 +134,7 @@ export default function TestPage() {
             <div className={componentsStyles.savingDot}></div>
             <div className={componentsStyles.savingDot}></div>
           </div>
-          <h2 className={componentsStyles.savingTitle}>Сохраняем смену</h2>
+          <h2 className={componentsStyles.savingTitle}>Обновляем данные</h2>
           <p className={componentsStyles.savingText}>Пожалуйста, подождите</p>
         </div>
       </div>
@@ -210,7 +222,6 @@ export default function TestPage() {
         </AnimatePresence>
       </div>
 
-      {/* Детали дня - показываем только если выбранная дата видна в календаре */}
       {isDateVisible() ? (
         <DayDetails 
           key={updateKey}
@@ -218,6 +229,7 @@ export default function TestPage() {
           shifts={shifts}
           sites={sites}
           workers={workers}
+          onShiftDeleted={handleShiftDeleted}
         />
       ) : (
         <div className={styles.dateNotVisible}>
@@ -225,7 +237,6 @@ export default function TestPage() {
         </div>
       )}
 
-      {/* FAB кнопка - показываем только если дата выбрана и видна */}
       {user?.role === 'admin' && isDateVisible() && (
         <button 
           className={componentsStyles.fabAddShift}
