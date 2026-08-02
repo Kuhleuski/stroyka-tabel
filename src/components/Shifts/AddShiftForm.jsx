@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { ArrowLeft } from 'lucide-react'
-import { saveShift } from '../../services/supabase'
+import { saveShift, findShiftsForSiteAndDate } from '../../services/supabase'
 import { formatDateLocal } from '../../utils/dateHelpers'
 import styles from '../../styles/shifts.module.css'
 
@@ -8,6 +8,11 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
   const [selectedSite, setSelectedSite] = useState(null)
   const [selectedWorkers, setSelectedWorkers] = useState([])
   const [loading, setLoading] = useState(false)
+  
+  // === СОСТОЯНИЯ ДЛЯ ДИАЛОГА ПОДТВЕРЖДЕНИЯ ===
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [existingShifts, setExistingShifts] = useState([])
+  const [pendingSaveData, setPendingSaveData] = useState(null)
 
   const handleWorkerToggle = (workerId) => {
     setSelectedWorkers(prev =>
@@ -29,6 +34,7 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
     setSelectedSite(prev => prev === siteId ? null : siteId)
   }
 
+  // === ПРОВЕРКА СУЩЕСТВУЮЩЕЙ СМЕНЫ ПЕРЕД СОХРАНЕНИЕМ ===
   const handleSubmit = async (e) => {
     e.preventDefault()
     
@@ -41,23 +47,56 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
       return
     }
 
+    const localDate = formatDateLocal(selectedDate)
+    console.log('📅 Сохраняем смену на дату:', localDate)
+    console.log('📍 Объект ID:', selectedSite)
+    console.log('👷 Работники ID:', selectedWorkers)
+    
+    try {
+      // Проверяем, есть ли уже смена на этот день и объект
+      const existing = await findShiftsForSiteAndDate(selectedSite, localDate)
+      
+      if (existing && existing.length > 0) {
+        // Если есть — показываем диалог подтверждения
+        console.log('📊 Найдена существующая смена:', existing)
+        setExistingShifts(existing)
+        setPendingSaveData({ siteId: selectedSite, workDate: localDate, workerIds: selectedWorkers })
+        setShowConfirmDialog(true)
+      } else {
+        // Если нет — сразу сохраняем
+        await performSave(selectedSite, localDate, selectedWorkers)
+      }
+    } catch (error) {
+      console.error('❌ Ошибка проверки смены:', error)
+      alert('Не удалось проверить существующую смену')
+    }
+  }
+
+  // === ВЫПОЛНЕНИЕ СОХРАНЕНИЯ ===
+  const performSave = async (siteId, workDate, workerIds) => {
     setLoading(true)
     try {
-      const localDate = formatDateLocal(selectedDate)
-      console.log('📅 Сохраняем смену на дату:', localDate)
-      console.log('📍 Объект ID:', selectedSite)
-      console.log('👷 Работники ID:', selectedWorkers)
-      
-      // Вызываем saveShift
-      await saveShift(selectedSite, localDate, selectedWorkers)
-      
-      console.log('✅ Смена успешно сохранена!')
+      await saveShift(siteId, workDate, workerIds)
       onSuccess()
     } catch (error) {
-      console.error('❌ Ошибка:', error)
-      alert('Не удалось создать смену: ' + error.message)
+      console.error('❌ Ошибка сохранения:', error)
+      alert('Не удалось сохранить смену: ' + error.message)
       setLoading(false)
     }
+  }
+
+  // === ОБРАБОТЧИКИ ДИАЛОГА ===
+  const handleConfirmOverwrite = async () => {
+    setShowConfirmDialog(false)
+    if (pendingSaveData) {
+      await performSave(pendingSaveData.siteId, pendingSaveData.workDate, pendingSaveData.workerIds)
+    }
+  }
+
+  const handleCancelOverwrite = () => {
+    setShowConfirmDialog(false)
+    setExistingShifts([])
+    setPendingSaveData(null)
   }
 
   const formatDate = (date) => {
@@ -83,6 +122,112 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
     return str && str.startsWith('data:image')
   }
 
+  // === ПОЛУЧЕНИЕ ДАННЫХ ОБЪЕКТА ДЛЯ ДИАЛОГА ===
+  const getSiteName = (siteId) => {
+    const site = sites.find(s => s.id === siteId)
+    return site ? site.name : 'Неизвестный объект'
+  }
+
+  const getSiteColor = (siteId) => {
+    const site = sites.find(s => s.id === siteId)
+    return site ? site.color : '#2d7d46'
+  }
+
+  const getWorkerNames = (workerIds) => {
+    return workerIds
+      .map(id => {
+        const worker = workers.find(w => w.id === id)
+        return worker ? worker.name : null
+      })
+      .filter(name => name !== null)
+  }
+
+  // === ДИАЛОГ ПОДТВЕРЖДЕНИЯ ===
+  if (showConfirmDialog) {
+    const siteName = getSiteName(selectedSite)
+    const siteColor = getSiteColor(selectedSite)
+    const existingWorkerIds = existingShifts.map(s => s.worker_id)
+    const existingWorkerNames = getWorkerNames(existingWorkerIds)
+    const newWorkerNames = getWorkerNames(selectedWorkers)
+    const dateDisplay = formatDate(selectedDate)
+
+    return (
+      <div className={styles.shiftFormScreen}>
+        <div className={styles.shiftFormHeader}>
+          <button onClick={handleCancelOverwrite} className={styles.shiftFormBack}>
+            <ArrowLeft size={24} />
+            <span>Назад</span>
+          </button>
+          <span className={styles.shiftFormTitle} style={{ flex: 1, textAlign: 'center' }}>
+            Подтверждение
+          </span>
+          <div style={{ width: '60px' }} />
+        </div>
+
+        <div className={styles.confirmDialogBody}>
+          <div className={styles.confirmDialogHeader}>
+            <div className={styles.confirmDialogIcon}>!</div>
+            <h3 className={styles.confirmDialogTitle}>Подтверждение перезаписи</h3>
+          </div>
+
+          <p className={styles.confirmDialogMessage}>
+            Внимание, в этот день на объекте <strong>{siteName}</strong> ранее уже была поставлена смена.
+          </p>
+
+          <div className={styles.confirmDialogSection}>
+            <div className={styles.confirmDialogLabel}>Существующая запись</div>
+            <div className={styles.confirmDialogCard}>
+              <div className={styles.confirmDialogDate}>{dateDisplay}</div>
+              <div className={styles.confirmDialogSite}>
+                <span className={styles.confirmDialogDot} style={{ background: siteColor }} />
+                {siteName}
+              </div>
+              <div className={styles.confirmDialogWorkers}>
+                {existingWorkerNames.join(', ')}
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.confirmDialogDivider} />
+
+          <p className={styles.confirmDialogQuestion}>
+            Вы уверены, что хотите перезаписать данные?
+          </p>
+
+          <div className={styles.confirmDialogSection}>
+            <div className={styles.confirmDialogLabel}>Новая запись</div>
+            <div className={styles.confirmDialogCardNew}>
+              <div className={styles.confirmDialogDate}>{dateDisplay}</div>
+              <div className={styles.confirmDialogSite}>
+                <span className={styles.confirmDialogDot} style={{ background: siteColor }} />
+                {siteName}
+              </div>
+              <div className={styles.confirmDialogWorkers}>
+                {newWorkerNames.join(', ')}
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.confirmDialogActions}>
+            <button 
+              className={styles.confirmDialogCancel}
+              onClick={handleCancelOverwrite}
+            >
+              Отмена
+            </button>
+            <button 
+              className={styles.confirmDialogConfirm}
+              onClick={handleConfirmOverwrite}
+            >
+              Перезаписать
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // === ОСНОВНАЯ ФОРМА ===
   return (
     <div className={styles.shiftFormScreen}>
       <div className={styles.shiftFormHeader}>
