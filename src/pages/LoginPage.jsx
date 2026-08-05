@@ -5,12 +5,12 @@ export function LoginPage({ onLogin }) {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
 
-    const handleLogin = (role) => {
+    const handleLogin = (login) => {
         setLoading(true)
         setError('')
 
         setTimeout(() => {
-            const result = onLogin(role)
+            const result = onLogin(login)
             setLoading(false)
             if (!result.success) {
                 setError(result.error)
@@ -40,7 +40,7 @@ export function LoginPage({ onLogin }) {
                         <line x1="8" y1="19" x2="12" y2="19" />
                     </svg>
                     <h1 className={styles.loginTitle}>Табель</h1>
-                    <p className={styles.loginSubtitle}>Выберите роль для входа</p>
+                    <p className={styles.loginSubtitle}>Выберите пользователя для входа</p>
                 </div>
 
                 <div className={styles.loginForm}>
@@ -50,25 +50,35 @@ export function LoginPage({ onLogin }) {
 
                     <button 
                         className={styles.loginBtn} 
-                        onClick={() => handleLogin('admin')}
+                        onClick={() => handleLogin('admin_sergey')}
                         disabled={loading}
                         style={{ background: '#2d7d46' }}
                     >
-                        {loading ? 'Загрузка...' : '👨‍💼 Администратор'}
+                        {loading ? 'Загрузка...' : '👨‍💼 Сергей (Администратор)'}
                     </button>
 
                     <button 
                         className={styles.loginBtn} 
-                        onClick={() => handleLogin('worker')}
+                        onClick={() => handleLogin('admin_maxim')}
                         disabled={loading}
                         style={{ background: '#1a6b8a' }}
                     >
-                        {loading ? 'Загрузка...' : '👷 Пользователь'}
+                        {loading ? 'Загрузка...' : '👨‍💼 Максим (Администратор)'}
+                    </button>
+
+                    <button 
+                        className={styles.loginBtn} 
+                        onClick={() => handleLogin('worker_misha')}
+                        disabled={loading}
+                        style={{ background: '#6b4c1a' }}
+                    >
+                        {loading ? 'Загрузка...' : '👷 Миша (Работник)'}
                     </button>
 
                     <div className={styles.loginHint}>
                         <span>Сергей (админ)</span>
-                        <span>Саша (пользователь)</span>
+                        <span>Максим (админ)</span>
+                        <span>Миша (работник)</span>
                     </div>
                 </div>
             </div>

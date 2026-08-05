@@ -1,5 +1,3 @@
-// src/App.jsx
-
 import { useState, useEffect } from 'react'
 import { useShifts } from './hooks/useShifts'
 import { useAuth, AuthProvider } from './context/AuthContext'
@@ -14,7 +12,8 @@ import { MyTabelPage } from './pages/MyTabelPage'
 import { SalaryPage } from './pages/SalaryPage'
 import { ExtraPage } from './pages/ExtraPage'
 import { LoginPage } from './pages/LoginPage'
-import { NotificationsPage } from './pages/NotificationsPage'
+// Убираем импорт NotificationsPage
+// import { NotificationsPage } from './pages/NotificationsPage'
 import { StatisticsPage } from './pages/StatisticsPage'
 import { CostsPage } from './pages/CostsPage'
 import TestPage from './pages/TestPage'
@@ -81,15 +80,16 @@ function AppContent() {
         setShowSettings(true)
     }
 
-    if (showNotifications) {
-        return (
-            <div className={layoutStyles.app}>
-                <div className="container">
-                    <NotificationsPage onClose={handleCloseNotifications} />
-                </div>
-            </div>
-        )
-    }
+    // Удаляем блок showNotifications, так как теперь уведомления открываются через модалку в Header
+    // if (showNotifications) {
+    //     return (
+    //         <div className={layoutStyles.app}>
+    //             <div className="container">
+    //                 <NotificationsPage onClose={handleCloseNotifications} />
+    //             </div>
+    //         </div>
+    //     )
+    // }
 
     const renderPage = () => {
         switch (currentPage) {
@@ -122,6 +122,7 @@ function AppContent() {
                 onSettings={handleOpenSettings}
                 onNotifications={handleOpenNotifications}
                 unreadCount={unreadCount}
+                userId={user?.id}
             />
             
             <div className="container">

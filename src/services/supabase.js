@@ -58,6 +58,10 @@ export const fileToBase64 = (file) => {
    })
 }
 
+// ============================================================
+// ОСНОВНЫЕ ФУНКЦИИ
+// ============================================================
+
 export async function fetchShifts() {
    try {
       const url = `${SUPABASE_URL}/rest/v1/shifts?select=*&order=work_date.desc`
@@ -129,49 +133,147 @@ export async function addShift(shiftData) {
    }
 }
 
-// === СОХРАНЕНИЕ СМЕНЫ (СОЗДАНИЕ ИЛИ ОБНОВЛЕНИЕ) ===
-export async function saveShift(siteId, workDate, workerIds) {
+// === УДАЛЕНИЕ СМЕНЫ ПО ID ===
+export async function deleteShiftById(shiftId) {
    try {
-      console.log('📝 saveShift вызван:', { siteId, workDate, workerIds })
+      console.log('🗑️ Удаляем смену ID:', shiftId)
 
-      // 1. Находим все существующие смены для этого объекта и даты
+      const url = `${SUPABASE_URL}/rest/v1/shifts?id=eq.${shiftId}`
+      const response = await fetch(url, {
+         method: 'DELETE',
+         headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Prefer': 'return=representation'
+         }
+      })
+
+      console.log('📡 Статус удаления:', response.status)
+
+      if (!response.ok) {
+         const errorText = await response.text()
+         console.error('❌ Ошибка удаления:', response.status, errorText)
+         throw new Error(`Ошибка удаления: ${response.status} ${errorText}`)
+      }
+
+      const result = await response.json()
+      console.log('✅ Удалено смен:', result ? result.length : 0)
+      return result
+   } catch (error) {
+      console.error('❌ Ошибка в deleteShiftById:', error)
+      throw error
+   }
+}
+
+// === УДАЛЕНИЕ ВСЕХ СМЕН ДЛЯ ОБЪЕКТА И ДАТЫ ===
+export async function deleteShiftsForSiteAndDate(siteId, workDate, actorId = null) {
+   try {
+      const existingShifts = await findShiftsForSiteAndDate(siteId, workDate)
+
+      if (!existingShifts || existingShifts.length === 0) {
+         console.log('ℹ️ Нет смен для удаления')
+         return []
+      }
+
+      console.log(`🗑️ Удаляем ${existingShifts.length} смен...`)
+
+      // Получаем информацию для уведомления
+      let siteName = 'Неизвестный объект'
+      let actorName = 'Неизвестный'
+      let workerNames = []
+
+      try {
+         siteName = await getSiteName(siteId)
+         if (actorId) {
+            actorName = await getUserName(actorId)
+         }
+         const workerIds = existingShifts.map(s => s.worker_id)
+         workerNames = await getWorkerNames(workerIds)
+      } catch (e) {
+         console.warn('⚠️ Не удалось получить данные для уведомления:', e)
+      }
+
+      let deletedCount = 0
+      const deletedShifts = []
+
+      for (const shift of existingShifts) {
+         try {
+            const result = await deleteShiftById(shift.id)
+            if (result && result.length > 0) {
+               deletedCount++
+               deletedShifts.push(result[0])
+            }
+         } catch (err) {
+            console.error(`❌ Ошибка при удалении смены ${shift.id}:`, err)
+         }
+      }
+
+      console.log(`✅ Удалено смен: ${deletedCount} из ${existingShifts.length}`)
+
+      // Создаем уведомление об удалении
+      if (actorId && deletedCount > 0) {
+         try {
+            const dateObj = new Date(workDate + 'T00:00:00')
+            const formattedDate = dateObj.toLocaleDateString('ru-RU', {
+               day: 'numeric',
+               month: 'long',
+               year: 'numeric'
+            })
+
+            const message = `${actorName} удалил смену на ${formattedDate}`
+            const details = {
+               actorName,
+               siteName,
+               workerNames,
+               formattedDate,
+               siteId,
+               workDate,
+               deletedCount
+            }
+
+            await createNotification(
+               actorId,
+               'shift_deleted',
+               message,
+               details
+            )
+         } catch (notifError) {
+            console.error('⚠️ Ошибка создания уведомления об удалении:', notifError)
+         }
+      }
+
+      return deletedShifts
+   } catch (error) {
+      console.error('❌ Ошибка в deleteShiftsForSiteAndDate:', error)
+      throw error
+   }
+}
+
+// === СОХРАНЕНИЕ СМЕНЫ (СОЗДАНИЕ ИЛИ ОБНОВЛЕНИЕ) ===
+// === СОХРАНЕНИЕ СМЕНЫ (СОЗДАНИЕ ИЛИ ОБНОВЛЕНИЕ) ===
+export async function saveShift(siteId, workDate, workerIds, actorId = null) {
+   try {
+      console.log('📝 saveShift вызван:', { siteId, workDate, workerIds, actorId })
+
       const existingShifts = await findShiftsForSiteAndDate(siteId, workDate)
       console.log('📊 Существующие смены:', existingShifts)
 
-      // 2. Если есть существующие смены - удаляем их по ID
-      if (existingShifts && existingShifts.length > 0) {
-         console.log(`🗑️ Удаляем ${existingShifts.length} старых смен...`)
+      const isUpdate = existingShifts && existingShifts.length > 0
 
-         let deletedCount = 0
-         for (const shift of existingShifts) {
-            try {
-               const deleteUrl = `${SUPABASE_URL}/rest/v1/shifts?id=eq.${shift.id}`
-               console.log(`🗑️ Удаляем смену ID: ${shift.id}`)
-
-               const response = await fetch(deleteUrl, {
-                  method: 'DELETE',
-                  headers: {
-                     'Content-Type': 'application/json',
-                     'apikey': SUPABASE_ANON_KEY,
-                     'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                     'Prefer': 'return=representation'
-                  }
-               })
-
-               if (response.ok) {
-                  deletedCount++
-                  console.log(`✅ Удалена смена ID: ${shift.id}`)
-               } else {
-                  console.error(`❌ Ошибка удаления смены ${shift.id}:`, response.status)
-               }
-            } catch (err) {
-               console.error(`❌ Ошибка при удалении смены ${shift.id}:`, err)
-            }
-         }
-         console.log(`✅ Удалено смен: ${deletedCount} из ${existingShifts.length}`)
+      // Получаем старых работников ДО удаления
+      let oldWorkerNames = []
+      if (isUpdate) {
+         const oldWorkerIds = existingShifts.map(s => s.worker_id)
+         oldWorkerNames = await getWorkerNames(oldWorkerIds)
+         console.log('📊 Старые работники:', oldWorkerNames)
       }
 
-      // 3. Создаем новые смены для каждого работника
+      if (isUpdate) {
+         console.log(`🗑️ Удаляем ${existingShifts.length} старых смен...`)
+         await deleteShiftsForSiteAndDate(siteId, workDate)
+      }
+
       if (workerIds && workerIds.length > 0) {
          console.log('➕ Создаем новые смены для работников:', workerIds)
 
@@ -189,6 +291,47 @@ export async function saveShift(siteId, workDate, workerIds) {
          console.log('✅ Новые смены созданы:', results.length)
       }
 
+      // Создаем расширенное уведомление
+      if (actorId) {
+         try {
+            const actorName = await getUserName(actorId)
+            const siteName = await getSiteName(siteId)
+            const newWorkerNames = await getWorkerNames(workerIds)
+
+            const actionType = isUpdate ? 'shift_updated' : 'shift_created'
+            const actionText = isUpdate ? 'обновил' : 'добавил'
+
+            const dateObj = new Date(workDate + 'T00:00:00')
+            const formattedDate = dateObj.toLocaleDateString('ru-RU', {
+               day: 'numeric',
+               month: 'long',
+               year: 'numeric'
+            })
+
+            const message = `${actorName} ${actionText} смену на ${formattedDate}`
+            const details = {
+               actorName,
+               siteName,
+               workerNames: newWorkerNames,
+               oldWorkerNames: oldWorkerNames, // ← СТАРЫЕ РАБОТНИКИ
+               formattedDate,
+               siteId,
+               workDate,
+               workerIds,
+               isUpdate
+            }
+
+            await createNotification(
+               actorId,
+               actionType,
+               message,
+               details
+            )
+         } catch (notifError) {
+            console.error('⚠️ Ошибка создания уведомления:', notifError)
+         }
+      }
+
       return true
    } catch (error) {
       console.error('❌ Ошибка в saveShift:', error)
@@ -196,7 +339,138 @@ export async function saveShift(siteId, workDate, workerIds) {
    }
 }
 
-// === ОСТАЛЬНЫЕ ФУНКЦИИ (БЕЗ ИЗМЕНЕНИЙ) ===
+// ============================================================
+// ФУНКЦИИ ДЛЯ УВЕДОМЛЕНИЙ
+// ============================================================
+
+export async function getAdminUsers() {
+   try {
+      const url = `${SUPABASE_URL}/rest/v1/user_profiles?role=eq.admin&select=id,name,phone`
+      const response = await fetch(url, {
+         method: 'GET',
+         headers: getHeaders()
+      })
+
+      if (!response.ok) {
+         throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      return await response.json()
+   } catch (error) {
+      console.error('Ошибка получения администраторов:', error)
+      return []
+   }
+}
+
+export async function getUserName(userId) {
+   try {
+      const url = `${SUPABASE_URL}/rest/v1/user_profiles?id=eq.${userId}&select=name`
+      const response = await fetch(url, {
+         method: 'GET',
+         headers: getHeaders()
+      })
+
+      if (!response.ok) {
+         throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      return data.length > 0 ? data[0].name : 'Неизвестный'
+   } catch (error) {
+      console.error('Ошибка получения имени пользователя:', error)
+      return 'Неизвестный'
+   }
+}
+
+export async function getSiteName(siteId) {
+   try {
+      const url = `${SUPABASE_URL}/rest/v1/sites?id=eq.${siteId}&select=name`
+      const response = await fetch(url, {
+         method: 'GET',
+         headers: getHeaders()
+      })
+
+      if (!response.ok) {
+         throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      return data.length > 0 ? data[0].name : 'Неизвестный объект'
+   } catch (error) {
+      console.error('Ошибка получения имени объекта:', error)
+      return 'Неизвестный объект'
+   }
+}
+
+export async function getWorkerNames(workerIds) {
+   try {
+      if (!workerIds || workerIds.length === 0) return []
+
+      const url = `${SUPABASE_URL}/rest/v1/workers?id=in.(${workerIds.join(',')})&select=name`
+      const response = await fetch(url, {
+         method: 'GET',
+         headers: getHeaders()
+      })
+
+      if (!response.ok) {
+         throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      return data.map(w => w.name)
+   } catch (error) {
+      console.error('Ошибка получения имен работников:', error)
+      return []
+   }
+}
+
+export async function createNotification(actorId, actionType, message, details = null) {
+   try {
+      console.log('🔔 Создаем уведомление:', { actorId, actionType, message })
+
+      const admins = await getAdminUsers()
+      const targetUsers = admins.filter(a => a.id !== actorId)
+
+      if (targetUsers.length === 0) {
+         console.log('ℹ️ Нет админов для уведомления')
+         return
+      }
+
+      const notifications = targetUsers.map(user => ({
+         user_id: user.id,
+         actor_id: actorId,
+         action_type: actionType,
+         message: message,
+         details: details || {},
+         read: false,
+         created_at: new Date().toISOString()
+      }))
+
+      const url = `${SUPABASE_URL}/rest/v1/notifications`
+      const response = await fetch(url, {
+         method: 'POST',
+         headers: getHeaders(),
+         body: JSON.stringify(notifications)
+      })
+
+      if (!response.ok) {
+         const errorText = await response.text()
+         console.error('❌ Ошибка создания уведомлений:', response.status, errorText)
+         throw new Error(`Ошибка создания уведомлений: ${response.status}`)
+      }
+
+      console.log(`✅ Создано ${notifications.length} уведомлений`)
+      return await response.json()
+   } catch (error) {
+      console.error('❌ Ошибка в createNotification:', error)
+      throw error
+   }
+}
+
+// ============================================================
+// ФУНКЦИИ ДЛЯ ОБЪЕКТОВ
+// ============================================================
+
 export async function fetchSites() {
    try {
       const url = `${SUPABASE_URL}/rest/v1/sites?select=*&order=name.asc`
@@ -254,6 +528,10 @@ export async function deleteSite(siteId) {
       throw error
    }
 }
+
+// ============================================================
+// ФУНКЦИИ ДЛЯ РАБОТНИКОВ
+// ============================================================
 
 export async function fetchWorkers() {
    try {
@@ -316,6 +594,10 @@ export async function deleteWorker(workerId) {
    }
    return true
 }
+
+// ============================================================
+// ФУНКЦИИ ДЛЯ ОБНОВЛЕНИЯ
+// ============================================================
 
 export async function updateWorker(workerId, name, avatarFile = null, status = null) {
    try {

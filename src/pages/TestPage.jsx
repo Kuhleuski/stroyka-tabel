@@ -21,6 +21,10 @@ export default function TestPage() {
   const [showSavingScreen, setShowSavingScreen] = useState(false)
   const [updateKey, setUpdateKey] = useState(0)
   
+  // === СОСТОЯНИЯ ДЛЯ РЕДАКТИРОВАНИЯ ===
+  const [editData, setEditData] = useState(null)
+  const [isEditMode, setIsEditMode] = useState(false)
+  
   const { shifts, loading, refetch } = useShifts()
   const { sites } = useSites()
   const { workers } = useWorkers()
@@ -51,12 +55,35 @@ export default function TestPage() {
   }
 
   const handleOpenAddShift = () => {
+    setIsEditMode(false)
+    setEditData(null)
+    setShowAddShift(true)
+  }
+
+  const handleEditShift = (siteId, workerIds) => {
+    console.log('📝 Редактирование смены:', { siteId, workerIds })
+    setIsEditMode(true)
+    setEditData({ siteId, workerIds })
     setShowAddShift(true)
   }
 
   const handleShiftAdded = async () => {
     setShowSavingScreen(true)
     setShowAddShift(false)
+    
+    if (refetch) {
+      await refetch()
+    }
+    
+    await new Promise(resolve => setTimeout(resolve, 1200))
+    setShowSavingScreen(false)
+    setUpdateKey(prev => prev + 1)
+    setIsEditMode(false)
+    setEditData(null)
+  }
+
+  const handleShiftDeleted = async () => {
+    setShowSavingScreen(true)
     
     if (refetch) {
       await refetch()
@@ -103,7 +130,6 @@ export default function TestPage() {
            activeStartDate.getFullYear() === today.getFullYear()
   }
 
-  // Проверка: видна ли выбранная дата в текущем месяце
   const isDateVisible = () => {
     const selectedMonth = date.getMonth()
     const selectedYear = date.getFullYear()
@@ -122,7 +148,7 @@ export default function TestPage() {
             <div className={componentsStyles.savingDot}></div>
             <div className={componentsStyles.savingDot}></div>
           </div>
-          <h2 className={componentsStyles.savingTitle}>Сохраняем смену</h2>
+          <h2 className={componentsStyles.savingTitle}>Обновляем данные</h2>
           <p className={componentsStyles.savingText}>Пожалуйста, подождите</p>
         </div>
       </div>
@@ -133,10 +159,17 @@ export default function TestPage() {
     return (
       <AddShiftForm
         selectedDate={date}
-        onClose={() => setShowAddShift(false)}
+        onClose={() => {
+          setShowAddShift(false)
+          setIsEditMode(false)
+          setEditData(null)
+        }}
         onSuccess={handleShiftAdded}
         sites={sites}
         workers={workers}
+        initialSiteId={editData?.siteId || null}
+        initialWorkerIds={editData?.workerIds || []}
+        isEditMode={isEditMode}
       />
     )
   }
@@ -210,7 +243,6 @@ export default function TestPage() {
         </AnimatePresence>
       </div>
 
-      {/* Детали дня - показываем только если выбранная дата видна в календаре */}
       {isDateVisible() ? (
         <DayDetails 
           key={updateKey}
@@ -218,6 +250,8 @@ export default function TestPage() {
           shifts={shifts}
           sites={sites}
           workers={workers}
+          onShiftDeleted={handleShiftDeleted}
+          onEditShift={handleEditShift}
         />
       ) : (
         <div className={styles.dateNotVisible}>
@@ -225,7 +259,6 @@ export default function TestPage() {
         </div>
       )}
 
-      {/* FAB кнопка - показываем только если дата выбрана и видна */}
       {user?.role === 'admin' && isDateVisible() && (
         <button 
           className={componentsStyles.fabAddShift}

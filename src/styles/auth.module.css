@@ -138,3 +138,118 @@
     opacity: 0.5;
     cursor: default;
 }
+/* ============================================================
+   AUTH — СТРАНИЦА ВХОДА
+   ============================================================ */
+
+.loginPage {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-body);
+    padding: 20px;
+}
+
+.loginContainer {
+    width: 100%;
+    max-width: 380px;
+    background: var(--bg-card);
+    border-radius: 24px;
+    padding: 40px 28px 32px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+.loginHeader {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.loginHeader svg {
+    margin-bottom: 16px;
+}
+
+.loginTitle {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 4px 0;
+}
+
+.loginSubtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.loginForm {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.loginError {
+    background: #ffebee;
+    color: #c62828;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.loginBtn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.loginBtn:hover:not(:disabled) {
+    transform: scale(1.02);
+    opacity: 0.9;
+}
+
+.loginBtn:active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+.loginBtn:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.loginHint {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.loginHint span {
+    padding: 2px 10px;
+    background: var(--bg-hover);
+    border-radius: 12px;
+}
+
+/* Темная тема */
+[data-theme="dark"] .loginContainer {
+    background: #1a1a1a;
+}
+
+[data-theme="dark"] .loginError {
+    background: rgba(198, 40, 40, 0.15);
+    color: #ef5350;
+}
+
+[data-theme="dark"] .loginHint span {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.4);
+}

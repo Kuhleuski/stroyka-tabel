@@ -969,3 +969,70 @@ body {
 @keyframes savingSpin {
     to { transform: rotate(360deg); }
 }
+/* ============================================================
+   СТРАНИЦА УВЕДОМЛЕНИЙ (ДОПОЛНИТЕЛЬНЫЕ СТИЛИ)
+   ============================================================ */
+
+.notificationsHeaderActions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.notificationsMarkAllRead {
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: background 0.15s ease;
+    font-family: inherit;
+}
+
+.notificationsMarkAllRead:hover {
+    background: var(--color-primary-light);
+}
+
+.notificationsItemUnread {
+    border-left: 3px solid var(--color-primary);
+    background: var(--color-primary-bg);
+}
+
+.notificationsItemUnread:hover {
+    background: var(--color-primary-light);
+}
+
+.notificationsItemDetails {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.notificationsItemDetails span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Темная тема для уведомлений */
+[data-theme="dark"] .notificationsItemUnread {
+    background: rgba(45, 125, 70, 0.08);
+}
+
+[data-theme="dark"] .notificationsItemUnread:hover {
+    background: rgba(45, 125, 70, 0.15);
+}
+
+[data-theme="dark"] .notificationsMarkAllRead {
+    color: #4CAF50;
+}
+
+[data-theme="dark"] .notificationsMarkAllRead:hover {
+    background: rgba(76, 175, 80, 0.15);
+}
