@@ -21,6 +21,10 @@ export default function TestPage() {
   const [showSavingScreen, setShowSavingScreen] = useState(false)
   const [updateKey, setUpdateKey] = useState(0)
   
+  // === СОСТОЯНИЯ ДЛЯ РЕДАКТИРОВАНИЯ ===
+  const [editData, setEditData] = useState(null)
+  const [isEditMode, setIsEditMode] = useState(false)
+  
   const { shifts, loading, refetch } = useShifts()
   const { sites } = useSites()
   const { workers } = useWorkers()
@@ -51,6 +55,15 @@ export default function TestPage() {
   }
 
   const handleOpenAddShift = () => {
+    setIsEditMode(false)
+    setEditData(null)
+    setShowAddShift(true)
+  }
+
+  const handleEditShift = (siteId, workerIds) => {
+    console.log('📝 Редактирование смены:', { siteId, workerIds })
+    setIsEditMode(true)
+    setEditData({ siteId, workerIds })
     setShowAddShift(true)
   }
 
@@ -65,9 +78,10 @@ export default function TestPage() {
     await new Promise(resolve => setTimeout(resolve, 1200))
     setShowSavingScreen(false)
     setUpdateKey(prev => prev + 1)
+    setIsEditMode(false)
+    setEditData(null)
   }
 
-  // === ОБРАБОТЧИК УДАЛЕНИЯ СМЕНЫ ===
   const handleShiftDeleted = async () => {
     setShowSavingScreen(true)
     
@@ -145,10 +159,17 @@ export default function TestPage() {
     return (
       <AddShiftForm
         selectedDate={date}
-        onClose={() => setShowAddShift(false)}
+        onClose={() => {
+          setShowAddShift(false)
+          setIsEditMode(false)
+          setEditData(null)
+        }}
         onSuccess={handleShiftAdded}
         sites={sites}
         workers={workers}
+        initialSiteId={editData?.siteId || null}
+        initialWorkerIds={editData?.workerIds || []}
+        isEditMode={isEditMode}
       />
     )
   }
@@ -230,6 +251,7 @@ export default function TestPage() {
           sites={sites}
           workers={workers}
           onShiftDeleted={handleShiftDeleted}
+          onEditShift={handleEditShift}
         />
       ) : (
         <div className={styles.dateNotVisible}>

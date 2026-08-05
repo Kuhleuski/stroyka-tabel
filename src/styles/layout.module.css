@@ -269,58 +269,347 @@
 }
 
 /* ============================================================
-   УВЕДОМЛЕНИЯ (FLOATING)
+   МОДАЛЬНОЕ ОКНО УВЕДОМЛЕНИЙ — ПОЛНОЭКРАННОЕ
    ============================================================ */
 
-.notificationBadge {
+.notificationModalOverlay {
     position: fixed;
-    top: 16px;
-    right: 16px;
-    z-index: 100;
-    border: none;
-    cursor: pointer;
-    padding: 10px;
-    border-radius: 50%;
-    transition: all 0.25s ease;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 2000;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    background: rgba(22, 25, 29, 0.9);
-    color: #ffffff;
 }
 
-[data-theme="dark"] .notificationBadge {
-    background: rgba(255, 255, 255, 0.9);
-    color: #1a1a1a;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+.notificationModalFullscreen {
+    width: 100%;
+    max-width: 560px;
+    height: 100vh;
+    max-height: 100vh;
+    background: var(--bg-body);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
 }
 
-.notificationBadge:hover {
-    transform: scale(1.05);
+/* Хедер модалки */
+.notificationModalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--border-light);
+    flex-shrink: 0;
+    background: var(--bg-card);
 }
 
-.notificationBadge svg {
-    width: 24px;
-    height: 24px;
-    stroke: currentColor;
-}
-
-.notificationBadgeDot {
-    position: absolute;
-    top: -4px;
-    right: -4px;
-    min-width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: #c62828;
-    color: white;
-    font-size: 10px;
+.notificationModalTitle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
     font-weight: 700;
+    color: var(--text-primary);
+}
+
+.notificationModalBadge {
+    background: var(--color-primary);
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 20px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.notificationModalActions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.notificationModalMarkAll {
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+    font-family: inherit;
+}
+
+.notificationModalMarkAll:hover {
+    background: var(--color-primary-light);
+}
+
+.notificationModalClose {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: var(--bg-hover);
+    color: var(--text-secondary);
+    font-size: 18px;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 4px;
+    transition: all 0.2s ease;
+}
+
+.notificationModalClose:hover {
+    background: var(--bg-hover-active);
+}
+
+/* Тело модалки */
+.notificationModalBody {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px 12px;
+    background: var(--bg-body);
+}
+
+/* Секции */
+.notificationSection {
+    margin-bottom: 20px;
+}
+
+.notificationSectionHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0 10px 0;
+    border-bottom: 1px solid var(--border-light);
+    margin-bottom: 10px;
+}
+
+.notificationSectionTitle {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.notificationSectionCount {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    background: var(--bg-hover);
+    padding: 2px 10px;
+    border-radius: 12px;
+}
+
+/* Кнопка загрузки истории */
+.notificationLoadHistory {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-top: 4px;
+    background: none;
+    border: 1px dashed var(--border-color);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.notificationLoadHistory:hover {
+    background: var(--bg-hover);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.notificationLoadHistory:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+/* Элемент уведомления (непрочитанное) */
+.notificationModalItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    background: var(--bg-card);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    border: 1px solid var(--border-light);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.notificationModalItem:hover {
+    background: var(--bg-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.notificationModalItem:active {
+    transform: scale(0.98);
+}
+
+/* Элемент истории */
+.notificationModalItemHistory {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    transition: all 0.2s ease;
+}
+
+.notificationModalItemHistory:hover {
+    background: var(--bg-hover);
+}
+
+/* Контент уведомления */
+.notificationModalItemContent {
+    flex: 1;
+    min-width: 0;
+}
+
+.notificationModalItemActor {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+}
+
+.notificationModalItemActor strong {
+    color: var(--color-primary);
+}
+
+.notificationModalItemAction {
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin-left: 4px;
+}
+
+.notificationModalItemMessage {
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 4px;
+}
+
+.notificationModalItemDetails {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    margin-top: 4px;
+}
+
+.notificationModalItemTime {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 6px;
+}
+
+/* Детали изменения */
+.detailChange {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 4px;
+    padding: 8px 12px;
+    background: var(--bg-hover);
+    border-radius: 8px;
+    width: 100%;
+}
+
+.detailChangeRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.detailChangeLabel {
+    font-weight: 500;
+    color: var(--text-secondary);
+    min-width: 50px;
+    font-size: 12px;
+}
+
+.detailOld {
+    color: var(--text-secondary);
+}
+
+.detailNew {
+    color: var(--color-primary);
+    font-weight: 500;
+}
+
+.detailItem {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.detailItem svg {
+    stroke: var(--text-muted);
+    width: 14px;
+    height: 14px;
+}
+
+/* Пустое состояние */
+.notificationModalEmpty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex: 1;
+    padding: 60px 20px;
+    color: var(--text-muted);
+}
+
+.notificationModalEmpty svg {
+    stroke: var(--text-muted);
+    opacity: 0.4;
+}
+
+.notificationModalEmptyTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.notificationModalEmptySub {
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+/* Футер модалки */
+.notificationModalFooter {
+    padding: 10px 20px 14px;
+    border-top: 1px solid var(--border-light);
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+    flex-shrink: 0;
+    background: var(--bg-card);
 }
 
 /* ============================================================
@@ -400,23 +689,63 @@
         white-space: nowrap;
     }
 
-    .notificationBadge {
-        top: 12px;
-        right: 12px;
-        padding: 8px;
+    .notificationModalFullscreen {
+        max-width: 100%;
+        max-height: 100vh;
+        height: 100vh;
+        border-radius: 0;
     }
 
-    .notificationBadge svg {
-        width: 20px;
-        height: 20px;
+    .notificationModalHeader {
+        padding: 12px 16px 10px;
     }
 
-    .notificationBadgeDot {
-        min-width: 16px;
-        height: 16px;
-        font-size: 9px;
-        top: -3px;
-        right: -3px;
+    .notificationModalTitle {
+        font-size: 16px;
+    }
+
+    .notificationModalBody {
+        padding: 10px 12px;
+    }
+
+    .notificationModalItem {
+        padding: 12px 14px;
+    }
+
+    .notificationModalItemHistory {
+        padding: 12px 14px;
+    }
+
+    .notificationModalItemActor {
+        font-size: 14px;
+    }
+
+    .notificationModalItemMessage {
+        font-size: 14px;
+    }
+
+    .detailChange {
+        padding: 6px 10px;
+    }
+
+    .detailChangeRow {
+        font-size: 13px;
+    }
+
+    .detailChangeLabel {
+        min-width: 40px;
+        font-size: 11px;
+    }
+
+    .notificationModalClose {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+    }
+
+    .notificationModalMarkAll {
+        font-size: 12px;
+        padding: 4px 8px;
     }
 }
 
@@ -485,4 +814,180 @@
     .header {
         padding: 14px 20px;
     }
+}
+
+/* ============================================================
+   ТЕМНАЯ ТЕМА
+   ============================================================ */
+
+[data-theme="dark"] .header {
+    background: rgba(26, 26, 26, 0.95);
+}
+
+[data-theme="dark"] .bottomNav {
+    background: rgba(26, 26, 26, 0.92);
+}
+
+[data-theme="dark"] .notificationModalFullscreen {
+    background: #121212;
+}
+
+[data-theme="dark"] .notificationModalHeader {
+    background: #1a1a1a;
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .notificationModalItem {
+    background: #1a1a1a;
+    border-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .notificationModalItem:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="dark"] .notificationModalItemHistory {
+    background: #1a1a1a;
+    border-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .notificationModalItemHistory:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="dark"] .notificationModalClose {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="dark"] .notificationModalClose:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .detailChange {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="dark"] .detailNew {
+    color: #4CAF50;
+}
+
+[data-theme="dark"] .notificationLoadHistory {
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="dark"] .notificationLoadHistory:hover {
+    border-color: #4CAF50;
+    color: #4CAF50;
+    background: rgba(76, 175, 80, 0.05);
+}
+
+[data-theme="dark"] .notificationModalMarkAll {
+    color: #4CAF50;
+}
+
+[data-theme="dark"] .notificationModalMarkAll:hover {
+    background: rgba(76, 175, 80, 0.15);
+}
+
+[data-theme="dark"] .notificationModalBody {
+    background: #121212;
+}
+
+[data-theme="dark"] .notificationModalFooter {
+    background: #1a1a1a;
+    border-top-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .notificationModalItemUnread {
+    background: rgba(45, 125, 70, 0.08);
+}
+
+[data-theme="dark"] .notificationModalItemUnread:hover {
+    background: rgba(45, 125, 70, 0.15);
+}
+/* Заголовок уведомления */
+.notificationModalItemTitle {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+/* Строка с деталями */
+.detailRow {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 14px;
+    padding: 2px 0;
+}
+
+.detailLabel {
+    font-weight: 500;
+    color: var(--text-secondary);
+    min-width: 120px;
+}
+
+.detailValue {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.detailValueGreen {
+    color: var(--color-primary);
+    font-weight: 500;
+}
+
+.detailValueRed {
+    color: #c62828;
+    font-weight: 500;
+}
+
+[data-theme="dark"] .detailValueRed {
+    color: #ef5350;
+}
+
+/* Иконка в заголовке */
+.notificationModalItemTitleIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.notificationModalItemTitleIcon svg {
+    stroke: var(--text-secondary);
+    width: 18px;
+    height: 18px;
+}
+
+/* Кнопка "Показать/Скрыть историю" — обновленная */
+.notificationLoadHistory {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-top: 4px;
+    background: none;
+    border: 1px dashed var(--border-color);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.notificationLoadHistory:hover {
+    background: var(--bg-hover);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.notificationLoadHistory:disabled {
+    opacity: 0.5;
+    cursor: default;
 }

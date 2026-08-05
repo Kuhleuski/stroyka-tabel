@@ -3,7 +3,7 @@ import { fetchShifts } from '../services/supabase'
 
 export function useShifts() {
    console.log('🔄 useShifts вызван')
-   
+
    const [shifts, setShifts] = useState([])
    const [loading, setLoading] = useState(true)
    const [error, setError] = useState(null)
@@ -25,14 +25,23 @@ export function useShifts() {
       }
    }, [])
 
+   // === АВТООБНОВЛЕНИЕ КАЖДЫЕ 10 СЕКУНД ===
    useEffect(() => {
-      console.log('🔄 useEffect useShifts: ПЕРВЫЙ РЕНДЕР')
       loadShifts()
+
+      const interval = setInterval(() => {
+         console.log('🔄 Автообновление смен...')
+         loadShifts()
+      }, 10000)
+
+      return () => {
+         clearInterval(interval)
+      }
    }, [loadShifts])
 
-   return { 
-      shifts, 
-      loading, 
+   return {
+      shifts,
+      loading,
       error,
       refetch: loadShifts
    }

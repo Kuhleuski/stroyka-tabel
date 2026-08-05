@@ -1,18 +1,58 @@
-import React, { useState, useEffect } from 'react'
-import { ArrowLeft } from 'lucide-react'
+import React, { useState, useEffect, useRef } from 'react'
+import { ArrowLeft, Lock } from 'lucide-react'
 import { saveShift, findShiftsForSiteAndDate } from '../../services/supabase'
 import { formatDateLocal } from '../../utils/dateHelpers'
+import { useAuth } from '../../context/AuthContext'
 import styles from '../../styles/shifts.module.css'
 
-export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers }) => {
-  const [selectedSite, setSelectedSite] = useState(null)
-  const [selectedWorkers, setSelectedWorkers] = useState([])
+export const AddShiftForm = ({ 
+  selectedDate, 
+  onClose, 
+  onSuccess, 
+  sites, 
+  workers,
+  initialSiteId = null,
+  initialWorkerIds = [],
+  isEditMode = false
+}) => {
+  const { user } = useAuth()
+  const [selectedSite, setSelectedSite] = useState(initialSiteId)
+  const [selectedWorkers, setSelectedWorkers] = useState(initialWorkerIds)
   const [loading, setLoading] = useState(false)
   
-  // === СОСТОЯНИЯ ДЛЯ ДИАЛОГА ПОДТВЕРЖДЕНИЯ ===
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [existingShifts, setExistingShifts] = useState([])
   const [pendingSaveData, setPendingSaveData] = useState(null)
+  
+  // Используем ref для отслеживания предыдущих значений
+  const prevSiteIdRef = useRef(initialSiteId)
+  const prevWorkerIdsRef = useRef(initialWorkerIds)
+  const isFirstRender = useRef(true)
+
+  // Обновляем состояние при изменении пропсов (только если они действительно изменились)
+  useEffect(() => {
+    // Пропускаем первый рендер
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
+
+    // Проверяем, изменился ли siteId
+    if (initialSiteId !== prevSiteIdRef.current) {
+      prevSiteIdRef.current = initialSiteId
+      setSelectedSite(initialSiteId)
+    }
+
+    // Проверяем, изменились ли workerIds (сравниваем массивы)
+    const workerIdsChanged = 
+      initialWorkerIds.length !== prevWorkerIdsRef.current.length ||
+      initialWorkerIds.some((id, index) => id !== prevWorkerIdsRef.current[index])
+    
+    if (workerIdsChanged) {
+      prevWorkerIdsRef.current = [...initialWorkerIds]
+      setSelectedWorkers(initialWorkerIds)
+    }
+  }, [initialSiteId, initialWorkerIds])
 
   const handleWorkerToggle = (workerId) => {
     setSelectedWorkers(prev =>
@@ -31,10 +71,10 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
   }
 
   const handleSiteSelect = (siteId) => {
+    if (isEditMode) return
     setSelectedSite(prev => prev === siteId ? null : siteId)
   }
 
-  // === ПРОВЕРКА СУЩЕСТВУЮЩЕЙ СМЕНЫ ПЕРЕД СОХРАНЕНИЕМ ===
   const handleSubmit = async (e) => {
     e.preventDefault()
     
@@ -53,17 +93,14 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
     console.log('👷 Работники ID:', selectedWorkers)
     
     try {
-      // Проверяем, есть ли уже смена на этот день и объект
       const existing = await findShiftsForSiteAndDate(selectedSite, localDate)
       
       if (existing && existing.length > 0) {
-        // Если есть — показываем диалог подтверждения
         console.log('📊 Найдена существующая смена:', existing)
         setExistingShifts(existing)
         setPendingSaveData({ siteId: selectedSite, workDate: localDate, workerIds: selectedWorkers })
         setShowConfirmDialog(true)
       } else {
-        // Если нет — сразу сохраняем
         await performSave(selectedSite, localDate, selectedWorkers)
       }
     } catch (error) {
@@ -72,11 +109,10 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
     }
   }
 
-  // === ВЫПОЛНЕНИЕ СОХРАНЕНИЯ ===
   const performSave = async (siteId, workDate, workerIds) => {
     setLoading(true)
     try {
-      await saveShift(siteId, workDate, workerIds)
+      await saveShift(siteId, workDate, workerIds, user?.id)
       onSuccess()
     } catch (error) {
       console.error('❌ Ошибка сохранения:', error)
@@ -85,7 +121,6 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
     }
   }
 
-  // === ОБРАБОТЧИКИ ДИАЛОГА ===
   const handleConfirmOverwrite = async () => {
     setShowConfirmDialog(false)
     if (pendingSaveData) {
@@ -122,7 +157,6 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
     return str && str.startsWith('data:image')
   }
 
-  // === ПОЛУЧЕНИЕ ДАННЫХ ОБЪЕКТА ДЛЯ ДИАЛОГА ===
   const getSiteName = (siteId) => {
     const site = sites.find(s => s.id === siteId)
     return site ? site.name : 'Неизвестный объект'
@@ -236,16 +270,24 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
           <span>Назад</span>
         </button>
         <span className={styles.shiftFormTitle} style={{ flex: 1, textAlign: 'center' }}>
-          Новая смена на {formatDate(selectedDate)}
+          {isEditMode ? 'Редактирование смены' : 'Новая смена'} на {formatDate(selectedDate)}
         </span>
         <div style={{ width: '60px' }} />
       </div>
 
       <form id="shift-form" onSubmit={handleSubmit} className={styles.shiftFormBody}>
         <div className={styles.shiftFormBlock}>
-          <label className={styles.shiftFormLabel} style={{ fontSize: '16px', fontWeight: 600, marginBottom: '12px' }}>
-            Выберите объект:
-          </label>
+          <div className={styles.shiftFormLabelWrapper}>
+            <label className={styles.shiftFormLabel} style={{ fontSize: '16px', fontWeight: 600, marginBottom: '12px' }}>
+              Выберите объект:
+            </label>
+            {isEditMode && (
+              <span className={styles.lockBadge}>
+                <Lock size={14} />
+                Объект заблокирован
+              </span>
+            )}
+          </div>
           <div className={styles.shiftSitesGrid}>
             {sites.length === 0 ? (
               <div className={styles.shiftFormEmpty}>
@@ -255,22 +297,31 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
             ) : (
               sites.map(site => {
                 const isSelected = selectedSite === site.id
+                const isDisabled = isEditMode && !isSelected
+                
                 return (
                   <div key={site.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
                     <div
-                      className={`${styles.shiftSiteCard} ${isSelected ? styles.selected : ''}`}
+                      className={`${styles.shiftSiteCard} ${isSelected ? styles.selected : ''} ${isDisabled ? styles.disabled : ''}`}
                       onClick={() => handleSiteSelect(site.id)}
                       style={{
-                        backgroundColor: site.color || '#2d7d46',
+                        backgroundColor: isEditMode ? (isSelected ? site.color || '#2d7d46' : '#e0e0e0') : (site.color || '#2d7d46'),
                         borderColor: isSelected ? '#2d7d46' : 'transparent',
                         borderWidth: isSelected ? '3px' : '0px',
                         position: 'relative',
-                        width: '100%'
+                        width: '100%',
+                        cursor: isEditMode ? 'default' : 'pointer',
+                        opacity: isEditMode && !isSelected ? 0.4 : 1,
                       }}
                     >
                       <span className={styles.shiftSiteName}>{site.name}</span>
                       {isSelected && (
                         <div className={styles.shiftSiteCheck}>✓</div>
+                      )}
+                      {isEditMode && isSelected && (
+                        <div className={styles.shiftSiteLock}>
+                          <Lock size={14} color="white" />
+                        </div>
                       )}
                     </div>
                     {site.address && (
@@ -365,7 +416,7 @@ export const AddShiftForm = ({ selectedDate, onClose, onSuccess, sites, workers 
             className={styles.shiftFormBottomBtn}
             disabled={loading}
           >
-            {loading ? '⏳ Сохранение...' : 'Сохранить смену'}
+            {loading ? '⏳ Сохранение...' : (isEditMode ? 'Обновить смену' : 'Сохранить смену')}
           </button>
           <button 
             type="button" 

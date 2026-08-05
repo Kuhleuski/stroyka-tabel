@@ -1,17 +1,25 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { formatDateLocal } from '../../utils/dateHelpers'
-import { deleteShiftById } from '../../services/supabase'
+import { deleteShiftById, deleteShiftsForSiteAndDate } from '../../services/supabase'
+import { useAuth } from '../../context/AuthContext'
 import styles from '../../styles/test.module.css'
 
-export function DayDetails({ selectedDate, shifts, sites, workers, onShiftDeleted }) {
+export function DayDetails({ 
+  selectedDate, 
+  shifts, 
+  sites, 
+  workers, 
+  onShiftDeleted,
+  onEditShift 
+}) {
+  const { user } = useAuth()
   const dateStr = formatDateLocal(selectedDate)
   const [openMenuId, setOpenMenuId] = useState(null)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [shiftToDelete, setShiftToDelete] = useState(null)
   const [deleting, setDeleting] = useState(false)
   
-  // Храним DOM-элементы для каждого меню
   const menuElements = useRef({})
 
   const dayGroups = useMemo(() => {
@@ -49,10 +57,8 @@ export function DayDetails({ selectedDate, shifts, sites, workers, onShiftDelete
     })
   }, [dateStr, shifts, sites, workers])
 
-  // Закрытие меню при клике вне его
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Проверяем все сохраненные DOM-элементы
       let isOutside = true
       for (const key in menuElements.current) {
         const element = menuElements.current[key]
@@ -102,11 +108,22 @@ export function DayDetails({ selectedDate, shifts, sites, workers, onShiftDelete
     setOpenMenuId(openMenuId === siteId ? null : siteId)
   }
 
-  // === ОБРАБОТЧИК УДАЛЕНИЯ ===
-  const handleDeleteClick = (shiftIds, siteName) => {
-    console.log('🗑️ Клик удаления:', { shiftIds, siteName })
+  // === ОБРАБОТЧИК РЕДАКТИРОВАНИЯ ===
+  const handleEditClick = (shiftIds, siteId, siteName) => {
+    console.log('📝 Редактирование смены:', { shiftIds, siteId, siteName })
     setOpenMenuId(null)
-    setShiftToDelete({ shiftIds, siteName })
+    if (onEditShift) {
+      const group = dayGroups.find(g => g.siteId === siteId)
+      const workerIds = group ? group.workers.map(w => w.id) : []
+      onEditShift(siteId, workerIds)
+    }
+  }
+
+  // === ОБРАБОТЧИК УДАЛЕНИЯ ===
+  const handleDeleteClick = (shiftIds, siteName, siteId) => {
+    console.log('🗑️ Клик удаления:', { shiftIds, siteName, siteId })
+    setOpenMenuId(null)
+    setShiftToDelete({ shiftIds, siteName, siteId })
     setShowConfirmDialog(true)
   }
 
@@ -118,19 +135,14 @@ export function DayDetails({ selectedDate, shifts, sites, workers, onShiftDelete
     setShowConfirmDialog(false)
     
     try {
-      let deletedCount = 0
-      for (const shiftId of shiftToDelete.shiftIds) {
-        console.log(`🗑️ Удаляем смену ID: ${shiftId}`)
-        const result = await deleteShiftById(shiftId)
-        if (result && result.length > 0) {
-          deletedCount++
-        }
-      }
-      
-      console.log(`✅ Удалено смен: ${deletedCount}`)
+      // Удаляем все смены для этого объекта и даты с передачей actorId
+      await deleteShiftsForSiteAndDate(
+        shiftToDelete.siteId, 
+        dateStr, 
+        user?.id  // ← передаем ID текущего пользователя
+      )
       
       if (onShiftDeleted) {
-        console.log('🔄 Вызываем onShiftDeleted')
         await onShiftDeleted()
       }
     } catch (error) {
@@ -246,7 +258,7 @@ export function DayDetails({ selectedDate, shifts, sites, workers, onShiftDelete
                       className={styles.menuItem}
                       onClick={(e) => {
                         e.stopPropagation()
-                        console.log('📝 Редактировать смену для:', group.siteName)
+                        handleEditClick(group.shiftIds, group.siteId, group.siteName)
                       }}
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -259,7 +271,7 @@ export function DayDetails({ selectedDate, shifts, sites, workers, onShiftDelete
                       className={styles.menuItem}
                       onClick={(e) => {
                         e.stopPropagation()
-                        handleDeleteClick(group.shiftIds, group.siteName)
+                        handleDeleteClick(group.shiftIds, group.siteName, group.siteId)
                       }}
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
