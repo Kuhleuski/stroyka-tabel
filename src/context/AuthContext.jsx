@@ -5,25 +5,18 @@ const AuthContext = createContext()
 // Расширенные данные пользователей с реальными UUID из Supabase
 const USERS = [
     { 
-        id: '675def67-36c0-4eb4-a305-cc36ac9c1c9d',  // ← реальный UUID из таблицы user_profiles
+        id: '675def67-36c0-4eb4-a305-cc36ac9c1c9d',
         login: 'admin_sergey', 
         role: 'admin', 
         name: 'Сергей',
         phone: '+375293723271'
     },
     { 
-        id: '8ae4af3a-651e-4894-8d24-aefd27dbf643',  // ← реальный UUID из таблицы user_profiles
+        id: '8ae4af3a-651e-4894-8d24-aefd27dbf643',
         login: 'admin_maxim', 
         role: 'admin', 
         name: 'Максим',
         phone: '+375259139056'
-    },
-    { 
-        id: 'user_3', 
-        login: 'worker_misha', 
-        role: 'worker', 
-        name: 'Миша',
-        phone: '+375259618760'
     },
 ]
 
@@ -36,7 +29,8 @@ export function AuthProvider({ children }) {
         if (savedUser) {
             try {
                 const parsed = JSON.parse(savedUser)
-                const fullUser = USERS.find(u => u.login === parsed.login)
+                // Ищем пользователя по номеру телефона
+                const fullUser = USERS.find(u => u.phone === parsed.phone)
                 if (fullUser) {
                     setUser(fullUser)
                 } else {
@@ -49,25 +43,27 @@ export function AuthProvider({ children }) {
         setLoading(false)
     }, [])
 
-    const login = (login) => {
-        const found = USERS.find(u => u.login === login)
-        if (found) {
-            const userData = { 
-                id: found.id,
-                login: found.login, 
-                role: found.role, 
-                name: found.name,
-                phone: found.phone
-            }
-            setUser(userData)
-            localStorage.setItem('tabel_user', JSON.stringify(userData))
-            return { success: true }
-        }
-        return { success: false, error: 'Пользователь не найден' }
-    }
-
+    // Вход по номеру телефона
     const loginByPhone = (phone) => {
-        const found = USERS.find(u => u.phone === phone)
+        // Нормализуем номер телефона (убираем пробелы, приводим к формату +375)
+        let normalizedPhone = phone.replace(/\s/g, '')
+        
+        // Если номер начинается с 8, меняем на +375
+        if (normalizedPhone.startsWith('8')) {
+            normalizedPhone = '+375' + normalizedPhone.slice(1)
+        }
+        
+        // Если номер начинается с 29 или 25, добавляем +375
+        if (normalizedPhone.startsWith('29') || normalizedPhone.startsWith('25')) {
+            normalizedPhone = '+375' + normalizedPhone
+        }
+        
+        // Если номер уже с +375, оставляем как есть
+        if (!normalizedPhone.startsWith('+375')) {
+            return { success: false, error: 'Неверный формат номера' }
+        }
+
+        const found = USERS.find(u => u.phone === normalizedPhone)
         if (found) {
             const userData = { 
                 id: found.id,
@@ -80,7 +76,7 @@ export function AuthProvider({ children }) {
             localStorage.setItem('tabel_user', JSON.stringify(userData))
             return { success: true }
         }
-        return { success: false, error: 'Пользователь не найден' }
+        return { success: false, error: 'Пользователь с таким номером не найден' }
     }
 
     const logout = () => {
@@ -89,7 +85,7 @@ export function AuthProvider({ children }) {
     }
 
     return (
-        <AuthContext.Provider value={{ user, login, loginByPhone, logout, loading }}>
+        <AuthContext.Provider value={{ user, loginByPhone, logout, loading }}>
             {children}
         </AuthContext.Provider>
     )

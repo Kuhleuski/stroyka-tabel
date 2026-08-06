@@ -253,3 +253,75 @@
     background: rgba(255, 255, 255, 0.06);
     color: rgba(255, 255, 255, 0.4);
 }
+
+/* ============================================================
+   НОВЫЕ СТИЛИ ДЛЯ ПОЛЯ ВВОДА НОМЕРА ТЕЛЕФОНА
+   ============================================================ */
+
+.inputWrapper {
+    display: flex;
+    align-items: center;
+    background: var(--bg-input, #2a2a2a);
+    border-radius: 12px;
+    border: 1.5px solid var(--border-input, #333);
+    transition: border-color 0.3s;
+    overflow: hidden;
+}
+
+.inputWrapper:focus-within {
+    border-color: var(--color-primary, #2d7d46);
+}
+
+.phonePrefix {
+    color: var(--text-secondary, #888);
+    font-size: 16px;
+    padding: 14px 0 14px 16px;
+    font-weight: 600;
+    user-select: none;
+    background: transparent;
+}
+
+.phoneInput {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-primary, #fff);
+    font-size: 16px;
+    padding: 14px 16px 14px 12px;
+    letter-spacing: 0.5px;
+    font-family: inherit;
+    min-width: 0;
+}
+
+.phoneInput::placeholder {
+    color: var(--text-muted, #555);
+    font-size: 14px;
+    letter-spacing: 0;
+}
+
+.phoneInput:disabled {
+    opacity: 0.5;
+}
+
+/* Темная тема для нового поля */
+[data-theme="dark"] .inputWrapper {
+    background: #2a2a2a;
+    border-color: #333;
+}
+
+[data-theme="dark"] .inputWrapper:focus-within {
+    border-color: #2d7d46;
+}
+
+[data-theme="dark"] .phonePrefix {
+    color: #888;
+}
+
+[data-theme="dark"] .phoneInput {
+    color: #fff;
+}
+
+[data-theme="dark"] .phoneInput::placeholder {
+    color: #555;
+}

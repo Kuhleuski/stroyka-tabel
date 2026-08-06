@@ -25,7 +25,7 @@ function AppContent() {
     const [pageKey, setPageKey] = useState(0)
     
     const { shifts, loading, error, refetch } = useShifts()
-    const { user, login, logout } = useAuth()
+    const { user, loginByPhone, logout } = useAuth() // ← изменено с login на loginByPhone
 
     // Принудительно устанавливаем темную тему при загрузке
     useEffect(() => {
@@ -33,7 +33,7 @@ function AppContent() {
     }, [])
 
     if (!user) {
-        return <LoginPage onLogin={login} />
+        return <LoginPage onLogin={loginByPhone} /> // ← изменено с login на loginByPhone
     }
 
     if (error) {
