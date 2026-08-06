@@ -38,33 +38,33 @@ body {
 }
 
 /* ============================================================
-   CSS VARIABLES — СВЕТЛАЯ И ТЕМНАЯ ТЕМА
+   ТЕМНАЯ ТЕМА (ТОЛЬКО ОНА)
    ============================================================ */
 
 :root {
     --color-primary: #2d7d46;
     --color-primary-hover: #236835;
-    --color-primary-light: #e8f5e9;
-    --color-primary-bg: #f0f7f2;
+    --color-primary-light: #1a2a1e;
+    --color-primary-bg: #1a2a1e;
     
-    --bg-body: #f5f7f6;
-    --bg-card: #ffffff;
-    --bg-input: #ffffff;
-    --bg-header: #ffffff;
-    --bg-nav: #ffffff;
+    --bg-body: #121212;
+    --bg-card: #1e1e1e;
+    --bg-input: #2d2d2d;
+    --bg-header: #1a1a1a;
+    --bg-nav: #1a1a1a;
     
-    --text-primary: #1a1a1a;
-    --text-secondary: #666666;
-    --text-muted: #999999;
+    --text-primary: #f0f0f0;
+    --text-secondary: #aaaaaa;
+    --text-muted: #777777;
     --text-light: #888888;
     
-    --border-color: #e8eaed;
-    --border-light: #f0f0f0;
-    --border-input: #e0e0e0;
+    --border-color: #333333;
+    --border-light: #2a2a2a;
+    --border-input: #444444;
     
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.5);
     --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.3);
     --shadow-primary: 0 2px 8px rgba(45, 125, 70, 0.25);
     --shadow-primary-lg: 0 4px 16px rgba(45, 125, 70, 0.35);
@@ -106,32 +106,8 @@ body {
     --max-width: 500px;
 }
 
-[data-theme="dark"] {
-    --bg-body: #121212;
-    --bg-card: #1e1e1e;
-    --bg-input: #2d2d2d;
-    --bg-header: #1a1a1a;
-    --bg-nav: #1a1a1a;
-    
-    --text-primary: #f0f0f0;
-    --text-secondary: #aaaaaa;
-    --text-muted: #777777;
-    --text-light: #888888;
-    
-    --border-color: #333333;
-    --border-light: #2a2a2a;
-    --border-input: #444444;
-    
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.5);
-    
-    --color-primary-bg: #1a2a1e;
-    --color-primary-light: #1a2a1e;
-}
-
 /* ============================================================
-   ПОЛНОЭКРАННАЯ МОДАЛКА
+   ПОЛНОЭКРАННАЯ МОДАЛКА (SettingsModal, AddSiteModal и т.д.)
    ============================================================ */
 
 .modalOverlay {
@@ -255,14 +231,10 @@ body {
     -webkit-backdrop-filter: blur(20px);
 }
 
-[data-theme="dark"] .modalFooter {
-    background: rgba(26, 26, 26, 0.92);
-}
-
 .modalCancelBtn {
     flex: 1;
     padding: 14px;
-    background: #f0f0f0;
+    background: rgba(255, 255, 255, 0.06);
     color: var(--text-secondary);
     border: none;
     border-radius: 12px;
@@ -274,7 +246,7 @@ body {
 }
 
 .modalCancelBtn:hover {
-    background: #e0e0e0;
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .modalSaveBtn {
@@ -303,7 +275,7 @@ body {
 }
 
 /* ============================================================
-   ПАЛИТРА ЦВЕТОВ В МОДАЛКЕ
+   ПАЛИТРА ЦВЕТОВ
    ============================================================ */
 
 .modalColorPalette {
@@ -339,7 +311,7 @@ body {
 }
 
 /* ============================================================
-   СТАТУС В МОДАЛКЕ РЕДАКТИРОВАНИЯ
+   СТАТУС В МОДАЛКЕ
    ============================================================ */
 
 .modalStatusWrapper {
@@ -418,13 +390,9 @@ body {
     -webkit-backdrop-filter: blur(20px);
 }
 
-[data-theme="dark"] .modalFooterCenter {
-    background: rgba(26, 26, 26, 0.92);
-}
-
 .modalCloseBtn {
     padding: 12px 48px;
-    background: #f0f0f0;
+    background: rgba(255, 255, 255, 0.06);
     color: var(--text-secondary);
     border: none;
     border-radius: 12px;
@@ -437,16 +405,7 @@ body {
 }
 
 .modalCloseBtn:hover {
-    background: #e0e0e0;
-}
-
-[data-theme="dark"] .modalCloseBtn {
     background: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
-}
-
-[data-theme="dark"] .modalCloseBtn:hover {
-    background: rgba(255, 255, 255, 0.2);
 }
 
 /* ============================================================
@@ -522,46 +481,6 @@ body {
 }
 
 /* ============================================================
-   ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ
-   ============================================================ */
-
-.themeToggleWrapper {
-    display: flex;
-    gap: 8px;
-    margin-top: 4px;
-}
-
-.themeToggleBtn {
-    flex: 1;
-    padding: 8px 16px;
-    border: 2px solid var(--border-color);
-    border-radius: 10px;
-    background: var(--bg-card);
-    color: var(--text-primary);
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.25s ease;
-}
-
-.themeToggleBtn:hover {
-    border-color: var(--color-primary);
-    transform: translateY(-1px);
-}
-
-.themeToggleBtn.active {
-    border-color: var(--color-primary);
-    background: var(--color-primary-light);
-    color: var(--color-primary);
-    font-weight: 600;
-}
-
-.themeToggleBtn:active {
-    transform: scale(0.97);
-}
-
-/* ============================================================
    ПОДТВЕРЖДЕНИЕ УДАЛЕНИЯ
    ============================================================ */
 
@@ -611,7 +530,7 @@ body {
 
 .confirmText {
     font-size: 15px;
-    color: #555;
+    color: #aaaaaa;
     line-height: 1.5;
     margin-bottom: var(--spacing-xl);
 }
@@ -643,12 +562,12 @@ body {
 }
 
 .confirmBtn.cancel {
-    background: #f0f0f0;
+    background: rgba(255, 255, 255, 0.06);
     color: var(--text-secondary);
 }
 
 .confirmBtn.cancel:hover:not(:disabled) {
-    background: #e0e0e0;
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .confirmBtn.delete {
@@ -765,7 +684,7 @@ body {
 
 .notificationsItemMessage {
     font-size: var(--font-size-md);
-    color: #555;
+    color: #aaaaaa;
     margin-top: 2px;
 }
 
@@ -809,8 +728,9 @@ body {
         transform: translateY(0);
     }
 }
+
 /* ============================================================
-   ПЛАВАЮЩАЯ КНОПКА ДЛЯ СОЗДАНИЯ СМЕНЫ (FAB)
+   ПЛАВАЮЩАЯ КНОПКА (FAB)
    ============================================================ */
 
 .fabAddShift {
@@ -844,8 +764,10 @@ body {
 
 .fabAddShift svg {
     color: white;
-}/* ============================================================
-   ЭКРАН СОХРАНЕНИЯ (КРАСИВЫЙ ПРЕЛОАДЕР)
+}
+
+/* ============================================================
+   ЭКРАН СОХРАНЕНИЯ
    ============================================================ */
 
 .savingScreen {
@@ -868,7 +790,6 @@ body {
     animation: savingScaleIn 0.5s ease;
 }
 
-/* Спиннер с тремя точками */
 .savingSpinner {
     display: flex;
     gap: 12px;
@@ -922,7 +843,6 @@ body {
     animation: savingTextPulse 2s ease-in-out infinite 0.3s;
 }
 
-/* Анимации */
 @keyframes savingFadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -945,32 +865,7 @@ body {
 }
 
 /* ============================================================
-   АЛЬТЕРНАТИВНЫЙ СПИННЕР (КРУГОВОЙ)
-   ============================================================ */
-
-.savingSpinnerCircle {
-    width: 56px;
-    height: 56px;
-    margin: 0 auto var(--spacing-2xl);
-    position: relative;
-}
-
-.savingSpinnerCircle::before {
-    content: '';
-    display: block;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    border: 4px solid var(--border-color);
-    border-top-color: var(--color-primary);
-    animation: savingSpin 0.8s linear infinite;
-}
-
-@keyframes savingSpin {
-    to { transform: rotate(360deg); }
-}
-/* ============================================================
-   СТРАНИЦА УВЕДОМЛЕНИЙ (ДОПОЛНИТЕЛЬНЫЕ СТИЛИ)
+   СТРАНИЦА УВЕДОМЛЕНИЙ (дополнительные стили)
    ============================================================ */
 
 .notificationsHeaderActions {
@@ -1018,21 +913,4 @@ body {
     display: flex;
     align-items: center;
     gap: 4px;
-}
-
-/* Темная тема для уведомлений */
-[data-theme="dark"] .notificationsItemUnread {
-    background: rgba(45, 125, 70, 0.08);
-}
-
-[data-theme="dark"] .notificationsItemUnread:hover {
-    background: rgba(45, 125, 70, 0.15);
-}
-
-[data-theme="dark"] .notificationsMarkAllRead {
-    color: #4CAF50;
-}
-
-[data-theme="dark"] .notificationsMarkAllRead:hover {
-    background: rgba(76, 175, 80, 0.15);
 }
