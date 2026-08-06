@@ -12,8 +12,6 @@ import { MyTabelPage } from './pages/MyTabelPage'
 import { SalaryPage } from './pages/SalaryPage'
 import { ExtraPage } from './pages/ExtraPage'
 import { LoginPage } from './pages/LoginPage'
-// Убираем импорт NotificationsPage
-// import { NotificationsPage } from './pages/NotificationsPage'
 import { StatisticsPage } from './pages/StatisticsPage'
 import { CostsPage } from './pages/CostsPage'
 import TestPage from './pages/TestPage'
@@ -29,11 +27,9 @@ function AppContent() {
     const { shifts, loading, error, refetch } = useShifts()
     const { user, login, logout } = useAuth()
 
+    // Принудительно устанавливаем темную тему при загрузке
     useEffect(() => {
-        const savedTheme = localStorage.getItem('theme')
-        if (savedTheme === 'dark' || savedTheme === 'light') {
-            document.documentElement.setAttribute('data-theme', savedTheme)
-        }
+        document.documentElement.setAttribute('data-theme', 'dark')
     }, [])
 
     if (!user) {
@@ -79,17 +75,6 @@ function AppContent() {
     const handleOpenSettings = () => {
         setShowSettings(true)
     }
-
-    // Удаляем блок showNotifications, так как теперь уведомления открываются через модалку в Header
-    // if (showNotifications) {
-    //     return (
-    //         <div className={layoutStyles.app}>
-    //             <div className="container">
-    //                 <NotificationsPage onClose={handleCloseNotifications} />
-    //             </div>
-    //         </div>
-    //     )
-    // }
 
     const renderPage = () => {
         switch (currentPage) {

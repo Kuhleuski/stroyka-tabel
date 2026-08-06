@@ -1,41 +1,14 @@
-// src/components/SettingsModal.jsx
-
-import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import styles from '../styles/components.module.css'
 
 export function SettingsModal({ isOpen, onClose, onLogout }) {
     const { user } = useAuth()
-    
-    // === ТЕМА ===
-    const [theme, setTheme] = useState(() => {
-        const savedTheme = localStorage.getItem('theme')
-        return savedTheme === 'dark' || savedTheme === 'light' ? savedTheme : 'light'
-    })
-
-    // Применяем тему при изменении
-    useEffect(() => {
-        document.documentElement.setAttribute('data-theme', theme)
-        localStorage.setItem('theme', theme)
-    }, [theme])
-
-    // Загружаем сохранённую тему при монтировании
-    useEffect(() => {
-        const savedTheme = localStorage.getItem('theme')
-        if (savedTheme === 'dark' || savedTheme === 'light') {
-            setTheme(savedTheme)
-        }
-    }, [])
 
     const handleLogout = () => {
         if (window.confirm('Вы уверены, что хотите выйти?')) {
             onLogout()
             onClose()
         }
-    }
-
-    const handleThemeChange = (newTheme) => {
-        setTheme(newTheme)
     }
 
     const roleLabels = {
@@ -49,7 +22,6 @@ export function SettingsModal({ isOpen, onClose, onLogout }) {
         <div className={styles.modalOverlay}>
             <div className={styles.modalContent}>
                 <div className={styles.modalHeader}>
-                    {/* ПЛОСКАЯ ИКОНКА ВМЕСТО ЭМОДЗИ */}
                     <svg
                         width="28"
                         height="28"
@@ -86,26 +58,6 @@ export function SettingsModal({ isOpen, onClose, onLogout }) {
                         </span>
                     </div>
 
-                    {/* === ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ === */}
-                    <div className={styles.settingsField}>
-                        <span className={styles.settingsLabel}>Тема</span>
-                        <div className={styles.themeToggleWrapper}>
-                            <button 
-                                className={`${styles.themeToggleBtn} ${theme === 'light' ? styles.active : ''}`}
-                                onClick={() => handleThemeChange('light')}
-                            >
-                                ☀️ Светлая
-                            </button>
-                            <button 
-                                className={`${styles.themeToggleBtn} ${theme === 'dark' ? styles.active : ''}`}
-                                onClick={() => handleThemeChange('dark')}
-                            >
-                                🌙 Тёмная
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* КНОПКА ВЫЙТИ */}
                     <button 
                         className={styles.settingsLogoutBtn}
                         onClick={handleLogout}
@@ -114,7 +66,6 @@ export function SettingsModal({ isOpen, onClose, onLogout }) {
                     </button>
                 </div>
 
-                {/* КНОПКА ЗАКРЫТЬ — ЗЕЛЁНАЯ */}
                 <div className={styles.modalFooterCenter}>
                     <button 
                         className={styles.modalSaveBtn}

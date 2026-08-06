@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNotifications } from '../../hooks/useNotifications'
-import styles from '../../styles/layout.module.css'
+import styles from '../../styles/notifications.module.css'
 
 export function NotificationModal({ isOpen, onClose, userId }) {
     const { notifications, unreadCount, markAllAsRead, markAsRead, formatTime, fetchNotifications } = useNotifications(userId)
@@ -90,13 +90,11 @@ export function NotificationModal({ isOpen, onClose, userId }) {
         }
     }
 
-    // Рендер деталей
     const renderDetails = (n) => {
         if (!n.details) return null
 
         const details = []
         
-        // === СОЗДАНИЕ СМЕНЫ ===
         if (n.action_type === 'shift_created') {
             if (n.details.siteName) {
                 details.push(
@@ -119,7 +117,6 @@ export function NotificationModal({ isOpen, onClose, userId }) {
             return details
         }
 
-        // === УДАЛЕНИЕ СМЕНЫ ===
         if (n.action_type === 'shift_deleted') {
             if (n.details.siteName) {
                 details.push(
@@ -142,7 +139,6 @@ export function NotificationModal({ isOpen, onClose, userId }) {
             return details
         }
 
-        // === ОБНОВЛЕНИЕ СМЕНЫ ===
         if (n.action_type === 'shift_updated') {
             if (n.details.siteName) {
                 details.push(
@@ -193,7 +189,6 @@ export function NotificationModal({ isOpen, onClose, userId }) {
                 onClick={(e) => e.stopPropagation()}
                 ref={modalRef}
             >
-                {/* Хедер */}
                 <div className={styles.notificationModalHeader}>
                     <div className={styles.notificationModalTitle}>
                         <span>Уведомления</span>
@@ -219,7 +214,6 @@ export function NotificationModal({ isOpen, onClose, userId }) {
                     </div>
                 </div>
 
-                {/* Тело */}
                 <div className={styles.notificationModalBody}>
                     {allNotifications.length === 0 && (
                         <div className={styles.notificationModalEmpty}>
@@ -243,7 +237,6 @@ export function NotificationModal({ isOpen, onClose, userId }) {
                         </div>
                     )}
 
-                    {/* Непрочитанные уведомления */}
                     {hasUnread && (
                         <div className={styles.notificationSection}>
                             <div className={styles.notificationSectionHeader}>
@@ -271,7 +264,6 @@ export function NotificationModal({ isOpen, onClose, userId }) {
                                             onClick={() => handleNotificationClick(n.id)}
                                         >
                                             <div className={styles.notificationModalItemContent}>
-                                                {/* Заголовок с иконкой */}
                                                 <div className={styles.notificationModalItemTitle}>
                                                     {titleIcon && (
                                                         <span className={styles.notificationModalItemTitleIcon}>
@@ -280,8 +272,6 @@ export function NotificationModal({ isOpen, onClose, userId }) {
                                                     )}
                                                     {getTitle(n.action_type, n.details?.formattedDate)}
                                                 </div>
-                                                
-                                                {/* Сообщение */}
                                                 <div className={styles.notificationModalItemMessage}>
                                                     <span className={styles.notificationModalItemActor}>
                                                         <strong>{n.actor?.name || 'Неизвестный'}</strong>
@@ -290,14 +280,11 @@ export function NotificationModal({ isOpen, onClose, userId }) {
                                                         {getActionText(n.action_type)} смену на {n.details?.formattedDate || ''}
                                                     </span>
                                                 </div>
-
-                                                {/* Детали */}
                                                 {n.details && (
                                                     <div className={styles.notificationModalItemDetails}>
                                                         {renderDetails(n)}
                                                     </div>
                                                 )}
-                                                
                                                 <div className={styles.notificationModalItemTime}>
                                                     {formatTime(n.created_at)}
                                                 </div>
@@ -309,7 +296,6 @@ export function NotificationModal({ isOpen, onClose, userId }) {
                         </div>
                     )}
 
-                    {/* История */}
                     {hasHistory && (
                         <div className={styles.notificationSection}>
                             <div className={styles.notificationSectionHeader}>
