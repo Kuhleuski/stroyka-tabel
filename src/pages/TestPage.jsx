@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Calendar from 'react-calendar'
 import 'react-calendar/dist/Calendar.css'
@@ -29,6 +29,51 @@ export default function TestPage() {
   const { sites } = useSites()
   const { workers } = useWorkers()
   const { user } = useAuth()
+
+  // === ОТСЛЕЖИВАНИЕ ПЕРВОГО РЕНДЕРА И ВОЗВРАТА ===
+  const isFirstRender = useRef(true)
+  const isReturning = useRef(false)
+
+  // Проверяем, возвращаемся ли мы на страницу
+  useEffect(() => {
+    const savedReturn = sessionStorage.getItem('testPageReturning')
+    if (savedReturn === 'true') {
+      isReturning.current = true
+      sessionStorage.removeItem('testPageReturning')
+    }
+  }, [])
+
+  // При первом рендере — скролл наверх, без анимации
+  useEffect(() => {
+    if (isFirstRender.current) {
+      setDirection(0)
+      window.scrollTo({ top: 0, behavior: 'instant' })
+      isFirstRender.current = false
+    }
+  }, [])
+
+  // При возврате на страницу — скролл наверх, без анимации
+  useEffect(() => {
+    if (isReturning.current) {
+      setDirection(0)
+      window.scrollTo({ top: 0, behavior: 'instant' })
+      isReturning.current = false
+    }
+  }, [])
+
+  // Сохраняем флаг возврата при переключении вкладок
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        sessionStorage.setItem('testPageReturning', 'true')
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [])
 
   const formatMonth = (date) => {
     const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
@@ -174,31 +219,48 @@ export default function TestPage() {
     )
   }
 
+  // === КАСТОМНАЯ НАВИГАЦИЯ ===
+  const renderCustomNavigation = () => {
+    const showTodayButton = !isCurrentMonth()
+
+    return (
+      <div className={styles.customNavigation}>
+        <div className={styles.navLeft}>
+          <span className={styles.navMonthLabel}>
+            {formatMonth(activeStartDate)}
+          </span>
+          {showTodayButton && (
+            <button 
+              className={styles.todayButtonNew}
+              onClick={goToToday}
+              aria-label="Перейти к сегодня"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 2v6h-6" />
+                <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
+                <path d="M3 22v-6h6" />
+                <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
+              </svg>
+              <span>Сегодня</span>
+            </button>
+          )}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className={styles.testPage}>
       <div className={styles.calendarWrapper}>
-        {!isCurrentMonth() && (
-          <button 
-            className={styles.todayButton}
-            onClick={goToToday}
-            aria-label="Перейти к сегодня"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 2v6h-6" />
-              <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
-              <path d="M3 22v-6h6" />
-              <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
-            </svg>
-            <span>Сегодня</span>
-          </button>
-        )}
+        {/* Кастомная навигация */}
+        {renderCustomNavigation()}
 
         <AnimatePresence mode="popLayout" custom={direction}>
           <motion.div
             key={activeStartDate.getMonth() + '-' + activeStartDate.getFullYear()}
             custom={direction}
             variants={variants}
-            initial="enter"
+            initial={isFirstRender.current || isReturning.current ? false : "enter"}
             animate="center"
             exit="exit"
             transition={{

@@ -3,7 +3,7 @@
    ============================================================ */
 
 .testPage {
-  padding: 0px 16px 80px;
+  padding: 0 16px 80px;
   max-width: 500px;
   margin: 0 auto;
 }
@@ -32,19 +32,37 @@
 }
 
 /* ============================================================
-   КНОПКА "СЕГОДНЯ" (СЕРАЯ)
+   КАСТОМНАЯ НАВИГАЦИЯ КАЛЕНДАРЯ
    ============================================================ */
 
-.todayButton {
-  position: absolute;
-  top: 8px;
-  right: 4px;
-  z-index: 10;
+.customNavigation {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 8px 4px 4px 15px;
+  width: 100%;
+}
+
+.navLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navMonthLabel {
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--text-primary, #1a1a1a);
+  letter-spacing: -0.2px;
+}
+
+/* Новая кнопка "Сегодня" - рядом с датой */
+.todayButtonNew {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 5px 12px 5px 10px;
-  border-radius: 16px;
+  padding: 3px 10px 3px 8px;
+  border-radius: 14px;
   border: none;
   background: rgba(0, 0, 0, 0.06);
   color: var(--text-secondary, #666);
@@ -52,28 +70,41 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  touch-action: none;
   font-family: inherit;
+  white-space: nowrap;
 }
 
-.todayButton:hover {
+.todayButtonNew:hover {
   background: rgba(0, 0, 0, 0.10);
-  transform: scale(1.02);
 }
 
-.todayButton:active {
+.todayButtonNew:active {
   transform: scale(0.94);
 }
 
-.todayButton svg {
-  width: 14px;
-  height: 14px;
+.todayButtonNew svg {
+  width: 13px;
+  height: 13px;
   stroke: var(--text-secondary, #666);
   flex-shrink: 0;
 }
 
-.todayButton span {
+.todayButtonNew span {
   line-height: 1;
+}
+
+/* Скрываем стандартную навигацию react-calendar */
+.calendarMotion :global(.react-calendar__navigation) {
+  display: none !important;
+}
+
+/* Убираем лишние отступы у календаря */
+.calendarMotion :global(.react-calendar) {
+  padding: 0;
+}
+
+.calendarMotion :global(.react-calendar__month-view) {
+  padding: 0;
 }
 
 /* ============================================================
@@ -85,37 +116,6 @@
   border: none;
   background: transparent;
   font-family: inherit;
-}
-
-.calendarMotion :global(.react-calendar__navigation) {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: -10px;
-  padding: 0 4px;
-}
-
-.calendarMotion :global(.react-calendar__navigation__label) {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-primary, #1a1a1a);
-  background: none;
-  border: none;
-  padding: 8px 16px;
-  flex: 1;
-  text-align: center;
-  cursor: default;
-}
-
-.calendarMotion :global(.react-calendar__navigation__prev-button),
-.calendarMotion :global(.react-calendar__navigation__next-button),
-.calendarMotion :global(.react-calendar__navigation__prev2-button),
-.calendarMotion :global(.react-calendar__navigation__next2-button) {
-  display: none !important;
-}
-
-.calendarMotion :global(.react-calendar__navigation button:disabled) {
-  background-color: transparent !important;
 }
 
 .calendarMotion :global(.react-calendar__month-view__weekdays) {
@@ -417,6 +417,25 @@
 }
 
 /* ============================================================
+   СООБЩЕНИЕ "ВЫБЕРИТЕ ДЕНЬ"
+   ============================================================ */
+
+.dateNotVisible {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 32px 16px;
+  background: var(--bg-card, #ffffff);
+  border-radius: 16px;
+  border: 1px solid var(--border-light, #e8eaed);
+  color: var(--text-secondary, #666);
+  font-size: 14px;
+}
+
+/* ============================================================
    ТЕМНАЯ ТЕМА
    ============================================================ */
 
@@ -424,16 +443,20 @@
   background: transparent;
 }
 
-[data-theme="dark"] .todayButton {
+[data-theme="dark"] .navMonthLabel {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .todayButtonNew {
   background: rgba(255, 255, 255, 0.08);
   color: rgba(255, 255, 255, 0.6);
 }
 
-[data-theme="dark"] .todayButton:hover {
+[data-theme="dark"] .todayButtonNew:hover {
   background: rgba(255, 255, 255, 0.14);
 }
 
-[data-theme="dark"] .todayButton svg {
+[data-theme="dark"] .todayButtonNew svg {
   stroke: rgba(255, 255, 255, 0.6);
 }
 
@@ -506,225 +529,9 @@
 [data-theme="dark"] .menuItem svg {
   stroke: rgba(255, 255, 255, 0.5);
 }
-/* ============================================================
-   СООБЩЕНИЕ "ВЫБЕРИТЕ ДЕНЬ"
-   ============================================================ */
 
-.dateNotVisible {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 20px;
-  padding: 32px 16px;
-  background: var(--bg-card, #ffffff);
-  border-radius: 16px;
-  border: 1px solid var(--border-light, #e8eaed);
-  color: var(--text-secondary, #666);
-  font-size: 14px;
-}
-
-.dateNotVisibleIcon {
-  font-size: 32px;
-  animation: handWave 2s ease-in-out infinite;
-}
-
-@keyframes handWave {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(15deg); }
-  75% { transform: rotate(-15deg); }
-}
-
-/* Для темной темы */
 [data-theme="dark"] .dateNotVisible {
   background: #1e1e1e;
   border-color: rgba(255, 255, 255, 0.06);
   color: rgba(255, 255, 255, 0.5);
-}
-/* ============================================================
-   СООБЩЕНИЕ "ВЫБЕРИТЕ ДЕНЬ"
-   ============================================================ */
-
-.dateNotVisible {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 20px;
-  padding: 32px 16px;
-  color: var(--text-secondary, #666);
-  font-size: 14px;
-}
-
-/* ============================================================
-   ДИАЛОГ ПОДТВЕРЖДЕНИЯ УДАЛЕНИЯ
-   ============================================================ */
-
-.confirmDeleteOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  animation: fadeIn 0.2s ease;
-  padding: 20px;
-}
-
-.confirmDeleteModal {
-  background: var(--bg-card, #ffffff);
-  border-radius: 20px;
-  padding: 32px 28px 24px;
-  max-width: 380px;
-  width: 100%;
-  text-align: center;
-  animation: slideUp 0.25s ease;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
-.confirmDeleteIcon {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: #FFF3E0;
-  color: #E65100;
-  font-size: 24px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 16px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-[data-theme="dark"] .confirmDeleteIcon {
-  background: rgba(255, 152, 0, 0.15);
-  color: #FFB74D;
-}
-
-.confirmDeleteTitle {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text-primary, #1a1a1a);
-  margin: 0 0 12px 0;
-}
-
-.confirmDeleteMessage {
-  font-size: 15px;
-  color: var(--text-secondary, #666);
-  line-height: 1.6;
-  margin: 0 0 4px 0;
-}
-
-.confirmDeleteMessage strong {
-  color: var(--text-primary, #1a1a1a);
-}
-
-.confirmDeleteSubMessage {
-  font-size: 13px;
-  color: var(--text-muted, #999);
-  margin: 0 0 24px 0;
-}
-
-.confirmDeleteActions {
-  display: flex;
-  gap: 12px;
-}
-
-.confirmDeleteCancel {
-  flex: 1;
-  padding: 12px;
-  background: var(--bg-hover, #f0f0f0);
-  color: var(--text-secondary, #666);
-  border: none;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.2s ease;
-}
-
-.confirmDeleteCancel:hover:not(:disabled) {
-  background: var(--bg-hover-active, #e5e5e5);
-}
-
-.confirmDeleteCancel:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.confirmDeleteConfirm {
-  flex: 1;
-  padding: 12px;
-  background: #c62828;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.2s ease;
-}
-
-.confirmDeleteConfirm:hover:not(:disabled) {
-  background: #b71c1c;
-  transform: translateY(-1px);
-}
-
-.confirmDeleteConfirm:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-/* Анимации */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* Темная тема */
-[data-theme="dark"] .confirmDeleteModal {
-  background: #1e1e1e;
-}
-
-[data-theme="dark"] .confirmDeleteTitle {
-  color: #ffffff;
-}
-
-[data-theme="dark"] .confirmDeleteMessage {
-  color: rgba(255, 255, 255, 0.6);
-}
-
-[data-theme="dark"] .confirmDeleteMessage strong {
-  color: #ffffff;
-}
-
-[data-theme="dark"] .confirmDeleteSubMessage {
-  color: rgba(255, 255, 255, 0.4);
-}
-
-[data-theme="dark"] .confirmDeleteCancel {
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.6);
-}
-
-[data-theme="dark"] .confirmDeleteCancel:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.1);
 }
