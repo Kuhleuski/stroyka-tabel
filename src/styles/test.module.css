@@ -101,14 +101,16 @@
 /* Убираем лишние отступы у календаря */
 .calendarMotion :global(.react-calendar) {
   padding: 0;
+  width: 100%;
 }
 
 .calendarMotion :global(.react-calendar__month-view) {
   padding: 0;
+  width: 100%;
 }
 
 /* ============================================================
-   REACT-CALENDAR СТИЛИ
+   REACT-CALENDAR СТИЛИ - ПОЛНОСТЬЮ ПЕРЕОПРЕДЕЛЕНЫ
    ============================================================ */
 
 .calendarMotion :global(.react-calendar) {
@@ -137,6 +139,14 @@
   cursor: default;
 }
 
+/* Сетка дней - 7 колонок через flex */
+.calendarMotion :global(.react-calendar__month-view__days) {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 2px;
+  width: 100%;
+}
+
 .calendarMotion :global(.react-calendar__tile) {
   position: relative;
   aspect-ratio: 1;
@@ -145,77 +155,262 @@
   justify-content: center;
   font-size: 14px;
   font-weight: 500;
-  color: var(--text-primary, #1a1a1a);
-  background: none;
+  background: #1e1e1e !important;
   border: none;
   border-radius: 8px;
   padding: 0;
   cursor: pointer;
   transition: all 0.15s ease;
+  width: calc((100% - 12px) / 7) !important;
+  max-width: calc((100% - 12px) / 7) !important;
+  flex: 0 0 calc((100% - 12px) / 7) !important;
+  overflow: visible !important;
 }
 
+/* Стили для числа дня - обычное состояние */
 .calendarMotion :global(.react-calendar__tile abbr) {
-  position: relative;
-  z-index: 2;
-  font-weight: 500;
-}
-
-.calendarMotion :global(.react-calendar__tile:hover) {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.calendarMotion :global(.react-calendar__tile--active) {
-  background: #2d7d46 !important;
-  color: white !important;
-}
-
-.calendarMotion :global(.react-calendar__tile--active abbr) {
-  color: white !important;
-}
-
-.calendarMotion :global(.react-calendar__tile--now) {
-  background: rgba(45, 125, 70, 0.15);
-  color: #2d7d46;
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  font-size: 11px;
   font-weight: 600;
+  color: #ffffff !important;
+  z-index: 2;
+  transition: color 0.15s ease;
+  background: transparent !important;
+  width: auto !important;
+  height: auto !important;
+  border-radius: 0 !important;
+  transform: none !important;
+}
+
+/* Hover */
+.calendarMotion :global(.react-calendar__tile:hover) {
+  background: #2a2a2a !important;
+}
+
+/* СЕГОДНЯ - белый кружок с обводкой */
+.calendarMotion :global(.react-calendar__tile--now) {
+  background: #2a2a2a !important;
+  overflow: visible !important;
+}
+
+.calendarMotion :global(.react-calendar__tile--now abbr) {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  background: transparent !important;
+  border-radius: 50% !important;
+  border: 2px solid #ffffff !important;
+  width: 24px !important;
+  height: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 11px !important;
+  position: absolute !important;
+  top: 4px !important;
+  left: 6px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  z-index: 5 !important;
 }
 
 .calendarMotion :global(.react-calendar__tile--now:hover) {
-  background: rgba(45, 125, 70, 0.25);
+  background: #333333 !important;
+}
+
+/* ПОЛНОСТЬЮ УБИВАЕМ СТАНДАРТНЫЙ ACTIVE */
+.calendarMotion :global(.react-calendar__tile--active) {
+  background: #1e1e1e !important;
+}
+
+.calendarMotion :global(.react-calendar__tile--active abbr) {
+  color: #ffffff !important;
+}
+
+/* КАСТОМНЫЙ КЛАСС ДЛЯ ВЫБРАННОГО ДНЯ */
+.calendarMotion :global(.react-calendar__tile.custom-selected-day) {
+  background: #ffffffde !important;
+}
+
+.calendarMotion :global(.react-calendar__tile.custom-selected-day abbr) {
+  color: #696969 !important;
+  background: transparent !important;
+  width: auto !important;
+  height: auto !important;
+  border-radius: 0 !important;
+  transform: none !important;
+  position: absolute !important;
+  top: 4px !important;
+  left: 6px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+}
+
+/* Выбранный день + сегодня - темно-серый кружок с обводкой */
+.calendarMotion :global(.react-calendar__tile.custom-selected-day.react-calendar__tile--now) {
+  background: #ffffffde !important;
+  overflow: visible !important;
+}
+
+.calendarMotion :global(.react-calendar__tile.custom-selected-day.react-calendar__tile--now abbr) {
+  color: #696969 !important;
+  font-weight: 600 !important;
+  background: transparent !important;
+  border-radius: 50% !important;
+  border: 2px solid #696969 !important;
+  width: 24px !important;
+  height: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 11px !important;
+  position: absolute !important;
+  top: 4px !important;
+  left: 6px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  z-index: 5 !important;
+}
+
+/* Соседние месяцы - скрываем */
+.calendarMotion :global(.react-calendar__month-view__days__day--neighboringMonth) {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 /* ============================================================
-   СТИЛИ ДЛЯ РАСКРАШЕННОГО ДНЯ
+   СТИЛИ ДЛЯ РАСКРАШЕННОГО ДНЯ (ТОЧКИ)
    ============================================================ */
 
-.coloredDay {
+.coloredDayContainer {
   position: absolute;
-  top: 2px;
-  left: 2px;
-  right: 2px;
-  bottom: 2px;
-  border-radius: 6px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
   pointer-events: none;
   z-index: 1;
+  padding: 4px 4px 6px 4px;
+}
+
+/* Каждый ряд - 2 колонки с фиксированными размерами */
+.coloredDotRow {
+  display: grid;
+  grid-template-columns: 11px 11px;
+  gap: 4px;
+  justify-content: center;
+  align-items: center;
+  height: 11px;
+}
+
+/* Специальный ряд для 1 точки - по центру верхнего ряда */
+.coloredDotRowSingle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 11px;
+  width: 100%;
+  gap: 4px;
+}
+
+/* Пустая ячейка - сохраняет место */
+.emptyCell {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+}
+
+.coloredDot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+/* Счетчик "+N" - занимает место в сетке */
+.plusBadgeText {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-secondary, #888);
+  line-height: 11px;
+  height: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-shrink: 0;
+  min-width: 20px;
+}
+
+/* Убираем старые стили */
+.plusBadge {
+  display: none;
+}
+
+.coloredDay {
+  display: none;
 }
 
 .dayPlus {
-  position: absolute;
-  bottom: 1px;
-  right: 3px;
-  font-size: 10px;
-  font-weight: 700;
-  color: #1a1a1a;
-  text-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
-  z-index: 2;
-  line-height: 1;
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 50%;
-  width: 14px;
-  height: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 9px;
+  display: none;
+}
+
+/* ============================================================
+   ПОЛОСАТЫЙ ФОН ДЛЯ ДНЕЙ В ПРОШЛОМ БЕЗ СМЕН
+   ============================================================ */
+
+/* Класс для ячейки календаря */
+.calendarMotion :global(.react-calendar__tile.day-without-shifts) {
+  background: repeating-linear-gradient(
+    45deg,
+    #1a1a1a,
+    #1a1a1a 6px,
+    #222222 6px,
+    #222222 12px
+  ) !important;
+}
+
+/* Число в таких днях - полупрозрачное */
+.calendarMotion :global(.react-calendar__tile.day-without-shifts abbr) {
+  color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Hover для полосатых дней */
+.calendarMotion :global(.react-calendar__tile.day-without-shifts:hover) {
+  background: repeating-linear-gradient(
+    45deg,
+    #222222,
+    #222222 6px,
+    #2a2a2a 6px,
+    #2a2a2a 12px
+  ) !important;
+}
+
+/* Выбранный день с полосками - переопределяем */
+.calendarMotion :global(.react-calendar__tile.day-without-shifts.custom-selected-day) {
+  background: #ffffffde !important;
+}
+
+.calendarMotion :global(.react-calendar__tile.day-without-shifts.custom-selected-day abbr) {
+  color: #696969 !important;
+}
+
+/* Выбранный день с полосками + сегодня */
+.calendarMotion :global(.react-calendar__tile.day-without-shifts.custom-selected-day.react-calendar__tile--now) {
+  background: #ffffffde !important;
+}
+
+.calendarMotion :global(.react-calendar__tile.day-without-shifts.custom-selected-day.react-calendar__tile--now abbr) {
+  color: #696969 !important;
 }
 
 /* ============================================================
@@ -329,10 +524,6 @@
 }
 
 /* Тело карточки */
-.cardBody {
-  /* стили для тела */
-}
-
 .detailsItem {
   display: flex;
   align-items: flex-start;
@@ -436,6 +627,95 @@
 }
 
 /* ============================================================
+   МОДАЛКА ПРЕДУПРЕЖДЕНИЯ О БУДУЩЕЙ ДАТЕ
+   ============================================================ */
+
+.futureWarningOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+
+.futureWarningModal {
+  background: #1e1e1e;
+  border-radius: 20px;
+  padding: 32px 28px 28px;
+  max-width: 340px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.25s ease;
+}
+
+.futureWarningClose {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  padding: 4px;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.futureWarningClose:hover {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.futureWarningTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 8px 0;
+}
+
+.futureWarningText {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.5;
+  margin: 0 0 24px 0;
+}
+
+.futureWarningBtn {
+  width: 100%;
+  padding: 14px;
+  background: #2d7d46;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.futureWarningBtn:hover {
+  background: #3a9a57;
+  transform: translateY(-1px);
+}
+
+.futureWarningBtn:active {
+  transform: scale(0.97);
+}
+
+/* ============================================================
    ТЕМНАЯ ТЕМА
    ============================================================ */
 
@@ -495,12 +775,6 @@
   border-color: #1a1a1a;
 }
 
-[data-theme="dark"] .dayPlus {
-  color: #ffffff;
-  text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
-  background: rgba(0, 0, 0, 0.7);
-}
-
 [data-theme="dark"] .menuButton {
   background: rgba(255, 255, 255, 0.08);
 }
@@ -534,4 +808,40 @@
   background: #1e1e1e;
   border-color: rgba(255, 255, 255, 0.06);
   color: rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="dark"] .coloredDot {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="dark"] .plusBadgeText {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+[data-theme="dark"] .calendarMotion :global(.react-calendar__tile abbr) {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .calendarMotion :global(.react-calendar__tile--now abbr) {
+  color: #000000 !important;
+}
+
+/* ============================================================
+   АНИМАЦИИ ДЛЯ МОДАЛКИ
+   ============================================================ */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }

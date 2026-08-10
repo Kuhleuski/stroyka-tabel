@@ -9,7 +9,8 @@ import { useAuth } from '../context/AuthContext'
 import { ColoredDay } from '../components/TestCalendar/ColoredDay'
 import { DayDetails } from '../components/TestCalendar/DayDetails'
 import { AddShiftForm } from '../components/Shifts/AddShiftForm'
-import { Plus } from 'lucide-react'
+import { formatDateLocal } from '../utils/dateHelpers'
+import { Plus, X } from 'lucide-react'
 import styles from '../styles/test.module.css'
 import componentsStyles from '../styles/components.module.css'
 
@@ -19,6 +20,7 @@ export default function TestPage() {
   const [direction, setDirection] = useState(0)
   const [showAddShift, setShowAddShift] = useState(false)
   const [showSavingScreen, setShowSavingScreen] = useState(false)
+  const [showFutureWarning, setShowFutureWarning] = useState(false)
   const [updateKey, setUpdateKey] = useState(0)
   
   // === СОСТОЯНИЯ ДЛЯ РЕДАКТИРОВАНИЯ ===
@@ -75,6 +77,18 @@ export default function TestPage() {
     }
   }, [])
 
+  // Блокировка скролла при открытой модалке
+  useEffect(() => {
+    if (showFutureWarning) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [showFutureWarning])
+
   const formatMonth = (date) => {
     const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
       'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
@@ -100,6 +114,17 @@ export default function TestPage() {
   }
 
   const handleOpenAddShift = () => {
+    // Проверяем, является ли выбранная дата будущей
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const selectedDate = new Date(date)
+    selectedDate.setHours(0, 0, 0, 0)
+    
+    if (selectedDate > today) {
+      setShowFutureWarning(true)
+      return
+    }
+    
     setIsEditMode(false)
     setEditData(null)
     setShowAddShift(true)
@@ -160,13 +185,47 @@ export default function TestPage() {
   const tileContent = ({ date: tileDate, view }) => {
     if (view !== 'month') return null
     
+    // Проверяем, является ли эта дата выбранной
+    const isActive = tileDate.toDateString() === date.toDateString()
+    
     return (
       <ColoredDay 
         date={tileDate} 
         shifts={shifts} 
-        sites={sites} 
+        sites={sites}
+        isActive={isActive}
       />
     )
+  }
+
+  // === ПРОВЕРКА ДЛЯ ПОЛОСАТЫХ ДНЕЙ ===
+  const tileClassName = ({ date: tileDate, view }) => {
+    if (view !== 'month') return null
+    
+    const isActive = tileDate.toDateString() === date.toDateString()
+    const classes = []
+    
+    if (isActive) {
+      classes.push('custom-selected-day')
+    }
+    
+    // Проверяем, есть ли смены на эту дату используя formatDateLocal
+    const dateStr = formatDateLocal(tileDate)
+    const dayShifts = shifts.filter(s => s.work_date === dateStr)
+    
+    // Проверяем, является ли дата прошлой
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const checkDate = new Date(tileDate)
+    checkDate.setHours(0, 0, 0, 0)
+    const isPast = checkDate < today
+    
+    // Если дата в прошлом И нет смен - добавляем класс
+    if (isPast && dayShifts.length === 0) {
+      classes.push('day-without-shifts')
+    }
+    
+    return classes.length > 0 ? classes : null
   }
 
   const isCurrentMonth = () => {
@@ -300,6 +359,7 @@ export default function TestPage() {
               prev2Label={null}
               showNeighboringMonth={false}
               tileContent={tileContent}
+              tileClassName={tileClassName}
             />
           </motion.div>
         </AnimatePresence>
@@ -321,7 +381,7 @@ export default function TestPage() {
         </div>
       )}
 
-      {user?.role === 'admin' && isDateVisible() && (
+      {user?.role === 'admin' && (
         <button 
           className={componentsStyles.fabAddShift}
           onClick={handleOpenAddShift}
@@ -329,6 +389,28 @@ export default function TestPage() {
         >
           <Plus size={28} strokeWidth={2.5} />
         </button>
+      )}
+
+      {/* Модалка предупреждения о будущей дате */}
+      {showFutureWarning && (
+        <div className={styles.futureWarningOverlay} onClick={() => setShowFutureWarning(false)}>
+          <div className={styles.futureWarningModal} onClick={(e) => e.stopPropagation()}>
+            <button 
+              className={styles.futureWarningClose}
+              onClick={() => setShowFutureWarning(false)}
+            >
+              <X size={20} strokeWidth={2} />
+            </button>
+            <h3 className={styles.futureWarningTitle}>Недоступно</h3>
+            <p className={styles.futureWarningText}>Создание смен на будущие даты запрещено</p>
+            <button 
+              className={styles.futureWarningBtn}
+              onClick={() => setShowFutureWarning(false)}
+            >
+              Понятно
+            </button>
+          </div>
+        </div>
       )}
     </div>
   )
