@@ -29,98 +29,82 @@ export function ColoredDay({ date, shifts, sites, isActive }) {
   }
 
   const totalSites = colors.length
-  const plusCount = totalSites > 4 ? totalSites - 3 : 0
-  const showPlus = totalSites >= 5
+  const plusCount = totalSites > 3 ? totalSites - 3 : 0
+  const showPlus = totalSites > 3
 
-  // Берем первые 3 цвета для 5+, или все для остальных
-  let displayColors = []
-  let displayPlus = 0
+  // Берем первые 3 цвета
+  const displayColors = colors.slice(0, 3)
   
-  if (totalSites >= 5) {
-    displayColors = colors.slice(0, 3)
-    displayPlus = totalSites - 3
-  } else if (totalSites === 4) {
-    displayColors = colors.slice(0, 4)
-  } else {
-    displayColors = colors
-  }
+  const dotSize = 12
+  const shift = 7
 
-  // Создаем сетку 2x2
-  const grid = [
-    [null, null],
-    [null, null]
-  ]
-
-  // Заполняем сетку
-  if (displayColors.length >= 1) grid[0][0] = { type: 'dot', color: displayColors[0] }
-  if (displayColors.length >= 2) grid[0][1] = { type: 'dot', color: displayColors[1] }
-  if (displayColors.length >= 3) grid[1][0] = { type: 'dot', color: displayColors[2] }
-  
-  // Четвертая позиция (нижний правый)
-  if (displayColors.length === 4) {
-    grid[1][1] = { type: 'dot', color: displayColors[3] }
-  } else if (showPlus) {
-    grid[1][1] = { type: 'plus', count: displayPlus }
-  }
-
-  // Для 1 смены - используем специальный контейнер с точкой по центру верхнего ряда
-  if (totalSites === 1) {
+  // Если одна точка — центрируем её
+  if (displayColors.length === 1) {
     return (
       <div className={styles.coloredDayContainer}>
-        <div className={styles.coloredDotRowSingle}>
-          <div 
+        <div className={styles.coloredDotsRow}>
+          <div
             className={styles.coloredDot}
-            style={{ 
+            style={{
               backgroundColor: displayColors[0],
-              boxShadow: `0 0 6px ${displayColors[0]}40, 0 0 12px ${displayColors[0]}20`
+              position: 'absolute',
+              left: '50%',
+              top: '70%',
+              transform: 'translate(-50%, -50%)',
+              margin: 0,
+              zIndex: 1,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
             }}
           />
-        </div>
-        <div className={styles.coloredDotRow}>
-          <div className={styles.emptyCell} />
-          <div className={styles.emptyCell} />
         </div>
       </div>
     )
   }
 
+  // Общая ширина группы
+  const totalWidth = (displayColors.length - 1) * shift + dotSize
+  const plusWidth = showPlus ? 18 : 0
+  const groupWidth = totalWidth + plusWidth + 2
+
   return (
     <div className={styles.coloredDayContainer}>
-      {grid.map((row, rowIndex) => (
-        <div key={rowIndex} className={styles.coloredDotRow}>
-          {row.map((cell, cellIndex) => {
-            if (cell === null) {
-              return <div key={`${rowIndex}-${cellIndex}`} className={styles.emptyCell} />
-            }
-            
-            if (cell.type === 'dot') {
-              return (
-                <div 
-                  key={`${rowIndex}-${cellIndex}`}
-                  className={styles.coloredDot}
-                  style={{ 
-                    backgroundColor: cell.color,
-                    boxShadow: `0 0 6px ${cell.color}40, 0 0 12px ${cell.color}20`
-                  }}
-                />
-              )
-            }
-            
-            if (cell.type === 'plus') {
-              return (
-                <span 
-                  key={`${rowIndex}-${cellIndex}`} 
-                  className={styles.plusBadgeText}
-                >
-                  +{cell.count}
-                </span>
-              )
-            }
-            
-            return null
-          })}
-        </div>
-      ))}
+      <div className={styles.coloredDotsRow}>
+        {displayColors.map((color, index) => {
+          const zIndex = index + 1
+          const shiftX = index * shift
+          const offsetX = shiftX - groupWidth / 2 + dotSize / 2
+          return (
+            <div
+              key={index}
+              className={styles.coloredDot}
+              style={{
+                backgroundColor: color,
+                transform: `translateX(${offsetX}px)`,
+                zIndex: zIndex,
+                position: 'absolute',
+                left: '50%',
+                top: '70%',
+                marginLeft: `-${dotSize/2}px`,
+                marginTop: `-${dotSize/2}px`,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
+              }}
+            />
+          )
+        })}
+        {showPlus && (
+          <span 
+            className={styles.plusBadgeText}
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '70%',
+              transform: `translateX(${displayColors.length * shift - groupWidth / 2 + dotSize / 2 + 2}px) translateY(-50%)`,
+            }}
+          >
+            +{plusCount}
+          </span>
+        )}
+      </div>
     </div>
   )
 }
