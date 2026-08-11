@@ -236,7 +236,7 @@
 .calendarMotion :global(.react-calendar__tile.custom-selected-day) {
   background: #1e1e1e !important;
   border: 3px solid #adf403b3 !important;
-  box-shadow: 0 0 25px rgba(173, 244, 3, 0.35) !important;
+  box-shadow: 0 0 20px rgba(173, 244, 3, 0.3) !important;
   border-radius: 8px !important;
   padding: 0 !important;
   box-sizing: border-box !important;
@@ -244,25 +244,11 @@
   aspect-ratio: 1 !important;
 }
 
-.calendarMotion :global(.react-calendar__tile.custom-selected-day abbr) {
-  color: #ffffff !important;
-  background: transparent !important;
-  width: auto !important;
-  height: auto !important;
-  border-radius: 0 !important;
-  position: absolute !important;
-  top: 35% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-  font-size: 14px !important;
-  font-weight: 700 !important;
-}
-
-/* Выбранный день + сегодня - убираем кружок, оставляем только бордер */
+/* Выбранный день + сегодня */
 .calendarMotion :global(.react-calendar__tile.custom-selected-day.react-calendar__tile--now) {
   background: #2a2a2a !important;
   border: 3px solid #adf403b3 !important;
-  box-shadow: 0 0 25px rgba(173, 244, 3, 0.35) !important;
+  box-shadow: 0 0 20px rgba(173, 244, 3, 0.3) !important;
   border-radius: 8px !important;
   overflow: visible !important;
   padding: 0 !important;
@@ -271,25 +257,48 @@
   aspect-ratio: 1 !important;
 }
 
-.calendarMotion :global(.react-calendar__tile.custom-selected-day.react-calendar__tile--now abbr) {
-  color: #ffffff !important;
-  font-weight: 700 !important;
-  background: transparent !important;
-  border-radius: 0 !important;
-  border: none !important;
-  width: auto !important;
-  height: auto !important;
-  display: block !important;
-  font-size: 14px !important;
-  position: absolute !important;
-  top: 35% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-  margin: 0 !important;
+/* Выбранный день с полосками */
+.calendarMotion :global(.react-calendar__tile.day-without-shifts.custom-selected-day) {
+  background: repeating-linear-gradient(
+    45deg,
+    #1a1a1a,
+    #1a1a1a 6px,
+    #222222 6px,
+    #222222 12px
+  ) !important;
+  border: 3px solid #adf403b3 !important;
+  box-shadow: 0 0 20px rgba(173, 244, 3, 0.3) !important;
+  border-radius: 8px !important;
   padding: 0 !important;
-  line-height: 1 !important;
-  z-index: 2 !important;
-  box-shadow: none !important;
+  box-sizing: border-box !important;
+  height: auto !important;
+  aspect-ratio: 1 !important;
+}
+
+.calendarMotion :global(.react-calendar__tile.day-without-shifts.custom-selected-day abbr) {
+  color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Выбранный день с полосками + сегодня */
+.calendarMotion :global(.react-calendar__tile.day-without-shifts.custom-selected-day.react-calendar__tile--now) {
+  background: repeating-linear-gradient(
+    45deg,
+    #1a1a1a,
+    #1a1a1a 6px,
+    #222222 6px,
+    #222222 12px
+  ) !important;
+  border: 3px solid #adf403b3 !important;
+  box-shadow: 0 0 20px rgba(173, 244, 3, 0.3) !important;
+  border-radius: 8px !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  height: auto !important;
+  aspect-ratio: 1 !important;
+}
+
+.calendarMotion :global(.react-calendar__tile.day-without-shifts.custom-selected-day.react-calendar__tile--now abbr) {
+  color: rgba(255, 255, 255, 0.2) !important;
 }
 
 /* ============================================================
@@ -368,7 +377,7 @@
 }
 
 /* ============================================================
-   СТИЛИ ДЛЯ РАСКРАШЕННОГО ДНЯ (ТОЧКИ)
+   STYLES FOR COLORED DAY (DOTS)
    ============================================================ */
 
 .coloredDayContainer {
@@ -442,7 +451,6 @@
 .emptyCell {
   display: none;
 }
-
 /* ============================================================
    ДЕТАЛИ ДНЯ - КАРТОЧКИ
    ============================================================ */
