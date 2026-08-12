@@ -156,11 +156,11 @@
   font-size: 14px;
   font-weight: 500;
   background: #1e1e1e !important;
-  border: none;
+  border: 3px solid #1e1e1e !important;
   border-radius: 8px;
   padding: 0 !important;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   width: calc((100% - 12px) / 7) !important;
   max-width: calc((100% - 12px) / 7) !important;
   flex: 0 0 calc((100% - 12px) / 7) !important;
@@ -170,7 +170,7 @@
   min-width: 0 !important;
 }
 
-/* Стили для числа дня - по центру (ОДИН БЛОК) */
+/* Стили для числа дня - по центру */
 .calendarMotion :global(.react-calendar__tile abbr) {
   position: absolute;
   top: 35%;
@@ -190,16 +190,19 @@
 /* Hover */
 .calendarMotion :global(.react-calendar__tile:hover) {
   background: #2a2a2a !important;
+  border-color: #2a2a2a !important;
 }
 
-/* СЕГОДНЯ - убираем кружок, делаем как обычная ячейка */
+/* СЕГОДНЯ - чуть светлее фон */
 .calendarMotion :global(.react-calendar__tile--now) {
   background: #2a2a2a !important;
+  border-color: #2a2a2a !important;
   overflow: visible !important;
 }
 
+/* СЕГОДНЯ - число зеленое */
 .calendarMotion :global(.react-calendar__tile--now abbr) {
-  color: #ffffff !important;
+  color: #adf403b3 !important;
   font-weight: 700 !important;
   background: transparent !important;
   border-radius: 0 !important;
@@ -218,24 +221,25 @@
   z-index: 2 !important;
   box-shadow: none !important;
 }
-
 .calendarMotion :global(.react-calendar__tile--now:hover) {
   background: #333333 !important;
+  border-color: #333333 !important;
 }
 
 /* ПОЛНОСТЬЮ УБИВАЕМ СТАНДАРТНЫЙ ACTIVE */
 .calendarMotion :global(.react-calendar__tile--active) {
   background: #1e1e1e !important;
+  border-color: #1e1e1e !important;
 }
 
 .calendarMotion :global(.react-calendar__tile--active abbr) {
   color: #ffffff !important;
 }
 
-/* КАСТОМНЫЙ КЛАСС ДЛЯ ВЫБРАННОГО ДНЯ - только бордер и свечение */
+/* КАСТОМНЫЙ КЛАСС ДЛЯ ВЫБРАННОГО ДНЯ - меняется только цвет бордера */
 .calendarMotion :global(.react-calendar__tile.custom-selected-day) {
   background: #1e1e1e !important;
-  border: 3px solid #adf403b3 !important;
+  border-color: #adf403b3 !important;
   box-shadow: 0 0 20px rgba(173, 244, 3, 0.3) !important;
   border-radius: 8px !important;
   padding: 0 !important;
@@ -247,7 +251,7 @@
 /* Выбранный день + сегодня */
 .calendarMotion :global(.react-calendar__tile.custom-selected-day.react-calendar__tile--now) {
   background: #2a2a2a !important;
-  border: 3px solid #adf403b3 !important;
+  border-color: #adf403b3 !important;
   box-shadow: 0 0 20px rgba(173, 244, 3, 0.3) !important;
   border-radius: 8px !important;
   overflow: visible !important;
@@ -255,125 +259,6 @@
   box-sizing: border-box !important;
   height: auto !important;
   aspect-ratio: 1 !important;
-}
-
-/* Выбранный день с полосками */
-.calendarMotion :global(.react-calendar__tile.day-without-shifts.custom-selected-day) {
-  background: repeating-linear-gradient(
-    45deg,
-    #1a1a1a,
-    #1a1a1a 6px,
-    #222222 6px,
-    #222222 12px
-  ) !important;
-  border: 3px solid #adf403b3 !important;
-  box-shadow: 0 0 20px rgba(173, 244, 3, 0.3) !important;
-  border-radius: 8px !important;
-  padding: 0 !important;
-  box-sizing: border-box !important;
-  height: auto !important;
-  aspect-ratio: 1 !important;
-}
-
-.calendarMotion :global(.react-calendar__tile.day-without-shifts.custom-selected-day abbr) {
-  color: rgba(255, 255, 255, 0.2) !important;
-}
-
-/* Выбранный день с полосками + сегодня */
-.calendarMotion :global(.react-calendar__tile.day-without-shifts.custom-selected-day.react-calendar__tile--now) {
-  background: repeating-linear-gradient(
-    45deg,
-    #1a1a1a,
-    #1a1a1a 6px,
-    #222222 6px,
-    #222222 12px
-  ) !important;
-  border: 3px solid #adf403b3 !important;
-  box-shadow: 0 0 20px rgba(173, 244, 3, 0.3) !important;
-  border-radius: 8px !important;
-  padding: 0 !important;
-  box-sizing: border-box !important;
-  height: auto !important;
-  aspect-ratio: 1 !important;
-}
-
-.calendarMotion :global(.react-calendar__tile.day-without-shifts.custom-selected-day.react-calendar__tile--now abbr) {
-  color: rgba(255, 255, 255, 0.2) !important;
-}
-
-/* ============================================================
-   ПОЛОСАТЫЙ ФОН ДЛЯ ДНЕЙ В ПРОШЛОМ БЕЗ СМЕН
-   ============================================================ */
-
-/* Класс для ячейки календаря */
-.calendarMotion :global(.react-calendar__tile.day-without-shifts) {
-  background: repeating-linear-gradient(
-    45deg,
-    #1a1a1a,
-    #1a1a1a 6px,
-    #222222 6px,
-    #222222 12px
-  ) !important;
-}
-
-/* Число в таких днях - полупрозрачное */
-.calendarMotion :global(.react-calendar__tile.day-without-shifts abbr) {
-  color: rgba(255, 255, 255, 0.2) !important;
-}
-
-/* Hover для полосатых дней */
-.calendarMotion :global(.react-calendar__tile.day-without-shifts:hover) {
-  background: repeating-linear-gradient(
-    45deg,
-    #222222,
-    #222222 6px,
-    #2a2a2a 6px,
-    #2a2a2a 12px
-  ) !important;
-}
-
-/* Выбранный день с полосками - бордер и свечение, число остается полупрозрачным */
-.calendarMotion :global(.react-calendar__tile.day-without-shifts.custom-selected-day) {
-  background: repeating-linear-gradient(
-    45deg,
-    #1a1a1a,
-    #1a1a1a 6px,
-    #222222 6px,
-    #222222 12px
-  ) !important;
-  border: 3px solid #adf403b3 !important;
-  box-shadow: 0 0 25px rgba(173, 244, 3, 0.35) !important;
-  border-radius: 8px !important;
-  padding: 0 !important;
-  box-sizing: border-box !important;
-  height: auto !important;
-  aspect-ratio: 1 !important;
-}
-
-.calendarMotion :global(.react-calendar__tile.day-without-shifts.custom-selected-day abbr) {
-  color: #ffffff !important;
-}
-
-/* Выбранный день с полосками + сегодня - бордер и свечение, число остается полупрозрачным */
-.calendarMotion :global(.react-calendar__tile.day-without-shifts.custom-selected-day.react-calendar__tile--now) {
-  background: repeating-linear-gradient(
-    45deg,
-    #1a1a1a,
-    #1a1a1a 6px,
-    #222222 6px,
-    #222222 12px
-  ) !important;
-  border: 3px solid #adf403b3 !important;
-  box-shadow: 0 0 25px rgba(173, 244, 3, 0.35) !important;
-  border-radius: 8px !important;
-  padding: 0 !important;
-  box-sizing: border-box !important;
-  height: auto !important;
-  aspect-ratio: 1 !important;
-}
-
-.calendarMotion :global(.react-calendar__tile.day-without-shifts.custom-selected-day.react-calendar__tile--now abbr) {
-  color: rgba(255, 255, 255, 0.2) !important;
 }
 
 /* ============================================================
@@ -451,6 +336,7 @@
 .emptyCell {
   display: none;
 }
+
 /* ============================================================
    ДЕТАЛИ ДНЯ - КАРТОЧКИ
    ============================================================ */
@@ -861,7 +747,7 @@
 }
 
 [data-theme="dark"] .calendarMotion :global(.react-calendar__tile--now abbr) {
-  color: #ffffff !important;
+  color: #adf403b3 !important;
 }
 
 /* ============================================================
@@ -882,4 +768,26 @@
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+/* БУДУЩИЕ ДНИ - полупрозрачный текст */
+.calendarMotion :global(.react-calendar__tile.future-day abbr) {
+  color: #ffffff40 !important;
+}
+/* ============================================================
+   ПЕРЕОПРЕДЕЛЕНИЕ ЦВЕТА СЕГОДНЯ (в самом низу)
+   ============================================================ */
+
+[data-theme="dark"] .calendarMotion :global(.react-calendar__tile--now abbr) {
+  color: #adf403b3 !important;
+}
+/* ============================================================
+   РАСТЯГИВАЕМ ОБЛАСТЬ КЛИКА ДЛЯ СБРОСА
+   ============================================================ */
+
+.testPage {
+  padding: 0 16px 80px;
+  max-width: 500px;
+  margin: 0 auto;
+  min-height: 100vh;
+  cursor: default;
 }

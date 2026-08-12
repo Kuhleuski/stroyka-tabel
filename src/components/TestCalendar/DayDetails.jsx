@@ -22,6 +22,13 @@ export function DayDetails({
   
   const menuElements = useRef({})
 
+  // === ПРОВЕРКА НА БУДУЩУЮ ДАТУ ===
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const checkDate = new Date(selectedDate)
+  checkDate.setHours(0, 0, 0, 0)
+  const isFuture = checkDate > today
+
   const dayGroups = useMemo(() => {
     const dayShifts = shifts.filter(s => s.work_date === dateStr)
     if (dayShifts.length === 0) return []
@@ -193,22 +200,29 @@ export function DayDetails({
     )
   }
 
-  if (dayGroups.length === 0) {
-    return (
-      <motion.div 
-        className={styles.dayDetailsEmptyWrapper}
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -10 }}
-        transition={{ duration: 0.2 }}
-        key={dateStr}
-      >
-        <div className={styles.detailsEmpty}>
+if (dayGroups.length === 0) {
+  return (
+    <motion.div 
+      className={styles.dayDetailsEmptyWrapper}
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.2 }}
+      key={dateStr}
+    >
+      <div className={styles.detailsEmpty}>
+        {isFuture ? (
+          <span>
+            Дата еще не наступила.<br />
+            Нельзя поставить смену
+          </span>
+        ) : (
           <span>В этот день никто не работал</span>
-        </div>
-      </motion.div>
-    )
-  }
+        )}
+      </div>
+    </motion.div>
+  )
+}
 
   return (
     <motion.div 

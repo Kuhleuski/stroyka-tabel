@@ -49,7 +49,7 @@ export function ColoredDay({ date, shifts, sites, isActive }) {
               backgroundColor: displayColors[0],
               position: 'absolute',
               left: '50%',
-              top: '70%',
+              top: '81%',
               transform: 'translate(-50%, -50%)',
               margin: 0,
               zIndex: 1,
@@ -83,7 +83,7 @@ export function ColoredDay({ date, shifts, sites, isActive }) {
                 zIndex: zIndex,
                 position: 'absolute',
                 left: '50%',
-                top: '70%',
+                top: '78%',
                 marginLeft: `-${dotSize/2}px`,
                 marginTop: `-${dotSize/2}px`,
                 boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
@@ -97,7 +97,7 @@ export function ColoredDay({ date, shifts, sites, isActive }) {
             style={{
               position: 'absolute',
               left: '50%',
-              top: '70%',
+              top: '78%',
               transform: `translateX(${displayColors.length * shift - groupWidth / 2 + dotSize / 2 + 2}px) translateY(-50%)`,
             }}
           >

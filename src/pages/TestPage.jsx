@@ -21,6 +21,7 @@ export default function TestPage() {
   const [showAddShift, setShowAddShift] = useState(false)
   const [showSavingScreen, setShowSavingScreen] = useState(false)
   const [showFutureWarning, setShowFutureWarning] = useState(false)
+  const [showNoDateWarning, setShowNoDateWarning] = useState(false)
   const [updateKey, setUpdateKey] = useState(0)
   
   // === СОСТОЯНИЯ ДЛЯ РЕДАКТИРОВАНИЯ ===
@@ -79,7 +80,7 @@ export default function TestPage() {
 
   // Блокировка скролла при открытой модалке
   useEffect(() => {
-    if (showFutureWarning) {
+    if (showFutureWarning || showNoDateWarning) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = 'unset'
@@ -87,7 +88,7 @@ export default function TestPage() {
     return () => {
       document.body.style.overflow = 'unset'
     }
-  }, [showFutureWarning])
+  }, [showFutureWarning, showNoDateWarning])
 
   const formatMonth = (date) => {
     const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
@@ -114,6 +115,12 @@ export default function TestPage() {
   }
 
   const handleOpenAddShift = () => {
+    // Если дата не выбрана — показываем предупреждение
+    if (!date) {
+      setShowNoDateWarning(true)
+      return
+    }
+    
     // Проверяем, является ли выбранная дата будущей
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -186,7 +193,7 @@ export default function TestPage() {
     if (view !== 'month') return null
     
     // Проверяем, является ли эта дата выбранной
-    const isActive = tileDate.toDateString() === date.toDateString()
+    const isActive = date && tileDate.toDateString() === date.toDateString()
     
     return (
       <ColoredDay 
@@ -198,31 +205,26 @@ export default function TestPage() {
     )
   }
 
-  // === ПРОВЕРКА ДЛЯ ПОЛОСАТЫХ ДНЕЙ ===
+  // === КЛАССЫ ДЛЯ ЯЧЕЕК ===
   const tileClassName = ({ date: tileDate, view }) => {
     if (view !== 'month') return null
     
-    const isActive = tileDate.toDateString() === date.toDateString()
+    const isActive = date && tileDate.toDateString() === date.toDateString()
     const classes = []
     
     if (isActive) {
       classes.push('custom-selected-day')
     }
     
-    // Проверяем, есть ли смены на эту дату используя formatDateLocal
-    const dateStr = formatDateLocal(tileDate)
-    const dayShifts = shifts.filter(s => s.work_date === dateStr)
-    
-    // Проверяем, является ли дата прошлой
+    // Проверяем, является ли дата будущей (начиная с завтра)
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     const checkDate = new Date(tileDate)
     checkDate.setHours(0, 0, 0, 0)
-    const isPast = checkDate < today
+    const isFuture = checkDate > today
     
-    // Если дата в прошлом И нет смен - добавляем класс
-    if (isPast && dayShifts.length === 0) {
-      classes.push('day-without-shifts')
+    if (isFuture) {
+      classes.push('future-day')
     }
     
     return classes.length > 0 ? classes : null
@@ -235,12 +237,28 @@ export default function TestPage() {
   }
 
   const isDateVisible = () => {
+    if (!date) return false
     const selectedMonth = date.getMonth()
     const selectedYear = date.getFullYear()
     const currentMonth = activeStartDate.getMonth()
     const currentYear = activeStartDate.getFullYear()
     
     return selectedMonth === currentMonth && selectedYear === currentYear
+  }
+
+  // === СБРОС ВЫБОРА ПРИ КЛИКЕ НА ПУСТОЕ МЕСТО ===
+  const handleContainerClick = (e) => {
+    // Проверяем, что клик был не по ячейке календаря, не по кнопке и не по модалке
+    const target = e.target
+    const isTile = target.closest('.react-calendar__tile')
+    const isButton = target.closest('button')
+    const isFab = target.closest('.fabAddShift')
+    const isModal = target.closest('.futureWarningOverlay') || target.closest('.futureWarningModal')
+    
+    if (!isTile && !isButton && !isFab && !isModal) {
+      // Сбрасываем выбранную дату в null (ничего не выбрано)
+      setDate(null)
+    }
   }
 
   if (showSavingScreen) {
@@ -309,7 +327,10 @@ export default function TestPage() {
   }
 
   return (
-    <div className={styles.testPage}>
+    <div 
+      className={styles.testPage}
+      onClick={handleContainerClick}
+    >
       <div className={styles.calendarWrapper}>
         {/* Кастомная навигация */}
         {renderCustomNavigation()}
@@ -365,7 +386,7 @@ export default function TestPage() {
         </AnimatePresence>
       </div>
 
-      {isDateVisible() ? (
+      {date && isDateVisible() ? (
         <DayDetails 
           key={updateKey}
           selectedDate={date}
@@ -375,12 +396,13 @@ export default function TestPage() {
           onShiftDeleted={handleShiftDeleted}
           onEditShift={handleEditShift}
         />
-      ) : (
+      ) : date && !isDateVisible() ? (
         <div className={styles.dateNotVisible}>
           <span>Выберите день в текущем месяце</span>
         </div>
-      )}
+      ) : null}
 
+      {/* FAB всегда видна для админов */}
       {user?.role === 'admin' && (
         <button 
           className={componentsStyles.fabAddShift}
@@ -406,6 +428,28 @@ export default function TestPage() {
             <button 
               className={styles.futureWarningBtn}
               onClick={() => setShowFutureWarning(false)}
+            >
+              Понятно
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Модалка предупреждения о невыбранной дате */}
+      {showNoDateWarning && (
+        <div className={styles.futureWarningOverlay} onClick={() => setShowNoDateWarning(false)}>
+          <div className={styles.futureWarningModal} onClick={(e) => e.stopPropagation()}>
+            <button 
+              className={styles.futureWarningClose}
+              onClick={() => setShowNoDateWarning(false)}
+            >
+              <X size={20} strokeWidth={2} />
+            </button>
+            <h3 className={styles.futureWarningTitle}>Не выбрана дата</h3>
+            <p className={styles.futureWarningText}>Выберите дату чтобы поставить смену</p>
+            <button 
+              className={styles.futureWarningBtn}
+              onClick={() => setShowNoDateWarning(false)}
             >
               Понятно
             </button>
