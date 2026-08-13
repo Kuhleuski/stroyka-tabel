@@ -5,7 +5,6 @@ import { AvatarProvider } from './context/AvatarContext'
 import { Header } from './components/Layout/Header'
 import { BottomNav } from './components/Layout/BottomNav'
 import { SettingsModal } from './components/SettingsModal'
-import { MainPage } from './pages/MainPage'
 import { SitesPage } from './pages/SitesPage'
 import { WorkersPage } from './pages/WorkersPage'
 import { MyTabelPage } from './pages/MyTabelPage'
@@ -25,7 +24,7 @@ function AppContent() {
     const [pageKey, setPageKey] = useState(0)
     
     const { shifts, loading, error, refetch } = useShifts()
-    const { user, loginByPhone, logout } = useAuth() // ← изменено с login на loginByPhone
+    const { user, loginByPhone, logout } = useAuth()
 
     // Принудительно устанавливаем темную тему при загрузке
     useEffect(() => {
@@ -33,7 +32,7 @@ function AppContent() {
     }, [])
 
     if (!user) {
-        return <LoginPage onLogin={loginByPhone} /> // ← изменено с login на loginByPhone
+        return <LoginPage onLogin={loginByPhone} />
     }
 
     if (error) {
@@ -81,7 +80,8 @@ function AppContent() {
             case 'my-tabel':
                 return <MyTabelPage key={`my-tabel-${pageKey}`} shifts={shifts} />
             case 'calendar':
-                return <MainPage key={`calendar-${pageKey}`} shifts={shifts} loading={loading} refetchShifts={refetch} />
+                // ← Теперь TestPage на месте Главной
+                return <TestPage key={`calendar-${pageKey}`} />
             case 'sites':
                 return <SitesPage key={`sites-${pageKey}`} />
             case 'workers':
@@ -94,10 +94,8 @@ function AppContent() {
                 return <StatisticsPage key={`statistics-${pageKey}`} />
             case 'costs':
                 return <CostsPage key={`costs-${pageKey}`} />
-            case 'test':
-                return <TestPage key={`test-${pageKey}`} />
             default:
-                return <MainPage key={`calendar-${pageKey}`} shifts={shifts} loading={loading} refetchShifts={refetch} />
+                return <TestPage key={`calendar-${pageKey}`} />
         }
     }
 

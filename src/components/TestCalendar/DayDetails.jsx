@@ -55,7 +55,6 @@ export function DayDetails({
       return {
         siteId: group.siteId,
         siteName: site?.name || 'Неизвестный объект',
-        address: site?.address || '',
         color: site?.color || '#999',
         workers: workerData,
         shiftIds: group.shiftIds,
@@ -142,11 +141,10 @@ export function DayDetails({
     setShowConfirmDialog(false)
     
     try {
-      // Удаляем все смены для этого объекта и даты с передачей actorId
       await deleteShiftsForSiteAndDate(
         shiftToDelete.siteId, 
         dateStr, 
-        user?.id  // ← передаем ID текущего пользователя
+        user?.id
       )
       
       if (onShiftDeleted) {
@@ -200,29 +198,29 @@ export function DayDetails({
     )
   }
 
-if (dayGroups.length === 0) {
-  return (
-    <motion.div 
-      className={styles.dayDetailsEmptyWrapper}
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.2 }}
-      key={dateStr}
-    >
-      <div className={styles.detailsEmpty}>
-        {isFuture ? (
-          <span>
-            Дата еще не наступила.<br />
-            Нельзя поставить смену
-          </span>
-        ) : (
-          <span>В этот день никто не работал</span>
-        )}
-      </div>
-    </motion.div>
-  )
-}
+  if (dayGroups.length === 0) {
+    return (
+      <motion.div 
+        className={styles.dayDetailsEmptyWrapper}
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.2 }}
+        key={dateStr}
+      >
+        <div className={styles.detailsEmpty}>
+          {isFuture ? (
+            <span>
+              Дата еще не наступила.<br />
+              Нельзя поставить смену
+            </span>
+          ) : (
+            <span>В этот день никто не работал</span>
+          )}
+        </div>
+      </motion.div>
+    )
+  }
 
   return (
     <motion.div 
@@ -239,8 +237,15 @@ if (dayGroups.length === 0) {
         return (
           <div key={group.uniqueKey} className={styles.dayDetailsCard}>
             <div className={styles.cardHeader}>
-              <div className={styles.detailsHeader}>
-                {formatDateDisplay(selectedDate)}
+              <div className={styles.cardHeaderLeft}>
+                <div 
+                  className={styles.detailsDot} 
+                  style={{ 
+                    background: group.color,
+                    boxShadow: `0 0 20px ${group.color}60, 0 0 40px ${group.color}30`
+                  }} 
+                />
+                <div className={styles.detailsSite}>{group.siteName}</div>
               </div>
               <div 
                 className={styles.cardMenu} 
@@ -300,52 +305,42 @@ if (dayGroups.length === 0) {
             </div>
 
             <div className={styles.cardBody}>
-              <div className={styles.detailsItem}>
-                <div 
-                  className={styles.detailsDot} 
-                  style={{ 
-                    background: group.color,
-                    boxShadow: `0 0 20px ${group.color}60, 0 0 40px ${group.color}30`
-                  }} 
-                />
-                <div className={styles.detailsContent}>
-                  <div className={styles.detailsSite}>{group.siteName}</div>
-                  {group.address && <div className={styles.detailsAddress}>{group.address}</div>}
-                  <div className={styles.detailsChips}>
-                    {group.workers.map((worker, index) => {
-                      const hasPhoto = isBase64Image(worker.avatar)
-                      const initials = getInitials(worker.name)
-                      const avatarColor = getAvatarColor(worker.name)
-                      
-                      return (
-                        <div key={`${worker.id}-${index}-${dateStr}`} className={styles.detailsChip}>
-                          <div 
-                            className={styles.detailsAvatar}
-                            style={{
-                              backgroundColor: hasPhoto ? 'transparent' : avatarColor,
+              <div className={styles.detailsDate}>
+                {formatDateDisplay(selectedDate)}
+              </div>
+              <div className={styles.detailsChips}>
+                {group.workers.map((worker, index) => {
+                  const hasPhoto = isBase64Image(worker.avatar)
+                  const initials = getInitials(worker.name)
+                  const avatarColor = getAvatarColor(worker.name)
+                  
+                  return (
+                    <div key={`${worker.id}-${index}-${dateStr}`} className={styles.detailsChip}>
+                      <div 
+                        className={styles.detailsAvatar}
+                        style={{
+                          backgroundColor: hasPhoto ? 'transparent' : avatarColor,
+                        }}
+                      >
+                        {hasPhoto ? (
+                          <img 
+                            src={worker.avatar} 
+                            alt={worker.name}
+                            className={styles.detailsAvatarImg}
+                            onError={(e) => {
+                              e.target.style.display = 'none'
+                              e.target.parentNode.style.backgroundColor = avatarColor
+                              e.target.parentNode.textContent = initials
                             }}
-                          >
-                            {hasPhoto ? (
-                              <img 
-                                src={worker.avatar} 
-                                alt={worker.name}
-                                className={styles.detailsAvatarImg}
-                                onError={(e) => {
-                                  e.target.style.display = 'none'
-                                  e.target.parentNode.style.backgroundColor = avatarColor
-                                  e.target.parentNode.textContent = initials
-                                }}
-                              />
-                            ) : (
-                              initials
-                            )}
-                          </div>
-                          <span>{worker.name.split(' ')[0]}</span>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
+                          />
+                        ) : (
+                          initials
+                        )}
+                      </div>
+                      <span>{worker.name.split(' ')[0]}</span>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           </div>
