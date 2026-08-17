@@ -1,12 +1,9 @@
-// src/components/EditWorkerModal.jsx
-
 import { useState, useEffect } from 'react'
 import styles from '../styles/components.module.css'
 
 export function EditWorkerModal({ isOpen, onClose, onSave, worker }) {
     const [firstName, setFirstName] = useState('')
     const [lastName, setLastName] = useState('')
-    const [status, setStatus] = useState('active')
     const [avatarFile, setAvatarFile] = useState(null)
     const [previewUrl, setPreviewUrl] = useState(null)
     const [currentAvatar, setCurrentAvatar] = useState(null)
@@ -24,7 +21,6 @@ export function EditWorkerModal({ isOpen, onClose, onSave, worker }) {
                 setFirstName(parts[0] || '')
                 setLastName(parts.slice(1).join(' ') || '')
             }
-            setStatus(worker.status || 'active')
             setCurrentAvatar(worker.avatar || null)
             setPreviewUrl(null)
             setAvatarFile(null)
@@ -60,7 +56,8 @@ export function EditWorkerModal({ isOpen, onClose, onSave, worker }) {
             
             const avatarToSave = avatarFile || null
             
-            await onSave(worker.id, fullName, avatarToSave, status)
+            // Передаем статус как null, чтобы не менять его
+            await onSave(worker.id, fullName, avatarToSave, null)
             onClose()
         } catch (err) {
             setError(err.message || 'Ошибка при обновлении')
@@ -112,28 +109,6 @@ export function EditWorkerModal({ isOpen, onClose, onSave, worker }) {
                             onChange={(e) => setLastName(e.target.value)}
                             placeholder="Например: Петров"
                         />
-                    </div>
-
-                    <div className={styles.modalField}>
-                        <label className={styles.modalLabel}>Статус</label>
-                        <div className={styles.modalStatusWrapper}>
-                            <button 
-                                className={`${styles.modalStatusBtn} ${status === 'active' ? styles.modalStatusActive : ''}`}
-                                onClick={() => setStatus('active')}
-                                type="button"
-                            >
-                                <span className={styles.modalStatusDot} style={{ backgroundColor: 'rgb(16, 180, 0)' }} />
-                                Активен
-                            </button>
-                            <button 
-                                className={`${styles.modalStatusBtn} ${status === 'inactive' ? styles.modalStatusActive : ''}`}
-                                onClick={() => setStatus('inactive')}
-                                type="button"
-                            >
-                                <span className={styles.modalStatusDot} style={{ backgroundColor: '#78909C' }} />
-                                Неактивен
-                            </button>
-                        </div>
                     </div>
 
                     <div className={styles.modalField}>

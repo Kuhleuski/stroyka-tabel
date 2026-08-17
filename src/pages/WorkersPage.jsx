@@ -1,12 +1,11 @@
-// src/pages/WorkersPage.jsx
-
 import { useState } from 'react'
 import { WorkersList } from '../components/Workers/WorkersList'
-import { WorkerDetailPage } from './WorkerDetailPage'
+import { WorkerStatsPage } from './WorkerStatsPage'
 import { AddWorkerModal } from '../components/AddWorkerModal'
 import { EditWorkerModal } from '../components/EditWorkerModal'
 import { addWorker, deleteWorker, updateWorker } from '../services/supabase'
 import { useWorkers } from '../hooks/useWorkers'
+import { useSites } from '../hooks/useSites'
 import { useAvatars } from '../context/AvatarContext'
 import { Plus } from 'lucide-react'
 import styles from '../styles/workers.module.css'
@@ -39,6 +38,7 @@ export function WorkersPage({ shifts }) {
     const [refreshKey, setRefreshKey] = useState(0)
     const [isSaving, setIsSaving] = useState(false)
     const { workers, loading, error, addWorkerToState, removeWorkerFromState, updateWorkerInState } = useWorkers()
+    const { sites } = useSites()
     const { refreshAvatars } = useAvatars()
 
     // === СОХРАНЕНИЕ ДАТЫ ПОСЛЕДНЕГО ОТКРЫТИЯ ===
@@ -201,14 +201,14 @@ export function WorkersPage({ shifts }) {
 
             {selectedWorker ? (
                 <>
-                    <WorkerDetailPage 
+                    <WorkerStatsPage 
                         key={refreshKey}
                         worker={selectedWorker}
+                        shifts={shifts}
+                        sites={sites}
                         onClose={handleCloseDetail}
-                        onDelete={handleDelete}
                         onEdit={handleOpenEditModal}
                         onRefresh={forceRefresh}
-                        shifts={shifts}
                     />
                     <EditWorkerModal 
                         isOpen={showEditModal}

@@ -1,0 +1,544 @@
+/* ============================================================
+   WORKER STATS PAGE
+   ============================================================ */
+
+.workerStatsPage {
+    padding: 16px;
+    max-width: 500px;
+    margin: 0 auto;
+    padding-bottom: 100px;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+.workerStatsHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0 16px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Убрана кнопка назад */
+
+.workerStatsAvatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.workerStatsAvatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.workerStatsAvatar span {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.workerStatsInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.workerStatsName {
+    display: block;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.workerStatsStatus {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.statusDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.statusDot.active {
+    background: #10b400;
+}
+
+.statusDot.inactive {
+    background: #78909C;
+}
+
+.statusToggleBtn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.statusToggleBtn:hover:not(:disabled) {
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.statusToggleBtn:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+
+.workerStatsTabs {
+    display: flex;
+    gap: 4px;
+    padding: 16px 0 16px 0;
+    background: transparent;
+}
+
+.workerStatsTab {
+    flex: 1;
+    padding: 8px 12px;
+    background: rgb(231, 231, 231);
+    border: none;
+    border-radius: 8px;
+    color: rgb(0, 0, 0);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    text-align: center;
+}
+
+.workerStatsTab.active {
+    background: rgb(171, 241, 5);
+    color: #000000;
+}
+
+.workerStatsTab:hover:not(.active) {
+    opacity: 0.8;
+}
+
+/* ============================================================
+   MONTH TITLE
+   ============================================================ */
+
+.monthTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    padding: 0 4px 4px 4px;
+}
+
+.monthSubtitle {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.4);
+    padding: 0 4px 16px 4px;
+}
+
+/* ============================================================
+   MONTH CONTENT (СВАЙПАЕТСЯ)
+   ============================================================ */
+
+.monthContentMotion {
+    width: 100%;
+    cursor: grab;
+}
+
+.monthContentMotion:active {
+    cursor: grabbing;
+}
+
+/* ============================================================
+   STATS GRID
+   ============================================================ */
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.statsCard {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.statsCardNumber {
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+    margin-bottom: 4px;
+}
+
+/* Лейбл "рабочих дней" — крупный, жирный, белый */
+.statsCard:first-child .statsCardLabel {
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+/* Лейбл для объектов — стандартный */
+.statsCard:last-child .statsCardLabel {
+    font-size: 13px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.4);
+}
+/* ============================================================
+   CALENDAR
+   ============================================================ */
+
+.calendarWrapper {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    overflow: hidden;
+}
+
+.calendarWrapper :global(.react-calendar) {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+}
+
+/* Скрываем стандартную навигацию */
+.calendarWrapper :global(.react-calendar__navigation) {
+    display: none !important;
+}
+
+.calendarWrapper :global(.react-calendar__month-view__weekdays) {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.3);
+    padding: 4px 0;
+}
+
+.calendarWrapper :global(.react-calendar__month-view__weekdays__weekday abbr) {
+    text-decoration: none;
+}
+
+.calendarWrapper :global(.react-calendar__tile) {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: none;
+    border-radius: 8px;
+    padding: 0;
+    cursor: default;
+    position: relative;
+}
+
+.calendarWrapper :global(.react-calendar__tile:hover) {
+    background: rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Рабочие дни - ярко-зеленый фон, черный текст */
+.calendarWrapper :global(.react-calendar__tile.work-day) {
+    background: rgb(171, 241, 5) !important;
+    color: #000000 !important;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+/* СЕГОДНЯ - белая обводка */
+.calendarWrapper :global(.react-calendar__tile.today-day) {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 2px solid #ffffff !important;
+    border-radius: 8px !important;
+}
+
+.calendarWrapper :global(.react-calendar__tile.work-day.today-day) {
+    background: rgb(171, 241, 5) !important;
+    border: 2px solid #ffffff !important;
+    border-radius: 8px !important;
+}
+
+.calendarWrapper :global(.react-calendar__month-view__days__day--weekend) {
+    color: rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================================
+   DETAIL STATS
+   ============================================================ */
+
+.detailStats {
+    margin-top: 4px;
+}
+
+.detailStatsTitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.detailStatsList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.detailStatsItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    gap: 12px;
+}
+
+.detailStatsDate {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.detailStatsSites {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.5);
+    text-align: right;
+    word-break: break-word;
+    flex: 1;
+}
+
+/* ============================================================
+   PERIOD
+   ============================================================ */
+
+.periodSelector {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.periodField {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.periodField label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.periodField input {
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.periodField input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.periodResults {
+    animation: fadeIn 0.2s ease;
+}
+
+/* ============================================================
+   SITES
+   ============================================================ */
+
+.siteSelector {
+    margin-bottom: 16px;
+}
+
+.siteSelector select {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.4)' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    cursor: pointer;
+}
+
+.siteSelector select:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.siteSelector select option {
+    background: #1e1e1e;
+    color: #fff;
+}
+
+.siteResult {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.siteResultDot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.siteResultInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.siteResultName {
+    font-size: 15px;
+    font-weight: 500;
+    color: #fff;
+}
+
+.siteResultCount {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+.workerStatsFooter {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 500px;
+    padding: 12px 16px;
+    background: rgba(20, 20, 20, 0.97);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    gap: 12px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 1000;
+}
+
+.workerStatsProfileBtn {
+    flex: 4;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.workerStatsProfileBtn:hover {
+    background: rgba(255, 255, 255, 0.14);
+}
+
+.workerStatsCloseBtn {
+    flex: 6;
+    padding: 12px;
+    background: rgb(231, 231, 231);
+    border: none;
+    border-radius: 12px;
+    color: #1a1a1a;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.workerStatsCloseBtn:hover {
+    background: rgb(210, 210, 210);
+}
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+
+.emptyState {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 14px;
+    text-align: center;
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.tabContent {
+    animation: fadeIn 0.2s ease;
+}
