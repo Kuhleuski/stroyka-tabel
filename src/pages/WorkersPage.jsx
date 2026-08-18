@@ -37,7 +37,7 @@ export function WorkersPage({ shifts }) {
     const [scrollPosition, setScrollPosition] = useState(0)
     const [refreshKey, setRefreshKey] = useState(0)
     const [isSaving, setIsSaving] = useState(false)
-    const { workers, loading, error, addWorkerToState, removeWorkerFromState, updateWorkerInState } = useWorkers()
+    const { workers, loading, error, addWorkerToState, removeWorkerFromState, updateWorkerInState, refreshWorkers } = useWorkers()
     const { sites } = useSites()
     const { refreshAvatars } = useAvatars()
 
@@ -55,8 +55,19 @@ export function WorkersPage({ shifts }) {
     }
 
     // === ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ ===
-    const forceRefresh = () => {
+    const forceRefresh = async () => {
+        console.log('🔄 forceRefresh: обновление списка...')
         setRefreshKey(prev => prev + 1)
+        await refreshWorkers()
+        
+        // Обновляем выбранного работника из свежих данных
+        if (selectedWorker) {
+            const updated = workers.find(w => w.id === selectedWorker.id)
+            if (updated && updated.status !== selectedWorker.status) {
+                console.log('🔄 forceRefresh: обновляем selectedWorker:', updated)
+                setSelectedWorker(updated)
+            }
+        }
     }
 
     const handleSave = async (name, avatarFile) => {
@@ -77,7 +88,7 @@ export function WorkersPage({ shifts }) {
             
             addWorkerToState(workerData)
             await refreshAvatars()
-            forceRefresh()
+            await forceRefresh()
             setShowAddModal(false)
             
             await new Promise(resolve => setTimeout(resolve, 200))
@@ -104,7 +115,7 @@ export function WorkersPage({ shifts }) {
             
             updateWorkerInState(updated)
             await refreshAvatars()
-            forceRefresh()
+            await forceRefresh()
             
             if (selectedWorker && selectedWorker.id === workerId) {
                 setSelectedWorker(updated)
@@ -128,7 +139,7 @@ export function WorkersPage({ shifts }) {
             await deleteWorker(workerId)
             removeWorkerFromState(workerId)
             await refreshAvatars()
-            forceRefresh()
+            await forceRefresh()
             
             try {
                 const stored = localStorage.getItem('workerLastOpened')
@@ -202,7 +213,7 @@ export function WorkersPage({ shifts }) {
             {selectedWorker ? (
                 <>
                     <WorkerStatsPage 
-                        key={refreshKey}
+                        // УБИРАЕМ key={refreshKey} — не перемонтируем компонент
                         worker={selectedWorker}
                         shifts={shifts}
                         sites={sites}

@@ -10,18 +10,20 @@ import styles from '../styles/workerStats.module.css'
 export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefresh }) {
     const { getAvatar } = useAvatars()
     const [activeTab, setActiveTab] = useState('month')
+    
+    // ✅ Локальный статус — НЕ синхронизируем с worker
     const [status, setStatus] = useState(worker?.status || 'active')
     const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
     const [periodStart, setPeriodStart] = useState(null)
     const [periodEnd, setPeriodEnd] = useState(null)
-    const [selectedSiteId, setSelectedSiteId] = useState(null)
-    
     const [currentMonth, setCurrentMonth] = useState(new Date())
     const [direction, setDirection] = useState(0)
+    const [expandedSites, setExpandedSites] = useState(new Set())
     
-    // Ключ для принудительного пересоздания motion.div только при свайпе месяца
     const monthKeyRef = useRef(0)
     const isFirstRenderRef = useRef(true)
+
+    console.log('🏗️ [WorkerStatsPage] Монтирование, статус:', status)
 
     const avatarUrl = getAvatar(worker?.name)
     const hasPhoto = !!avatarUrl
@@ -32,7 +34,14 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         return colors[index % colors.length]
     }, [worker?.name])
 
-    // После первого рендера отключаем флаг
+    // ✅ Лог при изменении статуса
+    useEffect(() => {
+        console.log('📊 [WorkerStatsPage] status ИЗМЕНИЛСЯ на:', status)
+    }, [status])
+
+    // ✅ УБИРАЕМ СИНХРОНИЗАЦИЮ СТАТУСА ИЗ WORKER
+    // Больше нет useEffect, который перезаписывает статус
+
     useEffect(() => {
         if (isFirstRenderRef.current) {
             const timer = setTimeout(() => {
@@ -48,7 +57,64 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     }, [shifts, worker])
 
     // ============================================================
-    // ДАННЫЕ ДЛЯ ВЫБРАННОГО МЕСЯЦА
+    // СТАТУС (SWITCH)
+    // ============================================================
+
+    const handleStatusToggle = async () => {
+        if (!worker) {
+            console.warn('⚠️ [handleStatusToggle] worker отсутствует')
+            return
+        }
+        
+        const newStatus = status === 'active' ? 'inactive' : 'active'
+        
+        console.log('🔄 [handleStatusToggle] ===== НАЧАЛО =====')
+        console.log('  📌 Текущий статус:', status)
+        console.log('  📌 Новый статус:', newStatus)
+        console.log('  📌 worker.id:', worker.id)
+        console.log('  📌 worker.name:', worker.name)
+        
+        // ✅ Меняем статус МГНОВЕННО
+        setStatus(newStatus)
+        console.log('✅ [handleStatusToggle] Локальный статус обновлён на:', newStatus)
+        
+        setIsUpdatingStatus(true)
+
+        try {
+            console.log('📤 [handleStatusToggle] Отправка запроса в БД...')
+            await updateWorkerStatus(worker.id, newStatus)
+            console.log('✅ [handleStatusToggle] БД успешно обновлена на:', newStatus)
+            
+            if (onRefresh) {
+                console.log('🔄 [handleStatusToggle] Вызов onRefresh()...')
+                await onRefresh()
+                console.log('✅ [handleStatusToggle] onRefresh() завершён')
+            }
+            
+            console.log('🏁 [handleStatusToggle] ===== УСПЕШНО ЗАВЕРШЕНО =====')
+        } catch (error) {
+            console.error('❌ [handleStatusToggle] ОШИБКА:', error)
+            setStatus(status)
+            console.log('🔙 [handleStatusToggle] Статус откачен на:', status)
+            alert('Не удалось обновить статус')
+        } finally {
+            setIsUpdatingStatus(false)
+            console.log('🏁 [handleStatusToggle] isUpdatingStatus = false')
+        }
+    }
+
+    const toggleSite = (siteId) => {
+        const newSet = new Set(expandedSites)
+        if (newSet.has(siteId)) {
+            newSet.delete(siteId)
+        } else {
+            newSet.add(siteId)
+        }
+        setExpandedSites(newSet)
+    }
+
+    // ============================================================
+    // ОСТАЛЬНОЙ КОД (БЕЗ ИЗМЕНЕНИЙ)
     // ============================================================
 
     const getMonthData = (monthDate) => {
@@ -104,7 +170,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     }, [currentMonth, workerShifts, sites])
 
     // ============================================================
-    // НАВИГАЦИЯ ПО МЕСЯЦАМ (только свайп)
+    // НАВИГАЦИЯ ПО МЕСЯЦАМ
     // ============================================================
 
     const canGoPrev = () => {
@@ -122,7 +188,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         const newMonth = new Date(currentMonth)
         newMonth.setMonth(newMonth.getMonth() - 1)
         setCurrentMonth(newMonth)
-        // Меняем ключ только при свайпе
         monthKeyRef.current += 1
     }
 
@@ -135,7 +200,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         const newMonth = new Date(currentMonth)
         newMonth.setMonth(newMonth.getMonth() + 1)
         setCurrentMonth(newMonth)
-        // Меняем ключ только при свайпе
         monthKeyRef.current += 1
     }
 
@@ -144,9 +208,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         .split(' ')
         .map((word, index) => index === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word)
         .join(' ')
-
-    const isCurrentMonth = currentMonth.getMonth() === new Date().getMonth() && 
-                           currentMonth.getFullYear() === new Date().getFullYear()
 
     // ============================================================
     // ВКЛАДКА: ПЕРИОД
@@ -221,43 +282,44 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                     siteId: site.id,
                     siteName: site.name,
                     color: site.color || '#666',
-                    dates: new Set()
+                    dates: []
                 }
             }
-            siteMap[site.id].dates.add(s.work_date)
+            siteMap[site.id].dates.push(s.work_date)
         })
 
-        return Object.values(siteMap).map(item => ({
-            ...item,
-            totalDays: item.dates.size
-        })).sort((a, b) => b.totalDays - a.totalDays)
+        return Object.values(siteMap).map(item => {
+            const sortedDates = item.dates.sort()
+            const firstDate = sortedDates[0]
+            const lastDate = sortedDates[sortedDates.length - 1]
+            
+            const formatMonthYear = (dateStr) => {
+                const parts = dateStr.split('-')
+                const date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, 1)
+                return date.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })
+            }
+            
+            let periodText = ''
+            if (firstDate && lastDate) {
+                const firstMonth = formatMonthYear(firstDate)
+                const lastMonth = formatMonthYear(lastDate)
+                if (firstMonth === lastMonth) {
+                    periodText = `Период: ${firstMonth}`
+                } else {
+                    periodText = `Период: ${firstMonth} - ${lastMonth}`
+                }
+            }
+            
+            return {
+                ...item,
+                dates: sortedDates,
+                periodText,
+                totalDays: sortedDates.length
+            }
+        }).sort((a, b) => a.siteName.localeCompare(b.siteName))
     }
 
     const siteStats = getSiteStats()
-    const selectedSite = selectedSiteId 
-        ? siteStats.find(s => s.siteId === selectedSiteId)
-        : null
-
-    // ============================================================
-    // СТАТУС
-    // ============================================================
-
-    const handleStatusToggle = async () => {
-        if (!worker) return
-        const newStatus = status === 'active' ? 'inactive' : 'active'
-        setIsUpdatingStatus(true)
-
-        try {
-            await updateWorkerStatus(worker.id, newStatus)
-            setStatus(newStatus)
-            if (onRefresh) onRefresh()
-        } catch (error) {
-            console.error('Ошибка обновления статуса:', error)
-            alert('Не удалось обновить статус')
-        } finally {
-            setIsUpdatingStatus(false)
-        }
-    }
 
     // ============================================================
     // КАЛЕНДАРЬ
@@ -266,6 +328,29 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     const isWorkDay = (date) => {
         const dateStr = formatDateLocal(date)
         return monthData.shifts.some(item => item.date === dateStr)
+    }
+
+    const getDaySites = (date) => {
+        const dateStr = formatDateLocal(date)
+        const dayShifts = monthData.shifts.find(item => item.date === dateStr)
+        return dayShifts ? dayShifts.sites : []
+    }
+
+    const tileContent = ({ date: tileDate, view }) => {
+        if (view !== 'month') return null
+        
+        const daySites = getDaySites(tileDate)
+        if (daySites.length === 0) return null
+        
+        if (daySites.length > 1) {
+            return (
+                <div className={styles.extraSitesBadge}>
+                    <span className={styles.extraSitesBadgeCircle}>+{daySites.length - 1}</span>
+                </div>
+            )
+        }
+        
+        return null
     }
 
     const tileClassName = ({ date: tileDate, view }) => {
@@ -291,8 +376,14 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         })
     }
 
-    const getSiteEnding = () => {
-        return `объектах`
+    const formatDateDisplayFull = (dateStr) => {
+        const parts = dateStr.split('-')
+        const date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]))
+        return date.toLocaleDateString('ru-RU', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        })
     }
 
     // ============================================================
@@ -336,8 +427,9 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
 
     if (!worker) return null
 
-    // Флаг для отключения анимации при первом рендере
     const shouldAnimate = !isFirstRenderRef.current
+
+    console.log('🎨 [WorkerStatsPage] Рендер, статус:', status, 'isUpdating:', isUpdatingStatus)
 
     return (
         <div className={styles.workerStatsPage}>
@@ -354,14 +446,16 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                 <div className={styles.workerStatsInfo}>
                     <span className={styles.workerStatsName}>{worker.name}</span>
                     <div className={styles.workerStatsStatus}>
-                        <span className={`${styles.statusDot} ${status === 'active' ? styles.active : styles.inactive}`} />
-                        <span>{status === 'active' ? 'Активен' : 'Неактивен'}</span>
+                        <span className={styles.statusLabel}>
+                            {status === 'active' ? 'Активен' : 'Не работает'}
+                        </span>
                         <button 
-                            className={styles.statusToggleBtn}
+                            className={`${styles.switch} ${status === 'active' ? styles.active : ''}`}
                             onClick={handleStatusToggle}
                             disabled={isUpdatingStatus}
+                            aria-label="Переключить статус"
                         >
-                            {isUpdatingStatus ? '...' : 'Изменить'}
+                            <span className={styles.switchSlider} />
                         </button>
                     </div>
                 </div>
@@ -376,16 +470,16 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                     Месяц
                 </button>
                 <button 
-                    className={`${styles.workerStatsTab} ${activeTab === 'period' ? styles.active : ''}`}
-                    onClick={() => setActiveTab('period')}
-                >
-                    Период
-                </button>
-                <button 
                     className={`${styles.workerStatsTab} ${activeTab === 'sites' ? styles.active : ''}`}
                     onClick={() => setActiveTab('sites')}
                 >
                     Объекты
+                </button>
+                <button 
+                    className={`${styles.workerStatsTab} ${activeTab === 'period' ? styles.active : ''}`}
+                    onClick={() => setActiveTab('period')}
+                >
+                    Период
                 </button>
             </div>
 
@@ -393,15 +487,9 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
             <div className={styles.workerStatsContent}>
                 {activeTab === 'month' && (
                     <div className={styles.tabContent}>
-                        {/* Название месяца */}
-                        <div className={styles.monthTitle}>
-                            {monthName}
-                        </div>
-
-                        {/* Фраза "В этом месяце:" */}
+                        <div className={styles.monthTitle}>{monthName}</div>
                         <div className={styles.monthSubtitle}>В этом месяце:</div>
 
-                        {/* Весь контент с нативным свайпом */}
                         <AnimatePresence mode="popLayout" custom={direction}>
                             <motion.div
                                 key={monthKeyRef.current}
@@ -427,25 +515,18 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                                 onDragEnd={handleDragEnd}
                                 className={styles.monthContentMotion}
                             >
-                                {/* Статистика */}
                                 <div className={styles.statsGrid}>
                                     <div className={styles.statsCard}>
                                         <div className={styles.statsCardNumber}>{monthData.totalDays}</div>
                                         <div className={styles.statsCardLabel}>рабочих дней</div>
                                     </div>
-                                    <div className={styles.statsCard}>
-                                        <div className={styles.statsCardNumber}>{monthData.totalSites}</div>
-                                        <div className={styles.statsCardLabel}>
-                                            работал на {getSiteEnding()}
-                                        </div>
-                                    </div>
                                 </div>
 
-                                {/* Календарь */}
                                 <div className={styles.calendarWrapper}>
                                     <Calendar
                                         value={new Date()}
                                         tileClassName={tileClassName}
+                                        tileContent={tileContent}
                                         minDetail="month"
                                         maxDetail="month"
                                         prevLabel={null}
@@ -458,10 +539,9 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                                     />
                                 </div>
 
-                                {/* Детальная статистика */}
                                 {monthData.shifts.length > 0 && (
                                     <div className={styles.detailStats}>
-                                        <div className={styles.detailStatsTitle}>Рабочие дни в этом месяце</div>
+                                        <div className={styles.detailStatsTitle}>Рабочие дни в этом месяце:</div>
                                         <div className={styles.detailStatsList}>
                                             {monthData.shifts.map(({ date, sites }) => (
                                                 <div key={date} className={styles.detailStatsItem}>
@@ -474,6 +554,61 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                                 )}
                             </motion.div>
                         </AnimatePresence>
+                    </div>
+                )}
+
+                {activeTab === 'sites' && (
+                    <div className={styles.tabContent}>
+                        <div className={styles.sitesTitle}>
+                            Объекты, на которых работал {worker.name} за весь период:
+                        </div>
+                        
+                        {siteStats.length > 0 ? (
+                            <div className={styles.sitesList}>
+                                {siteStats.map((site) => {
+                                    const dayText = site.totalDays === 1 ? 'рабочий день' : 'рабочих дней'
+                                    return (
+                                        <div key={site.siteId} className={styles.siteAccordion}>
+                                            <button 
+                                                className={styles.siteAccordionHeader}
+                                                onClick={() => toggleSite(site.siteId)}
+                                            >
+                                                <div className={styles.siteAccordionLeft}>
+                                                    <div 
+                                                        className={styles.siteAccordionDot}
+                                                        style={{ backgroundColor: site.color }}
+                                                    />
+                                                    <div>
+                                                        <div className={styles.siteAccordionName}>{site.siteName}</div>
+                                                        <div className={styles.siteAccordionPeriod}>{site.periodText}</div>
+                                                        <div className={styles.siteAccordionSub}>
+                                                            {site.totalDays} {dayText}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <span className={`${styles.siteAccordionArrow} ${expandedSites.has(site.siteId) ? styles.expanded : ''}`}>
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                                        <polyline points="6 9 12 15 18 9"/>
+                                                    </svg>
+                                                </span>
+                                            </button>
+                                            
+                                            {expandedSites.has(site.siteId) && (
+                                                <div className={styles.siteAccordionBody}>
+                                                    {site.dates.map((date) => (
+                                                        <div key={date} className={styles.siteAccordionDate}>
+                                                            {formatDateDisplayFull(date)}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        ) : (
+                            <div className={styles.emptyState}>Нет объектов</div>
+                        )}
                     </div>
                 )}
 
@@ -505,17 +640,11 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                                         <div className={styles.statsCardNumber}>{periodStats.totalDays}</div>
                                         <div className={styles.statsCardLabel}>рабочих дней</div>
                                     </div>
-                                    <div className={styles.statsCard}>
-                                        <div className={styles.statsCardNumber}>{periodStats.totalSites}</div>
-                                        <div className={styles.statsCardLabel}>
-                                            работал на {getSiteEnding()}
-                                        </div>
-                                    </div>
                                 </div>
 
                                 {periodStats.shifts.length > 0 ? (
                                     <div className={styles.detailStats}>
-                                        <div className={styles.detailStatsTitle}>Рабочие дни в выбранный период</div>
+                                        <div className={styles.detailStatsTitle}>Рабочие дни в выбранный период:</div>
                                         <div className={styles.detailStatsList}>
                                             {periodStats.shifts.map(({ date, sites }) => (
                                                 <div key={date} className={styles.detailStatsItem}>
@@ -531,45 +660,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                             </div>
                         ) : (
                             <div className={styles.emptyState}>Выберите период</div>
-                        )}
-                    </div>
-                )}
-
-                {activeTab === 'sites' && (
-                    <div className={styles.tabContent}>
-                        <div className={styles.siteSelector}>
-                            <select 
-                                value={selectedSiteId || ''}
-                                onChange={(e) => setSelectedSiteId(Number(e.target.value) || null)}
-                            >
-                                <option value="">Выберите объект</option>
-                                {sites?.map(site => (
-                                    <option key={site.id} value={site.id}>
-                                        {site.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {selectedSiteId !== null ? (
-                            selectedSite ? (
-                                <div className={styles.siteResult}>
-                                    <div 
-                                        className={styles.siteResultDot}
-                                        style={{ backgroundColor: selectedSite.color }}
-                                    />
-                                    <div className={styles.siteResultInfo}>
-                                        <span className={styles.siteResultName}>{selectedSite.siteName}</span>
-                                        <span className={styles.siteResultCount}>
-                                            {selectedSite.totalDays} рабочих дней
-                                        </span>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className={styles.emptyState}>На этом объекте работник не работал</div>
-                            )
-                        ) : (
-                            <div className={styles.emptyState}>Выберите объект из списка</div>
                         )}
                     </div>
                 )}

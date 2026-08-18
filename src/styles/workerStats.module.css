@@ -21,8 +21,6 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-/* Убрана кнопка назад */
-
 .workerStatsAvatar {
     width: 48px;
     height: 48px;
@@ -67,44 +65,53 @@
 .workerStatsStatus {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.5);
+    gap: 10px;
 }
 
-.statusDot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
+.statusLabel {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
 }
 
-.statusDot.active {
-    background: #10b400;
-}
+/* ============================================================
+   SWITCH
+   ============================================================ */
 
-.statusDot.inactive {
-    background: #78909C;
-}
-
-.statusToggleBtn {
-    background: none;
+.switch {
+    position: relative;
+    width: 44px;
+    height: 26px;
+    background: #555;
+    border-radius: 13px;
     border: none;
-    color: rgba(255, 255, 255, 0.3);
-    font-size: 12px;
     cursor: pointer;
-    padding: 2px 6px;
-    border-radius: 4px;
-    transition: all 0.2s;
+    transition: background 0.3s ease;
+    flex-shrink: 0;
+    padding: 0;
 }
 
-.statusToggleBtn:hover:not(:disabled) {
-    color: rgba(255, 255, 255, 0.8);
-    background: rgba(255, 255, 255, 0.06);
+.switch.active {
+    background: #2d7d46;
 }
 
-.statusToggleBtn:disabled {
-    opacity: 0.3;
+.switchSlider {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 22px;
+    height: 22px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.switch.active .switchSlider {
+    transform: translateX(18px);
+}
+
+.switch:disabled {
+    opacity: 0.5;
     cursor: default;
 }
 
@@ -144,7 +151,7 @@
 }
 
 /* ============================================================
-   MONTH TITLE
+   MONTH
    ============================================================ */
 
 .monthTitle {
@@ -160,10 +167,6 @@
     padding: 0 4px 16px 4px;
 }
 
-/* ============================================================
-   MONTH CONTENT (СВАЙПАЕТСЯ)
-   ============================================================ */
-
 .monthContentMotion {
     width: 100%;
     cursor: grab;
@@ -178,13 +181,14 @@
    ============================================================ */
 
 .statsGrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    justify-content: flex-start;
     gap: 12px;
     margin-bottom: 16px;
 }
 
 .statsCard {
+    flex: 0 0 48%;
     background: rgba(255, 255, 255, 0.04);
     border-radius: 14px;
     padding: 16px;
@@ -200,19 +204,12 @@
     margin-bottom: 4px;
 }
 
-/* Лейбл "рабочих дней" — крупный, жирный, белый */
-.statsCard:first-child .statsCardLabel {
+.statsCardLabel {
     font-size: 15px;
     font-weight: 700;
     color: #ffffff;
 }
 
-/* Лейбл для объектов — стандартный */
-.statsCard:last-child .statsCardLabel {
-    font-size: 13px;
-    font-weight: 400;
-    color: rgba(255, 255, 255, 0.4);
-}
 /* ============================================================
    CALENDAR
    ============================================================ */
@@ -220,10 +217,10 @@
 .calendarWrapper {
     background: rgba(255, 255, 255, 0.04);
     border-radius: 14px;
-    padding: 16px;
+    padding: 12px 10px;
     margin-bottom: 16px;
     border: 1px solid rgba(255, 255, 255, 0.04);
-    overflow: hidden;
+    
 }
 
 .calendarWrapper :global(.react-calendar) {
@@ -233,7 +230,6 @@
     font-family: inherit;
 }
 
-/* Скрываем стандартную навигацию */
 .calendarWrapper :global(.react-calendar__navigation) {
     display: none !important;
 }
@@ -250,7 +246,16 @@
     text-decoration: none;
 }
 
+.calendarWrapper :global(.react-calendar__month-view__days) {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 3px !important;
+    padding: 2px 0;
+    width: 100%;
+}
+
 .calendarWrapper :global(.react-calendar__tile) {
+    position: relative;
     aspect-ratio: 1;
     display: flex;
     flex-direction: column;
@@ -264,14 +269,17 @@
     border-radius: 8px;
     padding: 0;
     cursor: default;
-    position: relative;
+    width: calc((100% - 18px) / 7) !important;
+    max-width: calc((100% - 18px) / 7) !important;
+    flex: 0 0 calc((100% - 18px) / 7) !important;
+    margin: 0 !important;
+    overflow: visible !important;
 }
 
 .calendarWrapper :global(.react-calendar__tile:hover) {
     background: rgba(255, 255, 255, 0.04) !important;
 }
 
-/* Рабочие дни - ярко-зеленый фон, черный текст */
 .calendarWrapper :global(.react-calendar__tile.work-day) {
     background: rgb(171, 241, 5) !important;
     color: #000000 !important;
@@ -279,7 +287,6 @@
     font-weight: 600;
 }
 
-/* СЕГОДНЯ - белая обводка */
 .calendarWrapper :global(.react-calendar__tile.today-day) {
     background: rgba(255, 255, 255, 0.08) !important;
     border: 2px solid #ffffff !important;
@@ -296,6 +303,33 @@
     color: rgba(255, 255, 255, 0.2);
 }
 
+/* ============================================================
+   EXTRA SITES BADGE (поверх ячейки)
+   ============================================================ */
+
+.extraSitesBadge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    pointer-events: none;
+    z-index: 2000;
+    overflow: visible !important;
+}
+
+.extraSitesBadgeCircle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #000000;
+    font-size: 8px;
+    font-weight: 700;
+    padding: 0 3px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
 /* ============================================================
    DETAIL STATS
    ============================================================ */
@@ -387,70 +421,123 @@
 }
 
 /* ============================================================
-   SITES
+   SITES (аккордеон) — ВСЕ ПО ЛЕВОМУ КРАЮ
    ============================================================ */
 
-.siteSelector {
-    margin-bottom: 16px;
-}
-
-.siteSelector select {
-    width: 100%;
-    padding: 10px 14px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
-    color: #fff;
+.sitesTitle {
     font-size: 14px;
-    font-family: inherit;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.4)' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    cursor: pointer;
-}
-
-.siteSelector select:focus {
-    outline: none;
-    border-color: rgba(255, 255, 255, 0.2);
-}
-
-.siteSelector select option {
-    background: #1e1e1e;
+    font-weight: 600;
     color: #fff;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    text-align: left;
 }
 
-.siteResult {
+.sitesList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+}
+
+.siteAccordion {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    overflow: hidden;
+    text-align: left;
+}
+
+.siteAccordionHeader {
+    width: 100%;
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 14px 16px;
-    background: rgba(255, 255, 255, 0.04);
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    color: #fff;
+    transition: background 0.2s;
+    text-align: left;
 }
 
-.siteResultDot {
+.siteAccordionHeader:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.siteAccordionLeft {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    text-align: left;
+}
+
+.siteAccordionDot {
     width: 12px;
     height: 12px;
     border-radius: 50%;
     flex-shrink: 0;
+    margin-top: 2px;
 }
 
-.siteResultInfo {
-    display: flex;
-    flex-direction: column;
-}
-
-.siteResultName {
+.siteAccordionName {
     font-size: 15px;
     font-weight: 500;
     color: #fff;
+    text-align: left;
 }
 
-.siteResultCount {
-    font-size: 13px;
+.siteAccordionPeriod {
+    font-size: 12px;
     color: rgba(255, 255, 255, 0.4);
+    margin-top: 1px;
+    text-align: left;
+}
+
+.siteAccordionSub {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.3);
+    margin-top: 1px;
+    text-align: left;
+}
+
+.siteAccordionArrow {
+    color: rgba(255, 255, 255, 0.3);
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.siteAccordionArrow svg {
+    stroke: rgba(255, 255, 255, 0.3);
+}
+
+.siteAccordionArrow.expanded {
+    transform: rotate(180deg);
+}
+
+.siteAccordionBody {
+    padding: 0 16px 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: left;
+}
+
+.siteAccordionDate {
+    padding: 6px 0 6px 22px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.5);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    text-align: left;
+}
+
+.siteAccordionDate:last-child {
+    border-bottom: none;
 }
 
 /* ============================================================
