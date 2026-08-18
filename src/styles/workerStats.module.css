@@ -10,14 +10,24 @@
     bottom: 0;
     z-index: 300;
     background: var(--bg-body);
+    display: flex;
+    flex-direction: column;
+    max-width: 500px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* ============================================================
+   СКРОЛЛЯЩИЙСЯ КОНТЕНТ
+   ============================================================ */
+
+.workerStatsScrollContent {
+    flex: 1;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
     overflow-x: hidden !important;
     padding: 16px;
-    padding-bottom: 100px;
-    max-width: 500px;
-    margin: 0 auto;
-    width: 100%;
+    padding-bottom: 16px;
     overscroll-behavior: none !important;
 }
 
@@ -477,7 +487,7 @@ body:has(.workerStatsPage) {
 
 .detailStats {
     margin-top: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 .detailStatsTitle {
@@ -615,7 +625,7 @@ body:has(.workerStatsPage) {
     flex-direction: column;
     gap: 8px;
     text-align: left;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 .siteAccordion {
@@ -722,32 +732,23 @@ body:has(.workerStatsPage) {
 }
 
 /* ============================================================
-   ⭐ FOOTER — ФИКСИРОВАН ВНИЗУ
+   ⭐ FOOTER — ПРИЖАТ К НИЗУ ЭКРАНА
    ============================================================ */
 
 .workerStatsFooter {
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 500px;
+    flex-shrink: 0;
     padding: 12px 16px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     background: rgba(20, 20, 20, 0.97);
     border-top: 1px solid rgba(255, 255, 255, 0.06);
     display: flex;
     gap: 12px;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    z-index: 301;
     box-sizing: border-box;
-    pointer-events: auto !important;
-}
-
-@supports (-webkit-touch-callout: none) {
-    .workerStatsFooter {
-        padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
-    }
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
 }
 
 .workerStatsProfileBtn {
@@ -832,8 +833,12 @@ body:has(.workerStatsPage) {
 
 @supports (-webkit-touch-callout: none) {
     .workerStatsPage {
-        padding-top: 44px !important;
-        padding-bottom: 120px !important;
+        padding-top: 0 !important;
+    }
+    
+    .workerStatsScrollContent {
+        padding-top: 20px !important;
+        padding-bottom: 8px !important;
         -webkit-transform: translateZ(0) !important;
         transform: translateZ(0) !important;
         -webkit-overflow-scrolling: touch !important;
@@ -867,8 +872,7 @@ body:has(.workerStatsPage) {
         backface-visibility: hidden !important;
     }
     
-    /* Убираем диагностику на Safari */
-    * {
-        outline: none !important;
+    .workerStatsFooter {
+        padding-bottom: calc(12px + env(safe-area-inset-bottom, 20px)) !important;
     }
 }

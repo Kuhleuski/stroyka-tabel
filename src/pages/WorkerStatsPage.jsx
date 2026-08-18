@@ -454,332 +454,40 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     const yearText = monthParts[1] || ''
 
     return (
-        <div className={styles.workerStatsPage}>
+    <div className={styles.workerStatsPage}>
+        {/* СКРОЛЛЯЩИЙСЯ КОНТЕНТ */}
+        <div className={styles.workerStatsScrollContent}>
             {/* ХЕДЕР */}
             <div className={styles.workerStatsHeader}>
-                <div className={styles.workerStatsAvatar}>
-                    {hasPhoto ? (
-                        <img src={avatarUrl} alt={worker.name} />
-                    ) : (
-                        <span style={{ background: avatarColor }}>{initials}</span>
-                    )}
-                </div>
-
-                <div className={styles.workerStatsInfo}>
-                    <span className={styles.workerStatsName}>{worker.name}</span>
-                    <div className={styles.workerStatsStatus}>
-                        <span className={styles.statusLabel}>
-                            {status === 'active' ? 'Активен' : 'Не работает'}
-                        </span>
-                        <button 
-                            className={`${styles.switch} ${status === 'active' ? styles.active : ''}`}
-                            onClick={handleStatusToggle}
-                            disabled={isUpdatingStatus}
-                            aria-label="Переключить статус"
-                        >
-                            <span className={styles.switchSlider} />
-                        </button>
-                    </div>
-                </div>
+                {/* ... */}
             </div>
 
             {/* ВКЛАДКИ */}
             <div className={styles.workerStatsTabs}>
-                <button 
-                    className={`${styles.workerStatsTab} ${activeTab === 'month' ? styles.active : ''}`}
-                    onClick={() => setActiveTab('month')}
-                >
-                    Месяц
-                </button>
-                <button 
-                    className={`${styles.workerStatsTab} ${activeTab === 'sites' ? styles.active : ''}`}
-                    onClick={() => setActiveTab('sites')}
-                >
-                    Объекты
-                </button>
-                <button 
-                    className={`${styles.workerStatsTab} ${activeTab === 'period' ? styles.active : ''}`}
-                    onClick={() => setActiveTab('period')}
-                >
-                    Период
-                </button>
+                {/* ... */}
             </div>
 
             {/* КОНТЕНТ */}
             <div className={styles.workerStatsContent}>
-                {activeTab === 'month' && (
-                    <div className={styles.tabContent}>
-                        {/* ======================================== */}
-                        {/* ⭐ ПЛАШКИ — БЕЗ АНИМАЦИИ (просто меняются) */}
-                        {/* ======================================== */}
-                        <div className={styles.statsGrid}>
-                            <div className={styles.statsCard}>
-                                <div className={styles.statsCardMonth}>
-                                    <span className={styles.statsCardMonthName}>{monthText}</span>
-                                    <span className={styles.statsCardMonthYear}>{yearText}</span>
-                                </div>
-                            </div>
-                            <div className={styles.statsCard}>
-                                <div className={styles.statsCardNumber}>{monthData.totalDays}</div>
-                                <div className={styles.statsCardLabel}>{getDaysLabel(monthData.totalDays)}</div>
-                            </div>
-                        </div>
-
-                       {/* ======================================== */}
-{/* ⭐ КАЛЕНДАРЬ — С DRAG (КАК НА ГЛАВНОЙ) */}
-{/* ======================================== */}
-<div className={styles.calendarWrapper}>
-    <AnimatePresence mode="popLayout" custom={direction}>
-        <motion.div
-            key={monthKeyRef.current}
-            custom={direction}
-            variants={variants}
-            initial={shouldAnimate ? "enter" : false}
-            animate="center"
-            exit="exit"
-            transition={{
-                x: { 
-                    type: "spring", 
-                    stiffness: 500,
-                    damping: 35,
-                    mass: 0.5
-                },
-                opacity: { duration: 0.15 },
-            }}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.3}
-            dragMomentum={false}
-            onDragEnd={handleDragEnd}
-            style={{ 
-                width: '100%',
-                touchAction: 'pan-y pinch-zoom'  // ← КЛЮЧЕВОЙ ФИКС
-            }}
-        >
-            <Calendar
-                key={currentMonth.getMonth() + '-' + currentMonth.getFullYear()}
-                value={null}
-                tileClassName={tileClassName}
-                tileContent={tileContent}
-                minDetail="month"
-                maxDetail="month"
-                prevLabel={null}
-                nextLabel={null}
-                next2Label={null}
-                prev2Label={null}
-                showNeighboringMonth={true}
-                navigationLabel={null}
-                activeStartDate={currentMonth}
-            />
-        </motion.div>
-    </AnimatePresence>
-</div>
-
-                        {/* ======================================== */}
-                        {/* ⭐ ДЕТАЛИ — появляются ПОСЛЕ анимации */}
-                        {/* ======================================== */}
-                        <AnimatePresence>
-                            {isDetailVisible && monthData.shifts.length > 0 && (
-                                <motion.div
-                                    key={`detail-${monthKeyRef.current}`}
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    transition={{ duration: 0.3 }}
-                                    className={styles.detailStatsWrapper}
-                                >
-                                    <div className={styles.detailStats}>
-                                        <div className={styles.detailStatsTitle}>Рабочие дни в этом месяце</div>
-                                        <div className={styles.detailStatsList}>
-                                            {monthData.shifts.map(({ date, sites: siteNames, siteIds }) => {
-                                                const { date: formattedDate, dayOfWeek } = formatDateDisplay(date)
-                                                return (
-                                                    <div key={date} className={styles.detailStatsItem}>
-                                                        <div className={styles.detailStatsDateWrapper}>
-                                                            <span className={styles.detailStatsDate}>{formattedDate}</span>
-                                                            <span className={styles.detailStatsDayOfWeek}>{dayOfWeek}</span>
-                                                        </div>
-                                                        <div className={styles.detailStatsSitesWrapper}>
-                                                            {siteNames.map((siteName, index) => {
-                                                                const siteId = siteIds?.[index]
-                                                                const site = sites?.find(s => String(s.id) === String(siteId))
-                                                                const color = site?.color || '#666'
-                                                                return (
-                                                                    <div key={index} className={styles.detailStatsSiteRow}>
-                                                                        <span 
-                                                                            className={styles.detailStatsSiteDot}
-                                                                            style={{ backgroundColor: color }}
-                                                                        />
-                                                                        <span className={styles.detailStatsSiteName}>{siteName}</span>
-                                                                    </div>
-                                                                )
-                                                            })}
-                                                        </div>
-                                                    </div>
-                                                )
-                                            })}
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                    </div>
-                )}
-
-                {activeTab === 'sites' && (
-                    <div className={styles.tabContent}>
-                        <div className={styles.sitesTitle}>
-                            Объекты, на которых работал {worker.name} за весь период:
-                        </div>
-                        
-                        {siteStats.length > 0 ? (
-                            <div className={styles.sitesList}>
-                                {siteStats.map((site) => {
-                                    const dayText = site.totalDays === 1 ? 'рабочий день' : 'рабочих дней'
-                                    return (
-                                        <div key={site.siteId} className={styles.siteAccordion}>
-                                            <button 
-                                                className={styles.siteAccordionHeader}
-                                                onClick={() => toggleSite(site.siteId)}
-                                            >
-                                                <div className={styles.siteAccordionLeft}>
-                                                    <div 
-                                                        className={styles.siteAccordionDot}
-                                                        style={{ backgroundColor: site.color }}
-                                                    />
-                                                    <div>
-                                                        <div className={styles.siteAccordionName}>{site.siteName}</div>
-                                                        <div className={styles.siteAccordionPeriod}>{site.periodText}</div>
-                                                        <div className={styles.siteAccordionSub}>
-                                                            {site.totalDays} {dayText}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <span className={`${styles.siteAccordionArrow} ${expandedSites.has(site.siteId) ? styles.expanded : ''}`}>
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                                        <polyline points="6 9 12 15 18 9"/>
-                                                    </svg>
-                                                </span>
-                                            </button>
-                                            
-                                            {expandedSites.has(site.siteId) && (
-                                                <div className={styles.siteAccordionBody}>
-                                                    {site.dates.map((date) => (
-                                                        <div key={date} className={styles.siteAccordionDate}>
-                                                            {formatDateDisplayFull(date)}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        ) : (
-                            <div className={styles.emptyState}>Нет объектов</div>
-                        )}
-                    </div>
-                )}
-
-                {activeTab === 'period' && (
-                    <div className={styles.tabContent}>
-                        <div className={styles.periodSelector}>
-                            <div className={styles.periodField}>
-                                <label>С</label>
-                                <input 
-                                    type="date"
-                                    value={periodStart || ''}
-                                    onChange={(e) => setPeriodStart(e.target.value)}
-                                />
-                            </div>
-                            <div className={styles.periodField}>
-                                <label>По</label>
-                                <input 
-                                    type="date"
-                                    value={periodEnd || ''}
-                                    onChange={(e) => setPeriodEnd(e.target.value)}
-                                />
-                            </div>
-                        </div>
-
-                        {periodStats ? (
-                            <div className={styles.periodResults}>
-                                <div className={styles.statsGrid}>
-                                    <div className={styles.statsCard}>
-                                        <div className={styles.statsCardMonth}>
-                                            <span className={styles.statsCardMonthName}>
-                                                {periodStart && periodEnd 
-                                                    ? new Date(periodStart).toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })
-                                                    : 'Период'
-                                                }
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className={styles.statsCard}>
-                                        <div className={styles.statsCardNumber}>{periodStats.totalDays}</div>
-                                        <div className={styles.statsCardLabel}>{getDaysLabel(periodStats.totalDays)}</div>
-                                    </div>
-                                </div>
-
-                                {periodStats.shifts.length > 0 ? (
-                                    <div className={styles.detailStats}>
-                                        <div className={styles.detailStatsTitle}>Рабочие дни в выбранный период</div>
-                                        <div className={styles.detailStatsList}>
-                                            {periodStats.shifts.map(({ date, sites: siteNames, siteIds }) => {
-                                                const { date: formattedDate, dayOfWeek } = formatDateDisplay(date)
-                                                return (
-                                                    <div key={date} className={styles.detailStatsItem}>
-                                                        <div className={styles.detailStatsDateWrapper}>
-                                                            <span className={styles.detailStatsDate}>{formattedDate}</span>
-                                                            <span className={styles.detailStatsDayOfWeek}>{dayOfWeek}</span>
-                                                        </div>
-                                                        <div className={styles.detailStatsSitesWrapper}>
-                                                            {siteNames.map((siteName, index) => {
-                                                                const siteId = siteIds?.[index]
-                                                                const site = sites?.find(s => String(s.id) === String(siteId))
-                                                                const color = site?.color || '#666'
-                                                                return (
-                                                                    <div key={index} className={styles.detailStatsSiteRow}>
-                                                                        <span 
-                                                                            className={styles.detailStatsSiteDot}
-                                                                            style={{ backgroundColor: color }}
-                                                                        />
-                                                                        <span className={styles.detailStatsSiteName}>{siteName}</span>
-                                                                    </div>
-                                                                )
-                                                            })}
-                                                        </div>
-                                                    </div>
-                                                )
-                                            })}
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className={styles.emptyState}>Нет рабочих дней в выбранный период</div>
-                                )}
-                            </div>
-                        ) : (
-                            <div className={styles.emptyState}>Выберите период</div>
-                        )}
-                    </div>
-                )}
-            </div>
-
-            {/* КНОПКИ ВНИЗУ */}
-            <div className={styles.workerStatsFooter}>
-                <button 
-                    className={styles.workerStatsProfileBtn}
-                    onClick={() => onEdit(worker)}
-                >
-                    Профиль
-                </button>
-                <button 
-                    className={styles.workerStatsCloseBtn}
-                    onClick={onClose}
-                >
-                    Закрыть
-                </button>
+                {/* ... весь контент ... */}
             </div>
         </div>
-    )
+
+        {/* ⭐ ФУТЕР — СНАРУЖИ СКРОЛЛА, ПРИЖАТ К НИЗУ */}
+        <div className={styles.workerStatsFooter}>
+            <button 
+                className={styles.workerStatsProfileBtn}
+                onClick={() => onEdit(worker)}
+            >
+                Профиль
+            </button>
+            <button 
+                className={styles.workerStatsCloseBtn}
+                onClick={onClose}
+            >
+                Закрыть
+            </button>
+        </div>
+    </div>
+)
 }
