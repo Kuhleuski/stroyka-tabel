@@ -864,3 +864,36 @@
         outline: none !important;
     }
 }
+/* ============================================================
+   ФИКС: страница статистики поверх всего
+   ============================================================ */
+
+.workerStatsPage {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 300;
+    background: var(--bg-body);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 16px;
+    padding-bottom: 100px;
+    max-width: 500px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Отключаем скролл на body когда открыта статистика */
+body:has(.workerStatsPage) {
+    overflow: hidden !important;
+}
+
+/* Фикс для Safari */
+@supports (-webkit-touch-callout: none) {
+    .workerStatsPage {
+        padding-top: 44px;
+        padding-bottom: 120px;
+    }
+}

@@ -29,7 +29,7 @@ const SavingOverlay = () => (
     </div>
 )
 
-export function WorkersPage({ shifts }) {
+export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {  // ← добавил пропсы
     const [showAddModal, setShowAddModal] = useState(false)
     const [showEditModal, setShowEditModal] = useState(false)
     const [selectedWorker, setSelectedWorker] = useState(null)
@@ -60,7 +60,6 @@ export function WorkersPage({ shifts }) {
         setRefreshKey(prev => prev + 1)
         await refreshWorkers()
         
-        // Обновляем выбранного работника из свежих данных
         if (selectedWorker) {
             const updated = workers.find(w => w.id === selectedWorker.id)
             if (updated && updated.status !== selectedWorker.status) {
@@ -170,10 +169,21 @@ export function WorkersPage({ shifts }) {
             setScrollPosition(container.scrollTop)
         }
         setSelectedWorker(worker)
+        
+        // ⭐ Скрываем BottomNav при открытии статистики
+        if (onOpenWorkerStats) {
+            onOpenWorkerStats()
+        }
     }
 
     const handleCloseDetail = () => {
         setSelectedWorker(null)
+        
+        // ⭐ Показываем BottomNav при закрытии статистики
+        if (onCloseWorkerStats) {
+            onCloseWorkerStats()
+        }
+        
         setTimeout(() => {
             const container = document.querySelector('.workers-grid-container')
             if (container) {
@@ -213,7 +223,6 @@ export function WorkersPage({ shifts }) {
             {selectedWorker ? (
                 <>
                     <WorkerStatsPage 
-                        // УБИРАЕМ key={refreshKey} — не перемонтируем компонент
                         worker={selectedWorker}
                         shifts={shifts}
                         sites={sites}

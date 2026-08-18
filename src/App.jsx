@@ -23,10 +23,12 @@ function AppContent() {
     const [unreadCount, setUnreadCount] = useState(1)
     const [pageKey, setPageKey] = useState(0)
     
+    // ⭐ НОВОЕ: состояние для скрытия BottomNav
+    const [hideBottomNav, setHideBottomNav] = useState(false)
+    
     const { shifts, loading, error, refetch } = useShifts()
     const { user, loginByPhone, logout } = useAuth()
 
-    // Принудительно устанавливаем темную тему при загрузке
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', 'dark')
     }, [])
@@ -75,17 +77,32 @@ function AppContent() {
         setShowSettings(true)
     }
 
+    // ⭐ НОВЫЕ: функции для управления BottomNav
+    const handleOpenWorkerStats = () => {
+        setHideBottomNav(true)
+    }
+
+    const handleCloseWorkerStats = () => {
+        setHideBottomNav(false)
+        // Обновляем данные при закрытии
+        refetch()
+    }
+
     const renderPage = () => {
         switch (currentPage) {
             case 'my-tabel':
                 return <MyTabelPage key={`my-tabel-${pageKey}`} shifts={shifts} />
             case 'calendar':
-                // ← Теперь TestPage на месте Главной
                 return <TestPage key={`calendar-${pageKey}`} />
             case 'sites':
                 return <SitesPage key={`sites-${pageKey}`} />
             case 'workers':
-                return <WorkersPage key={`workers-${pageKey}`} shifts={shifts} />
+                return <WorkersPage 
+                    key={`workers-${pageKey}`} 
+                    shifts={shifts}
+                    onOpenWorkerStats={handleOpenWorkerStats}   // ← передаем
+                    onCloseWorkerStats={handleCloseWorkerStats} // ← передаем
+                />
             case 'salary':
                 return <SalaryPage key={`salary-${pageKey}`} />
             case 'extra':
@@ -112,10 +129,13 @@ function AppContent() {
                 {renderPage()}
             </div>
             
-            <BottomNav 
-                currentPage={currentPage} 
-                onNavigate={handleNavigate}
-            />
+            {/* ⭐ ПОКАЗЫВАЕМ BottomNav ТОЛЬКО если не скрыт */}
+            {!hideBottomNav && (
+                <BottomNav 
+                    currentPage={currentPage} 
+                    onNavigate={handleNavigate}
+                />
+            )}
 
             <SettingsModal 
                 isOpen={showSettings}
