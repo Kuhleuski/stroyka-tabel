@@ -431,17 +431,17 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         enter: (direction) => ({
             x: direction > 0 ? 300 : -300,
             opacity: 0,
-            scale: 0.92,
+            //scale: 0.92,
         }),
         center: {
             x: 0,
             opacity: 1,
-            scale: 1,
+            //scale: 1,
         },
         exit: (direction) => ({
             x: direction < 0 ? 300 : -300,
             opacity: 0,
-            scale: 0.92,
+            //scale: 0.92,
         }),
     }
 
@@ -545,7 +545,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                                             mass: 0.5
                                         },
                                         opacity: { duration: 0.15 },
-                                        scale: { duration: 0.15 }
+                                        //scale: { duration: 0.15 }
                                     }}
                                     drag="x"
                                     dragConstraints={{ left: 0, right: 0 }}
