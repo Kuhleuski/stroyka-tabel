@@ -18,9 +18,11 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     const [currentMonth, setCurrentMonth] = useState(new Date())
     const [direction, setDirection] = useState(0)
     const [expandedSites, setExpandedSites] = useState(new Set())
+    const [isDetailVisible, setIsDetailVisible] = useState(true)
     
     const monthKeyRef = useRef(0)
     const isFirstRenderRef = useRef(true)
+    const detailTimerRef = useRef(null)
 
     const avatarUrl = getAvatar(worker?.name)
     const hasPhoto = !!avatarUrl
@@ -37,6 +39,15 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                 isFirstRenderRef.current = false
             }, 50)
             return () => clearTimeout(timer)
+        }
+    }, [])
+
+    // Очищаем таймер при размонтировании
+    useEffect(() => {
+        return () => {
+            if (detailTimerRef.current) {
+                clearTimeout(detailTimerRef.current)
+            }
         }
     }, [])
 
@@ -185,7 +196,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     }, [currentMonth, workerShifts, sites])
 
     // ============================================================
-    // НАВИГАЦИЯ ПО МЕСЯЦАМ
+    // НАВИГАЦИЯ ПО МЕСЯЦАМ — С АНИМАЦИЕЙ КАК НА ГЛАВНОЙ
     // ============================================================
 
     const canGoPrev = () => {
@@ -200,10 +211,21 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     const goPrevMonth = () => {
         if (!canGoPrev()) return
         setDirection(-1)
+        // Скрываем детали перед анимацией
+        setIsDetailVisible(false)
+        
         const newMonth = new Date(currentMonth)
         newMonth.setMonth(newMonth.getMonth() - 1)
         setCurrentMonth(newMonth)
         monthKeyRef.current += 1
+        
+        // Показываем детали ПОСЛЕ завершения анимации (350ms)
+        if (detailTimerRef.current) {
+            clearTimeout(detailTimerRef.current)
+        }
+        detailTimerRef.current = setTimeout(() => {
+            setIsDetailVisible(true)
+        }, 350)
     }
 
     const goNextMonth = () => {
@@ -212,10 +234,21 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         nextMonth.setMonth(nextMonth.getMonth() + 1)
         if (nextMonth > now) return
         setDirection(1)
+        // Скрываем детали перед анимацией
+        setIsDetailVisible(false)
+        
         const newMonth = new Date(currentMonth)
         newMonth.setMonth(newMonth.getMonth() + 1)
         setCurrentMonth(newMonth)
         monthKeyRef.current += 1
+        
+        // Показываем детали ПОСЛЕ завершения анимации (350ms)
+        if (detailTimerRef.current) {
+            clearTimeout(detailTimerRef.current)
+        }
+        detailTimerRef.current = setTimeout(() => {
+            setIsDetailVisible(true)
+        }, 350)
     }
 
     const monthName = currentMonth.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })
@@ -351,7 +384,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         const dayShifts = monthData.shifts.find(item => item.date === dateStr)
         if (!dayShifts || !dayShifts.colors || dayShifts.colors.length === 0) return null
         
-        // Берем первые 3 цвета
         const colors = dayShifts.colors.slice(0, 3)
         return colors
     }
@@ -375,7 +407,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         return classes.length > 0 ? classes : null
     }
 
-    // ⭐ tileContent с оверлеем поверх ячейки
     const tileContent = ({ date: tileDate, view }) => {
         if (view !== 'month') return null
         
@@ -420,7 +451,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     }
 
     // ============================================================
-    // СВАЙП КАК НА ГЛАВНОЙ
+    // СВАЙП С АНИМАЦИЕЙ КАК НА ГЛАВНОЙ
     // ============================================================
 
     const handleDragEnd = (event, info) => {
@@ -432,6 +463,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         }
     }
 
+    // Анимация как на главной — с popLayout и scale
     const variants = {
         enter: (direction) => ({
             x: direction > 0 ? 300 : -300,
@@ -458,7 +490,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
 
     const shouldAnimate = !isFirstRenderRef.current
 
-    // Разбиваем месяц и год для первой плашки
     const monthParts = monthName.split(' ')
     const monthText = monthParts[0] || ''
     const yearText = monthParts[1] || ''
@@ -519,7 +550,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
             <div className={styles.workerStatsContent}>
                 {activeTab === 'month' && (
                     <div className={styles.tabContent}>
-                        {/* ===== АНИМИРУЕМАЯ ЧАСТЬ (плашки + календарь) ===== */}
+                        {/* ===== ПЛАШКИ + КАЛЕНДАРЬ (АНИМАЦИЯ КАК НА ГЛАВНОЙ) ===== */}
                         <AnimatePresence mode="popLayout" custom={direction}>
                             <motion.div
                                 key={monthKeyRef.current}
@@ -545,7 +576,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                                 onDragEnd={handleDragEnd}
                                 className={styles.monthContentMotion}
                             >
-                                {/* Две плашки: месяц (в две строки) и количество дней */}
+                                {/* Две плашки */}
                                 <div className={styles.statsGrid}>
                                     <div className={styles.statsCard}>
                                         <div className={styles.statsCardMonth}>
@@ -559,7 +590,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                                     </div>
                                 </div>
 
-                                {/* Календарь с цветными ячейками */}
+                                {/* Календарь */}
                                 <div className={styles.calendarWrapper}>
                                     <Calendar
                                         key={currentMonth.getMonth() + '-' + currentMonth.getFullYear()}
@@ -580,49 +611,52 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                             </motion.div>
                         </AnimatePresence>
 
-                        {/* ===== НЕАНИМИРУЕМАЯ ЧАСТЬ (список дней) ===== */}
-                        <motion.div
-                            key={`detail-${monthKeyRef.current}`}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 0.3, delay: 0.1 }}
-                            className={styles.detailStatsWrapper}
-                        >
-                            {monthData.shifts.length > 0 && (
-                                <div className={styles.detailStats}>
-                                    <div className={styles.detailStatsTitle}>Рабочие дни в этом месяце</div>
-                                    <div className={styles.detailStatsList}>
-                                        {monthData.shifts.map(({ date, sites: siteNames, siteIds }) => {
-                                            const { date: formattedDate, dayOfWeek } = formatDateDisplay(date)
-                                            return (
-                                                <div key={date} className={styles.detailStatsItem}>
-                                                    <div className={styles.detailStatsDateWrapper}>
-                                                        <span className={styles.detailStatsDate}>{formattedDate}</span>
-                                                        <span className={styles.detailStatsDayOfWeek}>{dayOfWeek}</span>
+                        {/* ===== ДЕТАЛЬНАЯ ИНФОРМАЦИЯ (появляется ПОСЛЕ анимации) ===== */}
+                        <AnimatePresence>
+                            {isDetailVisible && monthData.shifts.length > 0 && (
+                                <motion.div
+                                    key={`detail-${monthKeyRef.current}`}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    className={styles.detailStatsWrapper}
+                                >
+                                    <div className={styles.detailStats}>
+                                        <div className={styles.detailStatsTitle}>Рабочие дни в этом месяце</div>
+                                        <div className={styles.detailStatsList}>
+                                            {monthData.shifts.map(({ date, sites: siteNames, siteIds }) => {
+                                                const { date: formattedDate, dayOfWeek } = formatDateDisplay(date)
+                                                return (
+                                                    <div key={date} className={styles.detailStatsItem}>
+                                                        <div className={styles.detailStatsDateWrapper}>
+                                                            <span className={styles.detailStatsDate}>{formattedDate}</span>
+                                                            <span className={styles.detailStatsDayOfWeek}>{dayOfWeek}</span>
+                                                        </div>
+                                                        <div className={styles.detailStatsSitesWrapper}>
+                                                            {siteNames.map((siteName, index) => {
+                                                                const siteId = siteIds?.[index]
+                                                                const site = sites?.find(s => String(s.id) === String(siteId))
+                                                                const color = site?.color || '#666'
+                                                                return (
+                                                                    <div key={index} className={styles.detailStatsSiteRow}>
+                                                                        <span 
+                                                                            className={styles.detailStatsSiteDot}
+                                                                            style={{ backgroundColor: color }}
+                                                                        />
+                                                                        <span className={styles.detailStatsSiteName}>{siteName}</span>
+                                                                    </div>
+                                                                )
+                                                            })}
+                                                        </div>
                                                     </div>
-                                                    <div className={styles.detailStatsSitesWrapper}>
-                                                        {siteNames.map((siteName, index) => {
-                                                            const siteId = siteIds?.[index]
-                                                            const site = sites?.find(s => String(s.id) === String(siteId))
-                                                            const color = site?.color || '#666'
-                                                            return (
-                                                                <div key={index} className={styles.detailStatsSiteRow}>
-                                                                    <span 
-                                                                        className={styles.detailStatsSiteDot}
-                                                                        style={{ backgroundColor: color }}
-                                                                    />
-                                                                    <span className={styles.detailStatsSiteName}>{siteName}</span>
-                                                                </div>
-                                                            )
-                                                        })}
-                                                    </div>
-                                                </div>
-                                            )
-                                        })}
+                                                )
+                                            })}
+                                        </div>
                                     </div>
-                                </div>
+                                </motion.div>
                             )}
-                        </motion.div>
+                        </AnimatePresence>
                     </div>
                 )}
 
