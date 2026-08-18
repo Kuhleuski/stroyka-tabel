@@ -11,7 +11,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     const { getAvatar } = useAvatars()
     const [activeTab, setActiveTab] = useState('month')
     
-    // ✅ Локальный статус — НЕ синхронизируем с worker
     const [status, setStatus] = useState(worker?.status || 'active')
     const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
     const [periodStart, setPeriodStart] = useState(null)
@@ -23,8 +22,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     const monthKeyRef = useRef(0)
     const isFirstRenderRef = useRef(true)
 
-    console.log('🏗️ [WorkerStatsPage] Монтирование, статус:', status)
-
     const avatarUrl = getAvatar(worker?.name)
     const hasPhoto = !!avatarUrl
     const initials = worker?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || '?'
@@ -33,14 +30,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         const index = (worker?.name || '').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
         return colors[index % colors.length]
     }, [worker?.name])
-
-    // ✅ Лог при изменении статуса
-    useEffect(() => {
-        console.log('📊 [WorkerStatsPage] status ИЗМЕНИЛСЯ на:', status)
-    }, [status])
-
-    // ✅ УБИРАЕМ СИНХРОНИЗАЦИЮ СТАТУСА ИЗ WORKER
-    // Больше нет useEffect, который перезаписывает статус
 
     useEffect(() => {
         if (isFirstRenderRef.current) {
@@ -61,45 +50,24 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     // ============================================================
 
     const handleStatusToggle = async () => {
-        if (!worker) {
-            console.warn('⚠️ [handleStatusToggle] worker отсутствует')
-            return
-        }
+        if (!worker) return
         
         const newStatus = status === 'active' ? 'inactive' : 'active'
         
-        console.log('🔄 [handleStatusToggle] ===== НАЧАЛО =====')
-        console.log('  📌 Текущий статус:', status)
-        console.log('  📌 Новый статус:', newStatus)
-        console.log('  📌 worker.id:', worker.id)
-        console.log('  📌 worker.name:', worker.name)
-        
-        // ✅ Меняем статус МГНОВЕННО
         setStatus(newStatus)
-        console.log('✅ [handleStatusToggle] Локальный статус обновлён на:', newStatus)
-        
         setIsUpdatingStatus(true)
 
         try {
-            console.log('📤 [handleStatusToggle] Отправка запроса в БД...')
             await updateWorkerStatus(worker.id, newStatus)
-            console.log('✅ [handleStatusToggle] БД успешно обновлена на:', newStatus)
-            
             if (onRefresh) {
-                console.log('🔄 [handleStatusToggle] Вызов onRefresh()...')
                 await onRefresh()
-                console.log('✅ [handleStatusToggle] onRefresh() завершён')
             }
-            
-            console.log('🏁 [handleStatusToggle] ===== УСПЕШНО ЗАВЕРШЕНО =====')
         } catch (error) {
-            console.error('❌ [handleStatusToggle] ОШИБКА:', error)
+            console.error('Ошибка обновления статуса:', error)
             setStatus(status)
-            console.log('🔙 [handleStatusToggle] Статус откачен на:', status)
             alert('Не удалось обновить статус')
         } finally {
             setIsUpdatingStatus(false)
-            console.log('🏁 [handleStatusToggle] isUpdatingStatus = false')
         }
     }
 
@@ -114,7 +82,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     }
 
     // ============================================================
-    // ОСТАЛЬНОЙ КОД (БЕЗ ИЗМЕНЕНИЙ)
+    // ДАННЫЕ ДЛЯ ВЫБРАННОГО МЕСЯЦА
     // ============================================================
 
     const getMonthData = (monthDate) => {
@@ -387,7 +355,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     }
 
     // ============================================================
-    // СВАЙП
+    // СВАЙП С АНИМАЦИЕЙ (БЕЗ POPLAYOUT)
     // ============================================================
 
     const handleDragEnd = (event, info) => {
@@ -399,25 +367,18 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         }
     }
 
-    // ============================================================
-    // АНИМАЦИЯ
-    // ============================================================
-
     const variants = {
         enter: (direction) => ({
             x: direction > 0 ? 300 : -300,
             opacity: 0,
-            scale: 0.92,
         }),
         center: {
             x: 0,
             opacity: 1,
-            scale: 1,
         },
         exit: (direction) => ({
             x: direction < 0 ? 300 : -300,
             opacity: 0,
-            scale: 0.92,
         }),
     }
 
@@ -428,8 +389,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     if (!worker) return null
 
     const shouldAnimate = !isFirstRenderRef.current
-
-    console.log('🎨 [WorkerStatsPage] Рендер, статус:', status, 'isUpdating:', isUpdatingStatus)
 
     return (
         <div className={styles.workerStatsPage}>
@@ -490,7 +449,8 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                         <div className={styles.monthTitle}>{monthName}</div>
                         <div className={styles.monthSubtitle}>В этом месяце:</div>
 
-                        <AnimatePresence mode="popLayout" custom={direction}>
+                        {/* АНИМАЦИЯ БЕЗ popLayout */}
+                        <AnimatePresence mode="wait" custom={direction}>
                             <motion.div
                                 key={monthKeyRef.current}
                                 custom={direction}
@@ -505,8 +465,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                                         damping: 35,
                                         mass: 0.5
                                     },
-                                    opacity: { duration: 0.15 },
-                                    scale: { duration: 0.15 }
+                                    opacity: { duration: 0.15 }
                                 }}
                                 drag="x"
                                 dragConstraints={{ left: 0, right: 0 }}
@@ -515,6 +474,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                                 onDragEnd={handleDragEnd}
                                 className={styles.monthContentMotion}
                             >
+                                {/* Статистика */}
                                 <div className={styles.statsGrid}>
                                     <div className={styles.statsCard}>
                                         <div className={styles.statsCardNumber}>{monthData.totalDays}</div>
@@ -522,6 +482,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                                     </div>
                                 </div>
 
+                                {/* Календарь */}
                                 <div className={styles.calendarWrapper}>
                                     <Calendar
                                         value={new Date()}
@@ -539,6 +500,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                                     />
                                 </div>
 
+                                {/* Детальная статистика */}
                                 {monthData.shifts.length > 0 && (
                                     <div className={styles.detailStats}>
                                         <div className={styles.detailStatsTitle}>Рабочие дни в этом месяце:</div>
