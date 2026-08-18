@@ -4,9 +4,9 @@
 
 .workerStatsPage {
     padding: 16px;
+    padding-bottom: 100px; /* ← Оставляем место для фиксированного футера */
     max-width: 500px;
     margin: 0 auto;
-    padding-bottom: 100px;
     overflow-x: hidden !important;
     -webkit-overflow-scrolling: touch;
 }
@@ -201,7 +201,6 @@
     box-sizing: border-box;
 }
 
-/* Плашка с месяцем — в две строки */
 .statsCardMonth {
     display: flex;
     flex-direction: column;
@@ -225,7 +224,6 @@
     line-height: 1.2;
 }
 
-/* Плашка с количеством дней */
 .statsCardNumber {
     font-size: 28px;
     font-weight: 700;
@@ -240,7 +238,10 @@
     color: #ffffff;
 }
 
-/* Анимация для нижнего блока */
+/* ============================================================
+   DETAIL STATS (анимация)
+   ============================================================ */
+
 .detailStatsWrapper {
     animation: fadeSlideIn 0.3s ease-out;
 }
@@ -275,7 +276,6 @@
     overscroll-behavior: none !important;
 }
 
-/* Фикс для Safari */
 @supports (-webkit-touch-callout: none) {
     .calendarWrapper {
         -webkit-transform: translateZ(0) !important;
@@ -318,7 +318,6 @@
     text-decoration: none !important;
 }
 
-/* ===== СЕТКА ДНЕЙ — ИСПОЛЬЗУЕМ GRID ВМЕСТО FLEX ===== */
 .calendarWrapper :global(.react-calendar__month-view__days) {
     display: grid !important;
     grid-template-columns: repeat(7, 1fr) !important;
@@ -329,7 +328,6 @@
     max-width: 100% !important;
 }
 
-/* ===== ЯЧЕЙКИ КАЛЕНДАРЯ ===== */
 .calendarWrapper :global(.react-calendar__tile) {
     position: relative !important;
     aspect-ratio: 1 !important;
@@ -355,7 +353,6 @@
     box-sizing: border-box !important;
 }
 
-/* ===== УБИРАЕМ HOVER ===== */
 .calendarWrapper :global(.react-calendar__tile:hover) {
     background: #4242428c !important;
     border: none !important;
@@ -365,7 +362,6 @@
     background: transparent !important;
 }
 
-/* ===== УБИРАЕМ FOCUS ===== */
 .calendarWrapper :global(.react-calendar__tile:focus) {
     outline: none !important;
 }
@@ -374,7 +370,6 @@
     outline: none !important;
 }
 
-/* ===== ЧИСЛО ДНЯ ===== */
 .calendarWrapper :global(.react-calendar__tile abbr) {
     color: #ffffff !important;
     font-weight: 700 !important;
@@ -384,18 +379,15 @@
     text-shadow: 0 0 2px rgba(0, 0, 0, 0.3) !important;
 }
 
-/* ===== ЦВЕТНЫЕ ЯЧЕЙКИ (с оверлеем) ===== */
 .calendarWrapper :global(.react-calendar__tile.colored-day) {
     background: transparent !important;
 }
 
-/* ===== ЧИСЛО В ЦВЕТНЫХ ЯЧЕЙКАХ ===== */
 .calendarWrapper :global(.react-calendar__tile.colored-day abbr) {
     color: #ffffff !important;
     text-shadow: 0 0 2px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* ===== СЕГОДНЯ — зелёная точка под числом ===== */
 .calendarWrapper :global(.react-calendar__tile.today-day) {
     background: #4242428c !important;
     border: none !important;
@@ -420,12 +412,10 @@
     text-shadow: 0 0 2px rgba(0, 0, 0, 0.3) !important;
 }
 
-/* ===== УБИРАЕМ СТАРУЮ БЕЛУЮ ОБВОДКУ ===== */
 .calendarWrapper :global(.react-calendar__tile.today-day) {
     border: none !important;
 }
 
-/* ===== СОСЕДНИЕ МЕСЯЦЫ — прозрачные ===== */
 .calendarWrapper :global(.react-calendar__month-view__days__day--neighboringMonth) {
     opacity: 0 !important;
     pointer-events: none !important;
@@ -440,13 +430,12 @@
     color: rgba(255, 255, 255, 0.2) !important;
 }
 
-/* ===== ФИКС: календарь занимает всю ширину ===== */
 .calendarWrapper > div {
     width: 100% !important;
 }
 
 /* ============================================================
-   EXTRA SITES BADGE (поверх ячейки)
+   EXTRA SITES BADGE
    ============================================================ */
 
 .extraSitesBadge {
@@ -474,11 +463,12 @@
 }
 
 /* ============================================================
-   DETAIL STATS
+   DETAIL STATS (список)
    ============================================================ */
 
 .detailStats {
     margin-top: 12px;
+    margin-bottom: 20px; /* ← Добавляем отступ снизу, чтобы контент не прилипал к футеру */
 }
 
 .detailStatsTitle {
@@ -598,7 +588,7 @@
 }
 
 /* ============================================================
-   SITES (аккордеон) — ВСЕ ПО ЛЕВОМУ КРАЮ
+   SITES (аккордеон)
    ============================================================ */
 
 .sitesTitle {
@@ -616,6 +606,7 @@
     flex-direction: column;
     gap: 8px;
     text-align: left;
+    margin-bottom: 20px; /* ← Добавляем отступ снизу */
 }
 
 .siteAccordion {
@@ -722,7 +713,7 @@
 }
 
 /* ============================================================
-   FOOTER
+   ⭐ FOOTER — ФИКСИРОВАН ВНИЗУ (КАК БЫЛО)
    ============================================================ */
 
 .workerStatsFooter {
@@ -741,6 +732,13 @@
     -webkit-backdrop-filter: blur(20px);
     z-index: 1000;
     box-sizing: border-box;
+}
+
+/* Дополнительный фикс для Safari, чтобы футер не прыгал */
+@supports (-webkit-touch-callout: none) {
+    .workerStatsFooter {
+        padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+    }
 }
 
 .workerStatsProfileBtn {
@@ -830,6 +828,7 @@
         max-width: 100vw !important;
         -webkit-transform: translateZ(0) !important;
         transform: translateZ(0) !important;
+        padding-bottom: 120px !important; /* ← Больше места для футера на Safari */
     }
     
     .monthContentMotion {
