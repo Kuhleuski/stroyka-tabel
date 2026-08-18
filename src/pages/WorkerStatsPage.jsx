@@ -453,23 +453,63 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     const monthText = monthParts[0] || ''
     const yearText = monthParts[1] || ''
 
-    return (
+ return (
     <div className={styles.workerStatsPage}>
         {/* СКРОЛЛЯЩИЙСЯ КОНТЕНТ */}
         <div className={styles.workerStatsScrollContent}>
             {/* ХЕДЕР */}
             <div className={styles.workerStatsHeader}>
-                {/* ... */}
+                <div className={styles.workerStatsAvatar}>
+                    {hasPhoto ? (
+                        <img src={avatarUrl} alt={worker.name} />
+                    ) : (
+                        <span style={{ background: avatarColor }}>{initials}</span>
+                    )}
+                </div>
+
+                <div className={styles.workerStatsInfo}>
+                    <span className={styles.workerStatsName}>{worker.name}</span>
+                    <div className={styles.workerStatsStatus}>
+                        <span className={styles.statusLabel}>
+                            {status === 'active' ? 'Активен' : 'Не работает'}
+                        </span>
+                        <button 
+                            className={`${styles.switch} ${status === 'active' ? styles.active : ''}`}
+                            onClick={handleStatusToggle}
+                            disabled={isUpdatingStatus}
+                            aria-label="Переключить статус"
+                        >
+                            <span className={styles.switchSlider} />
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {/* ВКЛАДКИ */}
             <div className={styles.workerStatsTabs}>
-                {/* ... */}
+                <button 
+                    className={`${styles.workerStatsTab} ${activeTab === 'month' ? styles.active : ''}`}
+                    onClick={() => setActiveTab('month')}
+                >
+                    Месяц
+                </button>
+                <button 
+                    className={`${styles.workerStatsTab} ${activeTab === 'sites' ? styles.active : ''}`}
+                    onClick={() => setActiveTab('sites')}
+                >
+                    Объекты
+                </button>
+                <button 
+                    className={`${styles.workerStatsTab} ${activeTab === 'period' ? styles.active : ''}`}
+                    onClick={() => setActiveTab('period')}
+                >
+                    Период
+                </button>
             </div>
 
             {/* КОНТЕНТ */}
             <div className={styles.workerStatsContent}>
-                {/* ... весь контент ... */}
+                {/* ... весь контент без изменений ... */}
             </div>
         </div>
 

@@ -1,5 +1,5 @@
 /* ============================================================
-   WORKER STATS PAGE — ПОЛНЫЙ ФИКС
+   WORKER STATS PAGE
    ============================================================ */
 
 .workerStatsPage {
@@ -285,7 +285,7 @@ body:has(.workerStatsPage) {
 }
 
 /* ============================================================
-   КАЛЕНДАРЬ — ПОЛНЫЙ ФИКС ДЛЯ SAFARI
+   КАЛЕНДАРЬ
    ============================================================ */
 
 .calendarWrapper {
@@ -832,10 +832,6 @@ body:has(.workerStatsPage) {
    ============================================================ */
 
 @supports (-webkit-touch-callout: none) {
-    .workerStatsPage {
-        padding-top: 0 !important;
-    }
-    
     .workerStatsScrollContent {
         padding-top: 20px !important;
         padding-bottom: 8px !important;
