@@ -46,6 +46,47 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     }, [shifts, worker])
 
     // ============================================================
+    // ФУНКЦИЯ ДЛЯ ПРАВИЛЬНОГО ОКОНЧАНИЯ СЛОВ
+    // ============================================================
+
+    const getDaysLabel = (count) => {
+        if (count === 0) return 'рабочих дней'
+        
+        const lastDigit = count % 10
+        const lastTwoDigits = count % 100
+        
+        if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
+            return 'рабочих дней'
+        }
+        
+        if (lastDigit === 1) {
+            return 'рабочий день'
+        }
+        
+        if (lastDigit >= 2 && lastDigit <= 4) {
+            return 'рабочих дня'
+        }
+        
+        return 'рабочих дней'
+    }
+
+    // ============================================================
+    // ФУНКЦИЯ ФОРМАТИРОВАНИЯ ДАТЫ С ДНЕМ НЕДЕЛИ
+    // ============================================================
+
+    const formatDateDisplay = (dateStr) => {
+        const parts = dateStr.split('-')
+        const date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]))
+        const dayOfWeek = date.toLocaleDateString('ru-RU', { weekday: 'long' })
+        const formattedDate = date.toLocaleDateString('ru-RU', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        })
+        return { date: formattedDate, dayOfWeek }
+    }
+
+    // ============================================================
     // СТАТУС (SWITCH)
     // ============================================================
 
@@ -100,16 +141,22 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
             if (dateObj.getMonth() === month && dateObj.getFullYear() === year) {
                 const site = sites?.find(site => site.id === s.site_id)
                 const siteName = site?.name || 'Неизвестный объект'
+                const siteId = site?.id || null
+                const color = site?.color || '#666'
                 
                 const existing = monthShifts.find(item => item.date === dateStr)
                 if (existing) {
                     if (!existing.sites.includes(siteName)) {
                         existing.sites.push(siteName)
+                        existing.siteIds.push(siteId)
+                        existing.colors.push(color)
                     }
                 } else {
                     monthShifts.push({ 
                         date: dateStr, 
                         sites: [siteName],
+                        siteIds: [siteId],
+                        colors: [color],
                         dateObj: dateObj
                     })
                 }
@@ -200,16 +247,22 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
             if (dateObj >= start && dateObj <= end) {
                 const site = sites?.find(site => site.id === s.site_id)
                 const siteName = site?.name || 'Неизвестный объект'
+                const siteId = site?.id || null
+                const color = site?.color || '#666'
                 
                 const existing = periodShifts.find(item => item.date === dateStr)
                 if (existing) {
                     if (!existing.sites.includes(siteName)) {
                         existing.sites.push(siteName)
+                        existing.siteIds.push(siteId)
+                        existing.colors.push(color)
                     }
                 } else {
                     periodShifts.push({ 
                         date: dateStr, 
                         sites: [siteName],
+                        siteIds: [siteId],
+                        colors: [color],
                         dateObj: dateObj
                     })
                 }
@@ -290,58 +343,70 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     const siteStats = getSiteStats()
 
     // ============================================================
-    // КАЛЕНДАРЬ
+    // КАЛЕНДАРЬ — ЦВЕТНЫЕ ЯЧЕЙКИ через tileContent
     // ============================================================
 
-    const isWorkDay = (date) => {
-        const dateStr = formatDateLocal(date)
-        return monthData.shifts.some(item => item.date === dateStr)
-    }
-
-    const getDaySites = (date) => {
+    const getDayColors = (date) => {
         const dateStr = formatDateLocal(date)
         const dayShifts = monthData.shifts.find(item => item.date === dateStr)
-        return dayShifts ? dayShifts.sites : []
-    }
-
-    const tileContent = ({ date: tileDate, view }) => {
-        if (view !== 'month') return null
+        if (!dayShifts || !dayShifts.colors || dayShifts.colors.length === 0) return null
         
-        const daySites = getDaySites(tileDate)
-        if (daySites.length === 0) return null
-        
-        if (daySites.length > 1) {
-            return (
-                <div className={styles.extraSitesBadge}>
-                    <span className={styles.extraSitesBadgeCircle}>+{daySites.length - 1}</span>
-                </div>
-            )
-        }
-        
-        return null
+        // Берем первые 3 цвета
+        const colors = dayShifts.colors.slice(0, 3)
+        return colors
     }
 
     const tileClassName = ({ date: tileDate, view }) => {
         if (view !== 'month') return null
         
         const isToday = formatDateLocal(tileDate) === formatDateLocal(new Date())
-        const hasShift = isWorkDay(tileDate)
+        const colors = getDayColors(tileDate)
         
         const classes = []
-        if (hasShift) classes.push('work-day')
-        if (isToday) classes.push('today-day')
+        
+        if (isToday) {
+            classes.push('today-day')
+        }
+        
+        if (colors && colors.length > 0) {
+            classes.push('colored-day')
+        }
         
         return classes.length > 0 ? classes : null
     }
 
-    const formatDateDisplay = (dateStr) => {
-        const parts = dateStr.split('-')
-        const date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]))
-        return date.toLocaleDateString('ru-RU', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        })
+    // ⭐ tileContent с оверлеем поверх ячейки
+    const tileContent = ({ date: tileDate, view }) => {
+        if (view !== 'month') return null
+        
+        const colors = getDayColors(tileDate)
+        if (!colors || colors.length === 0) return null
+        
+        let background = ''
+        
+        if (colors.length === 1) {
+            background = colors[0]
+        } else if (colors.length === 2) {
+            background = `linear-gradient(to right, ${colors[0]} 50%, ${colors[1]} 50%)`
+        } else if (colors.length === 3) {
+            background = `linear-gradient(to right, ${colors[0]} 33.33%, ${colors[1]} 33.33%, ${colors[1]} 66.66%, ${colors[2]} 66.66%)`
+        }
+        
+        return (
+            <div
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: background,
+                    borderRadius: '8px',
+                    zIndex: 0,
+                    pointerEvents: 'none',
+                }}
+            />
+        )
     }
 
     const formatDateDisplayFull = (dateStr) => {
@@ -355,7 +420,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     }
 
     // ============================================================
-    // СВАЙП С АНИМАЦИЕЙ (БЕЗ POPLAYOUT)
+    // СВАЙП КАК НА ГЛАВНОЙ
     // ============================================================
 
     const handleDragEnd = (event, info) => {
@@ -371,14 +436,17 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         enter: (direction) => ({
             x: direction > 0 ? 300 : -300,
             opacity: 0,
+            scale: 0.92,
         }),
         center: {
             x: 0,
             opacity: 1,
+            scale: 1,
         },
         exit: (direction) => ({
             x: direction < 0 ? 300 : -300,
             opacity: 0,
+            scale: 0.92,
         }),
     }
 
@@ -389,6 +457,11 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     if (!worker) return null
 
     const shouldAnimate = !isFirstRenderRef.current
+
+    // Разбиваем месяц и год для первой плашки
+    const monthParts = monthName.split(' ')
+    const monthText = monthParts[0] || ''
+    const yearText = monthParts[1] || ''
 
     return (
         <div className={styles.workerStatsPage}>
@@ -446,11 +519,8 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
             <div className={styles.workerStatsContent}>
                 {activeTab === 'month' && (
                     <div className={styles.tabContent}>
-                        <div className={styles.monthTitle}>{monthName}</div>
-                        <div className={styles.monthSubtitle}>В этом месяце:</div>
-
-                        {/* АНИМАЦИЯ БЕЗ popLayout */}
-                        <AnimatePresence mode="wait" custom={direction}>
+                        {/* ===== АНИМИРУЕМАЯ ЧАСТЬ (плашки + календарь) ===== */}
+                        <AnimatePresence mode="popLayout" custom={direction}>
                             <motion.div
                                 key={monthKeyRef.current}
                                 custom={direction}
@@ -465,7 +535,8 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                                         damping: 35,
                                         mass: 0.5
                                     },
-                                    opacity: { duration: 0.15 }
+                                    opacity: { duration: 0.15 },
+                                    scale: { duration: 0.15 }
                                 }}
                                 drag="x"
                                 dragConstraints={{ left: 0, right: 0 }}
@@ -474,18 +545,25 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                                 onDragEnd={handleDragEnd}
                                 className={styles.monthContentMotion}
                             >
-                                {/* Статистика */}
+                                {/* Две плашки: месяц (в две строки) и количество дней */}
                                 <div className={styles.statsGrid}>
                                     <div className={styles.statsCard}>
+                                        <div className={styles.statsCardMonth}>
+                                            <span className={styles.statsCardMonthName}>{monthText}</span>
+                                            <span className={styles.statsCardMonthYear}>{yearText}</span>
+                                        </div>
+                                    </div>
+                                    <div className={styles.statsCard}>
                                         <div className={styles.statsCardNumber}>{monthData.totalDays}</div>
-                                        <div className={styles.statsCardLabel}>рабочих дней</div>
+                                        <div className={styles.statsCardLabel}>{getDaysLabel(monthData.totalDays)}</div>
                                     </div>
                                 </div>
 
-                                {/* Календарь */}
+                                {/* Календарь с цветными ячейками */}
                                 <div className={styles.calendarWrapper}>
                                     <Calendar
-                                        value={new Date()}
+                                        key={currentMonth.getMonth() + '-' + currentMonth.getFullYear()}
+                                        value={null}
                                         tileClassName={tileClassName}
                                         tileContent={tileContent}
                                         minDetail="month"
@@ -494,28 +572,57 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                                         nextLabel={null}
                                         next2Label={null}
                                         prev2Label={null}
-                                        showNeighboringMonth={false}
+                                        showNeighboringMonth={true}
                                         navigationLabel={null}
                                         activeStartDate={currentMonth}
                                     />
                                 </div>
-
-                                {/* Детальная статистика */}
-                                {monthData.shifts.length > 0 && (
-                                    <div className={styles.detailStats}>
-                                        <div className={styles.detailStatsTitle}>Рабочие дни в этом месяце:</div>
-                                        <div className={styles.detailStatsList}>
-                                            {monthData.shifts.map(({ date, sites }) => (
-                                                <div key={date} className={styles.detailStatsItem}>
-                                                    <span className={styles.detailStatsDate}>{formatDateDisplay(date)}</span>
-                                                    <span className={styles.detailStatsSites}>{sites.join(', ')}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
                             </motion.div>
                         </AnimatePresence>
+
+                        {/* ===== НЕАНИМИРУЕМАЯ ЧАСТЬ (список дней) ===== */}
+                        <motion.div
+                            key={`detail-${monthKeyRef.current}`}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.3, delay: 0.1 }}
+                            className={styles.detailStatsWrapper}
+                        >
+                            {monthData.shifts.length > 0 && (
+                                <div className={styles.detailStats}>
+                                    <div className={styles.detailStatsTitle}>Рабочие дни в этом месяце</div>
+                                    <div className={styles.detailStatsList}>
+                                        {monthData.shifts.map(({ date, sites: siteNames, siteIds }) => {
+                                            const { date: formattedDate, dayOfWeek } = formatDateDisplay(date)
+                                            return (
+                                                <div key={date} className={styles.detailStatsItem}>
+                                                    <div className={styles.detailStatsDateWrapper}>
+                                                        <span className={styles.detailStatsDate}>{formattedDate}</span>
+                                                        <span className={styles.detailStatsDayOfWeek}>{dayOfWeek}</span>
+                                                    </div>
+                                                    <div className={styles.detailStatsSitesWrapper}>
+                                                        {siteNames.map((siteName, index) => {
+                                                            const siteId = siteIds?.[index]
+                                                            const site = sites?.find(s => String(s.id) === String(siteId))
+                                                            const color = site?.color || '#666'
+                                                            return (
+                                                                <div key={index} className={styles.detailStatsSiteRow}>
+                                                                    <span 
+                                                                        className={styles.detailStatsSiteDot}
+                                                                        style={{ backgroundColor: color }}
+                                                                    />
+                                                                    <span className={styles.detailStatsSiteName}>{siteName}</span>
+                                                                </div>
+                                                            )
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+                        </motion.div>
                     </div>
                 )}
 
@@ -599,21 +706,52 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                             <div className={styles.periodResults}>
                                 <div className={styles.statsGrid}>
                                     <div className={styles.statsCard}>
+                                        <div className={styles.statsCardMonth}>
+                                            <span className={styles.statsCardMonthName}>
+                                                {periodStart && periodEnd 
+                                                    ? new Date(periodStart).toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })
+                                                    : 'Период'
+                                                }
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className={styles.statsCard}>
                                         <div className={styles.statsCardNumber}>{periodStats.totalDays}</div>
-                                        <div className={styles.statsCardLabel}>рабочих дней</div>
+                                        <div className={styles.statsCardLabel}>{getDaysLabel(periodStats.totalDays)}</div>
                                     </div>
                                 </div>
 
                                 {periodStats.shifts.length > 0 ? (
                                     <div className={styles.detailStats}>
-                                        <div className={styles.detailStatsTitle}>Рабочие дни в выбранный период:</div>
+                                        <div className={styles.detailStatsTitle}>Рабочие дни в выбранный период</div>
                                         <div className={styles.detailStatsList}>
-                                            {periodStats.shifts.map(({ date, sites }) => (
-                                                <div key={date} className={styles.detailStatsItem}>
-                                                    <span className={styles.detailStatsDate}>{formatDateDisplay(date)}</span>
-                                                    <span className={styles.detailStatsSites}>{sites.join(', ')}</span>
-                                                </div>
-                                            ))}
+                                            {periodStats.shifts.map(({ date, sites: siteNames, siteIds }) => {
+                                                const { date: formattedDate, dayOfWeek } = formatDateDisplay(date)
+                                                return (
+                                                    <div key={date} className={styles.detailStatsItem}>
+                                                        <div className={styles.detailStatsDateWrapper}>
+                                                            <span className={styles.detailStatsDate}>{formattedDate}</span>
+                                                            <span className={styles.detailStatsDayOfWeek}>{dayOfWeek}</span>
+                                                        </div>
+                                                        <div className={styles.detailStatsSitesWrapper}>
+                                                            {siteNames.map((siteName, index) => {
+                                                                const siteId = siteIds?.[index]
+                                                                const site = sites?.find(s => String(s.id) === String(siteId))
+                                                                const color = site?.color || '#666'
+                                                                return (
+                                                                    <div key={index} className={styles.detailStatsSiteRow}>
+                                                                        <span 
+                                                                            className={styles.detailStatsSiteDot}
+                                                                            style={{ backgroundColor: color }}
+                                                                        />
+                                                                        <span className={styles.detailStatsSiteName}>{siteName}</span>
+                                                                    </div>
+                                                                )
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })}
                                         </div>
                                     </div>
                                 ) : (

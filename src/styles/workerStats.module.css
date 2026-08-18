@@ -196,6 +196,31 @@
     border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
+/* Плашка с месяцем — в две строки */
+.statsCardMonth {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 4px 0;
+}
+
+.statsCardMonthName {
+    font-size: 21px;      /* ← было 22px, стало 21px */
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
+.statsCardMonthYear {
+    font-size: 19px;      /* ← было 16px, стало 19px */
+    font-weight: 700;     /* ← добавлено */
+    color: #ffffff;       /* ← было rgba(...), стало белым */
+    line-height: 1.2;
+}
+
+/* Плашка с количеством дней */
 .statsCardNumber {
     font-size: 28px;
     font-weight: 700;
@@ -210,6 +235,21 @@
     color: #ffffff;
 }
 
+/* Анимация для нижнего блока */
+.detailStatsWrapper {
+    animation: fadeSlideIn 0.3s ease-out;
+}
+
+@keyframes fadeSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 /* ============================================================
    CALENDAR
    ============================================================ */
@@ -220,7 +260,7 @@
     padding: 12px 10px;
     margin-bottom: 16px;
     border: 1px solid rgba(255, 255, 255, 0.04);
-    
+    overflow: visible;
 }
 
 .calendarWrapper :global(.react-calendar) {
@@ -263,8 +303,8 @@
     justify-content: center;
     font-size: 14px;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.5);
-    background: rgba(255, 255, 255, 0.04) !important;
+    color: #000000 !important;
+
     border: none;
     border-radius: 8px;
     padding: 0;
@@ -274,35 +314,37 @@
     flex: 0 0 calc((100% - 18px) / 7) !important;
     margin: 0 !important;
     overflow: visible !important;
+    position: relative;
 }
 
 .calendarWrapper :global(.react-calendar__tile:hover) {
     background: rgba(255, 255, 255, 0.04) !important;
 }
 
-.calendarWrapper :global(.react-calendar__tile.work-day) {
-    background: rgb(171, 241, 5) !important;
-    color: #000000 !important;
-    border-radius: 8px;
-    font-weight: 600;
-}
+
+
+
 
 .calendarWrapper :global(.react-calendar__tile.today-day) {
-    background: rgba(255, 255, 255, 0.08) !important;
     border: 2px solid #ffffff !important;
     border-radius: 8px !important;
+    background: transparent !important;
 }
 
-.calendarWrapper :global(.react-calendar__tile.work-day.today-day) {
-    background: rgb(171, 241, 5) !important;
-    border: 2px solid #ffffff !important;
-    border-radius: 8px !important;
+/* Соседние месяцы — прозрачные */
+.calendarWrapper :global(.react-calendar__month-view__days__day--neighboringMonth) {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: visible !important;
+}
+
+.calendarWrapper :global(.react-calendar__month-view__days__day--neighboringMonth abbr) {
+    opacity: 0 !important;
 }
 
 .calendarWrapper :global(.react-calendar__month-view__days__day--weekend) {
     color: rgba(255, 255, 255, 0.2);
 }
-
 /* ============================================================
    EXTRA SITES BADGE (поверх ячейки)
    ============================================================ */
@@ -335,14 +377,15 @@
    ============================================================ */
 
 .detailStats {
-    margin-top: 4px;
+    margin-top: 12px;
 }
 
 .detailStatsTitle {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
     color: #fff;
-    margin-bottom: 12px;
+    text-align: center;
+    margin-bottom: 16px;
     padding-bottom: 8px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
@@ -355,30 +398,60 @@
 
 .detailStatsItem {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 16px;
+    align-items: flex-start;
+    padding: 10px 14px;
     background: rgba(255, 255, 255, 0.03);
     border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.04);
-    gap: 12px;
+    gap: 16px;
+}
+
+.detailStatsDateWrapper {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    min-width: 85px;
+    padding-top: 2px;
 }
 
 .detailStatsDate {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
     color: #fff;
-    flex-shrink: 0;
 }
 
-.detailStatsSites {
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.5);
-    text-align: right;
-    word-break: break-word;
+.detailStatsDayOfWeek {
+    font-size: 12px;  /* ← было 11px, стало 12px */
+    color: rgba(255, 255, 255, 0.3);
+    font-weight: 400;
+    margin-top: 1px;
+}
+
+.detailStatsSitesWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
     flex: 1;
 }
 
+.detailStatsSiteRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.detailStatsSiteDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.detailStatsSiteName {
+    font-size: 15px;
+    color: #ffffff;
+    word-break: break-word;
+}
 /* ============================================================
    PERIOD
    ============================================================ */
@@ -628,4 +701,174 @@
 
 .tabContent {
     animation: fadeIn 0.2s ease;
+}
+.statsCardMonth {
+    font-size: 18px;
+    font-weight: 600;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
+
+/* Скрываем дни соседних месяцев (делаем полностью прозрачными) */
+.calendarWrapper :global(.react-calendar__month-view__days__day--neighboringMonth) {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: visible !important;
+}
+
+/* Также скрываем их abbr (число) */
+.calendarWrapper :global(.react-calendar__month-view__days__day--neighboringMonth abbr) {
+    opacity: 0 !important;
+}
+/* ============================================================
+   CALENDAR
+   ============================================================ */
+
+.calendarWrapper {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 14px;
+    padding: 12px 10px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    overflow: visible;
+}
+
+.calendarWrapper :global(.react-calendar) {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+}
+
+.calendarWrapper :global(.react-calendar__navigation) {
+    display: none !important;
+}
+
+.calendarWrapper :global(.react-calendar__month-view__weekdays) {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.3);
+    padding: 4px 0;
+}
+
+.calendarWrapper :global(.react-calendar__month-view__weekdays__weekday abbr) {
+    text-decoration: none;
+}
+
+.calendarWrapper :global(.react-calendar__month-view__days) {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 3px !important;
+    padding: 2px 0;
+    width: 100%;
+}
+
+/* ===== ЯЧЕЙКИ КАЛЕНДАРЯ ===== */
+.calendarWrapper :global(.react-calendar__tile) {
+    position: relative !important;
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 500;
+    color: #ffffff !important;
+    background: #4242428c !important;
+    border: none;
+    border-radius: 8px;
+    padding: 0;
+    cursor: default !important;
+    width: calc((100% - 18px) / 7) !important;
+    max-width: calc((100% - 18px) / 7) !important;
+    flex: 0 0 calc((100% - 18px) / 7) !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    transition: none !important;
+}
+
+/* ===== УБИРАЕМ HOVER ===== */
+.calendarWrapper :global(.react-calendar__tile:hover) {
+    background: #4242428c !important;
+    border: none !important;
+}
+
+.calendarWrapper :global(.react-calendar__tile.colored-day:hover) {
+    background: transparent !important;
+}
+
+/* ===== УБИРАЕМ FOCUS ===== */
+.calendarWrapper :global(.react-calendar__tile:focus) {
+    outline: none !important;
+}
+
+.calendarWrapper :global(.react-calendar__tile:focus-visible) {
+    outline: none !important;
+}
+
+/* ===== ЧИСЛО ДНЯ ===== */
+.calendarWrapper :global(.react-calendar__tile abbr) {
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 14px;
+    z-index: 2;
+    position: relative;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== ЦВЕТНЫЕ ЯЧЕЙКИ (с оверлеем) ===== */
+.calendarWrapper :global(.react-calendar__tile.colored-day) {
+    background: transparent !important;
+}
+
+/* ===== ЧИСЛО В ЦВЕТНЫХ ЯЧЕЙКАХ ===== */
+.calendarWrapper :global(.react-calendar__tile.colored-day abbr) {
+    color: #ffffff !important;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+/* ===== СЕГОДНЯ — зелёная точка под числом ===== */
+.calendarWrapper :global(.react-calendar__tile.today-day) {
+    background: #4242428c !important;
+    border: none !important;
+}
+
+.calendarWrapper :global(.react-calendar__tile.today-day)::after {
+    content: '';
+    position: absolute;
+    bottom: 3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #2eff02;
+    box-shadow: 0 0 10px #2eff02, 0 0 20px #2eff0250, 0 0 30px #2eff0220;
+    z-index: 3;
+}
+
+.calendarWrapper :global(.react-calendar__tile.today-day abbr) {
+    color: #ffffff !important;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== УБИРАЕМ СТАРУЮ БЕЛУЮ ОБВОДКУ ===== */
+.calendarWrapper :global(.react-calendar__tile.today-day) {
+    border: none !important;
+}
+
+/* ===== СОСЕДНИЕ МЕСЯЦЫ — прозрачные ===== */
+.calendarWrapper :global(.react-calendar__month-view__days__day--neighboringMonth) {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: visible !important;
+}
+
+.calendarWrapper :global(.react-calendar__month-view__days__day--neighboringMonth abbr) {
+    opacity: 0 !important;
+}
+
+.calendarWrapper :global(.react-calendar__month-view__days__day--weekend) {
+    color: rgba(255, 255, 255, 0.2);
 }
