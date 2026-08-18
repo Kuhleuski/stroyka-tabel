@@ -42,7 +42,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         }
     }, [])
 
-    // Очищаем таймер при размонтировании
     useEffect(() => {
         return () => {
             if (detailTimerRef.current) {
@@ -55,10 +54,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         if (!shifts || !worker) return []
         return shifts.filter(s => s.worker_id === worker.id)
     }, [shifts, worker])
-
-    // ============================================================
-    // ФУНКЦИЯ ДЛЯ ПРАВИЛЬНОГО ОКОНЧАНИЯ СЛОВ
-    // ============================================================
 
     const getDaysLabel = (count) => {
         if (count === 0) return 'рабочих дней'
@@ -81,10 +76,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         return 'рабочих дней'
     }
 
-    // ============================================================
-    // ФУНКЦИЯ ФОРМАТИРОВАНИЯ ДАТЫ С ДНЕМ НЕДЕЛИ
-    // ============================================================
-
     const formatDateDisplay = (dateStr) => {
         const parts = dateStr.split('-')
         const date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]))
@@ -96,10 +87,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         })
         return { date: formattedDate, dayOfWeek }
     }
-
-    // ============================================================
-    // СТАТУС (SWITCH)
-    // ============================================================
 
     const handleStatusToggle = async () => {
         if (!worker) return
@@ -132,10 +119,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         }
         setExpandedSites(newSet)
     }
-
-    // ============================================================
-    // ДАННЫЕ ДЛЯ ВЫБРАННОГО МЕСЯЦА
-    // ============================================================
 
     const getMonthData = (monthDate) => {
         const year = monthDate.getFullYear()
@@ -195,10 +178,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         return getMonthData(currentMonth)
     }, [currentMonth, workerShifts, sites])
 
-    // ============================================================
-    // НАВИГАЦИЯ ПО МЕСЯЦАМ — С АНИМАЦИЕЙ КАК НА ГЛАВНОЙ
-    // ============================================================
-
     const canGoPrev = () => {
         const now = new Date()
         const prevMonth = new Date(currentMonth)
@@ -211,7 +190,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     const goPrevMonth = () => {
         if (!canGoPrev()) return
         setDirection(-1)
-        // Скрываем детали перед анимацией
         setIsDetailVisible(false)
         
         const newMonth = new Date(currentMonth)
@@ -219,7 +197,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         setCurrentMonth(newMonth)
         monthKeyRef.current += 1
         
-        // Показываем детали ПОСЛЕ завершения анимации (350ms)
         if (detailTimerRef.current) {
             clearTimeout(detailTimerRef.current)
         }
@@ -234,7 +211,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         nextMonth.setMonth(nextMonth.getMonth() + 1)
         if (nextMonth > now) return
         setDirection(1)
-        // Скрываем детали перед анимацией
         setIsDetailVisible(false)
         
         const newMonth = new Date(currentMonth)
@@ -242,7 +218,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         setCurrentMonth(newMonth)
         monthKeyRef.current += 1
         
-        // Показываем детали ПОСЛЕ завершения анимации (350ms)
         if (detailTimerRef.current) {
             clearTimeout(detailTimerRef.current)
         }
@@ -256,10 +231,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         .split(' ')
         .map((word, index) => index === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word)
         .join(' ')
-
-    // ============================================================
-    // ВКЛАДКА: ПЕРИОД
-    // ============================================================
 
     const getPeriodStats = () => {
         if (!periodStart || !periodEnd) return null
@@ -319,10 +290,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
 
     const periodStats = getPeriodStats()
 
-    // ============================================================
-    // ВКЛАДКА: ОБЪЕКТЫ
-    // ============================================================
-
     const getSiteStats = () => {
         const siteMap = {}
         
@@ -374,10 +341,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     }
 
     const siteStats = getSiteStats()
-
-    // ============================================================
-    // КАЛЕНДАРЬ — ЦВЕТНЫЕ ЯЧЕЙКИ через tileContent
-    // ============================================================
 
     const getDayColors = (date) => {
         const dateStr = formatDateLocal(date)
@@ -451,7 +414,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     }
 
     // ============================================================
-    // СВАЙП С АНИМАЦИЕЙ КАК НА ГЛАВНОЙ
+    // ⭐ ГЛАВНЫЙ ФИКС: СВАЙП ТОЛЬКО НА КАЛЕНДАРЕ (КАК НА ГЛАВНОЙ)
     // ============================================================
 
     const handleDragEnd = (event, info) => {
@@ -463,7 +426,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         }
     }
 
-    // Анимация как на главной — с popLayout и scale
+    // Анимация КАК НА ГЛАВНОЙ
     const variants = {
         enter: (direction) => ({
             x: direction > 0 ? 300 : -300,
@@ -482,10 +445,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         }),
     }
 
-    // ============================================================
-    // РЕНДЕР
-    // ============================================================
-
     if (!worker) return null
 
     const shouldAnimate = !isFirstRenderRef.current
@@ -496,7 +455,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
 
     return (
         <div className={styles.workerStatsPage}>
-            {/* === ХЕДЕР === */}
+            {/* ХЕДЕР */}
             <div className={styles.workerStatsHeader}>
                 <div className={styles.workerStatsAvatar}>
                     {hasPhoto ? (
@@ -524,7 +483,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                 </div>
             </div>
 
-            {/* === ВКЛАДКИ === */}
+            {/* ВКЛАДКИ */}
             <div className={styles.workerStatsTabs}>
                 <button 
                     className={`${styles.workerStatsTab} ${activeTab === 'month' ? styles.active : ''}`}
@@ -546,52 +505,55 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                 </button>
             </div>
 
-            {/* === КОНТЕНТ === */}
+            {/* КОНТЕНТ */}
             <div className={styles.workerStatsContent}>
                 {activeTab === 'month' && (
                     <div className={styles.tabContent}>
-                        {/* ===== ПЛАШКИ + КАЛЕНДАРЬ (АНИМАЦИЯ КАК НА ГЛАВНОЙ) ===== */}
-                        <AnimatePresence mode="popLayout" custom={direction}>
-                            <motion.div
-                                key={monthKeyRef.current}
-                                custom={direction}
-                                variants={variants}
-                                initial={shouldAnimate ? "enter" : false}
-                                animate="center"
-                                exit="exit"
-                                transition={{
-                                    x: { 
-                                        type: "spring", 
-                                        stiffness: 500,
-                                        damping: 35,
-                                        mass: 0.5
-                                    },
-                                    opacity: { duration: 0.15 },
-                                    scale: { duration: 0.15 }
-                                }}
-                                drag="x"
-                                dragConstraints={{ left: 0, right: 0 }}
-                                dragElastic={0.5}
-                                dragMomentum={false}
-                                onDragEnd={handleDragEnd}
-                                className={styles.monthContentMotion}
-                            >
-                                {/* Две плашки */}
-                                <div className={styles.statsGrid}>
-                                    <div className={styles.statsCard}>
-                                        <div className={styles.statsCardMonth}>
-                                            <span className={styles.statsCardMonthName}>{monthText}</span>
-                                            <span className={styles.statsCardMonthYear}>{yearText}</span>
-                                        </div>
-                                    </div>
-                                    <div className={styles.statsCard}>
-                                        <div className={styles.statsCardNumber}>{monthData.totalDays}</div>
-                                        <div className={styles.statsCardLabel}>{getDaysLabel(monthData.totalDays)}</div>
-                                    </div>
+                        {/* ======================================== */}
+                        {/* ⭐ ПЛАШКИ — БЕЗ АНИМАЦИИ (просто меняются) */}
+                        {/* ======================================== */}
+                        <div className={styles.statsGrid}>
+                            <div className={styles.statsCard}>
+                                <div className={styles.statsCardMonth}>
+                                    <span className={styles.statsCardMonthName}>{monthText}</span>
+                                    <span className={styles.statsCardMonthYear}>{yearText}</span>
                                 </div>
+                            </div>
+                            <div className={styles.statsCard}>
+                                <div className={styles.statsCardNumber}>{monthData.totalDays}</div>
+                                <div className={styles.statsCardLabel}>{getDaysLabel(monthData.totalDays)}</div>
+                            </div>
+                        </div>
 
-                                {/* Календарь */}
-                                <div className={styles.calendarWrapper}>
+                        {/* ======================================== */}
+                        {/* ⭐ КАЛЕНДАРЬ — С DRAG (КАК НА ГЛАВНОЙ) */}
+                        {/* ======================================== */}
+                        <div className={styles.calendarWrapper}>
+                            <AnimatePresence mode="popLayout" custom={direction}>
+                                <motion.div
+                                    key={monthKeyRef.current}
+                                    custom={direction}
+                                    variants={variants}
+                                    initial={shouldAnimate ? "enter" : false}
+                                    animate="center"
+                                    exit="exit"
+                                    transition={{
+                                        x: { 
+                                            type: "spring", 
+                                            stiffness: 500,
+                                            damping: 35,
+                                            mass: 0.5
+                                        },
+                                        opacity: { duration: 0.15 },
+                                        scale: { duration: 0.15 }
+                                    }}
+                                    drag="x"
+                                    dragConstraints={{ left: 0, right: 0 }}
+                                    dragElastic={0.5}
+                                    dragMomentum={false}
+                                    onDragEnd={handleDragEnd}
+                                    style={{ width: '100%' }}
+                                >
                                     <Calendar
                                         key={currentMonth.getMonth() + '-' + currentMonth.getFullYear()}
                                         value={null}
@@ -607,11 +569,13 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                                         navigationLabel={null}
                                         activeStartDate={currentMonth}
                                     />
-                                </div>
-                            </motion.div>
-                        </AnimatePresence>
+                                </motion.div>
+                            </AnimatePresence>
+                        </div>
 
-                        {/* ===== ДЕТАЛЬНАЯ ИНФОРМАЦИЯ (появляется ПОСЛЕ анимации) ===== */}
+                        {/* ======================================== */}
+                        {/* ⭐ ДЕТАЛИ — появляются ПОСЛЕ анимации */}
+                        {/* ======================================== */}
                         <AnimatePresence>
                             {isDetailVisible && monthData.shifts.length > 0 && (
                                 <motion.div
@@ -799,7 +763,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                 )}
             </div>
 
-            {/* === КНОПКИ ВНИЗУ === */}
+            {/* КНОПКИ ВНИЗУ */}
             <div className={styles.workerStatsFooter}>
                 <button 
                     className={styles.workerStatsProfileBtn}

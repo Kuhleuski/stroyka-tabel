@@ -872,3 +872,10 @@
 .calendarWrapper :global(.react-calendar__month-view__days__day--weekend) {
     color: rgba(255, 255, 255, 0.2);
 }
+/* ============================================================
+   ФИКС: календарь занимает всю ширину
+   ============================================================ */
+
+.calendarWrapper > div {
+    width: 100% !important;
+}
