@@ -525,53 +525,55 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                             </div>
                         </div>
 
-                        {/* ======================================== */}
-                        {/* ⭐ КАЛЕНДАРЬ — С DRAG (КАК НА ГЛАВНОЙ) */}
-                        {/* ======================================== */}
-                        <div className={styles.calendarWrapper}>
-                            <AnimatePresence mode="popLayout" custom={direction}>
-                                <motion.div
-                                    key={monthKeyRef.current}
-                                    custom={direction}
-                                    variants={variants}
-                                    initial={shouldAnimate ? "enter" : false}
-                                    animate="center"
-                                    exit="exit"
-                                    transition={{
-                                        x: { 
-                                            type: "spring", 
-                                            stiffness: 500,
-                                            damping: 35,
-                                            mass: 0.5
-                                        },
-                                        opacity: { duration: 0.15 },
-                                        //scale: { duration: 0.15 }
-                                    }}
-                                    drag="x"
-                                    dragConstraints={{ left: 0, right: 0 }}
-                                    dragElastic={0.5}
-                                    dragMomentum={false}
-                                    onDragEnd={handleDragEnd}
-                                    style={{ width: '100%' }}
-                                >
-                                    <Calendar
-                                        key={currentMonth.getMonth() + '-' + currentMonth.getFullYear()}
-                                        value={null}
-                                        tileClassName={tileClassName}
-                                        tileContent={tileContent}
-                                        minDetail="month"
-                                        maxDetail="month"
-                                        prevLabel={null}
-                                        nextLabel={null}
-                                        next2Label={null}
-                                        prev2Label={null}
-                                        showNeighboringMonth={true}
-                                        navigationLabel={null}
-                                        activeStartDate={currentMonth}
-                                    />
-                                </motion.div>
-                            </AnimatePresence>
-                        </div>
+                       {/* ======================================== */}
+{/* ⭐ КАЛЕНДАРЬ — С DRAG (КАК НА ГЛАВНОЙ) */}
+{/* ======================================== */}
+<div className={styles.calendarWrapper}>
+    <AnimatePresence mode="popLayout" custom={direction}>
+        <motion.div
+            key={monthKeyRef.current}
+            custom={direction}
+            variants={variants}
+            initial={shouldAnimate ? "enter" : false}
+            animate="center"
+            exit="exit"
+            transition={{
+                x: { 
+                    type: "spring", 
+                    stiffness: 500,
+                    damping: 35,
+                    mass: 0.5
+                },
+                opacity: { duration: 0.15 },
+            }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.3}
+            dragMomentum={false}
+            onDragEnd={handleDragEnd}
+            style={{ 
+                width: '100%',
+                touchAction: 'pan-y pinch-zoom'  // ← КЛЮЧЕВОЙ ФИКС
+            }}
+        >
+            <Calendar
+                key={currentMonth.getMonth() + '-' + currentMonth.getFullYear()}
+                value={null}
+                tileClassName={tileClassName}
+                tileContent={tileContent}
+                minDetail="month"
+                maxDetail="month"
+                prevLabel={null}
+                nextLabel={null}
+                next2Label={null}
+                prev2Label={null}
+                showNeighboringMonth={true}
+                navigationLabel={null}
+                activeStartDate={currentMonth}
+            />
+        </motion.div>
+    </AnimatePresence>
+</div>
 
                         {/* ======================================== */}
                         {/* ⭐ ДЕТАЛИ — появляются ПОСЛЕ анимации */}

@@ -1,14 +1,31 @@
 /* ============================================================
-   WORKER STATS PAGE
+   WORKER STATS PAGE — ПОЛНЫЙ ФИКС
    ============================================================ */
 
 .workerStatsPage {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 300;
+    background: var(--bg-body);
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overflow-x: hidden !important;
     padding: 16px;
-    padding-bottom: 100px; /* ← Оставляем место для фиксированного футера */
+    padding-bottom: 100px;
     max-width: 500px;
     margin: 0 auto;
-    overflow-x: hidden !important;
-    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    overscroll-behavior: none !important;
+}
+
+/* Отключаем скролл на body когда открыта статистика */
+body:has(.workerStatsPage) {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
 }
 
 /* ============================================================
@@ -172,7 +189,7 @@
 .monthContentMotion {
     width: 100%;
     cursor: grab;
-    overflow: hidden !important;
+    overflow: visible !important;
 }
 
 .monthContentMotion:active {
@@ -274,16 +291,7 @@
     isolation: isolate !important;
     -webkit-overflow-scrolling: touch !important;
     overscroll-behavior: none !important;
-}
-
-@supports (-webkit-touch-callout: none) {
-    .calendarWrapper {
-        -webkit-transform: translateZ(0) !important;
-        transform: translateZ(0) !important;
-        -webkit-backface-visibility: hidden !important;
-        backface-visibility: hidden !important;
-        padding: 8px 6px !important;
-    }
+    touch-action: pan-y pinch-zoom !important;
 }
 
 .calendarWrapper :global(.react-calendar) {
@@ -294,6 +302,7 @@
     background: transparent !important;
     font-family: inherit !important;
     overflow: hidden !important;
+    touch-action: pan-y pinch-zoom !important;
 }
 
 .calendarWrapper :global(.react-calendar__navigation) {
@@ -468,7 +477,7 @@
 
 .detailStats {
     margin-top: 12px;
-    margin-bottom: 20px; /* ← Добавляем отступ снизу, чтобы контент не прилипал к футеру */
+    margin-bottom: 20px;
 }
 
 .detailStatsTitle {
@@ -606,7 +615,7 @@
     flex-direction: column;
     gap: 8px;
     text-align: left;
-    margin-bottom: 20px; /* ← Добавляем отступ снизу */
+    margin-bottom: 20px;
 }
 
 .siteAccordion {
@@ -713,7 +722,7 @@
 }
 
 /* ============================================================
-   ⭐ FOOTER — ФИКСИРОВАН ВНИЗУ (КАК БЫЛО)
+   ⭐ FOOTER — ФИКСИРОВАН ВНИЗУ
    ============================================================ */
 
 .workerStatsFooter {
@@ -730,11 +739,11 @@
     gap: 12px;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    z-index: 1000;
+    z-index: 301;
     box-sizing: border-box;
+    pointer-events: auto !important;
 }
 
-/* Дополнительный фикс для Safari, чтобы футер не прыгал */
 @supports (-webkit-touch-callout: none) {
     .workerStatsFooter {
         padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
@@ -823,19 +832,17 @@
 
 @supports (-webkit-touch-callout: none) {
     .workerStatsPage {
-        overflow: hidden !important;
-        width: 100% !important;
-        max-width: 100vw !important;
+        padding-top: 44px !important;
+        padding-bottom: 120px !important;
         -webkit-transform: translateZ(0) !important;
         transform: translateZ(0) !important;
-        padding-bottom: 120px !important; /* ← Больше места для футера на Safari */
+        -webkit-overflow-scrolling: touch !important;
     }
     
     .monthContentMotion {
-        overflow: hidden !important;
+        overflow: visible !important;
         width: 100% !important;
-        -webkit-transform: translateZ(0) !important;
-        transform: translateZ(0) !important;
+        touch-action: pan-y pinch-zoom !important;
     }
     
     .calendarWrapper {
@@ -846,6 +853,7 @@
         transform: translateZ(0) !important;
         -webkit-backface-visibility: hidden !important;
         backface-visibility: hidden !important;
+        touch-action: pan-y pinch-zoom !important;
     }
     
     .calendarWrapper :global(.react-calendar__month-view__days) {
@@ -862,38 +870,5 @@
     /* Убираем диагностику на Safari */
     * {
         outline: none !important;
-    }
-}
-/* ============================================================
-   ФИКС: страница статистики поверх всего
-   ============================================================ */
-
-.workerStatsPage {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 300;
-    background: var(--bg-body);
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 16px;
-    padding-bottom: 100px;
-    max-width: 500px;
-    margin: 0 auto;
-    width: 100%;
-}
-
-/* Отключаем скролл на body когда открыта статистика */
-body:has(.workerStatsPage) {
-    overflow: hidden !important;
-}
-
-/* Фикс для Safari */
-@supports (-webkit-touch-callout: none) {
-    .workerStatsPage {
-        padding-top: 44px;
-        padding-bottom: 120px;
     }
 }
