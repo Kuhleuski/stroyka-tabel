@@ -187,6 +187,13 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         return prevMonth >= yearAgo
     }
 
+    const canGoNext = () => {
+        const now = new Date()
+        const nextMonth = new Date(currentMonth)
+        nextMonth.setMonth(nextMonth.getMonth() + 1)
+        return nextMonth <= now
+    }
+
     const goPrevMonth = () => {
         if (!canGoPrev()) return
         setDirection(-1)
@@ -206,10 +213,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     }
 
     const goNextMonth = () => {
-        const now = new Date()
-        const nextMonth = new Date(currentMonth)
-        nextMonth.setMonth(nextMonth.getMonth() + 1)
-        if (nextMonth > now) return
+        if (!canGoNext()) return
         setDirection(1)
         setIsDetailVisible(false)
         
@@ -413,7 +417,13 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         })
     }
 
+    // ⭐ ПРОСТОЙ ОБРАБОТЧИК: если вертикально — скролл, если горизонтально — свайп
     const handleDragEnd = (event, info) => {
+        // Если движение вертикальное — игнорируем, скролл работает
+        if (Math.abs(info.offset.y) > Math.abs(info.offset.x)) {
+            return
+        }
+        
         const threshold = 30
         if (info.offset.x < -threshold) {
             goNextMonth()
@@ -422,6 +432,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         }
     }
 
+    // Анимация
     const variants = {
         enter: (direction) => ({
             x: direction > 0 ? 300 : -300,
@@ -515,7 +526,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                             </div>
                         </div>
 
-                        {/* КАЛЕНДАРЬ */}
+                        {/* ⭐ КАЛЕНДАРЬ — drag работает, скролл тоже */}
                         <div className={styles.calendarWrapper}>
                             <AnimatePresence mode="popLayout" custom={direction}>
                                 <motion.div

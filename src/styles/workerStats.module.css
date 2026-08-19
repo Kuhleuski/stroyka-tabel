@@ -3,29 +3,22 @@
    ============================================================ */
 
 .workerStatsPage {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 300;
-    background: var(--bg-body);
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    overflow-x: hidden !important;
     padding: 16px;
-    padding-bottom: 100px;
+    padding-bottom: 0;
     max-width: 500px;
     margin: 0 auto;
-    width: 100%;
-    overscroll-behavior: none !important;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-body);
 }
 
-/* Отключаем скролл на body когда открыта статистика */
-body:has(.workerStatsPage) {
-    overflow: hidden !important;
-    position: fixed !important;
-    width: 100% !important;
+/* ============================================================
+   КОНТЕНТ — занимает все свободное место
+   ============================================================ */
+
+.workerStatsContent {
+    flex: 1;
 }
 
 /* ============================================================
@@ -189,7 +182,7 @@ body:has(.workerStatsPage) {
 .monthContentMotion {
     width: 100%;
     cursor: grab;
-    overflow: visible !important;
+    overflow: hidden !important;
 }
 
 .monthContentMotion:active {
@@ -477,7 +470,7 @@ body:has(.workerStatsPage) {
 
 .detailStats {
     margin-top: 12px;
-    margin-bottom: 12px;
+    margin-bottom: 20px;
 }
 
 .detailStatsTitle {
@@ -615,7 +608,7 @@ body:has(.workerStatsPage) {
     flex-direction: column;
     gap: 8px;
     text-align: left;
-    margin-bottom: 12px;
+    margin-bottom: 20px;
 }
 
 .siteAccordion {
@@ -722,7 +715,7 @@ body:has(.workerStatsPage) {
 }
 
 /* ============================================================
-   ⭐ FOOTER — ПРИЖАТ К НИЗУ ЭКРАНА
+   ⭐ FOOTER — position: fixed, всегда внизу (только один раз!)
    ============================================================ */
 
 .workerStatsFooter {
@@ -741,7 +734,7 @@ body:has(.workerStatsPage) {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     box-sizing: border-box;
-    z-index: 301;
+    z-index: 1000;
 }
 
 .workerStatsProfileBtn {
@@ -827,7 +820,7 @@ body:has(.workerStatsPage) {
 @supports (-webkit-touch-callout: none) {
     .workerStatsPage {
         padding-top: 20px !important;
-        padding-bottom: 120px !important;
+        padding-bottom: 0 !important;
         -webkit-transform: translateZ(0) !important;
         transform: translateZ(0) !important;
         -webkit-overflow-scrolling: touch !important;
