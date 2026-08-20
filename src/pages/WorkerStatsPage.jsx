@@ -6,6 +6,7 @@ import { formatDateLocal } from '../utils/dateHelpers'
 import Calendar from 'react-calendar'
 import 'react-calendar/dist/Calendar.css'
 import styles from '../styles/workerStats.module.css'
+import { WorkerStatsFooter } from '../components/WorkerStatsFooter'
 
 export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefresh }) {
     const { getAvatar } = useAvatars()
@@ -417,9 +418,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         })
     }
 
-    // ⭐ ПРОСТОЙ ОБРАБОТЧИК: если вертикально — скролл, если горизонтально — свайп
     const handleDragEnd = (event, info) => {
-        // Если движение вертикальное — игнорируем, скролл работает
         if (Math.abs(info.offset.y) > Math.abs(info.offset.x)) {
             return
         }
@@ -432,7 +431,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         }
     }
 
-    // Анимация
     const variants = {
         enter: (direction) => ({
             x: direction > 0 ? 300 : -300,
@@ -526,7 +524,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                             </div>
                         </div>
 
-                        {/* ⭐ КАЛЕНДАРЬ — drag работает, скролл тоже */}
+                        {/* КАЛЕНДАРЬ */}
                         <div className={styles.calendarWrapper}>
                             <AnimatePresence mode="popLayout" custom={direction}>
                                 <motion.div
@@ -759,21 +757,12 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                 )}
             </div>
 
-            {/* КНОПКИ ВНИЗУ */}
-            <div className={styles.workerStatsFooter}>
-                <button 
-                    className={styles.workerStatsProfileBtn}
-                    onClick={() => onEdit(worker)}
-                >
-                    Профиль
-                </button>
-                <button 
-                    className={styles.workerStatsCloseBtn}
-                    onClick={onClose}
-                >
-                    Закрыть
-                </button>
-            </div>
+            {/* ⭐ ФУТЕР — ЧЕРЕЗ PORTAL (УДАЛИ СТАРЫЙ БЛОК, ЕСЛИ ОН ЕСТЬ) */}
+            <WorkerStatsFooter 
+                onEdit={onEdit}
+                onClose={onClose}
+                worker={worker}
+            />
         </div>
     )
 }
