@@ -989,3 +989,1053 @@
     font-size: 14px;
     color: rgba(255, 255, 255, 0.4);
 }
+/* ============================================================
+   ОБЪЕКТЫ — ЗАГОЛОВОК И ФИЛЬТР
+   ============================================================ */
+
+.sitesHeader {
+    margin-bottom: 4px;
+}
+
+.sitesTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+}
+
+/* ============================================================
+   ИНФОРМАЦИОННАЯ СТРОКА О ПЕРИОДЕ
+   ============================================================ */
+
+.sitesPeriodInfo {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.5);
+    padding: 4px 0 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    margin-bottom: 12px;
+}
+
+/* ============================================================
+   ВЫПАДАЛКА ФИЛЬТРА
+   ============================================================ */
+
+.sitesFilterWrapper {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.sitesFilterBtn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    min-width: 160px;
+}
+
+.sitesFilterBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.sitesFilterBtn svg {
+    stroke: rgba(255, 255, 255, 0.5);
+}
+
+.sitesFilterDropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 200px;
+    background: #2a2a2a;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    z-index: 50;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.sitesFilterOption {
+    display: block;
+    width: 100%;
+    padding: 10px 14px;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    transition: all 0.15s ease;
+}
+
+.sitesFilterOption:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.sitesFilterOption.active {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.sitesFilterOption:not(:last-child) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* ============================================================
+   МОДАЛКА ВЫБОРА ПЕРИОДА
+   ============================================================ */
+
+.periodModalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: modalFadeIn 0.25s ease;
+}
+
+.periodModal {
+    background: #1e1e1e;
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 400px;
+    width: 90%;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: modalScaleIn 0.25s ease;
+}
+
+@keyframes modalScaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.periodModalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.periodModalTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.periodModalClose {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.periodModalClose:hover {
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.periodModalBody {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.periodModalField {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.periodModalField label {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 500;
+    min-width: 20px;
+}
+
+.periodModalField input {
+    flex: 1;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.periodModalField input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.periodModalField input::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+.periodModalFooter {
+    display: flex;
+    gap: 10px;
+}
+
+.periodModalCancelBtn {
+    flex: 1;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    border: none;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.periodModalCancelBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.periodModalApplyBtn {
+    flex: 1;
+    padding: 10px;
+    background: #2d7d46;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.periodModalApplyBtn:hover:not(:disabled) {
+    background: #236835;
+}
+
+.periodModalApplyBtn:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+/* ============================================================
+   АДАПТИВ
+   ============================================================ */
+
+@media (max-width: 480px) {
+    .periodModal {
+        padding: 20px;
+        width: 95%;
+    }
+    
+    .periodModalBody {
+        gap: 10px;
+    }
+    
+    .periodModalField {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 4px;
+    }
+    
+    .periodModalField label {
+        font-size: 13px;
+        min-width: auto;
+    }
+    
+    .sitesFilterBtn {
+        min-width: 100%;
+    }
+}
+/* ============================================================
+   DATE PICKER — кастомные стили для react-datepicker
+   ============================================================ */
+
+.periodDatePicker {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.periodDatePicker:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.periodDatePicker::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* Переопределение стилей календаря для темной темы */
+:global(.react-datepicker) {
+    background: #1e1e1e !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+    font-family: inherit !important;
+}
+
+:global(.react-datepicker__header) {
+    background: #2a2a2a !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 12px 12px 0 0 !important;
+    padding-top: 8px !important;
+}
+
+:global(.react-datepicker__current-month) {
+    color: #fff !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+}
+
+:global(.react-datepicker__day-name) {
+    color: rgba(255, 255, 255, 0.4) !important;
+    font-weight: 400 !important;
+}
+
+:global(.react-datepicker__day) {
+    color: rgba(255, 255, 255, 0.8) !important;
+    border-radius: 8px !important;
+    transition: all 0.15s ease !important;
+}
+
+:global(.react-datepicker__day:hover) {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-radius: 8px !important;
+}
+
+:global(.react-datepicker__day--selected) {
+    background: #2d7d46 !important;
+    color: #fff !important;
+    border-radius: 8px !important;
+}
+
+:global(.react-datepicker__day--keyboard-selected) {
+    background: rgba(45, 125, 70, 0.4) !important;
+    border-radius: 8px !important;
+}
+
+:global(.react-datepicker__day--today) {
+    font-weight: 700 !important;
+    color: #fff !important;
+}
+
+:global(.react-datepicker__day--outside-month) {
+    color: rgba(255, 255, 255, 0.2) !important;
+}
+
+:global(.react-datepicker__navigation) {
+    top: 10px !important;
+}
+
+:global(.react-datepicker__navigation-icon::before) {
+    border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+:global(.react-datepicker__navigation:hover .react-datepicker__navigation-icon::before) {
+    border-color: #fff !important;
+}
+
+:global(.react-datepicker__triangle) {
+    display: none !important;
+}
+
+:global(.react-datepicker__month) {
+    margin: 4px 0 !important;
+}
+
+:global(.react-datepicker__day--in-range) {
+    background: rgba(45, 125, 70, 0.25) !important;
+    border-radius: 0 !important;
+}
+
+:global(.react-datepicker__day--range-start) {
+    border-radius: 8px 0 0 8px !important;
+    background: #2d7d46 !important;
+    color: #fff !important;
+}
+
+:global(.react-datepicker__day--range-end) {
+    border-radius: 0 8px 8px 0 !important;
+    background: #2d7d46 !important;
+    color: #fff !important;
+}
+
+:global(.react-datepicker__day--in-range.react-datepicker__day--range-start) {
+    border-radius: 8px 0 0 8px !important;
+}
+
+:global(.react-datepicker__day--in-range.react-datepicker__day--range-end) {
+    border-radius: 0 8px 8px 0 !important;
+}
+
+:global(.react-datepicker__day--in-range.react-datepicker__day--range-start.react-datepicker__day--range-end) {
+    border-radius: 8px !important;
+}
+
+:global(.react-datepicker__day--in-range.react-datepicker__day--selected) {
+    background: #2d7d46 !important;
+    color: #fff !important;
+}
+
+:global(.react-datepicker__month-container) {
+    background: transparent !important;
+}
+
+:global(.react-datepicker__week) {
+    display: flex !important;
+    gap: 0 !important;
+}
+
+:global(.react-datepicker__day) {
+    width: 36px !important;
+    height: 36px !important;
+    line-height: 36px !important;
+    margin: 2px 0 !important;
+}
+
+/* ============================================================
+   ОБЪЕКТЫ — ЗАГОЛОВОК И ФИЛЬТР
+   ============================================================ */
+
+.sitesHeader {
+    margin-bottom: 4px;
+    margin-top: 15px;
+}
+
+.sitesTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+}
+
+/* ============================================================
+   ИНФОРМАЦИОННАЯ СТРОКА О ПЕРИОДЕ — под выпадалкой
+   ============================================================ */
+
+.sitesPeriodInfo {
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+    padding: 6px 0 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    margin-bottom: 12px;
+}
+
+/* ============================================================
+   ВЫПАДАЛКА ФИЛЬТРА — строка "Показать:"
+   ============================================================ */
+
+.sitesFilterWrapper {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.sitesFilterRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sitesFilterLabel {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 400;
+    flex-shrink: 0;
+}
+
+.sitesFilterBtn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    min-width: 160px;
+}
+
+.sitesFilterBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.sitesFilterBtn svg {
+    stroke: rgba(255, 255, 255, 0.5);
+}
+
+/* ⭐ Выпадающий список — прижат к правому краю */
+.sitesFilterDropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    min-width: 200px;
+    background: #2a2a2a;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    z-index: 50;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.sitesFilterOption {
+    display: block;
+    width: 100%;
+    padding: 10px 14px;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    transition: all 0.15s ease;
+}
+
+.sitesFilterOption:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.sitesFilterOption.active {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.sitesFilterOption:not(:last-child) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* ============================================================
+   СПИСОК ОБЪЕКТОВ — УВЕЛИЧЕННЫЙ ТЕКСТ
+   ============================================================ */
+
+.siteAccordion {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    overflow: hidden;
+    text-align: left;
+}
+
+.siteAccordionHeader {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    color: #fff;
+    transition: background 0.2s;
+    text-align: left;
+}
+
+.siteAccordionHeader:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.siteAccordionLeft {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    text-align: left;
+    flex: 1;
+    min-width: 0;
+}
+
+/* ⭐ Кружок объекта — больше */
+.siteAccordionDot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+/* ⭐ Название объекта — больше */
+.siteAccordionName {
+    font-size: 17px;
+    font-weight: 600;
+    color: #fff;
+    text-align: left;
+    word-break: break-word;
+}
+
+/* ⭐ "Период:" — больше и почти белый */
+.siteAccordionPeriod {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 2px;
+    text-align: left;
+    font-weight: 500;
+}
+
+/* ⭐ Количество рабочих дней — белый, жирный, 15px */
+.siteAccordionSub {
+    font-size: 15px;
+    color: #ffffff;
+    margin-top: 2px;
+    text-align: left;
+    font-weight: 700;
+}
+
+.siteAccordionArrow {
+    color: rgba(255, 255, 255, 0.3);
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    margin-left: 8px;
+}
+
+.siteAccordionArrow svg {
+    stroke: rgba(255, 255, 255, 0.3);
+}
+
+.siteAccordionArrow.expanded {
+    transform: rotate(180deg);
+}
+
+.siteAccordionBody {
+    padding: 0 16px 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: left;
+}
+
+.siteAccordionDate {
+    padding: 6px 0 6px 28px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.5);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    text-align: left;
+}
+
+.siteAccordionDate:last-child {
+    border-bottom: none;
+}
+
+/* ============================================================
+   МОДАЛКА ВЫБОРА ПЕРИОДА
+   ============================================================ */
+
+.periodModalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: modalFadeIn 0.25s ease;
+}
+
+.periodModal {
+    background: #1e1e1e;
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 420px;
+    width: 90%;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: modalScaleIn 0.25s ease;
+}
+
+@keyframes modalScaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.periodModalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.periodModalTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.periodModalClose {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.periodModalClose:hover {
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.periodModalBody {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.periodModalField {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.periodModalField label {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 500;
+    min-width: 20px;
+}
+
+.periodModalField input {
+    flex: 1;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.periodModalField input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.periodModalField input::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+.periodModalFooter {
+    display: flex;
+    gap: 10px;
+}
+
+.periodModalCancelBtn {
+    flex: 1;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    border: none;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.periodModalCancelBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.periodModalApplyBtn {
+    flex: 1;
+    padding: 10px;
+    background: #2d7d46;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.periodModalApplyBtn:hover:not(:disabled) {
+    background: #236835;
+}
+
+.periodModalApplyBtn:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+/* ============================================================
+   DATE PICKER — кастомные стили для react-datepicker
+   ============================================================ */
+
+.periodDatePicker {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.periodDatePicker:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.periodDatePicker::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* Переопределение стилей календаря для темной темы */
+:global(.react-datepicker) {
+    background: #1e1e1e !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+    font-family: inherit !important;
+}
+
+:global(.react-datepicker__header) {
+    background: #2a2a2a !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 12px 12px 0 0 !important;
+    padding-top: 8px !important;
+}
+
+:global(.react-datepicker__current-month) {
+    color: #fff !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+}
+
+:global(.react-datepicker__day-name) {
+    color: rgba(255, 255, 255, 0.4) !important;
+    font-weight: 400 !important;
+}
+
+:global(.react-datepicker__day) {
+    color: rgba(255, 255, 255, 0.8) !important;
+    border-radius: 8px !important;
+    transition: all 0.15s ease !important;
+}
+
+:global(.react-datepicker__day:hover) {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-radius: 8px !important;
+}
+
+:global(.react-datepicker__day--selected) {
+    background: #2d7d46 !important;
+    color: #fff !important;
+    border-radius: 8px !important;
+}
+
+:global(.react-datepicker__day--keyboard-selected) {
+    background: rgba(45, 125, 70, 0.4) !important;
+    border-radius: 8px !important;
+}
+
+:global(.react-datepicker__day--today) {
+    font-weight: 700 !important;
+    color: #fff !important;
+}
+
+:global(.react-datepicker__day--outside-month) {
+    color: rgba(255, 255, 255, 0.2) !important;
+}
+
+:global(.react-datepicker__navigation) {
+    top: 10px !important;
+}
+
+:global(.react-datepicker__navigation-icon::before) {
+    border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+:global(.react-datepicker__navigation:hover .react-datepicker__navigation-icon::before) {
+    border-color: #fff !important;
+}
+
+:global(.react-datepicker__triangle) {
+    display: none !important;
+}
+
+:global(.react-datepicker__month) {
+    margin: 4px 0 !important;
+}
+
+:global(.react-datepicker__day--in-range) {
+    background: rgba(45, 125, 70, 0.25) !important;
+    border-radius: 0 !important;
+}
+
+:global(.react-datepicker__day--range-start) {
+    border-radius: 8px 0 0 8px !important;
+    background: #2d7d46 !important;
+    color: #fff !important;
+}
+
+:global(.react-datepicker__day--range-end) {
+    border-radius: 0 8px 8px 0 !important;
+    background: #2d7d46 !important;
+    color: #fff !important;
+}
+
+:global(.react-datepicker__day--in-range.react-datepicker__day--range-start) {
+    border-radius: 8px 0 0 8px !important;
+}
+
+:global(.react-datepicker__day--in-range.react-datepicker__day--range-end) {
+    border-radius: 0 8px 8px 0 !important;
+}
+
+:global(.react-datepicker__day--in-range.react-datepicker__day--range-start.react-datepicker__day--range-end) {
+    border-radius: 8px !important;
+}
+
+:global(.react-datepicker__day--in-range.react-datepicker__day--selected) {
+    background: #2d7d46 !important;
+    color: #fff !important;
+}
+
+:global(.react-datepicker__month-container) {
+    background: transparent !important;
+}
+
+:global(.react-datepicker__week) {
+    display: flex !important;
+    gap: 0 !important;
+}
+
+:global(.react-datepicker__day) {
+    width: 36px !important;
+    height: 36px !important;
+    line-height: 36px !important;
+    margin: 2px 0 !important;
+}
+
+/* ============================================================
+   АДАПТИВ
+   ============================================================ */
+
+@media (max-width: 480px) {
+    .periodModal {
+        padding: 20px;
+        width: 95%;
+    }
+    
+    .periodModalBody {
+        gap: 10px;
+    }
+    
+    .periodModalField {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 4px;
+    }
+    
+    .periodModalField label {
+        font-size: 13px;
+        min-width: auto;
+    }
+    
+    .sitesFilterRow {
+        flex-wrap: wrap;
+    }
+    
+    .sitesFilterBtn {
+        min-width: 140px;
+        flex: 1;
+    }
+    
+    .sitesFilterDropdown {
+        right: 0;
+        left: auto;
+        min-width: 180px;
+    }
+    
+    .siteAccordionDot {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .siteAccordionName {
+        font-size: 15px;
+    }
+    
+    .siteAccordionPeriod {
+        font-size: 13px;
+    }
+    
+    .siteAccordionSub {
+        font-size: 14px;
+    }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+    .sitesFilterDropdown {
+        right: 0;
+        left: auto;
+    }
+}

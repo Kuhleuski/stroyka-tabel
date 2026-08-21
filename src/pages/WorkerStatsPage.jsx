@@ -5,6 +5,9 @@ import { updateWorkerStatus } from '../services/supabase'
 import { formatDateLocal } from '../utils/dateHelpers'
 import Calendar from 'react-calendar'
 import 'react-calendar/dist/Calendar.css'
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import { ru } from 'date-fns/locale'
 import styles from '../styles/workerStats.module.css'
 import { WorkerStatsFooter } from '../components/WorkerStatsFooter'
 
@@ -20,6 +23,18 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     const [direction, setDirection] = useState(0)
     const [expandedSites, setExpandedSites] = useState(new Set())
     const [isDetailVisible, setIsDetailVisible] = useState(true)
+    
+    // ⭐ Для фильтра объектов
+    const [sitesFilterMode, setSitesFilterMode] = useState('all') // 'all' | 'period'
+    const [showPeriodModal, setShowPeriodModal] = useState(false)
+    const [sitesPeriodStart, setSitesPeriodStart] = useState('')
+    const [sitesPeriodEnd, setSitesPeriodEnd] = useState('')
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+    const dropdownRef = useRef(null)
+
+    // ⭐ Для DatePicker
+    const [tempStartDate, setTempStartDate] = useState(null)
+    const [tempEndDate, setTempEndDate] = useState(null)
     
     const monthKeyRef = useRef(0)
     const isFirstRenderRef = useRef(true)
@@ -51,6 +66,17 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         }
     }, [])
 
+    // ⭐ Закрытие dropdown при клике вне
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsDropdownOpen(false)
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [])
+
     const workerShifts = useMemo(() => {
         if (!shifts || !worker) return []
         return shifts.filter(s => s.worker_id === worker.id)
@@ -77,9 +103,10 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         return 'рабочих дней'
     }
 
+    // ⭐ Исправлена функция с использованием formatDateLocal
     const formatDateDisplay = (dateStr) => {
-        const parts = dateStr.split('-')
-        const date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]))
+        if (!dateStr) return { date: '', dayOfWeek: '' }
+        const date = new Date(dateStr + 'T00:00:00')
         const dayOfWeek = date.toLocaleDateString('ru-RU', { weekday: 'long' })
         const formattedDate = date.toLocaleDateString('ru-RU', {
             day: '2-digit',
@@ -367,6 +394,40 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
 
     const siteStats = getSiteStats()
 
+    // ⭐ ФИЛЬТРОВАННЫЙ СПИСОК ОБЪЕКТОВ
+    const filteredSiteStats = useMemo(() => {
+        let filtered = [...siteStats]
+        
+        // Фильтр по периоду (если выбран период и даты есть)
+        if (sitesFilterMode === 'period' && sitesPeriodStart && sitesPeriodEnd) {
+            const start = new Date(sitesPeriodStart)
+            start.setHours(0, 0, 0, 0)
+            const end = new Date(sitesPeriodEnd)
+            end.setHours(23, 59, 59, 999)
+            
+            filtered = filtered.map(site => {
+                const filteredDates = site.dates.filter(dateStr => {
+                    const date = new Date(dateStr + 'T00:00:00')
+                    return date >= start && date <= end
+                })
+                return {
+                    ...site,
+                    dates: filteredDates,
+                    totalDays: filteredDates.length
+                }
+            }).filter(site => site.dates.length > 0)
+        }
+        
+        // ⭐ РАНЖИРОВАНИЕ ПО АКТУАЛЬНОСТИ (по дате последней смены)
+        filtered.sort((a, b) => {
+            const lastDateA = new Date(a.dates[a.dates.length - 1] + 'T00:00:00')
+            const lastDateB = new Date(b.dates[b.dates.length - 1] + 'T00:00:00')
+            return lastDateB - lastDateA
+        })
+        
+        return filtered
+    }, [siteStats, sitesFilterMode, sitesPeriodStart, sitesPeriodEnd])
+
     const getDayColors = (date) => {
         const dateStr = formatDateLocal(date)
         const dayShifts = monthData.shifts.find(item => item.date === dateStr)
@@ -451,6 +512,46 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         }
     }
 
+    // ⭐ ОБРАБОТЧИКИ ДЛЯ ФИЛЬТРА ОБЪЕКТОВ
+    const handleFilterChange = (mode) => {
+    setSitesFilterMode(mode)
+    setIsDropdownOpen(false)
+    
+    if (mode === 'all') {
+        setSitesPeriodStart('')
+        setSitesPeriodEnd('')
+        setTempStartDate(null)
+        setTempEndDate(null)
+    } else if (mode === 'period') {
+        setShowPeriodModal(true)
+        if (sitesPeriodStart && sitesPeriodEnd) {
+            setTempStartDate(new Date(sitesPeriodStart + 'T00:00:00'))
+            setTempEndDate(new Date(sitesPeriodEnd + 'T00:00:00'))
+        } else {
+            const now = new Date()
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
+            setTempStartDate(firstDay)
+            setTempEndDate(now)
+        }
+    }
+}
+ const handleApplyPeriod = () => {
+    if (tempStartDate && tempEndDate) {
+        const startStr = formatDateLocal(tempStartDate)
+        const endStr = formatDateLocal(tempEndDate)
+        setSitesPeriodStart(startStr)
+        setSitesPeriodEnd(endStr)
+        setSitesFilterMode('period')  // ← Убеждаемся, что режим period
+        setShowPeriodModal(false)
+    }
+}
+    const handleCancelPeriod = () => {
+        setShowPeriodModal(false)
+        if (!sitesPeriodStart && !sitesPeriodEnd) {
+            setSitesFilterMode('all')
+        }
+    }
+
     const variants = {
         enter: (direction) => ({
             x: direction > 0 ? 300 : -300,
@@ -476,75 +577,75 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
 
     return (
         <div className={styles.workerStatsPage}>
-         {/* ХЕДЕР */}
-<div className={styles.workerStatsHeader}>
-    {/* АВАТАРКА СЛЕВА */}
-    <div 
-        className={styles.workerStatsAvatarWrapper}
-        onClick={() => onEdit(worker)}
-    >
-        <div className={styles.workerStatsAvatar}>
-            {hasPhoto ? (
-                <img src={avatarUrl} alt={worker.name} />
-            ) : (
-                <span style={{ background: avatarColor }}>{initials}</span>
-            )}
-        </div>
-        <div className={styles.workerStatsEditBadge}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="3" />
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-            </svg>
-        </div>
-    </div>
-
-    {/* ИНФОРМАЦИЯ СПРАВА */}
-    <div className={styles.workerStatsInfo}>
-        <span className={styles.workerStatsName}>
-            {worker.name}
-        </span>
-        <div className={styles.workerStatsStatusRow}>
-            <span className={styles.workerStatsStatusLabel}>Статус: </span>
-            <span className={styles.workerStatsStatusText}>
-                <span 
-                    className={`${styles.statusText} ${status === 'active' ? styles.statusActive : styles.statusInactive}`}
+            {/* ХЕДЕР */}
+            <div className={styles.workerStatsHeader}>
+                {/* АВАТАРКА СЛЕВА */}
+                <div 
+                    className={styles.workerStatsAvatarWrapper}
+                    onClick={() => onEdit(worker)}
                 >
-                    {status === 'active' ? 'Работает' : 'Не работает'}
-                </span>
-            </span>
-            <button 
-                className={`${styles.switch} ${status === 'active' ? styles.active : ''}`}
-                onClick={handleStatusToggle}
-                disabled={isUpdatingStatus}
-                aria-label="Переключить статус"
-            >
-                <span className={styles.switchSlider} />
-            </button>
-        </div>
-    </div>
-</div>
+                    <div className={styles.workerStatsAvatar}>
+                        {hasPhoto ? (
+                            <img src={avatarUrl} alt={worker.name} />
+                        ) : (
+                            <span style={{ background: avatarColor }}>{initials}</span>
+                        )}
+                    </div>
+                    <div className={styles.workerStatsEditBadge}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="3" />
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                        </svg>
+                    </div>
+                </div>
 
-           {/* ВКЛАДКИ */}
-<div className={styles.workerStatsTabs}>
-    <button 
-        className={`${styles.workerStatsTab} ${activeTab === 'month' ? styles.active : ''}`}
-        onClick={() => setActiveTab('month')}
-    >
-        Рабочие дни
-    </button>
-    <button 
-        className={`${styles.workerStatsTab} ${activeTab === 'sites' ? styles.active : ''}`}
-        onClick={() => setActiveTab('sites')}
-    >
-        Объекты
-    </button>
-    <button 
-        className={`${styles.workerStatsTab} ${activeTab === 'salary' ? styles.active : ''}`}
-        onClick={() => setActiveTab('salary')}
-    >
-        Зарплата
-    </button>
-</div>
+                {/* ИНФОРМАЦИЯ СПРАВА */}
+                <div className={styles.workerStatsInfo}>
+                    <span className={styles.workerStatsName}>
+                        {worker.name}
+                    </span>
+                    <div className={styles.workerStatsStatusRow}>
+                        <span className={styles.workerStatsStatusLabel}>Статус: </span>
+                        <span className={styles.workerStatsStatusText}>
+                            <span 
+                                className={`${styles.statusText} ${status === 'active' ? styles.statusActive : styles.statusInactive}`}
+                            >
+                                {status === 'active' ? 'Работает' : 'Не работает'}
+                            </span>
+                        </span>
+                        <button 
+                            className={`${styles.switch} ${status === 'active' ? styles.active : ''}`}
+                            onClick={handleStatusToggle}
+                            disabled={isUpdatingStatus}
+                            aria-label="Переключить статус"
+                        >
+                            <span className={styles.switchSlider} />
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* ВКЛАДКИ */}
+            <div className={styles.workerStatsTabs}>
+                <button 
+                    className={`${styles.workerStatsTab} ${activeTab === 'month' ? styles.active : ''}`}
+                    onClick={() => setActiveTab('month')}
+                >
+                    Рабочие дни
+                </button>
+                <button 
+                    className={`${styles.workerStatsTab} ${activeTab === 'sites' ? styles.active : ''}`}
+                    onClick={() => setActiveTab('sites')}
+                >
+                    Объекты
+                </button>
+                <button 
+                    className={`${styles.workerStatsTab} ${activeTab === 'salary' ? styles.active : ''}`}
+                    onClick={() => setActiveTab('salary')}
+                >
+                    Зарплата
+                </button>
+            </div>
 
             {/* КОНТЕНТ */}
             <div className={styles.workerStatsContent}>
@@ -664,14 +765,79 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
 
                 {activeTab === 'sites' && (
                     <div className={styles.tabContent}>
-                        <div className={styles.sitesTitle}>
-                            Объекты, на которых работал {worker.name} за весь период:
+                        {/* ЗАГОЛОВОК */}
+                        <div className={styles.sitesHeader}>
+                            <div className={styles.sitesTitle}>
+                                Объекты, на которых работал {worker.name.split(' ')[0]}:
+                            </div>
                         </div>
-                        
-                        {siteStats.length > 0 ? (
+
+           {/* ВЫПАДАЛКА ФИЛЬТРА */}
+<div className={styles.sitesFilterWrapper} ref={dropdownRef}>
+    <div className={styles.sitesFilterRow}>
+        <span className={styles.sitesFilterLabel}>Показать:</span>
+        <button 
+            className={styles.sitesFilterBtn}
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+        >
+            <span>
+                {sitesFilterMode === 'all' 
+                    ? 'За весь период'
+                    : sitesPeriodStart && sitesPeriodEnd 
+                        ? `с ${formatDateDisplay(sitesPeriodStart).date} по ${formatDateDisplay(sitesPeriodEnd).date}`
+                        : 'За весь период'
+                }
+            </span>
+            <svg 
+                width="16" 
+                height="16" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+                style={{ 
+                    transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.2s ease'
+                }}
+            >
+                <polyline points="6 9 12 15 18 9" />
+            </svg>
+        </button>
+    </div>
+
+    {isDropdownOpen && (
+        <div className={styles.sitesFilterDropdown}>
+            <button 
+                className={`${styles.sitesFilterOption} ${sitesFilterMode === 'all' ? styles.active : ''}`}
+                onClick={() => handleFilterChange('all')}
+            >
+                За весь период
+            </button>
+            <button 
+                className={`${styles.sitesFilterOption} ${sitesFilterMode === 'period' ? styles.active : ''}`}
+                onClick={() => handleFilterChange('period')}
+            >
+                Выбрать период
+            </button>
+        </div>
+    )}
+</div>
+
+                       
+
+                        {/* СПИСОК ОБЪЕКТОВ */}
+                        {filteredSiteStats.length > 0 ? (
                             <div className={styles.sitesList}>
-                                {siteStats.map((site) => {
+                                {filteredSiteStats.map((site) => {
                                     const dayText = site.totalDays === 1 ? 'рабочий день' : 'рабочих дней'
+                                    // Обновленный период для отображения
+                                    const firstDate = site.dates.length > 0 ? formatDateDisplay(site.dates[0]).date : ''
+                                    const lastDate = site.dates.length > 0 ? formatDateDisplay(site.dates[site.dates.length - 1]).date : ''
+                                    const periodDisplay = site.dates.length > 0 
+                                        ? `Период: ${firstDate} - ${lastDate}`
+                                        : site.periodText
                                     return (
                                         <div key={site.siteId} className={styles.siteAccordion}>
                                             <button 
@@ -685,7 +851,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                                                     />
                                                     <div>
                                                         <div className={styles.siteAccordionName}>{site.siteName}</div>
-                                                        <div className={styles.siteAccordionPeriod}>{site.periodText}</div>
+                                                        <div className={styles.siteAccordionPeriod}>{periodDisplay}</div>
                                                         <div className={styles.siteAccordionSub}>
                                                             {site.totalDays} {dayText}
                                                         </div>
@@ -702,7 +868,7 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                                                 <div className={styles.siteAccordionBody}>
                                                     {site.dates.map((date) => (
                                                         <div key={date} className={styles.siteAccordionDate}>
-                                                            {formatDateDisplayFull(date)}
+                                                            {formatDateDisplay(date).date}
                                                         </div>
                                                     ))}
                                                 </div>
@@ -712,8 +878,89 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                                 })}
                             </div>
                         ) : (
-                            <div className={styles.emptyState}>Нет объектов</div>
+                            <div className={styles.emptyState}>
+                                {sitesFilterMode === 'period' && sitesPeriodStart && sitesPeriodEnd 
+                                    ? 'Нет объектов за выбранный период' 
+                                    : 'Нет объектов'}
+                            </div>
                         )}
+
+                        {/* ⭐ МОДАЛКА ВЫБОРА ПЕРИОДА — с DatePicker */}
+                        {showPeriodModal && (
+                            <div className={styles.periodModalOverlay} onClick={handleCancelPeriod}>
+                                <div className={styles.periodModal} onClick={(e) => e.stopPropagation()}>
+                                    <div className={styles.periodModalHeader}>
+                                        <span className={styles.periodModalTitle}>Выбрать период</span>
+                                        <button 
+                                            className={styles.periodModalClose}
+                                            onClick={handleCancelPeriod}
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+
+                                    <div className={styles.periodModalBody}>
+                                        <div className={styles.periodModalField}>
+                                            <label>С</label>
+                                            <DatePicker
+                                                selected={tempStartDate}
+                                                onChange={(date) => setTempStartDate(date)}
+                                                selectsStart
+                                                startDate={tempStartDate}
+                                                endDate={tempEndDate}
+                                                locale={ru}
+                                                dateFormat="dd.MM.yyyy"
+                                                placeholderText="Выберите дату"
+                                                className={styles.periodDatePicker}
+                                            />
+                                        </div>
+                                        <div className={styles.periodModalField}>
+                                            <label>По</label>
+                                            <DatePicker
+                                                selected={tempEndDate}
+                                                onChange={(date) => setTempEndDate(date)}
+                                                selectsEnd
+                                                startDate={tempStartDate}
+                                                endDate={tempEndDate}
+                                                minDate={tempStartDate}
+                                                locale={ru}
+                                                dateFormat="dd.MM.yyyy"
+                                                placeholderText="Выберите дату"
+                                                className={styles.periodDatePicker}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className={styles.periodModalFooter}>
+                                        <button 
+                                            className={styles.periodModalCancelBtn}
+                                            onClick={handleCancelPeriod}
+                                        >
+                                            Отмена
+                                        </button>
+                                        <button 
+                                            className={styles.periodModalApplyBtn}
+                                            onClick={handleApplyPeriod}
+                                            disabled={!tempStartDate || !tempEndDate}
+                                        >
+                                            Применить
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {activeTab === 'salary' && (
+                    <div className={styles.tabContent}>
+                        <div className={styles.salaryPlaceholder}>
+                            <div className={styles.salaryPlaceholderIcon}>💰</div>
+                            <div className={styles.salaryPlaceholderTitle}>Зарплата</div>
+                            <div className={styles.salaryPlaceholderText}>
+                                Информация о зарплате появится позже
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
