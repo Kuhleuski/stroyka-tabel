@@ -29,7 +29,7 @@ const SavingOverlay = () => (
     </div>
 )
 
-export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {  // ← добавил пропсы
+export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
     const [showAddModal, setShowAddModal] = useState(false)
     const [showEditModal, setShowEditModal] = useState(false)
     const [selectedWorker, setSelectedWorker] = useState(null)
@@ -170,7 +170,6 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
         }
         setSelectedWorker(worker)
         
-        // ⭐ Скрываем BottomNav при открытии статистики
         if (onOpenWorkerStats) {
             onOpenWorkerStats()
         }
@@ -179,7 +178,6 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
     const handleCloseDetail = () => {
         setSelectedWorker(null)
         
-        // ⭐ Показываем BottomNav при закрытии статистики
         if (onCloseWorkerStats) {
             onCloseWorkerStats()
         }

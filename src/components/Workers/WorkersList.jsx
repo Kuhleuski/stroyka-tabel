@@ -55,17 +55,15 @@ export function WorkersList({ workers, onWorkerClick, refreshKey }) {
         }
     }
 
-    // === СОРТИРОВКА (пересчитывается при каждом рендере, но это быстро) ===
+    // === СОРТИРОВКА ===
     const sortedWorkers = (() => {
         if (!workers || !Array.isArray(workers)) return { active: [], inactive: [] }
         
         const newWorkerId = getNewWorkerId()
         
-        // Разделяем на активных и неактивных
         const activeWorkers = workers.filter(w => w?.status === 'active' || !w?.status)
         const inactiveWorkers = workers.filter(w => w?.status === 'inactive')
         
-        // Сортируем активных
         const sortedActive = [...activeWorkers].sort((a, b) => {
             const isNewA = newWorkerId && a?.id === parseInt(newWorkerId)
             const isNewB = newWorkerId && b?.id === parseInt(newWorkerId)
@@ -85,7 +83,6 @@ export function WorkersList({ workers, onWorkerClick, refreshKey }) {
             return new Date(b?.created_at || 0).getTime() - new Date(a?.created_at || 0).getTime()
         })
         
-        // Сортируем неактивных
         const sortedInactive = [...inactiveWorkers].sort((a, b) => {
             const lastOpenedA = getLastOpened(a?.id)
             const lastOpenedB = getLastOpened(b?.id)
@@ -102,7 +99,6 @@ export function WorkersList({ workers, onWorkerClick, refreshKey }) {
         return { active: sortedActive, inactive: sortedInactive }
     })()
 
-    // === КЕШИРОВАННЫЙ СПИСОК (пересчитываем при каждом рендере) ===
     const cachedActive = sortedWorkers.active.map((worker) => {
         const avatar = getAvatar(worker?.name)
         return {
@@ -141,80 +137,72 @@ export function WorkersList({ workers, onWorkerClick, refreshKey }) {
         )
     }
 
+    // ⭐ ФУНКЦИЯ ДЛЯ РЕНДЕРИНГА КАРТОЧКИ
+    const renderWorkerCard = (worker) => {
+        const { hasPhoto, avatarData, initials, avatarColor, status } = worker
+        const isActive = status === 'active'
+
+        return (
+            <div 
+                key={worker?.id} 
+                className={styles.workerGridCard}
+                onClick={() => onWorkerClick(worker)}
+            >
+                {/* ⭐ АВАТАРКА С ОБВОДКОЙ */}
+                <div 
+                    className={`${styles.workerGridAvatar} ${
+                        isActive ? styles.active : styles.inactive
+                    }`}
+                    style={{ 
+                        backgroundColor: hasPhoto ? 'transparent' : avatarColor,
+                        overflow: 'hidden',
+                    }}
+                >
+                    {hasPhoto ? (
+                        <img 
+                            src={avatarData} 
+                            alt={worker?.name || 'Работник'}
+                            loading="lazy"
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                borderRadius: '50%'
+                            }}
+                            onError={(e) => {
+                                e.target.style.display = 'none'
+                                e.target.parentNode.style.backgroundColor = avatarColor
+                                e.target.parentNode.textContent = initials
+                            }}
+                        />
+                    ) : (
+                        initials
+                    )}
+                </div>
+
+                {/* ⭐ ИМЯ БЕЗ ТОЧКИ */}
+                <div className={styles.workerGridNameWrapper}>
+                    <span className={styles.workerGridName}>{worker?.name || 'Без имени'}</span>
+                </div>
+            </div>
+        )
+    }
+
     return (
         <div ref={containerRef} className={styles.workersGridContainer} key={refreshKey}>
             {/* АКТИВНЫЕ РАБОТНИКИ */}
             {hasActive && (
                 <>
                     <div className={styles.workersSectionHeader}>
-                        Работники в статусе активные
+                        Активные
                     </div>
                     <div className={styles.workersGrid}>
-                        {cachedActive.map((worker) => {
-                            const { hasPhoto, avatarData, initials, avatarColor, status } = worker
-                            const isActive = status === 'active'
-
-                            return (
-                                <div 
-                                    key={worker?.id} 
-                                    className={styles.workerGridCard}
-                                    onClick={() => onWorkerClick(worker)}
-                                >
-                                    <div className={styles.workerGridAvatar} style={{ 
-                                        backgroundColor: hasPhoto ? 'transparent' : avatarColor,
-                                        border: hasPhoto ? '2px solid #e8eaed' : 'none',
-                                        overflow: 'hidden',
-                                        borderRadius: '50%',
-                                        width: '64px',
-                                        height: '64px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontSize: '24px',
-                                        fontWeight: 600,
-                                        color: 'white',
-                                        flexShrink: 0,
-                                        margin: '0 auto'
-                                    }}>
-                                        {hasPhoto ? (
-                                            <img 
-                                                src={avatarData} 
-                                                alt={worker?.name || 'Работник'}
-                                                loading="lazy"
-                                                style={{
-                                                    width: '100%',
-                                                    height: '100%',
-                                                    objectFit: 'cover',
-                                                    borderRadius: '50%'
-                                                }}
-                                                onError={(e) => {
-                                                    e.target.style.display = 'none'
-                                                    e.target.parentNode.style.backgroundColor = avatarColor
-                                                    e.target.parentNode.textContent = initials
-                                                }}
-                                            />
-                                        ) : (
-                                            initials
-                                        )}
-                                    </div>
-                                    <div className={styles.workerGridNameWrapper}>
-                                        <span 
-                                            className={styles.workerStatusDot}
-                                            style={{ 
-                                                backgroundColor: isActive ? 'rgb(16, 180, 0)' : 'rgb(141, 141, 141)',
-                                                boxShadow: isActive ? '0 0 6px rgba(16, 180, 0, 0.5)' : 'none'
-                                            }}
-                                        />
-                                        <span className={styles.workerGridName}>{worker?.name || 'Без имени'}</span>
-                                    </div>
-                                </div>
-                            )
-                        })}
+                        {cachedActive.map(renderWorkerCard)}
                     </div>
                 </>
             )}
 
-            {/* РАЗДЕЛИТЕЛЬ (ТОЛЬКО ЕСЛИ ЕСТЬ И АКТИВНЫЕ И НЕАКТИВНЫЕ) */}
+            {/* РАЗДЕЛИТЕЛЬ */}
             {hasActive && hasInactive && (
                 <div className={styles.workersDivider} />
             )}
@@ -223,69 +211,10 @@ export function WorkersList({ workers, onWorkerClick, refreshKey }) {
             {hasInactive && (
                 <>
                     <div className={styles.workersSectionHeader}>
-                        Работники в статусе не активные
+                        Неактивные
                     </div>
                     <div className={styles.workersGrid}>
-                        {cachedInactive.map((worker) => {
-                            const { hasPhoto, avatarData, initials, avatarColor, status } = worker
-                            const isActive = status === 'active'
-
-                            return (
-                                <div 
-                                    key={worker?.id} 
-                                    className={styles.workerGridCard}
-                                    onClick={() => onWorkerClick(worker)}
-                                >
-                                    <div className={styles.workerGridAvatar} style={{ 
-                                        backgroundColor: hasPhoto ? 'transparent' : avatarColor,
-                                        border: hasPhoto ? '2px solid #e8eaed' : 'none',
-                                        overflow: 'hidden',
-                                        borderRadius: '50%',
-                                        width: '64px',
-                                        height: '64px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontSize: '24px',
-                                        fontWeight: 600,
-                                        color: 'white',
-                                        flexShrink: 0,
-                                        margin: '0 auto'
-                                    }}>
-                                        {hasPhoto ? (
-                                            <img 
-                                                src={avatarData} 
-                                                alt={worker?.name || 'Работник'}
-                                                loading="lazy"
-                                                style={{
-                                                    width: '100%',
-                                                    height: '100%',
-                                                    objectFit: 'cover',
-                                                    borderRadius: '50%'
-                                                }}
-                                                onError={(e) => {
-                                                    e.target.style.display = 'none'
-                                                    e.target.parentNode.style.backgroundColor = avatarColor
-                                                    e.target.parentNode.textContent = initials
-                                                }}
-                                            />
-                                        ) : (
-                                            initials
-                                        )}
-                                    </div>
-                                    <div className={styles.workerGridNameWrapper}>
-                                        <span 
-                                            className={styles.workerStatusDot}
-                                            style={{ 
-                                                backgroundColor: isActive ? 'rgb(16, 180, 0)' : 'rgb(141, 141, 141)',
-                                                boxShadow: isActive ? '0 0 6px rgba(16, 180, 0, 0.5)' : 'none'
-                                            }}
-                                        />
-                                        <span className={styles.workerGridName}>{worker?.name || 'Без имени'}</span>
-                                    </div>
-                                </div>
-                            )
-                        })}
+                        {cachedInactive.map(renderWorkerCard)}
                     </div>
                 </>
             )}

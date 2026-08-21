@@ -101,26 +101,12 @@
     color: white;
     flex-shrink: 0;
     margin-bottom: var(--spacing-sm);
-}
-
-.workerGridNameWrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    max-width: 100%;
-    min-width: 0;
-    padding: 0 4px;
-}
-
-.workerStatusDot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    display: inline-block;
     transition: all 0.3s ease;
 }
+
+
+
+
 
 .workerGridName {
     font-size: var(--font-size-md);
@@ -134,7 +120,17 @@
     min-width: 0;
     flex: 1;
 }
+/* ⭐ ОБВОДКА ДЛЯ АКТИВНЫХ — зеленая */
+.workerGridAvatar.active {
+    border: 3px solid #2d7d46;
+    box-shadow: 0 0 12px rgba(45, 125, 70, 0.3);
+}
 
+/* ⭐ ОБВОДКА ДЛЯ НЕАКТИВНЫХ — серая */
+.workerGridAvatar.inactive {
+    border: 3px solid #888888;
+    box-shadow: 0 0 8px rgba(136, 136, 136, 0.15);
+}
 /* ============================================================
    РАЗДЕЛЕНИЕ АКТИВНЫХ И НЕАКТИВНЫХ
    ============================================================ */
