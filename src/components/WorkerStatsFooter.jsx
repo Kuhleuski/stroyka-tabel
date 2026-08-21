@@ -5,15 +5,6 @@ export function WorkerStatsFooter({ onEdit, onClose, worker }) {
     return createPortal(
         <div className={styles.workerStatsFooterPortal}>
             <button 
-                className={styles.workerStatsProfileBtn}
-                onClick={() => {
-                    console.log('🔘 Профиль нажат')
-                    onEdit(worker)
-                }}
-            >
-                Профиль
-            </button>
-            <button 
                 className={styles.workerStatsCloseBtn}
                 onClick={() => {
                     console.log('🔘 Закрыть нажат')

@@ -23,7 +23,6 @@ function AppContent() {
     const [unreadCount, setUnreadCount] = useState(1)
     const [pageKey, setPageKey] = useState(0)
     
-    // ⭐ НОВОЕ: состояние для скрытия BottomNav
     const [hideBottomNav, setHideBottomNav] = useState(false)
     
     const { shifts, loading, error, refetch } = useShifts()
@@ -57,7 +56,7 @@ function AppContent() {
     }
 
     const handleNavigate = (page) => {
-        if (page === 'settings') {
+        if (page === 'profile') {
             setShowSettings(true)
             return
         }
@@ -77,21 +76,17 @@ function AppContent() {
         setShowSettings(true)
     }
 
-    // ⭐ НОВЫЕ: функции для управления BottomNav
     const handleOpenWorkerStats = () => {
         setHideBottomNav(true)
     }
 
     const handleCloseWorkerStats = () => {
         setHideBottomNav(false)
-        // Обновляем данные при закрытии
         refetch()
     }
 
     const renderPage = () => {
         switch (currentPage) {
-            case 'my-tabel':
-                return <MyTabelPage key={`my-tabel-${pageKey}`} shifts={shifts} />
             case 'calendar':
                 return <TestPage key={`calendar-${pageKey}`} />
             case 'sites':
@@ -100,9 +95,11 @@ function AppContent() {
                 return <WorkersPage 
                     key={`workers-${pageKey}`} 
                     shifts={shifts}
-                    onOpenWorkerStats={handleOpenWorkerStats}   // ← передаем
-                    onCloseWorkerStats={handleCloseWorkerStats} // ← передаем
+                    onOpenWorkerStats={handleOpenWorkerStats}
+                    onCloseWorkerStats={handleCloseWorkerStats}
                 />
+            case 'my-tabel':
+                return <MyTabelPage key={`my-tabel-${pageKey}`} shifts={shifts} />
             case 'salary':
                 return <SalaryPage key={`salary-${pageKey}`} />
             case 'extra':
@@ -118,18 +115,18 @@ function AppContent() {
 
     return (
         <div className={layoutStyles.app}>
-            <Header 
+            {/* ⭐ ХЕДЕР ВРЕМЕННО ОТКЛЮЧЕН */}
+            {/* <Header 
                 onSettings={handleOpenSettings}
                 onNotifications={handleOpenNotifications}
                 unreadCount={unreadCount}
                 userId={user?.id}
-            />
+            /> */}
             
             <div className="container">
                 {renderPage()}
             </div>
             
-            {/* ⭐ ПОКАЗЫВАЕМ BottomNav ТОЛЬКО если не скрыт */}
             {!hideBottomNav && (
                 <BottomNav 
                     currentPage={currentPage} 

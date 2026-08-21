@@ -89,6 +89,26 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         return { date: formattedDate, dayOfWeek }
     }
 
+    // Функция для месяца в предложном падеже
+    const getMonthPrepositional = (date) => {
+        const month = date.getMonth()
+        const months = {
+            0: 'январе',
+            1: 'феврале',
+            2: 'марте',
+            3: 'апреле',
+            4: 'мае',
+            5: 'июне',
+            6: 'июле',
+            7: 'августе',
+            8: 'сентябре',
+            9: 'октябре',
+            10: 'ноябре',
+            11: 'декабре'
+        }
+        return months[month]
+    }
+
     const handleStatusToggle = async () => {
         if (!worker) return
         
@@ -456,55 +476,75 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
 
     return (
         <div className={styles.workerStatsPage}>
-            {/* ХЕДЕР */}
-            <div className={styles.workerStatsHeader}>
-                <div className={styles.workerStatsAvatar}>
-                    {hasPhoto ? (
-                        <img src={avatarUrl} alt={worker.name} />
-                    ) : (
-                        <span style={{ background: avatarColor }}>{initials}</span>
-                    )}
-                </div>
+         {/* ХЕДЕР */}
+<div className={styles.workerStatsHeader}>
+    {/* АВАТАРКА СЛЕВА */}
+    <div 
+        className={styles.workerStatsAvatarWrapper}
+        onClick={() => onEdit(worker)}
+    >
+        <div className={styles.workerStatsAvatar}>
+            {hasPhoto ? (
+                <img src={avatarUrl} alt={worker.name} />
+            ) : (
+                <span style={{ background: avatarColor }}>{initials}</span>
+            )}
+        </div>
+        <div className={styles.workerStatsEditBadge}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3" />
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+        </div>
+    </div>
 
-                <div className={styles.workerStatsInfo}>
-                    <span className={styles.workerStatsName}>{worker.name}</span>
-                    <div className={styles.workerStatsStatus}>
-                        <span className={styles.statusLabel}>
-                            {status === 'active' ? 'Активен' : 'Не работает'}
-                        </span>
-                        <button 
-                            className={`${styles.switch} ${status === 'active' ? styles.active : ''}`}
-                            onClick={handleStatusToggle}
-                            disabled={isUpdatingStatus}
-                            aria-label="Переключить статус"
-                        >
-                            <span className={styles.switchSlider} />
-                        </button>
-                    </div>
-                </div>
-            </div>
+    {/* ИНФОРМАЦИЯ СПРАВА */}
+    <div className={styles.workerStatsInfo}>
+        <span className={styles.workerStatsName}>
+            {worker.name}
+        </span>
+        <div className={styles.workerStatsStatusRow}>
+            <span className={styles.workerStatsStatusLabel}>Статус: </span>
+            <span className={styles.workerStatsStatusText}>
+                <span 
+                    className={`${styles.statusText} ${status === 'active' ? styles.statusActive : styles.statusInactive}`}
+                >
+                    {status === 'active' ? 'Работает' : 'Не работает'}
+                </span>
+            </span>
+            <button 
+                className={`${styles.switch} ${status === 'active' ? styles.active : ''}`}
+                onClick={handleStatusToggle}
+                disabled={isUpdatingStatus}
+                aria-label="Переключить статус"
+            >
+                <span className={styles.switchSlider} />
+            </button>
+        </div>
+    </div>
+</div>
 
-            {/* ВКЛАДКИ */}
-            <div className={styles.workerStatsTabs}>
-                <button 
-                    className={`${styles.workerStatsTab} ${activeTab === 'month' ? styles.active : ''}`}
-                    onClick={() => setActiveTab('month')}
-                >
-                    Месяц
-                </button>
-                <button 
-                    className={`${styles.workerStatsTab} ${activeTab === 'sites' ? styles.active : ''}`}
-                    onClick={() => setActiveTab('sites')}
-                >
-                    Объекты
-                </button>
-                <button 
-                    className={`${styles.workerStatsTab} ${activeTab === 'period' ? styles.active : ''}`}
-                    onClick={() => setActiveTab('period')}
-                >
-                    Период
-                </button>
-            </div>
+           {/* ВКЛАДКИ */}
+<div className={styles.workerStatsTabs}>
+    <button 
+        className={`${styles.workerStatsTab} ${activeTab === 'month' ? styles.active : ''}`}
+        onClick={() => setActiveTab('month')}
+    >
+        Рабочие дни
+    </button>
+    <button 
+        className={`${styles.workerStatsTab} ${activeTab === 'sites' ? styles.active : ''}`}
+        onClick={() => setActiveTab('sites')}
+    >
+        Объекты
+    </button>
+    <button 
+        className={`${styles.workerStatsTab} ${activeTab === 'salary' ? styles.active : ''}`}
+        onClick={() => setActiveTab('salary')}
+    >
+        Зарплата
+    </button>
+</div>
 
             {/* КОНТЕНТ */}
             <div className={styles.workerStatsContent}>
@@ -569,44 +609,48 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                             </AnimatePresence>
                         </div>
 
-                        {/* ДЕТАЛИ */}
+                        {/* ПЛАШКА — ИНФОРМАЦИЯ О РАБОТЕ В МЕСЯЦЕ */}
                         <AnimatePresence>
                             {isDetailVisible && monthData.shifts.length > 0 && (
                                 <motion.div
                                     key={`detail-${monthKeyRef.current}`}
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
+                                    initial={{ opacity: 0, y: 8 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: 8 }}
                                     transition={{ duration: 0.3 }}
                                     className={styles.detailStatsWrapper}
                                 >
-                                    <div className={styles.detailStats}>
-                                        <div className={styles.detailStatsTitle}>Рабочие дни в этом месяце</div>
-                                        <div className={styles.detailStatsList}>
-                                            {monthData.shifts.map(({ date, sites: siteNames, siteIds }) => {
-                                                const { date: formattedDate, dayOfWeek } = formatDateDisplay(date)
+                                    <div className={styles.detailStatsCard}>
+                                        <div className={styles.detailStatsText}>
+                                            <span className={styles.detailStatsName}>
+                                                {worker.name.split(' ')[0]}
+                                            </span>
+                                            {' работал в '}
+                                            <span className={styles.detailStatsMonth}>
+                                                {getMonthPrepositional(currentMonth)}
+                                            </span>
+                                            {monthData.siteList.length === 1 ? (
+                                                ' только на объекте:'
+                                            ) : (
+                                                ' на объектах:'
+                                            )}
+                                        </div>
+                                        <div className={styles.detailStatsObjects}>
+                                            {monthData.siteList.map((siteName) => {
+                                                const site = sites?.find(s => s.name === siteName)
+                                                const color = site?.color || '#666'
                                                 return (
-                                                    <div key={date} className={styles.detailStatsItem}>
-                                                        <div className={styles.detailStatsDateWrapper}>
-                                                            <span className={styles.detailStatsDate}>{formattedDate}</span>
-                                                            <span className={styles.detailStatsDayOfWeek}>{dayOfWeek}</span>
-                                                        </div>
-                                                        <div className={styles.detailStatsSitesWrapper}>
-                                                            {siteNames.map((siteName, index) => {
-                                                                const siteId = siteIds?.[index]
-                                                                const site = sites?.find(s => String(s.id) === String(siteId))
-                                                                const color = site?.color || '#666'
-                                                                return (
-                                                                    <div key={index} className={styles.detailStatsSiteRow}>
-                                                                        <span 
-                                                                            className={styles.detailStatsSiteDot}
-                                                                            style={{ backgroundColor: color }}
-                                                                        />
-                                                                        <span className={styles.detailStatsSiteName}>{siteName}</span>
-                                                                    </div>
-                                                                )
-                                                            })}
-                                                        </div>
+                                                    <div key={siteName} className={styles.detailStatsObjectItem}>
+                                                        <span 
+                                                            className={styles.detailStatsObjectDot}
+                                                            style={{ 
+                                                                backgroundColor: color,
+                                                                boxShadow: `0 0 16px ${color}, 0 0 32px ${color}40`
+                                                            }}
+                                                        />
+                                                        <span className={styles.detailStatsObjectName}>
+                                                            {siteName}
+                                                        </span>
                                                     </div>
                                                 )
                                             })}
@@ -672,92 +716,9 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                         )}
                     </div>
                 )}
-
-                {activeTab === 'period' && (
-                    <div className={styles.tabContent}>
-                        <div className={styles.periodSelector}>
-                            <div className={styles.periodField}>
-                                <label>С</label>
-                                <input 
-                                    type="date"
-                                    value={periodStart || ''}
-                                    onChange={(e) => setPeriodStart(e.target.value)}
-                                />
-                            </div>
-                            <div className={styles.periodField}>
-                                <label>По</label>
-                                <input 
-                                    type="date"
-                                    value={periodEnd || ''}
-                                    onChange={(e) => setPeriodEnd(e.target.value)}
-                                />
-                            </div>
-                        </div>
-
-                        {periodStats ? (
-                            <div className={styles.periodResults}>
-                                <div className={styles.statsGrid}>
-                                    <div className={styles.statsCard}>
-                                        <div className={styles.statsCardMonth}>
-                                            <span className={styles.statsCardMonthName}>
-                                                {periodStart && periodEnd 
-                                                    ? new Date(periodStart).toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })
-                                                    : 'Период'
-                                                }
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className={styles.statsCard}>
-                                        <div className={styles.statsCardNumber}>{periodStats.totalDays}</div>
-                                        <div className={styles.statsCardLabel}>{getDaysLabel(periodStats.totalDays)}</div>
-                                    </div>
-                                </div>
-
-                                {periodStats.shifts.length > 0 ? (
-                                    <div className={styles.detailStats}>
-                                        <div className={styles.detailStatsTitle}>Рабочие дни в выбранный период</div>
-                                        <div className={styles.detailStatsList}>
-                                            {periodStats.shifts.map(({ date, sites: siteNames, siteIds }) => {
-                                                const { date: formattedDate, dayOfWeek } = formatDateDisplay(date)
-                                                return (
-                                                    <div key={date} className={styles.detailStatsItem}>
-                                                        <div className={styles.detailStatsDateWrapper}>
-                                                            <span className={styles.detailStatsDate}>{formattedDate}</span>
-                                                            <span className={styles.detailStatsDayOfWeek}>{dayOfWeek}</span>
-                                                        </div>
-                                                        <div className={styles.detailStatsSitesWrapper}>
-                                                            {siteNames.map((siteName, index) => {
-                                                                const siteId = siteIds?.[index]
-                                                                const site = sites?.find(s => String(s.id) === String(siteId))
-                                                                const color = site?.color || '#666'
-                                                                return (
-                                                                    <div key={index} className={styles.detailStatsSiteRow}>
-                                                                        <span 
-                                                                            className={styles.detailStatsSiteDot}
-                                                                            style={{ backgroundColor: color }}
-                                                                        />
-                                                                        <span className={styles.detailStatsSiteName}>{siteName}</span>
-                                                                    </div>
-                                                                )
-                                                            })}
-                                                        </div>
-                                                    </div>
-                                                )
-                                            })}
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className={styles.emptyState}>Нет рабочих дней в выбранный период</div>
-                                )}
-                            </div>
-                        ) : (
-                            <div className={styles.emptyState}>Выберите период</div>
-                        )}
-                    </div>
-                )}
             </div>
 
-            {/* ⭐ ФУТЕР — ЧЕРЕЗ PORTAL (УДАЛИ СТАРЫЙ БЛОК, ЕСЛИ ОН ЕСТЬ) */}
+            {/* ФУТЕР — ЧЕРЕЗ PORTAL */}
             <WorkerStatsFooter 
                 onEdit={onEdit}
                 onClose={onClose}
