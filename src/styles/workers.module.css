@@ -119,6 +119,9 @@
     max-width: 100%;
     min-width: 0;
     flex: 1;
+    display: block;
+    width: 100%;
+    padding: 0 4px;
 }
 /* ⭐ ОБВОДКА ДЛЯ АКТИВНЫХ — зеленая */
 .workerGridAvatar.active {
@@ -130,6 +133,17 @@
 .workerGridAvatar.inactive {
     border: 3px solid #888888;
     box-shadow: 0 0 8px rgba(136, 136, 136, 0.15);
+}
+.workerGridNameWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    max-width: 100%;
+    min-width: 0;
+    padding: 0 4px;
+    width: 100%;
+    overflow: hidden;
 }
 /* ============================================================
    РАЗДЕЛЕНИЕ АКТИВНЫХ И НЕАКТИВНЫХ
