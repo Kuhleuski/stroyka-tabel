@@ -10,7 +10,38 @@
     background: var(--bg-body);
     min-height: 100vh;
 }
+/* ⭐ КНОПКА НАЗАД */
+.workerStatsBackBtn {
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.6);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    width: 36px;                 /* ← уменьшил с 44px до 36px */
+    height: 36px;                /* ← уменьшил с 44px до 36px */
+    flex-shrink: 0;
+    margin-right: 0;             /* ← убрал отступ */
+}
 
+.workerStatsBackBtn:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.workerStatsBackBtn:active {
+    transform: scale(0.92);
+}
+
+.workerStatsBackBtn svg {
+    stroke: currentColor;
+    width: 20px;                /* ← уменьшил иконку */
+    height: 20px;
+}
 /* ============================================================
    КОНТЕНТ
    ============================================================ */
@@ -25,38 +56,37 @@
 
 .workerStatsHeader {
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 0 0 16px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    align-items: center;
+    gap: 8px;                    /* ← уменьшил с 12px до 8px */
+    padding: 0 0 10px 0;
+    border-bottom: 0px solid rgba(255, 255, 255, 0.06);
 }
 
 .workerStatsInfo {
     flex: 1;
     min-width: 0;
-    text-align: right;
+    text-align: right;          /* ← было left, стало right */
+    padding-right: 4px;
 }
 
 .workerStatsName {
     display: block;
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 600;
     color: #fff;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin-bottom: 12px;
+    margin-bottom: 6px;
 }
 
-/* ⭐ Строка со статусом — фиксированная ширина, чтобы не прыгал */
+/* ⭐ Строка со статусом — прижата к правому краю */
 .workerStatsStatusRow {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: flex-end;   /* ← прижимаем к правому краю */
     gap: 6px;
-    flex-wrap: nowrap;
-    min-width: 200px;
+    flex-wrap: wrap;
 }
 
 .workerStatsStatusLabel {
@@ -139,8 +169,8 @@
 }
 
 .workerStatsAvatar {
-    width: 64px;
-    height: 64px;
+    width: 56px;                /* ← уменьшил с 64px до 56px */
+    height: 56px;               /* ← уменьшил с 64px до 56px */
     border-radius: 50%;
     overflow: hidden;
     flex-shrink: 0;
@@ -159,7 +189,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 26px;
+    font-size: 22px;            /* ← уменьшил с 26px до 22px */
     font-weight: 600;
     color: #fff;
 }
@@ -168,8 +198,8 @@
     position: absolute;
     bottom: -2px;
     right: -2px;
-    width: 26px;
-    height: 26px;
+    width: 22px;                /* ← уменьшил с 26px до 22px */
+    height: 22px;               /* ← уменьшил с 26px до 22px */
     border-radius: 50%;
     background: #e0e0e0;
     display: flex;
@@ -182,8 +212,8 @@
 .workerStatsEditBadge svg {
     color: #000000;
     stroke: #000000;
-    width: 16px;
-    height: 16px;
+    width: 14px;                /* ← уменьшил с 16px до 14px */
+    height: 14px;
 }
 
 /* ============================================================
@@ -892,6 +922,13 @@
     flex-direction: column;
     gap: 8px;
     padding-left: 4px;
+}
+/* ⭐ Счетчик рабочих дней на объекте */
+.detailStatsObjectCount {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 400;
+    margin-left: 4px;
 }
 
 .detailStatsObjectItem {
@@ -2038,4 +2075,381 @@
         right: 0;
         left: auto;
     }
+}
+/* ============================================================
+   ЧИПСЫ-ПЕРЕКЛЮЧАТЕЛИ (период)
+   ============================================================ */
+
+.workPeriodChips {
+    display: flex;
+    gap: 6px;
+    padding: 4px 0 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    margin-bottom: 12px;
+}
+
+.workPeriodChip {
+    padding: 6px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.workPeriodChip:hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.workPeriodChip.active {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+/* ============================================================
+   ЗАГЛУШКИ ДЛЯ КВАРТАЛА И ВСЕГО ПЕРИОДА
+   ============================================================ */
+
+.workPeriodPlaceholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.workPeriodPlaceholderIcon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.workPeriodPlaceholderTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 8px;
+}
+
+.workPeriodPlaceholderText {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.4);
+}
+/* ============================================================
+   КВАРТАЛ
+   ============================================================ */
+
+.quarterContainer {
+    padding: 4px 0;
+}
+
+
+.quarterCalendarRow {
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+    padding: 4px 0;
+    width: 100%;
+    cursor: grab;
+}
+
+.quarterCalendarRow:active {
+    cursor: grabbing;
+}
+
+.quarterMonthCard {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.quarterMonthName {
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 4px;
+    text-align: center;
+}
+
+.quarterCalendarWrapper {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    padding: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.quarterCalendarWrapper :global(.react-calendar) {
+    width: 100% !important;
+    border: none !important;
+    background: transparent !important;
+    font-family: inherit !important;
+}
+
+.quarterCalendarWrapper :global(.react-calendar__navigation) {
+    display: none !important;
+}
+
+.quarterCalendarWrapper :global(.react-calendar__month-view__weekdays) {
+    text-align: center !important;
+    font-size: 8px !important;
+    font-weight: 600 !important;
+    color: rgba(255, 255, 255, 0.25) !important;
+    padding: 2px 0 !important;
+}
+
+.quarterCalendarWrapper :global(.react-calendar__month-view__weekdays__weekday abbr) {
+    text-decoration: none !important;
+}
+
+.quarterCalendarWrapper :global(.react-calendar__month-view__days) {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    gap: 1px !important;
+    padding: 1px 0 !important;
+}
+
+.quarterCalendarWrapper :global(.react-calendar__tile) {
+    position: relative !important;
+    aspect-ratio: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 9px !important;
+    font-weight: 500 !important;
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: none !important;
+    border-radius: 3px !important;
+    padding: 0 !important;
+    cursor: default !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    flex: none !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    transition: none !important;
+    box-sizing: border-box !important;
+}
+
+.quarterCalendarWrapper :global(.react-calendar__tile abbr) {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 9px !important;
+    z-index: 2 !important;
+    position: relative !important;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+.quarterCalendarWrapper :global(.react-calendar__tile.colored-day) {
+    background: transparent !important;
+}
+
+.quarterCalendarWrapper :global(.react-calendar__tile.colored-day abbr) {
+    color: #ffffff !important;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+.quarterCalendarWrapper :global(.react-calendar__tile.today-day) {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: none !important;
+}
+
+.quarterCalendarWrapper :global(.react-calendar__tile.today-day)::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: 1px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 4px !important;
+    height: 4px !important;
+    border-radius: 50% !important;
+    background: #2eff02 !important;
+    box-shadow: 0 0 8px #2eff02, 0 0 16px #2eff0250 !important;
+    z-index: 3 !important;
+}
+
+.quarterCalendarWrapper :global(.react-calendar__tile.today-day abbr) {
+    color: #ffffff !important;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.quarterCalendarWrapper :global(.react-calendar__month-view__days__day--neighboringMonth) {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: visible !important;
+}
+
+.quarterCalendarWrapper :global(.react-calendar__month-view__days__day--neighboringMonth abbr) {
+    opacity: 0 !important;
+}
+
+.quarterCalendarWrapper :global(.react-calendar__month-view__days__day--weekend) {
+    color: rgba(255, 255, 255, 0.15) !important;
+}
+
+
+
+/* ============================================================
+   АДАПТИВ ДЛЯ КВАРТАЛА
+   ============================================================ */
+
+@media (max-width: 480px) {
+    .quarterCalendarWrapper :global(.react-calendar__tile) {
+        font-size: 7px !important;
+    }
+    
+    .quarterCalendarWrapper :global(.react-calendar__tile abbr) {
+        font-size: 7px !important;
+    }
+    
+    .quarterCalendarWrapper :global(.react-calendar__month-view__weekdays) {
+        font-size: 6px !important;
+    }
+    
+    .quarterMonthName {
+        font-size: 10px;
+    }
+    
+    .quarterMonthCount {
+        font-size: 9px;
+    }
+    
+    .quarterTitle {
+        font-size: 13px;
+    }
+    
+    .quarterNavBtn {
+        font-size: 18px;
+        padding: 2px 8px;
+    }
+}
+
+@media (max-width: 380px) {
+    .quarterCalendarWrapper :global(.react-calendar__tile) {
+        font-size: 6px !important;
+    }
+    
+    .quarterCalendarWrapper :global(.react-calendar__tile abbr) {
+        font-size: 6px !important;
+    }
+    
+    .quarterCalendarWrapper :global(.react-calendar__month-view__weekdays) {
+        font-size: 5px !important;
+    }
+}
+/* ============================================================
+   КВАРТАЛ — ПЛАШКИ КАК ВО ВКЛАДКЕ МЕСЯЦ
+   ============================================================ */
+
+.quarterStatsGrid {
+    display: flex;
+    justify-content: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.quarterStatsCard {
+    flex: 0 0 48%;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 14px;
+    padding: 14px 16px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    box-sizing: border-box;
+}
+
+.quarterStatsCardMonth {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 4px 0;
+}
+
+.quarterStatsCardMonthName {
+    font-size: 17px;              /* ← чуть меньше чем во вкладке Месяц (было 21px) */
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
+.quarterStatsCardNumber {
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+    margin-bottom: 4px;
+}
+
+.quarterStatsCardLabel {
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+/* ============================================================
+   КВАРТАЛ — КАЛЕНДАРИ
+   ============================================================ */
+
+.quarterContainer {
+    padding: 4px 0;
+}
+
+.quarterCalendarRow {
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+    padding: 4px 0 8px 0;
+    width: 100%;
+    cursor: grab;
+}
+
+.quarterCalendarRow:active {
+    cursor: grabbing;
+}
+
+.quarterMonthCard {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.quarterMonthName {
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 4px;
+    text-align: center;
+}
+
+.quarterCalendarWrapper {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    padding: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+
+.quarterMonthCount {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 4px;
+    text-align: center;
+    font-weight: 500;
 }

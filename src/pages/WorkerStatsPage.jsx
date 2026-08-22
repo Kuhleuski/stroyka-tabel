@@ -24,8 +24,11 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     const [expandedSites, setExpandedSites] = useState(new Set())
     const [isDetailVisible, setIsDetailVisible] = useState(true)
     
+    // ⭐ Для переключения режима вкладки "Рабочие дни"
+    const [workPeriodMode, setWorkPeriodMode] = useState('month') // 'month' | 'quarter' | 'all'
+    
     // ⭐ Для фильтра объектов
-    const [sitesFilterMode, setSitesFilterMode] = useState('all') // 'all' | 'period'
+    const [sitesFilterMode, setSitesFilterMode] = useState('all')
     const [showPeriodModal, setShowPeriodModal] = useState(false)
     const [sitesPeriodStart, setSitesPeriodStart] = useState('')
     const [sitesPeriodEnd, setSitesPeriodEnd] = useState('')
@@ -39,6 +42,24 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
     const monthKeyRef = useRef(0)
     const isFirstRenderRef = useRef(true)
     const detailTimerRef = useRef(null)
+
+// ⭐ Для квартала (от текущего месяца — три месяца назад)
+const [currentQuarterStart, setCurrentQuarterStart] = useState(() => {
+    const now = new Date()
+    const currentMonth = now.getMonth()
+    // От текущего месяца отнимаем 2, чтобы получить начало квартала (3 месяца назад)
+    const quarterStartMonth = currentMonth - 2
+    const year = now.getFullYear()
+    // Корректировка для перехода через год
+    if (quarterStartMonth < 0) {
+        return new Date(year - 1, 12 + quarterStartMonth, 1)
+    }
+    return new Date(year, quarterStartMonth, 1)
+})
+    const [quarterDirection, setQuarterDirection] = useState(0)
+    const [isQuarterDetailVisible, setIsQuarterDetailVisible] = useState(true)
+    const quarterKeyRef = useRef(0)
+    const quarterTimerRef = useRef(null)
 
     const avatarUrl = getAvatar(worker?.name)
     const hasPhoto = !!avatarUrl
@@ -63,10 +84,12 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
             if (detailTimerRef.current) {
                 clearTimeout(detailTimerRef.current)
             }
+            if (quarterTimerRef.current) {
+                clearTimeout(quarterTimerRef.current)
+            }
         }
     }, [])
 
-    // ⭐ Закрытие dropdown при клике вне
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -103,7 +126,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         return 'рабочих дней'
     }
 
-    // ⭐ Исправлена функция с использованием formatDateLocal
     const formatDateDisplay = (dateStr) => {
         if (!dateStr) return { date: '', dayOfWeek: '' }
         const date = new Date(dateStr + 'T00:00:00')
@@ -116,7 +138,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         return { date: formattedDate, dayOfWeek }
     }
 
-    // Функция для месяца в предложном падеже
     const getMonthPrepositional = (date) => {
         const month = date.getMonth()
         const months = {
@@ -394,11 +415,20 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
 
     const siteStats = getSiteStats()
 
-    // ⭐ ФИЛЬТРОВАННЫЙ СПИСОК ОБЪЕКТОВ
+    // ⭐ siteStats отсортированный по актуальности
+const siteStatsSortedByRelevance = useMemo(() => {
+    const sorted = [...siteStats]
+    sorted.sort((a, b) => {
+        const lastDateA = new Date(a.dates[a.dates.length - 1] + 'T00:00:00')
+        const lastDateB = new Date(b.dates[b.dates.length - 1] + 'T00:00:00')
+        return lastDateB - lastDateA
+    })
+    return sorted
+}, [siteStats])
+
     const filteredSiteStats = useMemo(() => {
         let filtered = [...siteStats]
         
-        // Фильтр по периоду (если выбран период и даты есть)
         if (sitesFilterMode === 'period' && sitesPeriodStart && sitesPeriodEnd) {
             const start = new Date(sitesPeriodStart)
             start.setHours(0, 0, 0, 0)
@@ -418,7 +448,6 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
             }).filter(site => site.dates.length > 0)
         }
         
-        // ⭐ РАНЖИРОВАНИЕ ПО АКТУАЛЬНОСТИ (по дате последней смены)
         filtered.sort((a, b) => {
             const lastDateA = new Date(a.dates[a.dates.length - 1] + 'T00:00:00')
             const lastDateB = new Date(b.dates[b.dates.length - 1] + 'T00:00:00')
@@ -512,43 +541,223 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         }
     }
 
-    // ⭐ ОБРАБОТЧИКИ ДЛЯ ФИЛЬТРА ОБЪЕКТОВ
     const handleFilterChange = (mode) => {
-    setSitesFilterMode(mode)
-    setIsDropdownOpen(false)
-    
-    if (mode === 'all') {
-        setSitesPeriodStart('')
-        setSitesPeriodEnd('')
-        setTempStartDate(null)
-        setTempEndDate(null)
-    } else if (mode === 'period') {
-        setShowPeriodModal(true)
-        if (sitesPeriodStart && sitesPeriodEnd) {
-            setTempStartDate(new Date(sitesPeriodStart + 'T00:00:00'))
-            setTempEndDate(new Date(sitesPeriodEnd + 'T00:00:00'))
-        } else {
-            const now = new Date()
-            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
-            setTempStartDate(firstDay)
-            setTempEndDate(now)
+        setSitesFilterMode(mode)
+        setIsDropdownOpen(false)
+        
+        if (mode === 'all') {
+            setSitesPeriodStart('')
+            setSitesPeriodEnd('')
+            setTempStartDate(null)
+            setTempEndDate(null)
+        } else if (mode === 'period') {
+            setShowPeriodModal(true)
+            if (sitesPeriodStart && sitesPeriodEnd) {
+                setTempStartDate(new Date(sitesPeriodStart + 'T00:00:00'))
+                setTempEndDate(new Date(sitesPeriodEnd + 'T00:00:00'))
+            } else {
+                const now = new Date()
+                const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
+                setTempStartDate(firstDay)
+                setTempEndDate(now)
+            }
         }
     }
-}
- const handleApplyPeriod = () => {
-    if (tempStartDate && tempEndDate) {
-        const startStr = formatDateLocal(tempStartDate)
-        const endStr = formatDateLocal(tempEndDate)
-        setSitesPeriodStart(startStr)
-        setSitesPeriodEnd(endStr)
-        setSitesFilterMode('period')  // ← Убеждаемся, что режим period
-        setShowPeriodModal(false)
+
+    const handleApplyPeriod = () => {
+        if (tempStartDate && tempEndDate) {
+            const startStr = formatDateLocal(tempStartDate)
+            const endStr = formatDateLocal(tempEndDate)
+            setSitesPeriodStart(startStr)
+            setSitesPeriodEnd(endStr)
+            setSitesFilterMode('period')
+            setShowPeriodModal(false)
+        }
     }
-}
+
     const handleCancelPeriod = () => {
         setShowPeriodModal(false)
         if (!sitesPeriodStart && !sitesPeriodEnd) {
             setSitesFilterMode('all')
+        }
+    }
+
+// ⭐ ФУНКЦИИ ДЛЯ КВАРТАЛА (от текущего месяца — три месяца назад)
+const getQuarterMonths = (startDate) => {
+    const year = startDate.getFullYear()
+    const month = startDate.getMonth()
+    return [
+        new Date(year, month, 1),
+        new Date(year, month + 1, 1),
+        new Date(year, month + 2, 1)
+    ]
+}
+
+    const getQuarterLabel = (startDate) => {
+        const months = getQuarterMonths(startDate)
+        const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
+                            'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
+        const startMonth = monthNames[months[0].getMonth()]
+        const endMonth = monthNames[months[2].getMonth()]
+        const year = startDate.getFullYear()
+        return `${startMonth} - ${endMonth} ${year}`
+    }
+
+    const getQuarterData = (startDate) => {
+        const months = getQuarterMonths(startDate)
+        const monthDataArray = []
+        const siteMap = {}
+
+        months.forEach((monthDate, index) => {
+            const year = monthDate.getFullYear()
+            const month = monthDate.getMonth()
+            const monthShifts = []
+
+            workerShifts.forEach(s => {
+                if (!s.work_date) return
+                const dateStr = s.work_date
+                const dateObj = new Date(dateStr + 'T00:00:00')
+                
+                if (dateObj.getMonth() === month && dateObj.getFullYear() === year) {
+                    const site = sites?.find(site => site.id === s.site_id)
+                    const siteName = site?.name || 'Неизвестный объект'
+                    const siteId = site?.id || null
+                    const color = site?.color || '#666'
+                    
+                    const existing = monthShifts.find(item => item.date === dateStr)
+                    if (existing) {
+                        if (!existing.sites.includes(siteName)) {
+                            existing.sites.push(siteName)
+                            existing.siteIds.push(siteId)
+                            existing.colors.push(color)
+                        }
+                    } else {
+                        monthShifts.push({ 
+                            date: dateStr, 
+                            sites: [siteName],
+                            siteIds: [siteId],
+                            colors: [color],
+                            dateObj: dateObj
+                        })
+                    }
+                    
+                    if (!siteMap[siteName]) {
+                        siteMap[siteName] = {
+                            name: siteName,
+                            color: color,
+                            count: 0
+                        }
+                    }
+                    siteMap[siteName].count += 1
+                }
+            })
+
+            monthShifts.sort((a, b) => a.dateObj - b.dateObj)
+            const uniqueSites = new Set()
+            monthShifts.forEach(item => {
+                item.sites.forEach(site => uniqueSites.add(site))
+            })
+
+            monthDataArray.push({
+                totalDays: monthShifts.length,
+                shifts: monthShifts,
+                siteList: Array.from(uniqueSites),
+                month: month,
+                year: year
+            })
+        })
+
+        const sortedSites = Object.values(siteMap).sort((a, b) => b.count - a.count)
+
+        return {
+            monthDataArray,
+            totalDays: monthDataArray.reduce((acc, m) => acc + m.totalDays, 0),
+            siteList: sortedSites
+        }
+    }
+
+   // ⭐ Инициализация quarterData
+const [quarterData, setQuarterData] = useState(() => {
+    const now = new Date()
+    const currentMonth = now.getMonth()
+    const quarterStartMonth = currentMonth - 2
+    const year = now.getFullYear()
+    let startDate
+    if (quarterStartMonth < 0) {
+        startDate = new Date(year - 1, 12 + quarterStartMonth, 1)
+    } else {
+        startDate = new Date(year, quarterStartMonth, 1)
+    }
+    return getQuarterData(startDate)
+})
+
+    const canGoPrevQuarter = () => {
+        const now = new Date()
+        const prevQuarter = new Date(currentQuarterStart)
+        prevQuarter.setMonth(prevQuarter.getMonth() - 3)
+        const yearAgo = new Date(now)
+        yearAgo.setFullYear(yearAgo.getFullYear() - 1)
+        return prevQuarter >= yearAgo
+    }
+
+    const canGoNextQuarter = () => {
+        const now = new Date()
+        const nextQuarter = new Date(currentQuarterStart)
+        nextQuarter.setMonth(nextQuarter.getMonth() + 3)
+        return nextQuarter <= now
+    }
+
+    const goPrevQuarter = () => {
+        if (!canGoPrevQuarter()) return
+        setQuarterDirection(-1)
+        setIsQuarterDetailVisible(false)
+        
+        const newStart = new Date(currentQuarterStart)
+        newStart.setMonth(newStart.getMonth() - 3)
+        setCurrentQuarterStart(newStart)
+        quarterKeyRef.current += 1
+        
+        const newData = getQuarterData(newStart)
+        setQuarterData(newData)
+        
+        if (quarterTimerRef.current) {
+            clearTimeout(quarterTimerRef.current)
+        }
+        quarterTimerRef.current = setTimeout(() => {
+            setIsQuarterDetailVisible(true)
+        }, 350)
+    }
+
+    const goNextQuarter = () => {
+        if (!canGoNextQuarter()) return
+        setQuarterDirection(1)
+        setIsQuarterDetailVisible(false)
+        
+        const newStart = new Date(currentQuarterStart)
+        newStart.setMonth(newStart.getMonth() + 3)
+        setCurrentQuarterStart(newStart)
+        quarterKeyRef.current += 1
+        
+        const newData = getQuarterData(newStart)
+        setQuarterData(newData)
+        
+        if (quarterTimerRef.current) {
+            clearTimeout(quarterTimerRef.current)
+        }
+        quarterTimerRef.current = setTimeout(() => {
+            setIsQuarterDetailVisible(true)
+        }, 350)
+    }
+
+    const handleQuarterDragEnd = (event, info) => {
+        if (Math.abs(info.offset.y) > Math.abs(info.offset.x)) {
+            return
+        }
+        const threshold = 30
+        if (info.offset.x < -threshold) {
+            goNextQuarter()
+        } else if (info.offset.x > threshold) {
+            goPrevQuarter()
         }
     }
 
@@ -579,7 +788,18 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
         <div className={styles.workerStatsPage}>
             {/* ХЕДЕР */}
             <div className={styles.workerStatsHeader}>
-                {/* АВАТАРКА СЛЕВА */}
+                {/* ⭐ КНОПКА НАЗАД */}
+                <button 
+                    className={styles.workerStatsBackBtn}
+                    onClick={onClose}
+                    aria-label="Назад"
+                >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                </button>
+
+                {/* АВАТАРКА */}
                 <div 
                     className={styles.workerStatsAvatarWrapper}
                     onClick={() => onEdit(worker)}
@@ -592,14 +812,14 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                         )}
                     </div>
                     <div className={styles.workerStatsEditBadge}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <circle cx="12" cy="12" r="3" />
                             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
                         </svg>
                     </div>
                 </div>
 
-                {/* ИНФОРМАЦИЯ СПРАВА */}
+                {/* ИНФОРМАЦИЯ */}
                 <div className={styles.workerStatsInfo}>
                     <span className={styles.workerStatsName}>
                         {worker.name}
@@ -625,332 +845,409 @@ export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefr
                 </div>
             </div>
 
-            {/* ВКЛАДКИ */}
-            <div className={styles.workerStatsTabs}>
-                <button 
-                    className={`${styles.workerStatsTab} ${activeTab === 'month' ? styles.active : ''}`}
-                    onClick={() => setActiveTab('month')}
-                >
-                    Рабочие дни
-                </button>
-                <button 
-                    className={`${styles.workerStatsTab} ${activeTab === 'sites' ? styles.active : ''}`}
-                    onClick={() => setActiveTab('sites')}
-                >
-                    Объекты
-                </button>
-                <button 
-                    className={`${styles.workerStatsTab} ${activeTab === 'salary' ? styles.active : ''}`}
-                    onClick={() => setActiveTab('salary')}
-                >
-                    Зарплата
-                </button>
-            </div>
+           {/* ВКЛАДКИ */}
+<div className={styles.workerStatsTabs}>
+    <button 
+        className={`${styles.workerStatsTab} ${activeTab === 'month' ? styles.active : ''}`}
+        onClick={() => setActiveTab('month')}
+    >
+        Рабочие дни
+    </button>
+    <button 
+        className={`${styles.workerStatsTab} ${activeTab === 'salary' ? styles.active : ''}`}
+        onClick={() => setActiveTab('salary')}
+    >
+        Зарплата
+    </button>
+</div>
+
+            {/* ⭐ ЧИПСЫ-ПЕРЕКЛЮЧАТЕЛИ (только для вкладки "Рабочие дни") */}
+            {activeTab === 'month' && (
+                <div className={styles.workPeriodChips}>
+                    <button 
+                        className={`${styles.workPeriodChip} ${workPeriodMode === 'month' ? styles.active : ''}`}
+                        onClick={() => setWorkPeriodMode('month')}
+                    >
+                        Месяц
+                    </button>
+                    <button 
+                        className={`${styles.workPeriodChip} ${workPeriodMode === 'quarter' ? styles.active : ''}`}
+                        onClick={() => setWorkPeriodMode('quarter')}
+                    >
+                        Квартал
+                    </button>
+                    <button 
+                        className={`${styles.workPeriodChip} ${workPeriodMode === 'all' ? styles.active : ''}`}
+                        onClick={() => setWorkPeriodMode('all')}
+                    >
+                        За весь период
+                    </button>
+                </div>
+            )}
 
             {/* КОНТЕНТ */}
             <div className={styles.workerStatsContent}>
                 {activeTab === 'month' && (
                     <div className={styles.tabContent}>
-                        {/* ПЛАШКИ */}
-                        <div className={styles.statsGrid}>
-                            <div className={styles.statsCard}>
-                                <div className={styles.statsCardMonth}>
-                                    <span className={styles.statsCardMonthName}>{monthText}</span>
-                                    <span className={styles.statsCardMonthYear}>{yearText}</span>
-                                </div>
-                            </div>
-                            <div className={styles.statsCard}>
-                                <div className={styles.statsCardNumber}>{monthData.totalDays}</div>
-                                <div className={styles.statsCardLabel}>{getDaysLabel(monthData.totalDays)}</div>
-                            </div>
-                        </div>
-
-                        {/* КАЛЕНДАРЬ */}
-                        <div className={styles.calendarWrapper}>
-                            <AnimatePresence mode="popLayout" custom={direction}>
-                                <motion.div
-                                    key={monthKeyRef.current}
-                                    custom={direction}
-                                    variants={variants}
-                                    initial={shouldAnimate ? "enter" : false}
-                                    animate="center"
-                                    exit="exit"
-                                    transition={{
-                                        x: { 
-                                            type: "spring", 
-                                            stiffness: 500,
-                                            damping: 35,
-                                            mass: 0.5
-                                        },
-                                        opacity: { duration: 0.15 },
-                                    }}
-                                    drag="x"
-                                    dragConstraints={{ left: 0, right: 0 }}
-                                    dragElastic={0.5}
-                                    dragMomentum={false}
-                                    onDragEnd={handleDragEnd}
-                                    style={{ width: '100%' }}
-                                >
-                                    <Calendar
-                                        key={currentMonth.getMonth() + '-' + currentMonth.getFullYear()}
-                                        value={null}
-                                        tileClassName={tileClassName}
-                                        tileContent={tileContent}
-                                        minDetail="month"
-                                        maxDetail="month"
-                                        prevLabel={null}
-                                        nextLabel={null}
-                                        next2Label={null}
-                                        prev2Label={null}
-                                        showNeighboringMonth={true}
-                                        navigationLabel={null}
-                                        activeStartDate={currentMonth}
-                                    />
-                                </motion.div>
-                            </AnimatePresence>
-                        </div>
-
-                        {/* ПЛАШКА — ИНФОРМАЦИЯ О РАБОТЕ В МЕСЯЦЕ */}
-                        <AnimatePresence>
-                            {isDetailVisible && monthData.shifts.length > 0 && (
-                                <motion.div
-                                    key={`detail-${monthKeyRef.current}`}
-                                    initial={{ opacity: 0, y: 8 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: 8 }}
-                                    transition={{ duration: 0.3 }}
-                                    className={styles.detailStatsWrapper}
-                                >
-                                    <div className={styles.detailStatsCard}>
-                                        <div className={styles.detailStatsText}>
-                                            <span className={styles.detailStatsName}>
-                                                {worker.name.split(' ')[0]}
-                                            </span>
-                                            {' работал в '}
-                                            <span className={styles.detailStatsMonth}>
-                                                {getMonthPrepositional(currentMonth)}
-                                            </span>
-                                            {monthData.siteList.length === 1 ? (
-                                                ' только на объекте:'
-                                            ) : (
-                                                ' на объектах:'
-                                            )}
-                                        </div>
-                                        <div className={styles.detailStatsObjects}>
-                                            {monthData.siteList.map((siteName) => {
-                                                const site = sites?.find(s => s.name === siteName)
-                                                const color = site?.color || '#666'
-                                                return (
-                                                    <div key={siteName} className={styles.detailStatsObjectItem}>
-                                                        <span 
-                                                            className={styles.detailStatsObjectDot}
-                                                            style={{ 
-                                                                backgroundColor: color,
-                                                                boxShadow: `0 0 16px ${color}, 0 0 32px ${color}40`
-                                                            }}
-                                                        />
-                                                        <span className={styles.detailStatsObjectName}>
-                                                            {siteName}
-                                                        </span>
-                                                    </div>
-                                                )
-                                            })}
+                        {workPeriodMode === 'month' && (
+                            <>
+                                {/* ПЛАШКИ */}
+                                <div className={styles.statsGrid}>
+                                    <div className={styles.statsCard}>
+                                        <div className={styles.statsCardMonth}>
+                                            <span className={styles.statsCardMonthName}>{monthText}</span>
+                                            <span className={styles.statsCardMonthYear}>{yearText}</span>
                                         </div>
                                     </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                    </div>
-                )}
+                                    <div className={styles.statsCard}>
+                                        <div className={styles.statsCardNumber}>{monthData.totalDays}</div>
+                                        <div className={styles.statsCardLabel}>{getDaysLabel(monthData.totalDays)}</div>
+                                    </div>
+                                </div>
 
-                {activeTab === 'sites' && (
-                    <div className={styles.tabContent}>
-                        {/* ЗАГОЛОВОК */}
-                        <div className={styles.sitesHeader}>
-                            <div className={styles.sitesTitle}>
-                                Объекты, на которых работал {worker.name.split(' ')[0]}:
-                            </div>
-                        </div>
+                                {/* КАЛЕНДАРЬ */}
+                                <div className={styles.calendarWrapper}>
+                                    <AnimatePresence mode="popLayout" custom={direction}>
+                                        <motion.div
+                                            key={monthKeyRef.current}
+                                            custom={direction}
+                                            variants={variants}
+                                            initial={shouldAnimate ? "enter" : false}
+                                            animate="center"
+                                            exit="exit"
+                                            transition={{
+                                                x: { 
+                                                    type: "spring", 
+                                                    stiffness: 500,
+                                                    damping: 35,
+                                                    mass: 0.5
+                                                },
+                                                opacity: { duration: 0.15 },
+                                            }}
+                                            drag="x"
+                                            dragConstraints={{ left: 0, right: 0 }}
+                                            dragElastic={0.5}
+                                            dragMomentum={false}
+                                            onDragEnd={handleDragEnd}
+                                            style={{ width: '100%' }}
+                                        >
+                                            <Calendar
+                                                key={currentMonth.getMonth() + '-' + currentMonth.getFullYear()}
+                                                value={null}
+                                                tileClassName={tileClassName}
+                                                tileContent={tileContent}
+                                                minDetail="month"
+                                                maxDetail="month"
+                                                prevLabel={null}
+                                                nextLabel={null}
+                                                next2Label={null}
+                                                prev2Label={null}
+                                                showNeighboringMonth={true}
+                                                navigationLabel={null}
+                                                activeStartDate={currentMonth}
+                                            />
+                                        </motion.div>
+                                    </AnimatePresence>
+                                </div>
 
-           {/* ВЫПАДАЛКА ФИЛЬТРА */}
-<div className={styles.sitesFilterWrapper} ref={dropdownRef}>
-    <div className={styles.sitesFilterRow}>
-        <span className={styles.sitesFilterLabel}>Показать:</span>
-        <button 
-            className={styles.sitesFilterBtn}
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        >
-            <span>
-                {sitesFilterMode === 'all' 
-                    ? 'За весь период'
-                    : sitesPeriodStart && sitesPeriodEnd 
-                        ? `с ${formatDateDisplay(sitesPeriodStart).date} по ${formatDateDisplay(sitesPeriodEnd).date}`
-                        : 'За весь период'
-                }
-            </span>
-            <svg 
-                width="16" 
-                height="16" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-                style={{ 
-                    transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                    transition: 'transform 0.2s ease'
-                }}
-            >
-                <polyline points="6 9 12 15 18 9" />
-            </svg>
-        </button>
-    </div>
+                                {/* ПЛАШКА — ИНФОРМАЦИЯ О РАБОТЕ В МЕСЯЦЕ */}
+                                <AnimatePresence>
+                                    {isDetailVisible && monthData.shifts.length > 0 && (
+                                        <motion.div
+                                            key={`detail-${monthKeyRef.current}`}
+                                            initial={{ opacity: 0, y: 8 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: 8 }}
+                                            transition={{ duration: 0.3 }}
+                                            className={styles.detailStatsWrapper}
+                                        >
+                                            <div className={styles.detailStatsCard}>
+                                                <div className={styles.detailStatsText}>
+                                                    <span className={styles.detailStatsName}>
+                                                        {worker.name.split(' ')[0]}
+                                                    </span>
+                                                    {' работал в '}
+                                                    <span className={styles.detailStatsMonth}>
+                                                        {getMonthPrepositional(currentMonth)}
+                                                    </span>
+                                                    {monthData.siteList.length === 1 ? (
+                                                        ' на объекте:'
+                                                    ) : (
+                                                        ' на объектах:'
+                                                    )}
+                                                </div>
+                                                <div className={styles.detailStatsObjects}>
+                                                    {monthData.siteList.map((siteName) => {
+                                                        const site = sites?.find(s => s.name === siteName)
+                                                        const color = site?.color || '#666'
+                                                        
+                                                        const siteShifts = monthData.shifts.filter(
+                                                            shift => shift.sites.includes(siteName)
+                                                        )
+                                                        const daysCount = siteShifts.length
+                                                        const dayLabel = getDaysLabel(daysCount)
+                                                        
+                                                        return (
+                                                            <div key={siteName} className={styles.detailStatsObjectItem}>
+                                                                <span 
+                                                                    className={styles.detailStatsObjectDot}
+                                                                    style={{ 
+                                                                        backgroundColor: color,
+                                                                        boxShadow: `0 0 16px ${color}, 0 0 32px ${color}40`
+                                                                    }}
+                                                                />
+                                                                <span className={styles.detailStatsObjectName}>
+                                                                    {siteName}
+                                                                </span>
+                                                                <span className={styles.detailStatsObjectCount}>
+                                                                    — {daysCount} {dayLabel}
+                                                                </span>
+                                                            </div>
+                                                        )
+                                                    })}
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </>
+                        )}
 
-    {isDropdownOpen && (
-        <div className={styles.sitesFilterDropdown}>
-            <button 
-                className={`${styles.sitesFilterOption} ${sitesFilterMode === 'all' ? styles.active : ''}`}
-                onClick={() => handleFilterChange('all')}
-            >
-                За весь период
-            </button>
-            <button 
-                className={`${styles.sitesFilterOption} ${sitesFilterMode === 'period' ? styles.active : ''}`}
-                onClick={() => handleFilterChange('period')}
-            >
-                Выбрать период
-            </button>
+                        {workPeriodMode === 'quarter' && (
+    <div className={styles.quarterContainer}>
+        {/* ⭐ ДВЕ ПЛАШКИ КАК ВО ВКЛАДКЕ МЕСЯЦ */}
+        <div className={styles.quarterStatsGrid}>
+            <div className={styles.quarterStatsCard}>
+                <div className={styles.quarterStatsCardMonth}>
+                    <span className={styles.quarterStatsCardMonthName}>
+                        {getQuarterLabel(currentQuarterStart)}
+                    </span>
+                </div>
+            </div>
+            <div className={styles.quarterStatsCard}>
+                <div className={styles.quarterStatsCardNumber}>
+                    {quarterData.totalDays}
+                </div>
+                <div className={styles.quarterStatsCardLabel}>
+                    {getDaysLabel(quarterData.totalDays)}
+                </div>
+            </div>
         </div>
-    )}
-</div>
 
-                       
+        {/* ⭐ ТРИ КАЛЕНДАРЯ В РЯД (со свайпом) */}
+        <AnimatePresence mode="popLayout" custom={quarterDirection}>
+            <motion.div
+                key={quarterKeyRef.current}
+                custom={quarterDirection}
+                variants={variants}
+                initial={shouldAnimate ? "enter" : false}
+                animate="center"
+                exit="exit"
+                transition={{
+                    x: { 
+                        type: "spring", 
+                        stiffness: 500,
+                        damping: 35,
+                        mass: 0.5
+                    },
+                    opacity: { duration: 0.15 },
+                }}
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.5}
+                dragMomentum={false}
+                onDragEnd={handleQuarterDragEnd}
+                className={styles.quarterCalendarRow}
+            >
+                {getQuarterMonths(currentQuarterStart).map((monthDate, index) => {
+                    const monthDataItem = quarterData.monthDataArray[index] || { totalDays: 0, shifts: [], siteList: [] }
+                    const monthName = monthDate.toLocaleDateString('ru-RU', { month: 'long' })
+                    
+                    const getQuarterDayColors = (date) => {
+                        const dateStr = formatDateLocal(date)
+                        const dayShifts = monthDataItem.shifts.find(item => item.date === dateStr)
+                        if (!dayShifts || !dayShifts.colors || dayShifts.colors.length === 0) return null
+                        return dayShifts.colors.slice(0, 3)
+                    }
 
-                        {/* СПИСОК ОБЪЕКТОВ */}
-                        {filteredSiteStats.length > 0 ? (
-                            <div className={styles.sitesList}>
-                                {filteredSiteStats.map((site) => {
-                                    const dayText = site.totalDays === 1 ? 'рабочий день' : 'рабочих дней'
-                                    // Обновленный период для отображения
-                                    const firstDate = site.dates.length > 0 ? formatDateDisplay(site.dates[0]).date : ''
-                                    const lastDate = site.dates.length > 0 ? formatDateDisplay(site.dates[site.dates.length - 1]).date : ''
-                                    const periodDisplay = site.dates.length > 0 
-                                        ? `Период: ${firstDate} - ${lastDate}`
-                                        : site.periodText
-                                    return (
-                                        <div key={site.siteId} className={styles.siteAccordion}>
-                                            <button 
-                                                className={styles.siteAccordionHeader}
-                                                onClick={() => toggleSite(site.siteId)}
-                                            >
-                                                <div className={styles.siteAccordionLeft}>
-                                                    <div 
-                                                        className={styles.siteAccordionDot}
-                                                        style={{ backgroundColor: site.color }}
-                                                    />
-                                                    <div>
-                                                        <div className={styles.siteAccordionName}>{site.siteName}</div>
-                                                        <div className={styles.siteAccordionPeriod}>{periodDisplay}</div>
-                                                        <div className={styles.siteAccordionSub}>
-                                                            {site.totalDays} {dayText}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <span className={`${styles.siteAccordionArrow} ${expandedSites.has(site.siteId) ? styles.expanded : ''}`}>
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                                        <polyline points="6 9 12 15 18 9"/>
-                                                    </svg>
-                                                </span>
-                                            </button>
-                                            
-                                            {expandedSites.has(site.siteId) && (
-                                                <div className={styles.siteAccordionBody}>
-                                                    {site.dates.map((date) => (
-                                                        <div key={date} className={styles.siteAccordionDate}>
-                                                            {formatDateDisplay(date).date}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                    )
-                                })}
+                    const quarterTileClassName = ({ date: tileDate, view }) => {
+                        if (view !== 'month') return null
+                        const isToday = formatDateLocal(tileDate) === formatDateLocal(new Date())
+                        const colors = getQuarterDayColors(tileDate)
+                        const classes = []
+                        if (isToday) {
+                            classes.push('today-day')
+                        }
+                        if (colors && colors.length > 0) {
+                            classes.push('colored-day')
+                        }
+                        return classes.length > 0 ? classes : null
+                    }
+
+                    const quarterTileContent = ({ date: tileDate, view }) => {
+                        if (view !== 'month') return null
+                        const colors = getQuarterDayColors(tileDate)
+                        if (!colors || colors.length === 0) return null
+                        
+                        let background = ''
+                        if (colors.length === 1) {
+                            background = colors[0]
+                        } else if (colors.length === 2) {
+                            background = `linear-gradient(to right, ${colors[0]} 50%, ${colors[1]} 50%)`
+                        } else if (colors.length === 3) {
+                            background = `linear-gradient(to right, ${colors[0]} 33.33%, ${colors[1]} 33.33%, ${colors[1]} 66.66%, ${colors[2]} 66.66%)`
+                        }
+                        
+                        return (
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    right: 0,
+                                    bottom: 0,
+                                    background: background,
+                                    borderRadius: '4px',
+                                    zIndex: 0,
+                                    pointerEvents: 'none',
+                                }}
+                            />
+                        )
+                    }
+
+                    return (
+                        <div key={index} className={styles.quarterMonthCard}>
+                            <div className={styles.quarterMonthName}>{monthName}</div>
+                            <div className={styles.quarterCalendarWrapper}>
+                                <Calendar
+                                    key={`${monthDate.getFullYear()}-${monthDate.getMonth()}`}
+                                    value={null}
+                                    tileClassName={quarterTileClassName}
+                                    tileContent={quarterTileContent}
+                                    minDetail="month"
+                                    maxDetail="month"
+                                    prevLabel={null}
+                                    nextLabel={null}
+                                    next2Label={null}
+                                    prev2Label={null}
+                                    showNeighboringMonth={true}
+                                    navigationLabel={null}
+                                    activeStartDate={monthDate}
+                                />
                             </div>
-                        ) : (
-                            <div className={styles.emptyState}>
-                                {sitesFilterMode === 'period' && sitesPeriodStart && sitesPeriodEnd 
-                                    ? 'Нет объектов за выбранный период' 
-                                    : 'Нет объектов'}
-                            </div>
-                        )}
+                           
+                        </div>
+                    )
+                })}
+            </motion.div>
+        </AnimatePresence>
 
-                        {/* ⭐ МОДАЛКА ВЫБОРА ПЕРИОДА — с DatePicker */}
-                        {showPeriodModal && (
-                            <div className={styles.periodModalOverlay} onClick={handleCancelPeriod}>
-                                <div className={styles.periodModal} onClick={(e) => e.stopPropagation()}>
-                                    <div className={styles.periodModalHeader}>
-                                        <span className={styles.periodModalTitle}>Выбрать период</span>
-                                        <button 
-                                            className={styles.periodModalClose}
-                                            onClick={handleCancelPeriod}
-                                        >
-                                            ✕
-                                        </button>
-                                    </div>
+        {/* ⭐ ИНФОРМАЦИЯ ОБ ОБЪЕКТАХ ЗА КВАРТАЛ */}
+        <AnimatePresence>
+            {isQuarterDetailVisible && quarterData.siteList.length > 0 && (
+                <motion.div
+                    key={`quarter-detail-${quarterKeyRef.current}`}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
+                    transition={{ duration: 0.3 }}
+                    className={styles.detailStatsWrapper}
+                >
+                    <div className={styles.detailStatsCard}>
+                        <div className={styles.detailStatsText}>
+                            <span className={styles.detailStatsName}>
+                                {worker.name.split(' ')[0]}
+                            </span>
+                            {' работал за квартал на объектах:'}
+                        </div>
+                        <div className={styles.detailStatsObjects}>
+                            {quarterData.siteList.map((site) => (
+                                <div key={site.name} className={styles.detailStatsObjectItem}>
+                                    <span 
+                                        className={styles.detailStatsObjectDot}
+                                        style={{ 
+                                            backgroundColor: site.color,
+                                            boxShadow: `0 0 16px ${site.color}, 0 0 32px ${site.color}40`
+                                        }}
+                                    />
+                                    <span className={styles.detailStatsObjectName}>
+                                        {site.name}
+                                    </span>
+                                    <span className={styles.detailStatsObjectCount}>
+                                        — {site.count} {getDaysLabel(site.count)}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </motion.div>
+            )}
+        </AnimatePresence>
+    </div>
+)}
 
-                                    <div className={styles.periodModalBody}>
-                                        <div className={styles.periodModalField}>
-                                            <label>С</label>
-                                            <DatePicker
-                                                selected={tempStartDate}
-                                                onChange={(date) => setTempStartDate(date)}
-                                                selectsStart
-                                                startDate={tempStartDate}
-                                                endDate={tempEndDate}
-                                                locale={ru}
-                                                dateFormat="dd.MM.yyyy"
-                                                placeholderText="Выберите дату"
-                                                className={styles.periodDatePicker}
-                                            />
+{workPeriodMode === 'all' && (
+    <div className={styles.tabContent}>
+        {/* ЗАГОЛОВОК */}
+        <div className={styles.sitesHeader}>
+            <div className={styles.sitesTitle}>
+                Объекты, на которых работал {worker.name.split(' ')[0]} за весь период:
+            </div>
+        </div>
+
+        {/* СПИСОК ОБЪЕКТОВ */}
+        {siteStatsSortedByRelevance.length > 0 ? (
+            <div className={styles.sitesList}>
+                {siteStatsSortedByRelevance.map((site) => {
+                    const dayText = site.totalDays === 1 ? 'рабочий день' : 'рабочих дней'
+                    return (
+                        <div key={site.siteId} className={styles.siteAccordion}>
+                            <button 
+                                className={styles.siteAccordionHeader}
+                                onClick={() => toggleSite(site.siteId)}
+                            >
+                                <div className={styles.siteAccordionLeft}>
+                                    <div 
+                                        className={styles.siteAccordionDot}
+                                        style={{ backgroundColor: site.color }}
+                                    />
+                                    <div>
+                                        <div className={styles.siteAccordionName}>{site.siteName}</div>
+                                        <div className={styles.siteAccordionPeriod}>{site.periodText}</div>
+                                        <div className={styles.siteAccordionSub}>
+                                            {site.totalDays} {dayText}
                                         </div>
-                                        <div className={styles.periodModalField}>
-                                            <label>По</label>
-                                            <DatePicker
-                                                selected={tempEndDate}
-                                                onChange={(date) => setTempEndDate(date)}
-                                                selectsEnd
-                                                startDate={tempStartDate}
-                                                endDate={tempEndDate}
-                                                minDate={tempStartDate}
-                                                locale={ru}
-                                                dateFormat="dd.MM.yyyy"
-                                                placeholderText="Выберите дату"
-                                                className={styles.periodDatePicker}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className={styles.periodModalFooter}>
-                                        <button 
-                                            className={styles.periodModalCancelBtn}
-                                            onClick={handleCancelPeriod}
-                                        >
-                                            Отмена
-                                        </button>
-                                        <button 
-                                            className={styles.periodModalApplyBtn}
-                                            onClick={handleApplyPeriod}
-                                            disabled={!tempStartDate || !tempEndDate}
-                                        >
-                                            Применить
-                                        </button>
                                     </div>
                                 </div>
-                            </div>
-                        )}
+                                <span className={`${styles.siteAccordionArrow} ${expandedSites.has(site.siteId) ? styles.expanded : ''}`}>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="6 9 12 15 18 9"/>
+                                    </svg>
+                                </span>
+                            </button>
+                            
+                            {expandedSites.has(site.siteId) && (
+                                <div className={styles.siteAccordionBody}>
+                                    {site.dates.map((date) => (
+                                        <div key={date} className={styles.siteAccordionDate}>
+                                            {formatDateDisplay(date).date}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )
+                })}
+            </div>
+        ) : (
+            <div className={styles.emptyState}>Нет объектов за весь период</div>
+        )}
+    </div>
+)}
                     </div>
                 )}
+
+               
 
                 {activeTab === 'salary' && (
                     <div className={styles.tabContent}>
