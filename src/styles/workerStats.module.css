@@ -65,8 +65,8 @@
 .workerStatsInfo {
     flex: 1;
     min-width: 0;
-    text-align: right;          /* ← было left, стало right */
-    padding-right: 4px;
+    text-align: left;          /* ← было right, стало left */
+    padding-left: 12px;        /* ← отступ от аватарки */
 }
 
 .workerStatsName {
@@ -78,13 +78,14 @@
     overflow: hidden;
     text-overflow: ellipsis;
     margin-bottom: 6px;
+    text-align: left;          /* ← добавить */
 }
 
-/* ⭐ Строка со статусом — прижата к правому краю */
+/* ⭐ Строка со статусом — прижата к левому краю */
 .workerStatsStatusRow {
     display: flex;
     align-items: center;
-    justify-content: flex-end;   /* ← прижимаем к правому краю */
+    justify-content: flex-start;  /* ← было flex-end, стало flex-start */
     gap: 6px;
     flex-wrap: wrap;
 }
@@ -2224,7 +2225,7 @@
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    font-size: 9px !important;
+    font-size: 8px !important;          /* ← было 9px, стало 8px */
     font-weight: 500 !important;
     color: #ffffff !important;
     background: rgba(255, 255, 255, 0.05) !important;
@@ -2245,12 +2246,11 @@
 .quarterCalendarWrapper :global(.react-calendar__tile abbr) {
     color: #ffffff !important;
     font-weight: 600 !important;
-    font-size: 9px !important;
+    font-size: 8px !important;          /* ← было 9px, стало 8px */
     z-index: 2 !important;
     position: relative !important;
     text-shadow: 0 0 2px rgba(0, 0, 0, 0.5) !important;
 }
-
 .quarterCalendarWrapper :global(.react-calendar__tile.colored-day) {
     background: transparent !important;
 }
