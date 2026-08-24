@@ -37,6 +37,13 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
     const [scrollPosition, setScrollPosition] = useState(0)
     const [refreshKey, setRefreshKey] = useState(0)
     const [isSaving, setIsSaving] = useState(false)
+    // ⭐ Состояние для фильтра
+    const [filterStatus, setFilterStatus] = useState('all') // 'all' | 'active' | 'inactive'
+    
+    // ⭐ Для модалки удаления
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
+    const [workerToDelete, setWorkerToDelete] = useState(null)
+    
     const { workers, loading, error, addWorkerToState, removeWorkerFromState, updateWorkerInState, refreshWorkers } = useWorkers()
     const { sites } = useSites()
     const { refreshAvatars } = useAvatars()
@@ -200,6 +207,25 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
         setShowEditModal(true)
     }
 
+    // ⭐ ОБРАБОТЧИКИ ДЛЯ МОДАЛКИ УДАЛЕНИЯ
+    const handleDeleteClick = (worker) => {
+        setWorkerToDelete(worker)
+        setShowDeleteModal(true)
+    }
+
+    const handleConfirmDelete = async () => {
+        if (workerToDelete) {
+            await handleDelete(workerToDelete.id)
+            setShowDeleteModal(false)
+            setWorkerToDelete(null)
+        }
+    }
+
+    const handleCancelDelete = () => {
+        setShowDeleteModal(false)
+        setWorkerToDelete(null)
+    }
+
     if (loading) {
         return <div className={globalsStyles.loadingText}>⏳ Загрузка...</div>
     }
@@ -243,6 +269,36 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
                                 <WorkersIcon />
                                 Бригада
                             </div>
+                            <div className={styles.pageSubtitle}>
+                                Список всех работников компании
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ⭐ ЧИПСЫ-ФИЛЬТРЫ */}
+                    <div className={styles.filterWrapper}>
+                        <span className={styles.filterLabel}>Показать:</span>
+                        <div className={styles.filterButtons}>
+                            <button 
+                                className={`${styles.filterBtn} ${filterStatus === 'all' ? styles.filterActive : ''}`}
+                                onClick={() => setFilterStatus('all')}
+                            >
+                                Все
+                            </button>
+                            <button 
+                                className={`${styles.filterBtn} ${filterStatus === 'active' ? styles.filterActive : ''}`}
+                                onClick={() => setFilterStatus('active')}
+                            >
+                                <span className={styles.filterDot} style={{ backgroundColor: '#2d7d46' }} />
+                                Работают
+                            </button>
+                            <button 
+                                className={`${styles.filterBtn} ${filterStatus === 'inactive' ? styles.filterActive : ''}`}
+                                onClick={() => setFilterStatus('inactive')}
+                            >
+                                <span className={styles.filterDotGray} style={{ backgroundColor: '#888888' }} />
+                                Не работают
+                            </button>
                         </div>
                     </div>
 
@@ -250,7 +306,9 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
                         key={refreshKey}
                         refreshKey={refreshKey}
                         workers={workers} 
+                        filterStatus={filterStatus}
                         onWorkerClick={handleWorkerClick}
+                        onDeleteClick={handleDeleteClick}
                     />
 
                     <button 
@@ -266,6 +324,34 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
                         onClose={() => setShowAddModal(false)}
                         onSave={handleSave}
                     />
+
+                    {/* ⭐ МОДАЛКА ПОДТВЕРЖДЕНИЯ УДАЛЕНИЯ */}
+                    {showDeleteModal && workerToDelete && (
+                        <div className={styles.deleteModalOverlay} onClick={handleCancelDelete}>
+                            <div className={styles.deleteModal} onClick={(e) => e.stopPropagation()}>
+                                <div className={styles.deleteModalTitle}>
+                                    Удаление работника
+                                </div>
+                                <div className={styles.deleteModalText}>
+                                    Вы действительно хотите удалить <strong>{workerToDelete.name}</strong>?
+                                </div>
+                                <div className={styles.deleteModalActions}>
+                                    <button 
+                                        className={styles.deleteModalCancelBtn}
+                                        onClick={handleCancelDelete}
+                                    >
+                                        Отмена
+                                    </button>
+                                    <button 
+                                        className={styles.deleteModalConfirmBtn}
+                                        onClick={handleConfirmDelete}
+                                    >
+                                        Удалить
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </>
             )}
         </>

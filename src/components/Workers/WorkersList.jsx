@@ -14,7 +14,15 @@ const WorkersIcon = () => (
     </svg>
 )
 
-export function WorkersList({ workers, onWorkerClick, refreshKey }) {
+// === ИКОНКА УДАЛЕНИЯ ===
+const DeleteIcon = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="3 6 5 6 21 6" />
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    </svg>
+)
+
+export function WorkersList({ workers, onWorkerClick, refreshKey, filterStatus, onDeleteClick }) {
     const containerRef = useRef(null)
     const { getAvatar } = useAvatars()
 
@@ -34,97 +42,33 @@ export function WorkersList({ workers, onWorkerClick, refreshKey }) {
         return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
     }
 
-    // === ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ ДАТЫ ПОСЛЕДНЕГО ОТКРЫТИЯ ===
-    const getLastOpened = (workerId) => {
-        try {
-            const stored = localStorage.getItem('workerLastOpened')
-            if (!stored) return null
-            const data = JSON.parse(stored)
-            return data[workerId] || null
-        } catch (e) {
-            return null
+    // === ФИЛЬТРАЦИЯ ===
+    const getFilteredWorkers = () => {
+        if (!workers || !Array.isArray(workers)) return []
+        
+        let filtered = [...workers]
+        
+        if (filterStatus === 'active') {
+            filtered = filtered.filter(w => w?.status === 'active' || !w?.status)
+        } else if (filterStatus === 'inactive') {
+            filtered = filtered.filter(w => w?.status === 'inactive')
         }
-    }
-
-    // === ПОЛУЧАЕМ ID НОВОГО РАБОТНИКА ===
-    const getNewWorkerId = () => {
-        try {
-            return localStorage.getItem('newWorkerId') || null
-        } catch (e) {
-            return null
-        }
-    }
-
-    // === СОРТИРОВКА ===
-    const sortedWorkers = (() => {
-        if (!workers || !Array.isArray(workers)) return { active: [], inactive: [] }
         
-        const newWorkerId = getNewWorkerId()
-        
-        const activeWorkers = workers.filter(w => w?.status === 'active' || !w?.status)
-        const inactiveWorkers = workers.filter(w => w?.status === 'inactive')
-        
-        const sortedActive = [...activeWorkers].sort((a, b) => {
-            const isNewA = newWorkerId && a?.id === parseInt(newWorkerId)
-            const isNewB = newWorkerId && b?.id === parseInt(newWorkerId)
+        // Сортировка: сначала активные (по алфавиту), потом неактивные (по алфавиту)
+        filtered.sort((a, b) => {
+            const aIsActive = a?.status === 'active' || !a?.status
+            const bIsActive = b?.status === 'active' || !b?.status
             
-            if (isNewA && !isNewB) return -1
-            if (isNewB && !isNewA) return 1
+            if (aIsActive && !bIsActive) return -1
+            if (!aIsActive && bIsActive) return 1
             
-            const lastOpenedA = getLastOpened(a?.id)
-            const lastOpenedB = getLastOpened(b?.id)
-            
-            if (lastOpenedA && lastOpenedB) {
-                return new Date(lastOpenedB).getTime() - new Date(lastOpenedA).getTime()
-            }
-            if (lastOpenedA) return -1
-            if (lastOpenedB) return 1
-            
-            return new Date(b?.created_at || 0).getTime() - new Date(a?.created_at || 0).getTime()
+            return (a?.name || '').localeCompare(b?.name || '')
         })
         
-        const sortedInactive = [...inactiveWorkers].sort((a, b) => {
-            const lastOpenedA = getLastOpened(a?.id)
-            const lastOpenedB = getLastOpened(b?.id)
-            
-            if (lastOpenedA && lastOpenedB) {
-                return new Date(lastOpenedB).getTime() - new Date(lastOpenedA).getTime()
-            }
-            if (lastOpenedA) return -1
-            if (lastOpenedB) return 1
-            
-            return new Date(b?.created_at || 0).getTime() - new Date(a?.created_at || 0).getTime()
-        })
-        
-        return { active: sortedActive, inactive: sortedInactive }
-    })()
+        return filtered
+    }
 
-    const cachedActive = sortedWorkers.active.map((worker) => {
-        const avatar = getAvatar(worker?.name)
-        return {
-            ...worker,
-            hasPhoto: !!avatar,
-            avatarData: avatar,
-            initials: getInitials(worker?.name),
-            avatarColor: getAvatarColor(worker?.name),
-            status: worker?.status || 'active'
-        }
-    })
-
-    const cachedInactive = sortedWorkers.inactive.map((worker) => {
-        const avatar = getAvatar(worker?.name)
-        return {
-            ...worker,
-            hasPhoto: !!avatar,
-            avatarData: avatar,
-            initials: getInitials(worker?.name),
-            avatarColor: getAvatarColor(worker?.name),
-            status: worker?.status || 'inactive'
-        }
-    })
-
-    const hasActive = cachedActive.length > 0
-    const hasInactive = cachedInactive.length > 0
+    const filteredWorkers = getFilteredWorkers()
 
     if (!workers || workers.length === 0) {
         return (
@@ -137,87 +81,89 @@ export function WorkersList({ workers, onWorkerClick, refreshKey }) {
         )
     }
 
-    // ⭐ ФУНКЦИЯ ДЛЯ РЕНДЕРИНГА КАРТОЧКИ
-    const renderWorkerCard = (worker) => {
-        const { hasPhoto, avatarData, initials, avatarColor, status } = worker
-        const isActive = status === 'active'
-
+    if (filteredWorkers.length === 0) {
         return (
-            <div 
-                key={worker?.id} 
-                className={styles.workerGridCard}
-                onClick={() => onWorkerClick(worker)}
-            >
-                {/* ⭐ АВАТАРКА С ОБВОДКОЙ */}
-                <div 
-                    className={`${styles.workerGridAvatar} ${
-                        isActive ? styles.active : styles.inactive
-                    }`}
-                    style={{ 
-                        backgroundColor: hasPhoto ? 'transparent' : avatarColor,
-                        overflow: 'hidden',
-                    }}
-                >
-                    {hasPhoto ? (
-                        <img 
-                            src={avatarData} 
-                            alt={worker?.name || 'Работник'}
-                            loading="lazy"
-                            style={{
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover',
-                                borderRadius: '50%'
-                            }}
-                            onError={(e) => {
-                                e.target.style.display = 'none'
-                                e.target.parentNode.style.backgroundColor = avatarColor
-                                e.target.parentNode.textContent = initials
-                            }}
-                        />
-                    ) : (
-                        initials
-                    )}
-                </div>
-
-                {/* ⭐ ИМЯ БЕЗ ТОЧКИ */}
-                <div className={styles.workerGridNameWrapper}>
-                    <span className={styles.workerGridName}>{worker?.name || 'Без имени'}</span>
+            <div className={styles.emptyState}>
+                <div className={styles.emptyIcon}>👷</div>
+                <div className={styles.emptyText}>
+                    {filterStatus === 'active' ? 'Нет активных работников' : 'Нет неактивных работников'}
                 </div>
             </div>
         )
     }
 
     return (
-        <div ref={containerRef} className={styles.workersGridContainer} key={refreshKey}>
-            {/* АКТИВНЫЕ РАБОТНИКИ */}
-            {hasActive && (
-                <>
-                    <div className={styles.workersSectionHeader}>
-                        Активные
-                    </div>
-                    <div className={styles.workersGrid}>
-                        {cachedActive.map(renderWorkerCard)}
-                    </div>
-                </>
-            )}
+        <div ref={containerRef} className={styles.workersListContainer} key={refreshKey}>
+            {filteredWorkers.map((worker) => {
+                const avatar = getAvatar(worker?.name)
+                const hasPhoto = !!avatar
+                const initials = getInitials(worker?.name)
+                const avatarColor = getAvatarColor(worker?.name)
+                const isActive = worker?.status === 'active' || !worker?.status
+                const statusText = isActive ? 'Работает' : 'Не работает'
 
-            {/* РАЗДЕЛИТЕЛЬ */}
-            {hasActive && hasInactive && (
-                <div className={styles.workersDivider} />
-            )}
+                return (
+                    <div 
+                        key={worker?.id} 
+                        className={styles.workerListItem}
+                        onClick={() => onWorkerClick(worker)}
+                    >
+                        {/* АВАТАРКА */}
+                        <div 
+                            className={`${styles.workerListAvatar} ${isActive ? styles.active : styles.inactive}`}
+                            style={{ 
+                                backgroundColor: hasPhoto ? 'transparent' : avatarColor,
+                                overflow: 'hidden',
+                            }}
+                        >
+                            {hasPhoto ? (
+                                <img 
+                                    src={avatar} 
+                                    alt={worker?.name || 'Работник'}
+                                    loading="lazy"
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'cover',
+                                        borderRadius: '50%'
+                                    }}
+                                    onError={(e) => {
+                                        e.target.style.display = 'none'
+                                        e.target.parentNode.style.backgroundColor = avatarColor
+                                        e.target.parentNode.textContent = initials
+                                    }}
+                                />
+                            ) : (
+                                initials
+                            )}
+                        </div>
 
-            {/* НЕАКТИВНЫЕ РАБОТНИКИ */}
-            {hasInactive && (
-                <>
-                    <div className={styles.workersSectionHeader}>
-                        Неактивные
+                        {/* ИНФОРМАЦИЯ */}
+                        <div className={styles.workerListInfo}>
+                            <span className={styles.workerListName}>{worker?.name || 'Без имени'}</span>
+                            <span className={styles.workerListStatus}>
+                                <span 
+                                    className={`${styles.workerListStatusDot} ${!isActive ? styles.inactive : ''}`}
+                                    style={{ backgroundColor: isActive ? '#2d7d46' : '#888888' }}
+                                />
+                                {statusText}
+                            </span>
+                        </div>
+
+                        {/* КНОПКА УДАЛЕНИЯ */}
+                        <button 
+                            className={styles.workerListDeleteBtn}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onDeleteClick(worker)
+                            }}
+                            aria-label="Удалить работника"
+                        >
+                            <DeleteIcon />
+                        </button>
                     </div>
-                    <div className={styles.workersGrid}>
-                        {cachedInactive.map(renderWorkerCard)}
-                    </div>
-                </>
-            )}
+                )
+            })}
         </div>
     )
 }

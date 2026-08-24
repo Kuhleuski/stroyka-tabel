@@ -735,7 +735,7 @@ body {
 
 .fabAddShift {
     position: fixed;
-    bottom: 90px;
+    bottom: 5px;
     right: 24px;
     width: 60px;
     height: 60px;
@@ -749,7 +749,7 @@ body {
     align-items: center;
     justify-content: center;
     transition: all 0.25s ease;
-    z-index: var(--z-fab);
+    z-index: 210;
     padding: 0;
 }
 

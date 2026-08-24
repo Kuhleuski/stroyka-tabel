@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { formatDateLocal } from '../../utils/dateHelpers'
 import styles from '../../styles/test.module.css'
 
@@ -11,100 +11,124 @@ export function ColoredDay({ date, shifts, sites, isActive }) {
     return null
   }
   
-  // Получаем уникальные site_id и их цвета
-  const siteMap = new Map()
+  // Получаем уникальные site_id и их цвета (сохраняя порядок)
+  const siteMap = []
+  const seen = new Set()
+  
   dayShifts.forEach(s => {
-    if (!siteMap.has(s.site_id)) {
+    if (!seen.has(s.site_id)) {
+      seen.add(s.site_id)
       const site = sites.find(site => site.id === s.site_id)
       if (site) {
-        siteMap.set(s.site_id, site.color)
+        siteMap.push({
+          siteId: s.site_id,
+          color: site.color,
+          name: site.name
+        })
       }
     }
   })
   
-  const colors = Array.from(siteMap.values()).filter(c => c !== null && c !== undefined)
+  const colors = siteMap.map(s => s.color).filter(c => c !== null && c !== undefined)
+  const totalSites = colors.length
   
-  if (colors.length === 0) {
+  if (totalSites === 0) {
     return null
   }
 
-  const totalSites = colors.length
-  const plusCount = totalSites > 3 ? totalSites - 3 : 0
-  const showPlus = totalSites > 3
-
-  // Берем первые 3 цвета
-  const displayColors = colors.slice(0, 3)
-  
-  const dotSize = 12
-  const shift = 7
-
-  // Если одна точка — центрируем её
-  if (displayColors.length === 1) {
-    return (
-      <div className={styles.coloredDayContainer}>
-        <div className={styles.coloredDotsRow}>
-          <div
-            className={styles.coloredDot}
-            style={{
-              backgroundColor: displayColors[0],
-              position: 'absolute',
-              left: '50%',
-              top: '81%',
-              transform: 'translate(-50%, -50%)',
-              margin: 0,
-              zIndex: 1,
-              boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
-            }}
-          />
-        </div>
-      </div>
-    )
+  // ⭐ ЕСЛИ ДЕНЬ ВЫБРАН — НЕ ПОКАЗЫВАЕМ ЗАЛИВКУ
+  if (isActive) {
+    return null
   }
 
-  // Общая ширина группы
-  const totalWidth = (displayColors.length - 1) * shift + dotSize
-  const plusWidth = showPlus ? 18 : 0
-  const groupWidth = totalWidth + plusWidth + 2
+  // ⭐ ФУНКЦИЯ ДЛЯ ПОСТРОЕНИЯ ЗАЛИВКИ
+  const getBackground = () => {
+    // 1 смена — один цвет
+    if (totalSites === 1) {
+      return colors[0]
+    }
+    
+    // 2 смены — вертикальное деление
+    if (totalSites === 2) {
+      return `linear-gradient(to right, ${colors[0]} 50%, ${colors[1]} 50%)`
+    }
+    
+    // 3 смены — как знак Мерседеса
+    if (totalSites === 3) {
+      return `conic-gradient(from 0deg at 50% 50%, 
+        ${colors[0]} 0deg 120deg, 
+        ${colors[1]} 120deg 240deg, 
+        ${colors[2]} 240deg 360deg
+      )`
+    }
+    
+    // 4+ смен — сетка 2×2
+    if (totalSites >= 4) {
+      const c1 = colors[0] || '#666'
+      const c2 = colors[1] || '#666'
+      const c3 = colors[2] || '#666'
+      const c4 = colors[3] || '#666'
+      
+      return `
+        linear-gradient(to bottom, ${c1} 0% 50%, ${c3} 50% 100%),
+        linear-gradient(to right, ${c1} 0% 50%, ${c2} 50% 100%),
+        linear-gradient(to bottom, ${c2} 0% 50%, ${c4} 50% 100%)
+      `
+    }
+    
+    return colors[0] || '#666'
+  }
+
+  // Определяем фон в зависимости от количества смен
+  let background = ''
+  
+  if (totalSites === 1) {
+    background = colors[0]
+  } else if (totalSites === 2) {
+    background = `linear-gradient(to right, ${colors[0]} 50%, ${colors[1]} 50%)`
+  } else if (totalSites === 3) {
+    background = `conic-gradient(from 0deg at 50% 50%, 
+      ${colors[0]} 0deg 120deg, 
+      ${colors[1]} 120deg 240deg, 
+      ${colors[2]} 240deg 360deg
+    )`
+  } else {
+    // 4+ смен
+    const c1 = colors[0] || '#666'
+    const c2 = colors[1] || '#666'
+    const c3 = colors[2] || '#666'
+    const c4 = colors[3] || '#666'
+    background = `
+      linear-gradient(to bottom, ${c1} 0% 50%, ${c3} 50% 100%),
+      linear-gradient(to right, ${c1} 0% 50%, ${c2} 50% 100%),
+      linear-gradient(to bottom, ${c2} 0% 50%, ${c4} 50% 100%)
+    `
+  }
+
+  const showPlus = totalSites > 4
+  const plusCount = totalSites - 4
 
   return (
     <div className={styles.coloredDayContainer}>
-      <div className={styles.coloredDotsRow}>
-        {displayColors.map((color, index) => {
-          const zIndex = index + 1
-          const shiftX = index * shift
-          const offsetX = shiftX - groupWidth / 2 + dotSize / 2
-          return (
-            <div
-              key={index}
-              className={styles.coloredDot}
-              style={{
-                backgroundColor: color,
-                transform: `translateX(${offsetX}px)`,
-                zIndex: zIndex,
-                position: 'absolute',
-                left: '50%',
-                top: '78%',
-                marginLeft: `-${dotSize/2}px`,
-                marginTop: `-${dotSize/2}px`,
-                boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
-              }}
-            />
-          )
-        })}
-        {showPlus && (
-          <span 
-            className={styles.plusBadgeText}
-            style={{
-              position: 'absolute',
-              left: '50%',
-              top: '78%',
-              transform: `translateX(${displayColors.length * shift - groupWidth / 2 + dotSize / 2 + 2}px) translateY(-50%)`,
-            }}
-          >
-            +{plusCount}
-          </span>
-        )}
-      </div>
+      <div 
+        className={`${styles.coloredDayCell}`}
+        style={{ 
+          background: background,
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          borderRadius: '8px',
+          zIndex: 0,
+          pointerEvents: 'none',
+        }}
+      />
+      {showPlus && (
+        <div className={styles.plusBadgeContainer}>
+          <span className={styles.plusBadgeTextNew}>+{plusCount}</span>
+        </div>
+      )}
     </div>
   )
 }

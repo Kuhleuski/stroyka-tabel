@@ -96,7 +96,39 @@ export default function TestPage() {
     return `${months[date.getMonth()]} ${date.getFullYear()}`
   }
 
+  // ⭐ ПРОВЕРКА МОЖНО ЛИ ПЕРЕЙТИ НА СЛЕДУЮЩИЙ МЕСЯЦ
+  const canGoNext = () => {
+    const today = new Date()
+    const nextMonth = new Date(activeStartDate)
+    nextMonth.setMonth(nextMonth.getMonth() + 1)
+    
+    // Нельзя перейти на месяц позже текущего
+    if (nextMonth.getFullYear() > today.getFullYear()) {
+      return false
+    }
+    if (nextMonth.getMonth() > today.getMonth() && nextMonth.getFullYear() >= today.getFullYear()) {
+      return false
+    }
+    return true
+  }
+
+  // ⭐ ПРОВЕРКА МОЖНО ЛИ ПЕРЕЙТИ НА ПРЕДЫДУЩИЙ МЕСЯЦ
+  const canGoPrev = () => {
+    const prevMonth = new Date(activeStartDate)
+    prevMonth.setMonth(prevMonth.getMonth() - 1)
+    
+    // Проверяем, что не ушли дальше 2 лет назад
+    const twoYearsAgo = new Date()
+    twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2)
+    twoYearsAgo.setMonth(twoYearsAgo.getMonth())
+    
+    return prevMonth >= twoYearsAgo
+  }
+
   const changeMonth = (newDirection) => {
+    if (newDirection > 0 && !canGoNext()) return
+    if (newDirection < 0 && !canGoPrev()) return
+    
     setDirection(newDirection)
     const newDate = new Date(activeStartDate)
     newDate.setMonth(newDate.getMonth() + newDirection)
@@ -337,52 +369,57 @@ export default function TestPage() {
 
         <AnimatePresence mode="popLayout" custom={direction}>
           <motion.div
-            key={activeStartDate.getMonth() + '-' + activeStartDate.getFullYear()}
-            custom={direction}
-            variants={variants}
-            initial={isFirstRender.current || isReturning.current ? false : "enter"}
-            animate="center"
-            exit="exit"
-            transition={{
-              x: { 
-                type: "spring", 
-                stiffness: 500,
-                damping: 35,
-                mass: 0.5
-              },
-              opacity: { duration: 0.15 },
-              scale: { duration: 0.15 }
-            }}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.5}
-            dragMomentum={false}
-            onDragEnd={(event, info) => {
-              const threshold = 30
-              if (info.offset.x < -threshold) {
+    key={activeStartDate.getMonth() + '-' + activeStartDate.getFullYear()}
+    custom={direction}
+    variants={variants}
+    initial={isFirstRender.current || isReturning.current ? false : "enter"}
+    animate="center"
+    exit="exit"
+    transition={{
+        x: { 
+            type: "spring", 
+            stiffness: 500,
+            damping: 35,
+            mass: 0.5
+        },
+        opacity: { duration: 0.15 },
+        scale: { duration: 0.15 }
+    }}
+    drag="x"
+    dragDirectionLock={true}          /* ← КЛЮЧЕВОЙ ПРОП */
+    dragConstraints={{ left: 0, right: 0 }}
+    dragElastic={0.5}
+    dragMomentum={false}
+    onDragEnd={(event, info) => {
+        const threshold = 30
+        if (info.offset.x < -threshold) {
+            if (canGoNext()) {
                 changeMonth(1)
-              } else if (info.offset.x > threshold) {
+            }
+        } else if (info.offset.x > threshold) {
+            if (canGoPrev()) {
                 changeMonth(-1)
-              }
-            }}
-            className={styles.calendarMotion}
-          >
-            <Calendar
-              value={date}
-              onChange={handleDayClick}
-              activeStartDate={activeStartDate}
-              minDetail="month"
-              maxDetail="month"
-              navigationLabel={({ date }) => formatMonth(date)}
-              prevLabel={null}
-              nextLabel={null}
-              next2Label={null}
-              prev2Label={null}
-              showNeighboringMonth={false}
-              tileContent={tileContent}
-              tileClassName={tileClassName}
-            />
-          </motion.div>
+            }
+        }
+    }}
+    className={styles.calendarMotion}
+>
+    <Calendar
+        value={date}
+        onChange={handleDayClick}
+        activeStartDate={activeStartDate}
+        minDetail="month"
+        maxDetail="month"
+        navigationLabel={({ date }) => formatMonth(date)}
+        prevLabel={null}
+        nextLabel={null}
+        next2Label={null}
+        prev2Label={null}
+        showNeighboringMonth={false}
+        tileContent={tileContent}
+        tileClassName={tileClassName}
+    />
+</motion.div>
         </AnimatePresence>
       </div>
 
