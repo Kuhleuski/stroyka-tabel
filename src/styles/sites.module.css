@@ -660,8 +660,7 @@
   flex-direction: column;
   height: 100%;
   width: 100%;
-  max-width: 500px;
-  margin: 0 auto;
+ 
 }
 
 /* ============================================================
@@ -676,7 +675,7 @@
 }
 
 /* ============================================================
-   ФУТЕР С КНОПКАМИ — FIXED ВНИЗУ, НА ВСЮ ШИРИНУ
+   ФУТЕР С КНОПКАМИ — FIXED ВНИЗУ, НА ВСЮ ШИРИНУ, 40/60
    ============================================================ */
 
 .shiftFormActionsFixed {
@@ -693,46 +692,8 @@
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   box-sizing: border-box;
   z-index: 100;
-}
-
-.shiftFormBottomBtn {
-  padding: 14px;
-  background: var(--color-primary, #2d7d46);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.2s ease;
-}
-
-.shiftFormBottomBtn:hover:not(:disabled) {
-  background: var(--color-primary-hover, #3a9a57);
-}
-
-.shiftFormBottomBtn:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.shiftFormCancelBtn {
-  padding: 14px;
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text-secondary, rgba(255, 255, 255, 0.5));
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.2s ease;
-}
-
-.shiftFormCancelBtn:hover {
-  background: rgba(255, 255, 255, 0.10);
-  color: var(--text-primary, #ffffff);
+  max-width: 100% !important;  /* ← ГЛАВНОЕ - убираем ограничение */
+  width: 100% !important;      /* ← на всю ширину */
 }
 
 /* ============================================================
