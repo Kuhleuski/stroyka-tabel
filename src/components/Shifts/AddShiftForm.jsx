@@ -317,23 +317,23 @@ export const AddShiftForm = ({
   return (
     <div className={styles.shiftFormScreen}>
       <div className={styles.shiftFormContent}>
-{/* Заголовок с иконкой слева */}
-<div className={styles.shiftFormHeaderLeft}>
-  <div className={styles.shiftFormIconLeft}>
-    <CalendarPlus size={100} strokeWidth={1.2} color="#888888" />
-  </div>
-  <div className={styles.shiftFormHeaderTextLeft}>
-    <div className={styles.shiftFormTitleLeft}>
-      {isEditMode ? 'Редактирование смены' : 'Новая смена'}
-    </div>
-    <div className={styles.shiftFormDateLeft}>
-      {formatDateFull(selectedDate)}
-    </div>
-  </div>
-</div>
+        {/* Заголовок с иконкой слева */}
+        <div className={styles.shiftFormHeaderLeft}>
+          <div className={styles.shiftFormIconLeft}>
+            <CalendarPlus size={70} strokeWidth={1.2} color="#888888" />
+          </div>
+          <div className={styles.shiftFormHeaderTextLeft}>
+            <div className={styles.shiftFormTitleLeft}>
+              {isEditMode ? 'Редактирование смены' : 'Новая смена'}
+            </div>
+            <div className={styles.shiftFormDateLeft}>
+              {formatDateFull(selectedDate)}
+            </div>
+          </div>
+        </div>
 
         <form id="shift-form" onSubmit={handleSubmit} className={styles.shiftFormBody}>
-          {/* Заголовок над объектами - по левому краю */}
+          {/* Заголовок над объектами */}
           <div className={styles.shiftFormSectionLabelLeft}>
             Выберите объект на котором работали:
           </div>
@@ -389,7 +389,7 @@ export const AddShiftForm = ({
             )}
           </div>
 
-          {/* Заголовок над работниками с кнопкой "Выбрать всех" справа */}
+          {/* Заголовок над работниками с кнопкой "Выбрать всех" */}
           <div className={styles.shiftFormSectionLabelWrapper}>
             <div className={styles.shiftFormSectionLabelLeft}>
               Выберите работников:
@@ -465,25 +465,29 @@ export const AddShiftForm = ({
               </button>
             )}
           </div>
+          
+          {/* Отступ снизу для фиксированных кнопок */}
+          <div style={{ height: '20px' }} />
         </form>
+      </div>
 
-        <div className={styles.shiftFormActions}>
-          <button 
-            type="button" 
-            className={styles.shiftFormCancelBtn}
-            onClick={onClose}
-          >
-            Отмена
-          </button>
-          <button 
-            type="submit" 
-            className={styles.shiftFormBottomBtn}
-            disabled={loading}
-            form="shift-form"
-          >
-            {loading ? 'Сохранение...' : (isEditMode ? 'Обновить смену' : 'Сохранить смену')}
-          </button>
-        </div>
+      {/* ФУТЕР С КНОПКАМИ — FIXED ВНИЗУ */}
+      <div className={styles.shiftFormActionsFixed}>
+        <button 
+          type="button" 
+          className={styles.shiftFormCancelBtn}
+          onClick={onClose}
+        >
+          Отмена
+        </button>
+        <button 
+          type="submit" 
+          className={styles.shiftFormBottomBtn}
+          disabled={loading}
+          form="shift-form"
+        >
+          {loading ? 'Сохранение...' : (isEditMode ? 'Обновить смену' : 'Сохранить смену')}
+        </button>
       </div>
     </div>
   )

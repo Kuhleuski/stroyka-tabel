@@ -676,21 +676,25 @@
 }
 
 /* ============================================================
-   ФУТЕР С КНОПКАМИ — ПРИЛЕПЛЕН К НИЗУ
+   ФУТЕР С КНОПКАМИ — FIXED КАК В WORKERSTATSPAGE
    ============================================================ */
 
-.shiftFormActions {
+.shiftFormActionsFixed {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 500px;
+  margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  padding: 16px 20px 20px;
+  padding: 16px 20px;
   padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   background: var(--bg-body, #121212);
   border-top: 1px solid rgba(255, 255, 255, 0.06);
-  flex-shrink: 0;
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
+  box-sizing: border-box;
+  z-index: 100;
 }
 
 .shiftFormBottomBtn {
@@ -731,4 +735,15 @@
 .shiftFormCancelBtn:hover {
   background: rgba(255, 255, 255, 0.10);
   color: var(--text-primary, #ffffff);
+}
+
+/* ============================================================
+   ТЕЛО — добавляем отступ снизу для кнопок
+   ============================================================ */
+
+.shiftFormBody {
+  flex: 1;
+  padding: 12px 20px 100px; /* ← отступ снизу для кнопок */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
