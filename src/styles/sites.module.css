@@ -676,7 +676,7 @@
 }
 
 /* ============================================================
-   ФУТЕР С КНОПКАМИ — FIXED КАК В WORKERSTATSPAGE
+   ФУТЕР С КНОПКАМИ — FIXED ВНИЗУ, НА ВСЮ ШИРИНУ
    ============================================================ */
 
 .shiftFormActionsFixed {
@@ -684,10 +684,8 @@
   bottom: 0;
   left: 0;
   right: 0;
-  max-width: 500px;
-  margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 40% 60%;
   gap: 12px;
   padding: 16px 20px;
   padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
