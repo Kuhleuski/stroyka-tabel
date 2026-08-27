@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { ArrowLeft, Lock } from 'lucide-react'
+import { Lock, CalendarPlus, ChevronDown } from 'lucide-react'
 import { saveShift, findShiftsForSiteAndDate } from '../../services/supabase'
 import { formatDateLocal } from '../../utils/dateHelpers'
 import { useAuth } from '../../context/AuthContext'
@@ -11,6 +11,7 @@ export const AddShiftForm = ({
   onSuccess, 
   sites, 
   workers,
+  shifts = [],
   initialSiteId = null,
   initialWorkerIds = [],
   isEditMode = false
@@ -20,30 +21,28 @@ export const AddShiftForm = ({
   const [selectedWorkers, setSelectedWorkers] = useState(initialWorkerIds)
   const [loading, setLoading] = useState(false)
   
+  const [showAllSites, setShowAllSites] = useState(false)
+  const [showAllWorkers, setShowAllWorkers] = useState(false)
+  
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [existingShifts, setExistingShifts] = useState([])
   const [pendingSaveData, setPendingSaveData] = useState(null)
   
-  // Используем ref для отслеживания предыдущих значений
   const prevSiteIdRef = useRef(initialSiteId)
   const prevWorkerIdsRef = useRef(initialWorkerIds)
   const isFirstRender = useRef(true)
 
-  // Обновляем состояние при изменении пропсов (только если они действительно изменились)
   useEffect(() => {
-    // Пропускаем первый рендер
     if (isFirstRender.current) {
       isFirstRender.current = false
       return
     }
 
-    // Проверяем, изменился ли siteId
     if (initialSiteId !== prevSiteIdRef.current) {
       prevSiteIdRef.current = initialSiteId
       setSelectedSite(initialSiteId)
     }
 
-    // Проверяем, изменились ли workerIds (сравниваем массивы)
     const workerIdsChanged = 
       initialWorkerIds.length !== prevWorkerIdsRef.current.length ||
       initialWorkerIds.some((id, index) => id !== prevWorkerIdsRef.current[index])
@@ -54,6 +53,65 @@ export const AddShiftForm = ({
     }
   }, [initialSiteId, initialWorkerIds])
 
+  // Объекты - фильтруем по статусу (русские значения)
+  const getFilteredSites = () => {
+    if (showAllSites) return sites
+    
+    // Проверяем, есть ли у объектов поле status
+    const hasStatus = sites.some(s => s.status !== undefined && s.status !== null)
+    
+    // Если статуса нет — показываем все
+    if (!hasStatus) return sites
+    
+    // Показываем только объекты со статусом 'в работе'
+    return sites.filter(site => site.status === 'в работе')
+  }
+
+  // Ранжирование объектов по дате последней смены
+  const getSortedSites = () => {
+    const filtered = getFilteredSites()
+    return [...filtered].sort((a, b) => {
+      const aShifts = shifts.filter(s => s.site_id === a.id)
+      const bShifts = shifts.filter(s => s.site_id === b.id)
+      
+      const aLastDate = aShifts.length > 0 
+        ? new Date(Math.max(...aShifts.map(s => new Date(s.work_date).getTime())))
+        : new Date(0)
+      const bLastDate = bShifts.length > 0 
+        ? new Date(Math.max(...bShifts.map(s => new Date(s.work_date).getTime())))
+        : new Date(0)
+      
+      return bLastDate.getTime() - aLastDate.getTime()
+    })
+  }
+
+  // Работники - фильтруем по статусу
+  const getFilteredWorkers = () => {
+    if (showAllWorkers) return workers
+    return workers.filter(worker => worker.status === 'active')
+  }
+
+  // Ранжирование работников: активные сверху по алфавиту, неактивные снизу по алфавиту
+  const getSortedWorkers = () => {
+    const filtered = getFilteredWorkers()
+    return [...filtered].sort((a, b) => {
+      const aActive = a.status === 'active'
+      const bActive = b.status === 'active'
+      
+      if (aActive && !bActive) return -1
+      if (!aActive && bActive) return 1
+      
+      const aFirstName = a.name.split(' ')[0] || a.name
+      const bFirstName = b.name.split(' ')[0] || b.name
+      return aFirstName.localeCompare(bFirstName)
+    })
+  }
+
+  const filteredSites = getSortedSites()
+  const filteredWorkers = getSortedWorkers()
+  const totalVisible = filteredWorkers.length
+  const allVisibleSelected = totalVisible > 0 && filteredWorkers.every(w => selectedWorkers.includes(w.id))
+
   const handleWorkerToggle = (workerId) => {
     setSelectedWorkers(prev =>
       prev.includes(workerId)
@@ -63,10 +121,19 @@ export const AddShiftForm = ({
   }
 
   const handleSelectAll = () => {
-    if (selectedWorkers.length === workers.length) {
-      setSelectedWorkers([])
+    const currentVisibleWorkers = filteredWorkers.map(w => w.id)
+    const allVisibleSelected = currentVisibleWorkers.every(id => selectedWorkers.includes(id))
+    
+    if (allVisibleSelected) {
+      setSelectedWorkers(prev => prev.filter(id => !currentVisibleWorkers.includes(id)))
     } else {
-      setSelectedWorkers(workers.map(w => w.id))
+      const newSelection = [...selectedWorkers]
+      currentVisibleWorkers.forEach(id => {
+        if (!newSelection.includes(id)) {
+          newSelection.push(id)
+        }
+      })
+      setSelectedWorkers(newSelection)
     }
   }
 
@@ -88,15 +155,11 @@ export const AddShiftForm = ({
     }
 
     const localDate = formatDateLocal(selectedDate)
-    console.log('📅 Сохраняем смену на дату:', localDate)
-    console.log('📍 Объект ID:', selectedSite)
-    console.log('👷 Работники ID:', selectedWorkers)
     
     try {
       const existing = await findShiftsForSiteAndDate(selectedSite, localDate)
       
       if (existing && existing.length > 0) {
-        console.log('📊 Найдена существующая смена:', existing)
         setExistingShifts(existing)
         setPendingSaveData({ siteId: selectedSite, workDate: localDate, workerIds: selectedWorkers })
         setShowConfirmDialog(true)
@@ -134,17 +197,17 @@ export const AddShiftForm = ({
     setPendingSaveData(null)
   }
 
-  const formatDate = (date) => {
+  const formatDateFull = (date) => {
     if (!date) return ''
-    const months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']
-    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`
+    const days = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота']
+    const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря']
+    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}, ${days[date.getDay()]}`
   }
 
   const getInitials = (name) => {
     if (!name) return '?'
-    const parts = name.trim().split(' ')
-    if (parts.length === 1) return parts[0].charAt(0).toUpperCase()
-    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
+    const firstName = name.split(' ')[0] || name
+    return firstName.charAt(0).toUpperCase()
   }
 
   const getAvatarColor = (name) => {
@@ -176,28 +239,17 @@ export const AddShiftForm = ({
       .filter(name => name !== null)
   }
 
-  // === ДИАЛОГ ПОДТВЕРЖДЕНИЯ ===
+  // Диалог подтверждения
   if (showConfirmDialog) {
     const siteName = getSiteName(selectedSite)
     const siteColor = getSiteColor(selectedSite)
     const existingWorkerIds = existingShifts.map(s => s.worker_id)
     const existingWorkerNames = getWorkerNames(existingWorkerIds)
     const newWorkerNames = getWorkerNames(selectedWorkers)
-    const dateDisplay = formatDate(selectedDate)
+    const dateDisplay = formatDateFull(selectedDate)
 
     return (
       <div className={styles.shiftFormScreen}>
-        <div className={styles.shiftFormHeader}>
-          <button onClick={handleCancelOverwrite} className={styles.shiftFormBack}>
-            <ArrowLeft size={24} />
-            <span>Назад</span>
-          </button>
-          <span className={styles.shiftFormTitle} style={{ flex: 1, textAlign: 'center' }}>
-            Подтверждение
-          </span>
-          <div style={{ width: '60px' }} />
-        </div>
-
         <div className={styles.confirmDialogBody}>
           <div className={styles.confirmDialogHeader}>
             <div className={styles.confirmDialogIcon}>!</div>
@@ -230,7 +282,7 @@ export const AddShiftForm = ({
 
           <div className={styles.confirmDialogSection}>
             <div className={styles.confirmDialogLabel}>Новая запись</div>
-            <div className={styles.confirmDialogCardNew}>
+            <div className={styles.confirmDialogCard}>
               <div className={styles.confirmDialogDate}>{dateDisplay}</div>
               <div className={styles.confirmDialogSite}>
                 <span className={styles.confirmDialogDot} style={{ background: siteColor }} />
@@ -261,163 +313,161 @@ export const AddShiftForm = ({
     )
   }
 
-  // === ОСНОВНАЯ ФОРМА ===
+  // Основная форма
   return (
     <div className={styles.shiftFormScreen}>
-      <div className={styles.shiftFormHeader}>
-        <button onClick={onClose} className={styles.shiftFormBack}>
-          <ArrowLeft size={24} />
-          <span>Назад</span>
-        </button>
-        <span className={styles.shiftFormTitle} style={{ flex: 1, textAlign: 'center' }}>
-          {isEditMode ? 'Редактирование смены' : 'Новая смена'} на {formatDate(selectedDate)}
-        </span>
-        <div style={{ width: '60px' }} />
-      </div>
+      <div className={styles.shiftFormContent}>
+{/* Заголовок с иконкой слева */}
+<div className={styles.shiftFormHeaderLeft}>
+  <div className={styles.shiftFormIconLeft}>
+    <CalendarPlus size={100} strokeWidth={1.2} color="#888888" />
+  </div>
+  <div className={styles.shiftFormHeaderTextLeft}>
+    <div className={styles.shiftFormTitleLeft}>
+      {isEditMode ? 'Редактирование смены' : 'Новая смена'}
+    </div>
+    <div className={styles.shiftFormDateLeft}>
+      {formatDateFull(selectedDate)}
+    </div>
+  </div>
+</div>
 
-      <form id="shift-form" onSubmit={handleSubmit} className={styles.shiftFormBody}>
-        <div className={styles.shiftFormBlock}>
-          <div className={styles.shiftFormLabelWrapper}>
-            <label className={styles.shiftFormLabel} style={{ fontSize: '16px', fontWeight: 600, marginBottom: '12px' }}>
-              Выберите объект:
-            </label>
-            {isEditMode && (
-              <span className={styles.lockBadge}>
-                <Lock size={14} />
-                Объект заблокирован
-              </span>
-            )}
+        <form id="shift-form" onSubmit={handleSubmit} className={styles.shiftFormBody}>
+          {/* Заголовок над объектами - по левому краю */}
+          <div className={styles.shiftFormSectionLabelLeft}>
+            Выберите объект на котором работали:
           </div>
-          <div className={styles.shiftSitesGrid}>
-            {sites.length === 0 ? (
-              <div className={styles.shiftFormEmpty}>
-                <p>Нет добавленных объектов</p>
-                <span>Добавьте в разделе "Объекты"</span>
-              </div>
-            ) : (
-              sites.map(site => {
-                const isSelected = selectedSite === site.id
-                const isDisabled = isEditMode && !isSelected
-                
-                return (
-                  <div key={site.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+
+          {/* Плашка объектов */}
+          <div className={styles.shiftFormBlock}>
+            <div className={styles.shiftSitesGrid}>
+              {filteredSites.length === 0 ? (
+                <div className={styles.shiftFormEmpty}>
+                  <p>Нет добавленных объектов</p>
+                </div>
+              ) : (
+                filteredSites.map(site => {
+                  const isSelected = selectedSite === site.id
+                  const isDisabled = isEditMode && !isSelected
+                  
+                  return (
                     <div
-                      className={`${styles.shiftSiteCard} ${isSelected ? styles.selected : ''} ${isDisabled ? styles.disabled : ''}`}
+                      key={site.id}
+                      className={`${styles.shiftSiteChip} ${isSelected ? styles.selected : ''} ${isDisabled ? styles.disabled : ''}`}
                       onClick={() => handleSiteSelect(site.id)}
-                      style={{
-                        backgroundColor: isEditMode ? (isSelected ? site.color || '#2d7d46' : '#e0e0e0') : (site.color || '#2d7d46'),
-                        borderColor: isSelected ? '#2d7d46' : 'transparent',
-                        borderWidth: isSelected ? '3px' : '0px',
-                        position: 'relative',
-                        width: '100%',
-                        cursor: isEditMode ? 'default' : 'pointer',
-                        opacity: isEditMode && !isSelected ? 0.4 : 1,
-                      }}
                     >
+                      <span 
+                        className={styles.shiftSiteDot}
+                        style={{ 
+                          backgroundColor: site.color || '#2d7d46',
+                          boxShadow: `0 0 12px ${site.color || '#2d7d46'}60`
+                        }}
+                      />
                       <span className={styles.shiftSiteName}>{site.name}</span>
                       {isSelected && (
-                        <div className={styles.shiftSiteCheck}>✓</div>
+                        <span className={styles.shiftCheckMark}>✓</span>
                       )}
                       {isEditMode && isSelected && (
-                        <div className={styles.shiftSiteLock}>
-                          <Lock size={14} color="white" />
-                        </div>
+                        <span className={styles.shiftLockIcon}>
+                          <Lock size={14} />
+                        </span>
                       )}
                     </div>
-                    {site.address && (
-                      <div className={styles.shiftSiteAddress}>{site.address}</div>
-                    )}
-                  </div>
-                )
-              })
-            )}
-          </div>
-        </div>
+                  )
+                })
+              )}
+            </div>
 
-        <div className={styles.shiftFormBlock}>
-          <div className={styles.shiftFormWorkersHeader} style={{ marginBottom: '12px' }}>
-            <label className={styles.shiftFormLabel} style={{ fontSize: '16px', fontWeight: 600 }}>
-              Кто работал:
-            </label>
-            {workers.length > 0 && (
-              <button 
-                type="button" 
-                onClick={handleSelectAll}
-                className={styles.shiftFormSelectAll}
+            {sites.length > 0 && !showAllSites && (
+              <button
+                type="button"
+                className={styles.filterTextBtn}
+                onClick={() => setShowAllSites(true)}
               >
-                {selectedWorkers.length === workers.length ? 'Снять всех' : 'Выбрать всех'}
+                Показать все объекты <ChevronDown size={16} />
               </button>
             )}
           </div>
-          
-          <div className={styles.shiftWorkersGrid}>
-            {workers.length === 0 ? (
-              <div className={styles.shiftFormEmpty}>
-                <p>Нет добавленных работников</p>
-                <span>Добавьте в разделе "Бригада"</span>
-              </div>
-            ) : (
-              workers.map(worker => {
-                const isSelected = selectedWorkers.includes(worker.id)
-                const hasPhoto = isBase64Image(worker.avatar)
-                const initials = getInitials(worker.name)
-                const avatarColor = getAvatarColor(worker.name)
 
-                return (
-                  <div
-                    key={worker.id}
-                    className={`${styles.shiftWorkerCard} ${isSelected ? styles.selected : ''}`}
-                    onClick={() => handleWorkerToggle(worker.id)}
-                    style={{
-                      borderColor: isSelected ? 'transparent' : 'transparent',
-                    }}
-                  >
-                    <div className={styles.shiftWorkerAvatar} style={{
-                      backgroundColor: hasPhoto ? 'transparent' : avatarColor,
-                      border: hasPhoto ? '2px solid #e8eaed' : 'none',
-                      overflow: 'hidden',
-                      width: '56px',
-                      height: '56px'
-                    }}>
-                      {hasPhoto ? (
-                        <img 
-                          src={worker.avatar} 
-                          alt={worker.name}
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover',
-                            borderRadius: '50%'
-                          }}
-                          onError={(e) => {
-                            e.target.style.display = 'none'
-                            e.target.parentNode.style.backgroundColor = avatarColor
-                            e.target.parentNode.textContent = initials
-                          }}
-                        />
-                      ) : (
-                        initials
+          {/* Заголовок над работниками с кнопкой "Выбрать всех" справа */}
+          <div className={styles.shiftFormSectionLabelWrapper}>
+            <div className={styles.shiftFormSectionLabelLeft}>
+              Выберите работников:
+            </div>
+            <button
+              type="button"
+              className={styles.selectAllBtn}
+              onClick={handleSelectAll}
+            >
+              {allVisibleSelected ? 'Снять всех' : 'Выбрать всех'}
+            </button>
+          </div>
+
+          {/* Плашка работников */}
+          <div className={styles.shiftFormBlock}>
+            <div className={styles.shiftWorkersGrid}>
+              {filteredWorkers.length === 0 ? (
+                <div className={styles.shiftFormEmpty}>
+                  <p>Нет активных работников</p>
+                </div>
+              ) : (
+                filteredWorkers.map(worker => {
+                  const isSelected = selectedWorkers.includes(worker.id)
+                  const hasPhoto = isBase64Image(worker.avatar)
+                  const initials = getInitials(worker.name)
+                  const avatarColor = getAvatarColor(worker.name)
+                  const firstName = worker.name.split(' ')[0] || worker.name
+
+                  return (
+                    <div
+                      key={worker.id}
+                      className={`${styles.shiftWorkerChip} ${isSelected ? styles.selected : ''}`}
+                      onClick={() => handleWorkerToggle(worker.id)}
+                    >
+                      <div 
+                        className={styles.shiftWorkerAvatar}
+                        style={{
+                          backgroundColor: hasPhoto ? 'transparent' : avatarColor,
+                        }}
+                      >
+                        {hasPhoto ? (
+                          <img 
+                            src={worker.avatar} 
+                            alt={firstName}
+                            className={styles.shiftWorkerAvatarImg}
+                            onError={(e) => {
+                              e.target.style.display = 'none'
+                              e.target.parentNode.style.backgroundColor = avatarColor
+                              e.target.parentNode.textContent = initials
+                            }}
+                          />
+                        ) : (
+                          initials
+                        )}
+                      </div>
+                      <span className={styles.shiftWorkerName}>{firstName}</span>
+                      {isSelected && (
+                        <span className={styles.shiftCheckMark}>✓</span>
                       )}
                     </div>
-                    <div className={styles.shiftWorkerName}>{worker.name}</div>
-                    {isSelected && (
-                      <div className={styles.shiftWorkerCheck}>✓</div>
-                    )}
-                  </div>
-                )
-              })
+                  )
+                })
+              )}
+            </div>
+
+            {workers.length > 0 && !showAllWorkers && (
+              <button
+                type="button"
+                className={styles.filterTextBtn}
+                onClick={() => setShowAllWorkers(true)}
+              >
+                Показать всех работников <ChevronDown size={16} />
+              </button>
             )}
           </div>
-        </div>
+        </form>
 
         <div className={styles.shiftFormActions}>
-          <button 
-            type="submit" 
-            className={styles.shiftFormBottomBtn}
-            disabled={loading}
-          >
-            {loading ? '⏳ Сохранение...' : (isEditMode ? 'Обновить смену' : 'Сохранить смену')}
-          </button>
           <button 
             type="button" 
             className={styles.shiftFormCancelBtn}
@@ -425,8 +475,16 @@ export const AddShiftForm = ({
           >
             Отмена
           </button>
+          <button 
+            type="submit" 
+            className={styles.shiftFormBottomBtn}
+            disabled={loading}
+            form="shift-form"
+          >
+            {loading ? 'Сохранение...' : (isEditMode ? 'Обновить смену' : 'Сохранить смену')}
+          </button>
         </div>
-      </form>
+      </div>
     </div>
   )
 }

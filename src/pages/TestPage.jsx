@@ -321,6 +321,7 @@ export default function TestPage() {
         onSuccess={handleShiftAdded}
         sites={sites}
         workers={workers}
+        shifts={shifts}
         initialSiteId={editData?.siteId || null}
         initialWorkerIds={editData?.workerIds || []}
         isEditMode={isEditMode}
@@ -386,7 +387,7 @@ export default function TestPage() {
         scale: { duration: 0.15 }
     }}
     drag="x"
-    dragDirectionLock={true}          /* ← КЛЮЧЕВОЙ ПРОП */
+    dragDirectionLock={true}
     dragConstraints={{ left: 0, right: 0 }}
     dragElastic={0.5}
     dragMomentum={false}
