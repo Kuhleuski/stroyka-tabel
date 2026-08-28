@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import InputMask from 'react-input-mask'
 import styles from '../styles/components.module.css'
 
 export function AddWorkerModal({ isOpen, onClose, onSave }) {
     const [firstName, setFirstName] = useState('')
     const [lastName, setLastName] = useState('')
+    const [phone, setPhone] = useState('')
     const [avatarFile, setAvatarFile] = useState(null)
     const [previewUrl, setPreviewUrl] = useState(null)
     const [loading, setLoading] = useState(false)
@@ -34,9 +36,17 @@ export function AddWorkerModal({ isOpen, onClose, onSave }) {
             const fullName = lastName.trim() 
                 ? `${firstName.trim()} ${lastName.trim()}`
                 : firstName.trim()
-            await onSave(fullName, avatarFile)
+            
+            const digits = phone.replace(/\D/g, '')
+            let finalPhone = digits || ''
+            if (finalPhone && !finalPhone.startsWith('375')) {
+                finalPhone = '375' + finalPhone
+            }
+            
+            await onSave(fullName, avatarFile, finalPhone)
             setFirstName('')
             setLastName('')
+            setPhone('')
             setAvatarFile(null)
             setPreviewUrl(null)
             onClose()
@@ -82,6 +92,36 @@ export function AddWorkerModal({ isOpen, onClose, onSave }) {
                             onChange={(e) => setLastName(e.target.value)}
                             placeholder="Например: Петров"
                         />
+                    </div>
+
+                    <div className={styles.modalField}>
+                        <label className={styles.modalLabel}>Телефон</label>
+                        <InputMask
+                            mask="+375 (99) 999-99-99"
+                            maskChar="_"
+                            value={phone}
+                            onChange={(e) => {
+                                const raw = e.target.value.replace(/\D/g, '')
+                                if (raw.length <= 12) {
+                                    setPhone(e.target.value)
+                                }
+                            }}
+                            placeholder="+375 (__) ___-__-__"
+                        >
+                            {(inputProps) => (
+                                <input
+                                    {...inputProps}
+                                    type="tel"
+                                    className={styles.modalInput}
+                                    style={{ 
+                                        padding: '10px 12px',
+                                        fontFamily: 'monospace',
+                                        fontSize: '16px',
+                                        letterSpacing: '1px'
+                                    }}
+                                />
+                            )}
+                        </InputMask>
                     </div>
 
                     <div className={styles.modalField}>

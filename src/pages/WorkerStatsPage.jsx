@@ -11,7 +11,7 @@ import { ru } from 'date-fns/locale'
 import styles from '../styles/workerStats.module.css'
 import { WorkerStatsFooter } from '../components/WorkerStatsFooter'
 
-export function WorkerStatsPage({ worker, shifts, sites, onClose, onEdit, onRefresh }) {
+export function WorkerStatsPage({ worker, shifts, sites, archivedSites = [], onClose, onEdit, onRefresh }) {
     const { getAvatar } = useAvatars()
     const [activeTab, setActiveTab] = useState('month')
     
@@ -69,6 +69,11 @@ const [currentQuarterStart, setCurrentQuarterStart] = useState(() => {
         const index = (worker?.name || '').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
         return colors[index % colors.length]
     }, [worker?.name])
+
+    // === ОБЪЕДИНЯЕМ ВСЕ ОБЪЕКТЫ (активные + архивные) ===
+    const allSites = useMemo(() => {
+        return [...sites, ...archivedSites]
+    }, [sites, archivedSites])
 
     useEffect(() => {
         if (isFirstRenderRef.current) {
@@ -202,7 +207,8 @@ const [currentQuarterStart, setCurrentQuarterStart] = useState(() => {
             const dateObj = new Date(dateStr + 'T00:00:00')
             
             if (dateObj.getMonth() === month && dateObj.getFullYear() === year) {
-                const site = sites?.find(site => site.id === s.site_id)
+                // Ищем объект ВО ВСЕХ объектах (включая архивные)
+                const site = allSites.find(site => site.id === s.site_id)
                 const siteName = site?.name || 'Неизвестный объект'
                 const siteId = site?.id || null
                 const color = site?.color || '#666'
@@ -245,7 +251,7 @@ const [currentQuarterStart, setCurrentQuarterStart] = useState(() => {
 
     const monthData = useMemo(() => {
         return getMonthData(currentMonth)
-    }, [currentMonth, workerShifts, sites])
+    }, [currentMonth, workerShifts, allSites])
 
     const canGoPrev = () => {
         const now = new Date()
@@ -322,7 +328,8 @@ const [currentQuarterStart, setCurrentQuarterStart] = useState(() => {
             const dateObj = new Date(dateStr + 'T00:00:00')
             
             if (dateObj >= start && dateObj <= end) {
-                const site = sites?.find(site => site.id === s.site_id)
+                // Ищем объект ВО ВСЕХ объектах (включая архивные)
+                const site = allSites.find(site => site.id === s.site_id)
                 const siteName = site?.name || 'Неизвестный объект'
                 const siteId = site?.id || null
                 const color = site?.color || '#666'
@@ -368,7 +375,8 @@ const [currentQuarterStart, setCurrentQuarterStart] = useState(() => {
         
         workerShifts.forEach(s => {
             if (!s.work_date) return
-            const site = sites?.find(site => site.id === s.site_id)
+            // Ищем объект ВО ВСЕХ объектах (включая архивные)
+            const site = allSites.find(site => site.id === s.site_id)
             if (!site) return
             
             if (!siteMap[site.id]) {
@@ -619,7 +627,8 @@ const getQuarterMonths = (startDate) => {
                 const dateObj = new Date(dateStr + 'T00:00:00')
                 
                 if (dateObj.getMonth() === month && dateObj.getFullYear() === year) {
-                    const site = sites?.find(site => site.id === s.site_id)
+                    // Ищем объект ВО ВСЕХ объектах (включая архивные)
+                    const site = allSites.find(site => site.id === s.site_id)
                     const siteName = site?.name || 'Неизвестный объект'
                     const siteId = site?.id || null
                     const color = site?.color || '#666'
@@ -978,7 +987,8 @@ const [quarterData, setQuarterData] = useState(() => {
                                                 </div>
                                                 <div className={styles.detailStatsObjects}>
                                                     {monthData.siteList.map((siteName) => {
-                                                        const site = sites?.find(s => s.name === siteName)
+                                                        // Ищем объект ВО ВСЕХ объектах (включая архивные)
+                                                        const site = allSites.find(s => s.name === siteName)
                                                         const color = site?.color || '#666'
                                                         
                                                         const siteShifts = monthData.shifts.filter(
@@ -1161,23 +1171,29 @@ const [quarterData, setQuarterData] = useState(() => {
                             {' работал за квартал на объектах:'}
                         </div>
                         <div className={styles.detailStatsObjects}>
-                            {quarterData.siteList.map((site) => (
-                                <div key={site.name} className={styles.detailStatsObjectItem}>
-                                    <span 
-                                        className={styles.detailStatsObjectDot}
-                                        style={{ 
-                                            backgroundColor: site.color,
-                                            boxShadow: `0 0 16px ${site.color}, 0 0 32px ${site.color}40`
-                                        }}
-                                    />
-                                    <span className={styles.detailStatsObjectName}>
-                                        {site.name}
-                                    </span>
-                                    <span className={styles.detailStatsObjectCount}>
-                                        — {site.count} {getDaysLabel(site.count)}
-                                    </span>
-                                </div>
-                            ))}
+                            {quarterData.siteList.map((site) => {
+                                // Ищем объект ВО ВСЕХ объектах (включая архивные)
+                                const fullSite = allSites.find(s => s.name === site.name)
+                                const color = fullSite?.color || site.color || '#666'
+                                
+                                return (
+                                    <div key={site.name} className={styles.detailStatsObjectItem}>
+                                        <span 
+                                            className={styles.detailStatsObjectDot}
+                                            style={{ 
+                                                backgroundColor: color,
+                                                boxShadow: `0 0 16px ${color}, 0 0 32px ${color}40`
+                                            }}
+                                        />
+                                        <span className={styles.detailStatsObjectName}>
+                                            {site.name}
+                                        </span>
+                                        <span className={styles.detailStatsObjectCount}>
+                                            — {site.count} {getDaysLabel(site.count)}
+                                        </span>
+                                    </div>
+                                )
+                            })}
                         </div>
                     </div>
                 </motion.div>
@@ -1246,8 +1262,6 @@ const [quarterData, setQuarterData] = useState(() => {
 )}
                     </div>
                 )}
-
-               
 
                 {activeTab === 'salary' && (
                     <div className={styles.tabContent}>

@@ -84,7 +84,12 @@ export async function fetchShifts() {
 // === ПОИСК ВСЕХ СМЕН ДЛЯ ОБЪЕКТА И ДАТЫ ===
 export async function findShiftsForSiteAndDate(siteId, workDate) {
    try {
-      const url = `${SUPABASE_URL}/rest/v1/shifts?site_id=eq.${siteId}&work_date=eq.${workDate}&select=*`
+      let url
+      if (!siteId || siteId === 'null' || siteId === null) {
+         url = `${SUPABASE_URL}/rest/v1/shifts?work_date=eq.${workDate}&site_id=is.null&select=*`
+      } else {
+         url = `${SUPABASE_URL}/rest/v1/shifts?site_id=eq.${siteId}&work_date=eq.${workDate}&select=*`
+      }
       console.log('🔍 Запрос на поиск смен:', url)
 
       const response = await fetch(url, {
@@ -178,7 +183,6 @@ export async function deleteShiftsForSiteAndDate(siteId, workDate, actorId = nul
 
       console.log(`🗑️ Удаляем ${existingShifts.length} смен...`)
 
-      // Получаем информацию для уведомления
       let siteName = 'Неизвестный объект'
       let actorName = 'Неизвестный'
       let workerNames = []
@@ -211,7 +215,6 @@ export async function deleteShiftsForSiteAndDate(siteId, workDate, actorId = nul
 
       console.log(`✅ Удалено смен: ${deletedCount} из ${existingShifts.length}`)
 
-      // Создаем уведомление об удалении
       if (actorId && deletedCount > 0) {
          try {
             const dateObj = new Date(workDate + 'T00:00:00')
@@ -250,8 +253,7 @@ export async function deleteShiftsForSiteAndDate(siteId, workDate, actorId = nul
    }
 }
 
-// === СОХРАНЕНИЕ СМЕНЫ (СОЗДАНИЕ ИЛИ ОБНОВЛЕНИЕ) ===
-// === СОХРАНЕНИЕ СМЕНЫ (СОЗДАНИЕ ИЛИ ОБНОВЛЕНИЕ) ===
+// === СОХРАНЕНИЕ СМЕНЫ ===
 export async function saveShift(siteId, workDate, workerIds, actorId = null) {
    try {
       console.log('📝 saveShift вызван:', { siteId, workDate, workerIds, actorId })
@@ -261,7 +263,6 @@ export async function saveShift(siteId, workDate, workerIds, actorId = null) {
 
       const isUpdate = existingShifts && existingShifts.length > 0
 
-      // Получаем старых работников ДО удаления
       let oldWorkerNames = []
       if (isUpdate) {
          const oldWorkerIds = existingShifts.map(s => s.worker_id)
@@ -291,7 +292,6 @@ export async function saveShift(siteId, workDate, workerIds, actorId = null) {
          console.log('✅ Новые смены созданы:', results.length)
       }
 
-      // Создаем расширенное уведомление
       if (actorId) {
          try {
             const actorName = await getUserName(actorId)
@@ -313,7 +313,7 @@ export async function saveShift(siteId, workDate, workerIds, actorId = null) {
                actorName,
                siteName,
                workerNames: newWorkerNames,
-               oldWorkerNames: oldWorkerNames, // ← СТАРЫЕ РАБОТНИКИ
+               oldWorkerNames: oldWorkerNames,
                formattedDate,
                siteId,
                workDate,
@@ -550,7 +550,7 @@ export async function fetchWorkers() {
    }
 }
 
-export async function addWorker(name, avatarFile = null) {
+export async function addWorker(name, avatarFile = null, phone = '') {
    try {
       let avatarBase64 = null
       if (avatarFile) {
@@ -566,7 +566,8 @@ export async function addWorker(name, avatarFile = null) {
          body: JSON.stringify([{
             name,
             avatar: avatarBase64,
-            status: 'active'
+            status: 'active',
+            phone: phone || ''
          }])
       })
 
@@ -599,7 +600,7 @@ export async function deleteWorker(workerId) {
 // ФУНКЦИИ ДЛЯ ОБНОВЛЕНИЯ
 // ============================================================
 
-export async function updateWorker(workerId, name, avatarFile = null, status = null) {
+export async function updateWorker(workerId, name, avatarFile = null, status = null, phone = null) {
    try {
       if (!workerId) {
          throw new Error('ID работника не указан')
@@ -619,6 +620,9 @@ export async function updateWorker(workerId, name, avatarFile = null, status = n
       }
       if (status) {
          updateData.status = status
+      }
+      if (phone !== null && phone !== undefined) {
+         updateData.phone = phone
       }
 
       console.log('📤 Отправляем на обновление:', JSON.stringify(updateData, null, 2))
@@ -774,6 +778,140 @@ export async function updateWorkerStatus(workerId, status) {
       return result[0] || result
    } catch (error) {
       console.error('❌ Ошибка в updateWorkerStatus:', error)
+      throw error
+   }
+}
+
+// ============================================================
+// ФУНКЦИИ ДЛЯ АРХИВАЦИИ ОБЪЕКТОВ
+// ============================================================
+
+export async function archiveSite(siteId) {
+   try {
+      const url = `${SUPABASE_URL}/rest/v1/sites?id=eq.${siteId}`
+      const response = await fetch(url, {
+         method: 'PATCH',
+         headers: getHeaders(),
+         body: JSON.stringify({ archived: true })
+      })
+
+      if (!response.ok) {
+         const errorText = await response.text()
+         throw new Error(`Ошибка архивации: ${response.status} ${errorText}`)
+      }
+
+      const result = await response.json()
+      return result[0] || result
+   } catch (error) {
+      console.error('❌ Ошибка в archiveSite:', error)
+      throw error
+   }
+}
+
+export async function restoreSite(siteId) {
+   try {
+      const url = `${SUPABASE_URL}/rest/v1/sites?id=eq.${siteId}`
+      const response = await fetch(url, {
+         method: 'PATCH',
+         headers: getHeaders(),
+         body: JSON.stringify({ archived: false })
+      })
+
+      if (!response.ok) {
+         const errorText = await response.text()
+         throw new Error(`Ошибка восстановления: ${response.status} ${errorText}`)
+      }
+
+      const result = await response.json()
+      return result[0] || result
+   } catch (error) {
+      console.error('❌ Ошибка в restoreSite:', error)
+      throw error
+   }
+}
+
+export async function getArchivedSites() {
+   try {
+      const url = `${SUPABASE_URL}/rest/v1/sites?select=*&archived=eq.true&order=name.asc`
+      const response = await fetch(url, {
+         method: 'GET',
+         headers: getHeaders()
+      })
+
+      if (!response.ok) {
+         throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      return await response.json()
+   } catch (error) {
+      console.error('Ошибка загрузки архивных объектов:', error)
+      throw error
+   }
+}
+
+// ============================================================
+// ФУНКЦИИ ДЛЯ АРХИВАЦИИ РАБОТНИКОВ
+// ============================================================
+
+export async function archiveWorker(workerId) {
+   try {
+      const url = `${SUPABASE_URL}/rest/v1/workers?id=eq.${workerId}`
+      const response = await fetch(url, {
+         method: 'PATCH',
+         headers: getHeaders(),
+         body: JSON.stringify({ archived: true })
+      })
+
+      if (!response.ok) {
+         const errorText = await response.text()
+         throw new Error(`Ошибка архивации: ${response.status} ${errorText}`)
+      }
+
+      const result = await response.json()
+      return result[0] || result
+   } catch (error) {
+      console.error('❌ Ошибка в archiveWorker:', error)
+      throw error
+   }
+}
+
+export async function restoreWorker(workerId) {
+   try {
+      const url = `${SUPABASE_URL}/rest/v1/workers?id=eq.${workerId}`
+      const response = await fetch(url, {
+         method: 'PATCH',
+         headers: getHeaders(),
+         body: JSON.stringify({ archived: false })
+      })
+
+      if (!response.ok) {
+         const errorText = await response.text()
+         throw new Error(`Ошибка восстановления: ${response.status} ${errorText}`)
+      }
+
+      const result = await response.json()
+      return result[0] || result
+   } catch (error) {
+      console.error('❌ Ошибка в restoreWorker:', error)
+      throw error
+   }
+}
+
+export async function getArchivedWorkers() {
+   try {
+      const url = `${SUPABASE_URL}/rest/v1/workers?select=*&archived=eq.true&order=name.asc`
+      const response = await fetch(url, {
+         method: 'GET',
+         headers: getHeaders()
+      })
+
+      if (!response.ok) {
+         throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      return await response.json()
+   } catch (error) {
+      console.error('Ошибка загрузки архивных работников:', error)
       throw error
    }
 }

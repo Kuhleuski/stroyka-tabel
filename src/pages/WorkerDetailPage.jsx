@@ -38,6 +38,49 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit, on
         })
     }
 
+    // === ФОРМАТИРОВАНИЕ ТЕЛЕФОНА ===
+    const formatPhoneDisplay = (digits) => {
+        if (!digits) return ''
+        let clean = digits.replace(/\D/g, '')
+        if (clean.startsWith('375')) {
+            clean = clean.slice(3)
+        }
+        if (clean.length > 9) {
+            clean = clean.slice(0, 9)
+        }
+        
+        if (clean.length === 0) return ''
+        
+        let result = '+375 ('
+        if (clean.length >= 1) {
+            result += clean.slice(0, 2)
+        }
+        if (clean.length >= 2) {
+            result += ') '
+        } else {
+            result += ')'
+            return result
+        }
+        
+        if (clean.length >= 3) {
+            result += clean.slice(2, 5)
+        }
+        if (clean.length >= 5) {
+            result += '-'
+        }
+        if (clean.length >= 5) {
+            result += clean.slice(5, 7)
+        }
+        if (clean.length >= 7) {
+            result += '-'
+        }
+        if (clean.length >= 7) {
+            result += clean.slice(7, 9)
+        }
+        
+        return result
+    }
+
     const handleDelete = async () => {
         setDeleting(true)
         try {
@@ -217,6 +260,13 @@ export function WorkerDetailPage({ worker, onClose, onDelete, shifts, onEdit, on
                 <div className={styles.workerDetailField}>
                     <span className={styles.workerDetailLabel}>Имя</span>
                     <span className={styles.workerDetailValue}>{worker.name}</span>
+                </div>
+                
+                <div className={styles.workerDetailField}>
+                    <span className={styles.workerDetailLabel}>Телефон</span>
+                    <span className={styles.workerDetailValue}>
+                        {worker.phone ? formatPhoneDisplay(worker.phone) : 'Не указан'}
+                    </span>
                 </div>
                 
                 <div className={styles.workerDetailField}>

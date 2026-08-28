@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import styles from '../styles/sites.module.css'
 import compStyles from '../styles/components.module.css'
 
-export function SiteDetailPage({ site, onClose, onDelete, onEdit }) {
+export function SiteDetailPage({ site, onClose, onArchive, onEdit }) {
     const [showConfirm, setShowConfirm] = useState(false)
     const [deleting, setDeleting] = useState(false)
     const [showMenu, setShowMenu] = useState(false)
@@ -20,14 +20,14 @@ export function SiteDetailPage({ site, onClose, onDelete, onEdit }) {
         })
     }
 
-    const handleDelete = async () => {
+    const handleArchive = async () => {
         setDeleting(true)
         try {
-            await onDelete(site.id)
+            await onArchive(site.id)
             onClose()
         } catch (error) {
-            console.error('Ошибка удаления:', error)
-            alert(`Не удалось удалить объект: ${error.message}`)
+            console.error('Ошибка архивации:', error)
+            alert(`Не удалось архивировать объект: ${error.message}`)
         } finally {
             setDeleting(false)
             setShowConfirm(false)
@@ -128,11 +128,11 @@ export function SiteDetailPage({ site, onClose, onDelete, onEdit }) {
                             >
                                 <span className={styles.siteDetailMenuItemIcon}>
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <path d="M3 6h18"/>
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                        <polyline points="3 6 5 6 21 6" />
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                                     </svg>
                                 </span>
-                                Удалить объект
+                                Архивировать объект
                             </button>
                         </div>
                     )}
@@ -189,7 +189,7 @@ export function SiteDetailPage({ site, onClose, onDelete, onEdit }) {
                 </button>
             </div>
 
-            {/* === ПОДТВЕРЖДЕНИЕ УДАЛЕНИЯ === */}
+            {/* === ПОДТВЕРЖДЕНИЕ АРХИВАЦИИ === */}
             {showConfirm && (
                 <div className={compStyles.confirmOverlay}>
                     <div className={compStyles.confirmModal}>
@@ -200,12 +200,12 @@ export function SiteDetailPage({ site, onClose, onDelete, onEdit }) {
                                 <line x1="12" y1="16" x2="12.01" y2="16"/>
                             </svg>
                         </div>
-                        <div className={compStyles.confirmTitle}>Удалить объект?</div>
+                        <div className={compStyles.confirmTitle}>Архивировать объект?</div>
                         <div className={compStyles.confirmText}>
-                            Вы уверены, что хотите удалить объект <strong>«{site.name}»</strong>?
+                            Вы уверены, что хотите архивировать объект <strong>«{site.name}»</strong>?
                             <br />
                             <span style={{ fontSize: '13px', color: '#999' }}>
-                                Это действие нельзя отменить.
+                                Объект будет перемещён в архив.
                             </span>
                         </div>
                         <div className={compStyles.confirmButtons}>
@@ -218,10 +218,10 @@ export function SiteDetailPage({ site, onClose, onDelete, onEdit }) {
                             </button>
                             <button 
                                 className={`${compStyles.confirmBtn} ${compStyles.delete}`}
-                                onClick={handleDelete}
+                                onClick={handleArchive}
                                 disabled={deleting}
                             >
-                                {deleting ? 'Удаление...' : 'Удалить'}
+                                {deleting ? 'Архивация...' : 'Архивировать'}
                             </button>
                         </div>
                     </div>

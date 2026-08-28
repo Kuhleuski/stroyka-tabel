@@ -28,10 +28,10 @@ export default function TestPage() {
   const [editData, setEditData] = useState(null)
   const [isEditMode, setIsEditMode] = useState(false)
   
-  const { shifts, loading, refetch } = useShifts()
-  const { sites } = useSites()
-  const { workers } = useWorkers()
-  const { user } = useAuth()
+ const { shifts, loading, refetch } = useShifts()
+const { sites, archivedSites, refreshArchivedSites } = useSites()
+const { workers, archivedWorkers, refreshArchivedWorkers } = useWorkers()
+const { user } = useAuth()
 
   // === ОТСЛЕЖИВАНИЕ ПЕРВОГО РЕНДЕРА И ВОЗВРАТА ===
   const isFirstRender = useRef(true)
@@ -176,20 +176,24 @@ export default function TestPage() {
     setShowAddShift(true)
   }
 
-  const handleShiftAdded = async () => {
-    setShowSavingScreen(true)
-    setShowAddShift(false)
-    
-    if (refetch) {
-      await refetch()
-    }
-    
-    await new Promise(resolve => setTimeout(resolve, 1200))
-    setShowSavingScreen(false)
-    setUpdateKey(prev => prev + 1)
-    setIsEditMode(false)
-    setEditData(null)
+const handleShiftAdded = async () => {
+  setShowSavingScreen(true)
+  setShowAddShift(false)
+  
+  if (refetch) {
+    await refetch()
   }
+  
+  // Обновляем архивные данные
+  await refreshArchivedSites()
+  await refreshArchivedWorkers()
+  
+  await new Promise(resolve => setTimeout(resolve, 1200))
+  setShowSavingScreen(false)
+  setUpdateKey(prev => prev + 1)
+  setIsEditMode(false)
+  setEditData(null)
+}
 
   const handleShiftDeleted = async () => {
     setShowSavingScreen(true)
@@ -221,21 +225,21 @@ export default function TestPage() {
     }),
   }
 
-  const tileContent = ({ date: tileDate, view }) => {
-    if (view !== 'month') return null
-    
-    // Проверяем, является ли эта дата выбранной
-    const isActive = date && tileDate.toDateString() === date.toDateString()
-    
-    return (
-      <ColoredDay 
-        date={tileDate} 
-        shifts={shifts} 
-        sites={sites}
-        isActive={isActive}
-      />
-    )
-  }
+const tileContent = ({ date: tileDate, view }) => {
+  if (view !== 'month') return null
+  
+  const isActive = date && tileDate.toDateString() === date.toDateString()
+  
+  return (
+    <ColoredDay 
+      date={tileDate} 
+      shifts={shifts} 
+      sites={sites}
+      archivedSites={archivedSites}  // ← ДОБАВИТЬ
+      isActive={isActive}
+    />
+  )
+}
 
   // === КЛАССЫ ДЛЯ ЯЧЕЕК ===
   const tileClassName = ({ date: tileDate, view }) => {
@@ -424,21 +428,23 @@ export default function TestPage() {
         </AnimatePresence>
       </div>
 
-      {date && isDateVisible() ? (
-        <DayDetails 
-          key={updateKey}
-          selectedDate={date}
-          shifts={shifts}
-          sites={sites}
-          workers={workers}
-          onShiftDeleted={handleShiftDeleted}
-          onEditShift={handleEditShift}
-        />
-      ) : date && !isDateVisible() ? (
-        <div className={styles.dateNotVisible}>
-          <span>Выберите день в текущем месяце</span>
-        </div>
-      ) : null}
+    {date && isDateVisible() ? (
+  <DayDetails 
+    key={updateKey}
+    selectedDate={date}
+    shifts={shifts}
+    sites={sites}
+    workers={workers}
+    archivedSites={archivedSites}
+    archivedWorkers={archivedWorkers}
+    onShiftDeleted={handleShiftDeleted}
+    onEditShift={handleEditShift}
+  />
+) : date && !isDateVisible() ? (
+  <div className={styles.dateNotVisible}>
+    <span>Выберите день в текущем месяце</span>
+  </div>
+) : null}
 
       {/* FAB всегда видна для админов */}
       {user?.role === 'admin' && (

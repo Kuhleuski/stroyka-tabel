@@ -25,11 +25,11 @@ const icons = {
             <path d="M2 12l10 5 10-5"/>
         </svg>
     ),
-    // ⭐ НОВАЯ ИКОНКА — Уведомления
-    'notifications': (
+    'archive': (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            <path d="M21 8v13H3V8"/>
+            <path d="M1 3h22v5H1z"/>
+            <path d="M10 12h4"/>
         </svg>
     ),
     // ⭐ НОВАЯ ИКОНКА — Профиль
@@ -46,19 +46,22 @@ export function BottomNav({ currentPage, onNavigate }) {
     const scrollRef = useRef(null)
     const isAdmin = user?.role === 'admin'
 
-    // ⭐ НОВЫЙ СПИСОК ПУНКТОВ (убраны: my-tabel, statistics, costs, salary)
-    // Добавлены: notifications, profile
+    // ⭐ НОВЫЙ СПИСОК ПУНКТОВ
+    // Добавлен: archive
+    // Убраны: notifications (закомментированы)
     const allItems = isAdmin ? [
         { key: 'calendar', icon: icons.calendar, label: 'Главная' },
         { key: 'workers', icon: icons.workers, label: 'Бригада' },
         { key: 'sites', icon: icons.sites, label: 'Объекты' },
-        //{ key: 'notifications', icon: icons.notifications, label: 'Уведомления' },
+        { key: 'archive', icon: icons.archive, label: 'Архив' },
+        // { key: 'notifications', icon: icons.notifications, label: 'Уведомления' },
         { key: 'profile', icon: icons.profile, label: 'Профиль' },
     ] : [
         { key: 'calendar', icon: icons.calendar, label: 'Главная' },
         { key: 'workers', icon: icons.workers, label: 'Бригада' },
         { key: 'sites', icon: icons.sites, label: 'Объекты' },
-        //{ key: 'notifications', icon: icons.notifications, label: 'Уведомления' },
+        { key: 'archive', icon: icons.archive, label: 'Архив' },
+        // { key: 'notifications', icon: icons.notifications, label: 'Уведомления' },
         { key: 'profile', icon: icons.profile, label: 'Профиль' },
     ]
 

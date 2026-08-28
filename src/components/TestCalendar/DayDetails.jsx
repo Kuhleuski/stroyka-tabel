@@ -1,7 +1,7 @@
-import React, { useMemo, useState, useEffect, useRef } from 'react'
+import React, { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { formatDateLocal } from '../../utils/dateHelpers'
-import { deleteShiftById, deleteShiftsForSiteAndDate } from '../../services/supabase'
+import { deleteShiftsForSiteAndDate } from '../../services/supabase'
 import { useAuth } from '../../context/AuthContext'
 import styles from '../../styles/test.module.css'
 
@@ -11,16 +11,25 @@ export function DayDetails({
   sites, 
   workers, 
   onShiftDeleted,
-  onEditShift 
+  onEditShift,
+  archivedSites = [],     // ← НОВЫЙ ПРОП
+  archivedWorkers = []    // ← НОВЫЙ ПРОП
 }) {
   const { user } = useAuth()
   const dateStr = formatDateLocal(selectedDate)
-  const [openMenuId, setOpenMenuId] = useState(null)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [shiftToDelete, setShiftToDelete] = useState(null)
   const [deleting, setDeleting] = useState(false)
-  
-  const menuElements = useRef({})
+
+  // === ОБЪЕДИНЯЕМ ВСЕ ОБЪЕКТЫ (активные + архивные) ===
+  const allSites = useMemo(() => {
+    return [...sites, ...archivedSites]
+  }, [sites, archivedSites])
+
+  // === ОБЪЕДИНЯЕМ ВСЕХ РАБОТНИКОВ (активные + архивные) ===
+  const allWorkers = useMemo(() => {
+    return [...workers, ...archivedWorkers]
+  }, [workers, archivedWorkers])
 
   // === ПРОВЕРКА НА БУДУЩУЮ ДАТУ ===
   const today = new Date()
@@ -47,9 +56,11 @@ export function DayDetails({
     })
 
     return Object.values(groupsMap).map(group => {
-      const site = sites.find(s => s.id === group.siteId)
+      // Ищем объект ВО ВСЕХ объектах (включая архивные)
+      const site = allSites.find(s => s.id === group.siteId)
+      // Ищем работников ВО ВСЕХ работниках (включая архивные)
       const workerData = group.workerIds
-        .map(id => workers.find(w => w.id === id))
+        .map(id => allWorkers.find(w => w.id === id))
         .filter(Boolean)
 
       return {
@@ -61,31 +72,7 @@ export function DayDetails({
         uniqueKey: `${group.siteId}-${dateStr}`
       }
     })
-  }, [dateStr, shifts, sites, workers])
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      let isOutside = true
-      for (const key in menuElements.current) {
-        const element = menuElements.current[key]
-        if (element && element.contains && element.contains(event.target)) {
-          isOutside = false
-          break
-        }
-      }
-      if (isOutside) {
-        setOpenMenuId(null)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    document.addEventListener('touchstart', handleClickOutside)
-    
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      document.removeEventListener('touchstart', handleClickOutside)
-    }
-  }, [])
+  }, [dateStr, shifts, allSites, allWorkers])
 
   const formatDateDisplay = (date) => {
     const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота']
@@ -110,14 +97,8 @@ export function DayDetails({
     return str && str.startsWith('data:image')
   }
 
-  const toggleMenu = (siteId) => {
-    setOpenMenuId(openMenuId === siteId ? null : siteId)
-  }
-
   // === ОБРАБОТЧИК РЕДАКТИРОВАНИЯ ===
-  const handleEditClick = (shiftIds, siteId, siteName) => {
-    console.log('📝 Редактирование смены:', { shiftIds, siteId, siteName })
-    setOpenMenuId(null)
+  const handleEditClick = (siteId) => {
     if (onEditShift) {
       const group = dayGroups.find(g => g.siteId === siteId)
       const workerIds = group ? group.workers.map(w => w.id) : []
@@ -126,17 +107,14 @@ export function DayDetails({
   }
 
   // === ОБРАБОТЧИК УДАЛЕНИЯ ===
-  const handleDeleteClick = (shiftIds, siteName, siteId) => {
-    console.log('🗑️ Клик удаления:', { shiftIds, siteName, siteId })
-    setOpenMenuId(null)
-    setShiftToDelete({ shiftIds, siteName, siteId })
+  const handleDeleteClick = (siteId, siteName) => {
+    setShiftToDelete({ siteId, siteName })
     setShowConfirmDialog(true)
   }
 
   const handleConfirmDelete = async () => {
     if (!shiftToDelete) return
     
-    console.log('🗑️ Подтверждение удаления:', shiftToDelete)
     setDeleting(true)
     setShowConfirmDialog(false)
     
@@ -167,26 +145,26 @@ export function DayDetails({
   // === ДИАЛОГ ПОДТВЕРЖДЕНИЯ УДАЛЕНИЯ ===
   if (showConfirmDialog && shiftToDelete) {
     return (
-      <div className={styles.confirmDeleteOverlay}>
-        <div className={styles.confirmDeleteModal}>
-          <div className={styles.confirmDeleteIcon}>!</div>
-          <h3 className={styles.confirmDeleteTitle}>Подтверждение удаления</h3>
-          <p className={styles.confirmDeleteMessage}>
+      <div className={styles.deleteModalOverlay} onClick={handleCancelDelete}>
+        <div className={styles.deleteModal} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.deleteModalTitle}>
+            Подтверждение удаления
+          </div>
+          <div className={styles.deleteModalText}>
             Вы уверены, что хотите удалить смену на объекте <strong>{shiftToDelete.siteName}</strong>?
-          </p>
-          <p className={styles.confirmDeleteSubMessage}>
-            Это действие нельзя отменить.
-          </p>
-          <div className={styles.confirmDeleteActions}>
+            <br />
+            <span className={styles.deleteModalSubText}>Это действие нельзя отменить.</span>
+          </div>
+          <div className={styles.deleteModalActions}>
             <button 
-              className={styles.confirmDeleteCancel}
+              className={styles.deleteModalCancelBtn}
               onClick={handleCancelDelete}
               disabled={deleting}
             >
               Отмена
             </button>
             <button 
-              className={styles.confirmDeleteConfirm}
+              className={styles.deleteModalConfirmBtn}
               onClick={handleConfirmDelete}
               disabled={deleting}
             >
@@ -232,8 +210,6 @@ export function DayDetails({
       key={dateStr}
     >
       {dayGroups.map((group) => {
-        const menuKey = `menu-${group.siteId}-${dateStr}`
-        
         return (
           <div key={group.uniqueKey} className={styles.dayDetailsCard}>
             <div className={styles.cardHeader}>
@@ -247,60 +223,29 @@ export function DayDetails({
                 />
                 <div className={styles.detailsSite}>{group.siteName}</div>
               </div>
-              <div 
-                className={styles.cardMenu} 
-                ref={(el) => {
-                  if (el) {
-                    menuElements.current[menuKey] = el
-                  } else {
-                    delete menuElements.current[menuKey]
-                  }
-                }}
-              >
+              <div className={styles.cardActions}>
+                {/* Иконка редактирования */}
                 <button 
-                  className={styles.menuButton}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    toggleMenu(group.siteId)
-                  }}
-                  aria-label="Меню"
+                  className={styles.cardActionBtn}
+                  onClick={() => handleEditClick(group.siteId)}
+                  aria-label="Редактировать смену"
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <circle cx="12" cy="5" r="2.5" />
-                    <circle cx="12" cy="12" r="2.5" />
-                    <circle cx="12" cy="19" r="2.5" />
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34" />
+                    <polygon points="18 2 22 6 12 16 8 16 8 12 18 2" />
                   </svg>
                 </button>
-                {openMenuId === group.siteId && (
-                  <div className={styles.menuDropdown}>
-                    <button 
-                      className={styles.menuItem}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleEditClick(group.shiftIds, group.siteId, group.siteName)
-                      }}
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34" />
-                        <polygon points="18 2 22 6 12 16 8 16 8 12 18 2" />
-                      </svg>
-                      Редактировать смену
-                    </button>
-                    <button 
-                      className={styles.menuItem}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleDeleteClick(group.shiftIds, group.siteName, group.siteId)
-                      }}
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="3 6 5 6 21 6" />
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                      </svg>
-                      Удалить смену
-                    </button>
-                  </div>
-                )}
+                {/* Иконка удаления */}
+                <button 
+                  className={`${styles.cardActionBtn} ${styles.cardActionDelete}`}
+                  onClick={() => handleDeleteClick(group.siteId, group.siteName)}
+                  aria-label="Удалить смену"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                  </svg>
+                </button>
               </div>
             </div>
 

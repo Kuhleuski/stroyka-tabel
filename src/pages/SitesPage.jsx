@@ -5,7 +5,7 @@ import { SitesList } from '../components/Sites/SitesList'
 import { SiteDetailPage } from './SiteDetailPage'
 import { AddSiteModal } from '../components/AddSiteModal'
 import { EditSiteModal } from '../components/EditSiteModal'
-import { addSite, deleteSite, updateSite } from '../services/supabase'
+import { addSite, updateSite } from '../services/supabase'
 import { useSites } from '../hooks/useSites'
 import { Plus } from 'lucide-react'
 import styles from '../styles/sites.module.css'
@@ -26,7 +26,7 @@ export function SitesPage({ onAddSite }) {
     const [selectedSite, setSelectedSite] = useState(null)
     const [editingSite, setEditingSite] = useState(null)
     const [scrollPosition, setScrollPosition] = useState(0)
-    const { sites, loading, error, addSiteToState, removeSiteFromState, updateSiteInState } = useSites()
+    const { sites, loading, error, addSiteToState, removeSiteFromState, updateSiteInState, archiveSiteInState } = useSites()
 
     // === ФИЛЬТР С СОХРАНЕНИЕМ В localStorage ===
     const [filter, setFilter] = useState(() => {
@@ -83,19 +83,24 @@ export function SitesPage({ onAddSite }) {
         }
     }
 
-    const handleDelete = async (siteId) => {
-        await deleteSite(siteId)
-        removeSiteFromState(siteId)
-        // Удаляем запись о последнем открытии
+    // === АРХИВАЦИЯ (вместо удаления) ===
+    const handleArchive = async (siteId) => {
         try {
-            const stored = localStorage.getItem('siteLastOpened')
-            if (stored) {
-                const data = JSON.parse(stored)
-                delete data[siteId]
-                localStorage.setItem('siteLastOpened', JSON.stringify(data))
+            await archiveSiteInState(siteId)
+            // Удаляем запись о последнем открытии
+            try {
+                const stored = localStorage.getItem('siteLastOpened')
+                if (stored) {
+                    const data = JSON.parse(stored)
+                    delete data[siteId]
+                    localStorage.setItem('siteLastOpened', JSON.stringify(data))
+                }
+            } catch (e) {
+                console.warn('Ошибка удаления даты открытия:', e)
             }
-        } catch (e) {
-            console.warn('Ошибка удаления даты открытия:', e)
+        } catch (error) {
+            console.error('❌ Ошибка архивации:', error)
+            alert('Не удалось архивировать объект: ' + error.message)
         }
     }
 
@@ -150,7 +155,7 @@ export function SitesPage({ onAddSite }) {
                 <SiteDetailPage 
                     site={selectedSite}
                     onClose={handleCloseDetail}
-                    onDelete={handleDelete}
+                    onArchive={handleArchive}
                     onEdit={handleOpenEditModal}
                 />
                 <EditSiteModal 

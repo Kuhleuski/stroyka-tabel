@@ -13,6 +13,7 @@ import { ExtraPage } from './pages/ExtraPage'
 import { LoginPage } from './pages/LoginPage'
 import { StatisticsPage } from './pages/StatisticsPage'
 import { CostsPage } from './pages/CostsPage'
+import { ArchivePage } from './pages/ArchivePage'  // ← ДОБАВИТЬ ИМПОРТ
 import TestPage from './pages/TestPage'
 import layoutStyles from './styles/layout.module.css'
 
@@ -98,6 +99,8 @@ function AppContent() {
                     onOpenWorkerStats={handleOpenWorkerStats}
                     onCloseWorkerStats={handleCloseWorkerStats}
                 />
+            case 'archive':  // ← ДОБАВИТЬ КЕЙС
+                return <ArchivePage key={`archive-${pageKey}`} />
             case 'my-tabel':
                 return <MyTabelPage key={`my-tabel-${pageKey}`} shifts={shifts} />
             case 'salary':

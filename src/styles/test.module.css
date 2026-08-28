@@ -824,3 +824,177 @@
   box-shadow: 0 0 10px #2eff02, 0 0 20px #2eff0250, 0 0 30px #2eff0220 !important;
   z-index: 3 !important;
 }
+/* ============================================================
+   КАРТОЧКА — ДЕЙСТВИЯ (иконки вместо меню)
+   ============================================================ */
+
+.cardActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.cardActionBtn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.cardActionBtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.cardActionBtn:active {
+  transform: scale(0.92);
+}
+
+.cardActionBtn svg {
+  stroke: currentColor;
+}
+
+.cardActionDelete:hover {
+  background: rgba(255, 70, 70, 0.15);
+  color: #ff6b6b;
+}
+
+/* ============================================================
+   МОДАЛКА УДАЛЕНИЯ (КАК НА СТРАНИЦЕ РАБОТНИКОВ)
+   ============================================================ */
+
+.deleteModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: modalFadeIn 0.25s ease;
+}
+
+.deleteModal {
+  background: #1e1e1e;
+  border-radius: 16px;
+  padding: 28px 24px 24px;
+  max-width: 360px;
+  width: 90%;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: modalScaleIn 0.25s ease;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.deleteModalTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.deleteModalText {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.deleteModalText strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.deleteModalSubText {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.3);
+  display: block;
+  margin-top: 4px;
+}
+
+.deleteModalActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.deleteModalCancelBtn {
+  flex: 1;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.deleteModalCancelBtn:hover {
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.deleteModalCancelBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.deleteModalConfirmBtn {
+  flex: 1;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.deleteModalConfirmBtn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.deleteModalConfirmBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.deleteModalConfirmBtn:active {
+  transform: scale(0.97);
+}

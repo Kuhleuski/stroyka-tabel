@@ -3,7 +3,7 @@ import { WorkersList } from '../components/Workers/WorkersList'
 import { WorkerStatsPage } from './WorkerStatsPage'
 import { AddWorkerModal } from '../components/AddWorkerModal'
 import { EditWorkerModal } from '../components/EditWorkerModal'
-import { addWorker, deleteWorker, updateWorker } from '../services/supabase'
+import { addWorker, updateWorker } from '../services/supabase'
 import { useWorkers } from '../hooks/useWorkers'
 import { useSites } from '../hooks/useSites'
 import { useAvatars } from '../context/AvatarContext'
@@ -40,12 +40,12 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
     // ⭐ Состояние для фильтра
     const [filterStatus, setFilterStatus] = useState('all') // 'all' | 'active' | 'inactive'
     
-    // ⭐ Для модалки удаления
-    const [showDeleteModal, setShowDeleteModal] = useState(false)
-    const [workerToDelete, setWorkerToDelete] = useState(null)
+    // ⭐ Для модалки архивации
+    const [showArchiveModal, setShowArchiveModal] = useState(false)
+    const [workerToArchive, setWorkerToArchive] = useState(null)
     
-    const { workers, loading, error, addWorkerToState, removeWorkerFromState, updateWorkerInState, refreshWorkers } = useWorkers()
-    const { sites } = useSites()
+    const { workers, loading, error, addWorkerToState, removeWorkerFromState, updateWorkerInState, refreshWorkers, archiveWorkerInState } = useWorkers()
+    const { sites, archivedSites } = useSites()  // ← ДОБАВЛЯЕМ archivedSites
     const { refreshAvatars } = useAvatars()
 
     // === СОХРАНЕНИЕ ДАТЫ ПОСЛЕДНЕГО ОТКРЫТИЯ ===
@@ -76,76 +76,72 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
         }
     }
 
-    const handleSave = async (name, avatarFile) => {
-        setIsSaving(true)
+const handleSave = async (name, avatarFile, phone) => {
+    setIsSaving(true)
+    
+    try {
+        const newWorker = await addWorker(name, avatarFile, phone)
+        const workerData = newWorker[0] || newWorker
+        
+        console.log('📝 Создан работник:', workerData)
         
         try {
-            const newWorker = await addWorker(name, avatarFile)
-            const workerData = newWorker[0] || newWorker
-            
-            console.log('📝 Создан работник:', workerData)
-            
-            try {
-                localStorage.setItem('newWorkerId', String(workerData.id))
-                console.log('📝 Сохранён ID нового работника:', workerData.id)
-            } catch (e) {
-                console.warn('Ошибка сохранения ID нового работника:', e)
-            }
-            
-            addWorkerToState(workerData)
-            await refreshAvatars()
-            await forceRefresh()
-            setShowAddModal(false)
-            
-            await new Promise(resolve => setTimeout(resolve, 200))
-            
-            console.log('🔄 Переход на страницу деталей нового работника:', workerData.name)
-            setSelectedWorker(workerData)
-            await new Promise(resolve => setTimeout(resolve, 150))
-            
-        } catch (err) {
-            console.error('❌ Ошибка при создании работника:', err)
-            throw err
-        } finally {
-            setIsSaving(false)
+            localStorage.setItem('newWorkerId', String(workerData.id))
+            console.log('📝 Сохранён ID нового работника:', workerData.id)
+        } catch (e) {
+            console.warn('Ошибка сохранения ID нового работника:', e)
         }
-    }
-
-    const handleUpdate = async (workerId, name, avatarFile, status) => {
-        setIsSaving(true)
         
-        try {
-            const updated = await updateWorker(workerId, name, avatarFile, status)
-            
-            console.log('📝 Обновлён работник:', updated)
-            
-            updateWorkerInState(updated)
-            await refreshAvatars()
-            await forceRefresh()
-            
-            if (selectedWorker && selectedWorker.id === workerId) {
-                setSelectedWorker(updated)
-            }
-            
-            setShowEditModal(false)
-            await new Promise(resolve => setTimeout(resolve, 200))
-            
-        } catch (err) {
-            console.error('❌ Ошибка при обновлении работника:', err)
-            throw err
-        } finally {
-            setIsSaving(false)
+        addWorkerToState(workerData)
+        await refreshAvatars()
+        await forceRefresh()
+        setShowAddModal(false)
+        
+        await new Promise(resolve => setTimeout(resolve, 200))
+        
+        console.log('🔄 Переход на страницу деталей нового работника:', workerData.name)
+        setSelectedWorker(workerData)
+        await new Promise(resolve => setTimeout(resolve, 150))
+        
+    } catch (err) {
+        console.error('❌ Ошибка при создании работника:', err)
+        throw err
+    } finally {
+        setIsSaving(false)
+    }
+}
+
+const handleUpdate = async (workerId, name, avatarFile, status, phone) => {
+    setIsSaving(true)
+    
+    try {
+        const updated = await updateWorker(workerId, name, avatarFile, status, phone)
+        
+        console.log('📝 Обновлён работник:', updated)
+        
+        updateWorkerInState(updated)
+        await refreshAvatars()
+        await forceRefresh()
+        
+        if (selectedWorker && selectedWorker.id === workerId) {
+            setSelectedWorker(updated)
         }
-    }
-
-    const handleDelete = async (workerId) => {
-        setIsSaving(true)
         
+        setShowEditModal(false)
+        await new Promise(resolve => setTimeout(resolve, 200))
+        
+    } catch (err) {
+        console.error('❌ Ошибка при обновлении работника:', err)
+        throw err
+    } finally {
+        setIsSaving(false)
+    }
+}
+
+    // === АРХИВАЦИЯ ===
+    const handleArchive = async (workerId) => {
         try {
-            await deleteWorker(workerId)
-            removeWorkerFromState(workerId)
-            await refreshAvatars()
-            await forceRefresh()
+            await archiveWorkerInState(workerId)
             
             try {
                 const stored = localStorage.getItem('workerLastOpened')
@@ -157,14 +153,9 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
             } catch (e) {
                 console.warn('Ошибка удаления даты открытия работника:', e)
             }
-            
-            await new Promise(resolve => setTimeout(resolve, 200))
-            
-        } catch (err) {
-            console.error('❌ Ошибка при удалении работника:', err)
-            throw err
-        } finally {
-            setIsSaving(false)
+        } catch (error) {
+            console.error('❌ Ошибка архивации:', error)
+            alert('Не удалось архивировать работника: ' + error.message)
         }
     }
 
@@ -207,23 +198,23 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
         setShowEditModal(true)
     }
 
-    // ⭐ ОБРАБОТЧИКИ ДЛЯ МОДАЛКИ УДАЛЕНИЯ
-    const handleDeleteClick = (worker) => {
-        setWorkerToDelete(worker)
-        setShowDeleteModal(true)
+    // ⭐ ОБРАБОТЧИКИ ДЛЯ МОДАЛКИ АРХИВАЦИИ
+    const handleArchiveClick = (worker) => {
+        setWorkerToArchive(worker)
+        setShowArchiveModal(true)
     }
 
-    const handleConfirmDelete = async () => {
-        if (workerToDelete) {
-            await handleDelete(workerToDelete.id)
-            setShowDeleteModal(false)
-            setWorkerToDelete(null)
+    const handleConfirmArchive = async () => {
+        if (workerToArchive) {
+            await handleArchive(workerToArchive.id)
+            setShowArchiveModal(false)
+            setWorkerToArchive(null)
         }
     }
 
-    const handleCancelDelete = () => {
-        setShowDeleteModal(false)
-        setWorkerToDelete(null)
+    const handleCancelArchive = () => {
+        setShowArchiveModal(false)
+        setWorkerToArchive(null)
     }
 
     if (loading) {
@@ -250,6 +241,7 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
                         worker={selectedWorker}
                         shifts={shifts}
                         sites={sites}
+                        archivedSites={archivedSites}  // ← ДОБАВЛЯЕМ
                         onClose={handleCloseDetail}
                         onEdit={handleOpenEditModal}
                         onRefresh={forceRefresh}
@@ -308,7 +300,7 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
                         workers={workers} 
                         filterStatus={filterStatus}
                         onWorkerClick={handleWorkerClick}
-                        onDeleteClick={handleDeleteClick}
+                        onArchiveClick={handleArchiveClick}
                     />
 
                     <button 
@@ -325,28 +317,32 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
                         onSave={handleSave}
                     />
 
-                    {/* ⭐ МОДАЛКА ПОДТВЕРЖДЕНИЯ УДАЛЕНИЯ */}
-                    {showDeleteModal && workerToDelete && (
-                        <div className={styles.deleteModalOverlay} onClick={handleCancelDelete}>
+                    {/* ⭐ МОДАЛКА ПОДТВЕРЖДЕНИЯ АРХИВАЦИИ */}
+                    {showArchiveModal && workerToArchive && (
+                        <div className={styles.deleteModalOverlay} onClick={handleCancelArchive}>
                             <div className={styles.deleteModal} onClick={(e) => e.stopPropagation()}>
                                 <div className={styles.deleteModalTitle}>
-                                    Удаление работника
+                                    Архивировать работника
                                 </div>
                                 <div className={styles.deleteModalText}>
-                                    Вы действительно хотите удалить <strong>{workerToDelete.name}</strong>?
+                                    Вы уверены, что хотите архивировать <strong>{workerToArchive.name}</strong>?
+                                    <br />
+                                    <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)' }}>
+                                        Работник будет перемещён в архив.
+                                    </span>
                                 </div>
                                 <div className={styles.deleteModalActions}>
                                     <button 
                                         className={styles.deleteModalCancelBtn}
-                                        onClick={handleCancelDelete}
+                                        onClick={handleCancelArchive}
                                     >
                                         Отмена
                                     </button>
                                     <button 
                                         className={styles.deleteModalConfirmBtn}
-                                        onClick={handleConfirmDelete}
+                                        onClick={handleConfirmArchive}
                                     >
-                                        Удалить
+                                        Архивировать
                                     </button>
                                 </div>
                             </div>

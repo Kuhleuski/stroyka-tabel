@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
+import InputMask from 'react-input-mask'
 import styles from '../styles/components.module.css'
 
 export function EditWorkerModal({ isOpen, onClose, onSave, worker }) {
     const [firstName, setFirstName] = useState('')
     const [lastName, setLastName] = useState('')
+    const [phone, setPhone] = useState('')
     const [avatarFile, setAvatarFile] = useState(null)
     const [previewUrl, setPreviewUrl] = useState(null)
     const [currentAvatar, setCurrentAvatar] = useState(null)
@@ -20,6 +22,16 @@ export function EditWorkerModal({ isOpen, onClose, onSave, worker }) {
             } else {
                 setFirstName(parts[0] || '')
                 setLastName(parts.slice(1).join(' ') || '')
+            }
+            // Форматируем телефон для маски
+            const digits = (worker.phone || '').replace(/\D/g, '')
+            if (digits) {
+                // Преобразуем в формат +375 (XX) XXX-XX-XX
+                const d = digits.startsWith('375') ? digits.slice(3) : digits
+                const formatted = `+375 (${d.slice(0,2)}) ${d.slice(2,5)}-${d.slice(5,7)}-${d.slice(7,9)}`
+                setPhone(formatted)
+            } else {
+                setPhone('')
             }
             setCurrentAvatar(worker.avatar || null)
             setPreviewUrl(null)
@@ -56,8 +68,14 @@ export function EditWorkerModal({ isOpen, onClose, onSave, worker }) {
             
             const avatarToSave = avatarFile || null
             
-            // Передаем статус как null, чтобы не менять его
-            await onSave(worker.id, fullName, avatarToSave, null)
+            // Извлекаем только цифры из отформатированного номера
+            const digits = phone.replace(/\D/g, '')
+            let finalPhone = digits || ''
+            if (finalPhone && !finalPhone.startsWith('375')) {
+                finalPhone = '375' + finalPhone
+            }
+            
+            await onSave(worker.id, fullName, avatarToSave, null, finalPhone)
             onClose()
         } catch (err) {
             setError(err.message || 'Ошибка при обновлении')
@@ -109,6 +127,36 @@ export function EditWorkerModal({ isOpen, onClose, onSave, worker }) {
                             onChange={(e) => setLastName(e.target.value)}
                             placeholder="Например: Петров"
                         />
+                    </div>
+
+                    <div className={styles.modalField}>
+                        <label className={styles.modalLabel}>Телефон</label>
+                        <InputMask
+                            mask="+375 (99) 999-99-99"
+                            maskChar="_"
+                            value={phone}
+                            onChange={(e) => {
+                                const raw = e.target.value.replace(/\D/g, '')
+                                if (raw.length <= 12) {
+                                    setPhone(e.target.value)
+                                }
+                            }}
+                            placeholder="+375 (__) ___-__-__"
+                        >
+                            {(inputProps) => (
+                                <input
+                                    {...inputProps}
+                                    type="tel"
+                                    className={styles.modalInput}
+                                    style={{ 
+                                        padding: '10px 12px',
+                                        fontFamily: 'monospace',
+                                        fontSize: '16px',
+                                        letterSpacing: '1px'
+                                    }}
+                                />
+                            )}
+                        </InputMask>
                     </div>
 
                     <div className={styles.modalField}>

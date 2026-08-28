@@ -914,3 +914,43 @@ body {
     align-items: center;
     gap: 4px;
 }
+
+/* ============================================================
+   PHONE INPUT (react-phone-number-input) — без флага
+   ============================================================ */
+
+.phoneInput {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 16px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    outline: none;
+    display: flex;
+    align-items: center;
+}
+
+.phoneInput:focus {
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Скрываем флаг и выбор страны */
+.phoneInput :global(.PhoneInputCountry) {
+    display: none !important;
+}
+
+.phoneInput :global(.PhoneInputInput) {
+    background: transparent !important;
+    border: none !important;
+    color: #fff !important;
+    font-size: 16px !important;
+    font-family: inherit !important;
+    outline: none !important;
+    padding: 0 !important;
+    flex: 1 !important;
+    width: 100% !important;
+}
