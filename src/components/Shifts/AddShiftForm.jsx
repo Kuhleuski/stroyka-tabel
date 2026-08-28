@@ -3,6 +3,7 @@ import { Lock, CalendarPlus, ChevronDown } from 'lucide-react'
 import { saveShift, findShiftsForSiteAndDate } from '../../services/supabase'
 import { formatDateLocal } from '../../utils/dateHelpers'
 import { useAuth } from '../../context/AuthContext'
+import { ShiftFormFooter } from './ShiftFormFooter'
 import styles from '../../styles/shifts.module.css'
 
 export const AddShiftForm = ({ 
@@ -57,13 +58,8 @@ export const AddShiftForm = ({
   const getFilteredSites = () => {
     if (showAllSites) return sites
     
-    // Проверяем, есть ли у объектов поле status
     const hasStatus = sites.some(s => s.status !== undefined && s.status !== null)
-    
-    // Если статуса нет — показываем все
     if (!hasStatus) return sites
-    
-    // Показываем только объекты со статусом 'в работе'
     return sites.filter(site => site.status === 'в работе')
   }
 
@@ -317,77 +313,111 @@ export const AddShiftForm = ({
   return (
     <div className={styles.shiftFormScreen}>
       <div className={styles.shiftFormContent}>
-        {/* Заголовок с иконкой слева */}
-        <div className={styles.shiftFormHeaderLeft}>
-          <div className={styles.shiftFormIconLeft}>
-            <CalendarPlus size={70} strokeWidth={1.2} color="#888888" />
-          </div>
-          <div className={styles.shiftFormHeaderTextLeft}>
-            <div className={styles.shiftFormTitleLeft}>
-              {isEditMode ? 'Редактирование смены' : 'Новая смена'}
-            </div>
-            <div className={styles.shiftFormDateLeft}>
-              {formatDateFull(selectedDate)}
-            </div>
-          </div>
-        </div>
+       {/* Заголовок */}
+<div className={styles.shiftFormHeaderLeft}>
+  {/* Иконка — скрываем при редактировании */}
+  {!isEditMode && (
+    <div className={styles.shiftFormIconLeft}>
+      <CalendarPlus size={70} strokeWidth={1.2} color="#888888" />
+    </div>
+  )}
+  <div className={styles.shiftFormHeaderTextLeft}>
+    <div className={styles.shiftFormTitleLeft}>
+      {isEditMode ? 'Редактирование смены' : 'Новая смена'}
+    </div>
+    <div className={styles.shiftFormDateLeft}>
+      {formatDateFull(selectedDate)}
+    </div>
+    {/* ❌ УБИРАЕМ ПОДСКАЗКУ */}
+  </div>
+</div>
 
         <form id="shift-form" onSubmit={handleSubmit} className={styles.shiftFormBody}>
-          {/* Заголовок над объектами */}
-          <div className={styles.shiftFormSectionLabelLeft}>
-            Выберите объект на котором работали:
-          </div>
+          {/* Заголовок над объектами — только при создании */}
+{!isEditMode && (
+  <div className={styles.shiftFormSectionLabelLeft}>
+    Выберите объект на котором работали:
+  </div>
+)}
 
-          {/* Плашка объектов */}
-          <div className={styles.shiftFormBlock}>
-            <div className={styles.shiftSitesGrid}>
-              {filteredSites.length === 0 ? (
-                <div className={styles.shiftFormEmpty}>
-                  <p>Нет добавленных объектов</p>
-                </div>
-              ) : (
-                filteredSites.map(site => {
-                  const isSelected = selectedSite === site.id
-                  const isDisabled = isEditMode && !isSelected
-                  
-                  return (
-                    <div
-                      key={site.id}
-                      className={`${styles.shiftSiteChip} ${isSelected ? styles.selected : ''} ${isDisabled ? styles.disabled : ''}`}
-                      onClick={() => handleSiteSelect(site.id)}
-                    >
-                      <span 
-                        className={styles.shiftSiteDot}
-                        style={{ 
-                          backgroundColor: site.color || '#2d7d46',
-                          boxShadow: `0 0 12px ${site.color || '#2d7d46'}60`
-                        }}
-                      />
-                      <span className={styles.shiftSiteName}>{site.name}</span>
-                      {isSelected && (
-                        <span className={styles.shiftCheckMark}>✓</span>
-                      )}
-                      {isEditMode && isSelected && (
-                        <span className={styles.shiftLockIcon}>
-                          <Lock size={14} />
-                        </span>
-                      )}
-                    </div>
-                  )
-                })
+{/* Плашка объектов */}
+<div className={styles.shiftFormBlock}>
+  {/* Лейбл — только при редактировании */}
+  {isEditMode && (
+    <div className={styles.shiftFormLabelWrapper}>
+      <label className={styles.shiftFormLabel}>Объект</label>
+      <span className={styles.lockBadge}>
+        <Lock size={14} />
+        Заблокирован
+      </span>
+    </div>
+  )}
+
+  {/* При редактировании — показываем только выбранный объект + подсказка */}
+  {isEditMode ? (
+    <>
+      <div className={styles.shiftEditSiteDisplay}>
+        <span 
+          className={styles.shiftSiteDot}
+          style={{ 
+            backgroundColor: selectedSite ? getSiteColor(selectedSite) : '#2d7d46',
+            boxShadow: `0 0 12px ${selectedSite ? getSiteColor(selectedSite) : '#2d7d46'}60`
+          }}
+        />
+        <span className={styles.shiftEditSiteName}>
+          {selectedSite ? getSiteName(selectedSite) : 'Объект не выбран'}
+        </span>
+      </div>
+      <div className={styles.shiftEditHint}>
+        Чтобы изменить объект — необходимо создать смену заново.<br />
+        Сейчас редактировать можно только состав работников на {formatDateFull(selectedDate)}
+      </div>
+    </>
+  ) : (
+    <div className={styles.shiftSitesGrid}>
+      {filteredSites.length === 0 ? (
+        <div className={styles.shiftFormEmpty}>
+          <p>Нет добавленных объектов</p>
+        </div>
+      ) : (
+        filteredSites.map(site => {
+          const isSelected = selectedSite === site.id
+          
+          return (
+            <div
+              key={site.id}
+              className={`${styles.shiftSiteChip} ${isSelected ? styles.selected : ''}`}
+              onClick={() => handleSiteSelect(site.id)}
+            >
+              <span 
+                className={styles.shiftSiteDot}
+                style={{ 
+                  backgroundColor: site.color || '#2d7d46',
+                  boxShadow: `0 0 12px ${site.color || '#2d7d46'}60`
+                }}
+              />
+              <span className={styles.shiftSiteName}>{site.name}</span>
+              {isSelected && (
+                <span className={styles.shiftCheckMark}>✓</span>
               )}
             </div>
+          )
+        })
+      )}
+    </div>
+  )}
 
-            {sites.length > 0 && !showAllSites && (
-              <button
-                type="button"
-                className={styles.filterTextBtn}
-                onClick={() => setShowAllSites(true)}
-              >
-                Показать все объекты <ChevronDown size={16} />
-              </button>
-            )}
-          </div>
+  {/* Кнопка "Показать все объекты" — только при добавлении */}
+  {!isEditMode && sites.length > 0 && !showAllSites && (
+    <button
+      type="button"
+      className={styles.filterTextBtn}
+      onClick={() => setShowAllSites(true)}
+    >
+      Показать все объекты <ChevronDown size={16} />
+    </button>
+  )}
+</div>
 
           {/* Заголовок над работниками с кнопкой "Выбрать всех" */}
           <div className={styles.shiftFormSectionLabelWrapper}>
@@ -467,28 +497,17 @@ export const AddShiftForm = ({
           </div>
           
           {/* Отступ снизу для фиксированных кнопок */}
-          <div style={{ height: '20px' }} />
+          <div style={{ height: '100px' }} />
         </form>
       </div>
 
-      {/* ФУТЕР С КНОПКАМИ — FIXED ВНИЗУ */}
-      <div className={styles.shiftFormActionsFixed}>
-        <button 
-          type="button" 
-          className={styles.shiftFormCancelBtn}
-          onClick={onClose}
-        >
-          Отмена
-        </button>
-        <button 
-          type="submit" 
-          className={styles.shiftFormBottomBtn}
-          disabled={loading}
-          form="shift-form"
-        >
-          {loading ? 'Сохранение...' : (isEditMode ? 'Обновить смену' : 'Сохранить смену')}
-        </button>
-      </div>
+      {/* ФУТЕР ЧЕРЕЗ PORTAL */}
+      <ShiftFormFooter 
+        onClose={onClose}
+        onSave={handleSubmit}
+        loading={loading}
+        isEditMode={isEditMode}
+      />
     </div>
   )
 }

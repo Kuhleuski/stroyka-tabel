@@ -17,49 +17,52 @@
 .shiftFormContent {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
+  overflow: hidden;
 }
 
 /* ============================================================
-   ЗАГОЛОВОК ПО ЦЕНТРУ
+   ЗАГОЛОВОК С ИКОНКОЙ СЛЕВА
    ============================================================ */
 
-.shiftFormHeaderCentered {
+.shiftFormHeaderLeft {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: 40px 20px 20px;
+  gap: 16px;
+  padding: 28px 20px 16px;
   flex-shrink: 0;
 }
 
-.shiftFormIconCentered {
+.shiftFormIconLeft {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100px;
-  height: 100px;
-  margin-bottom: 16px;
-  background: transparent;
+  width: 70px;
+  height: 70px;
+  flex-shrink: 0;
 }
 
-.shiftFormIconCentered svg {
+.shiftFormIconLeft svg {
   opacity: 0.3;
 }
 
-.shiftFormTitleCentered {
-  font-size: 22px;
+.shiftFormHeaderTextLeft {
+  display: flex;
+  flex-direction: column;
+}
+
+.shiftFormTitleLeft {
+  font-size: 26px;
   font-weight: 700;
   color: var(--text-primary, #ffffff);
   letter-spacing: -0.3px;
-  text-align: center;
 }
 
-.shiftFormDateCentered {
-  font-size: 16px;
+.shiftFormDateLeft {
+  font-size: 15px;
   font-weight: 400;
   color: var(--text-secondary, rgba(255, 255, 255, 0.5));
   margin-top: 4px;
-  text-align: center;
 }
 
 /* ============================================================
@@ -68,20 +71,34 @@
 
 .shiftFormBody {
   flex: 1;
-  padding: 8px 20px 0;
+  padding: 8px 20px 120px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ============================================================
    ЗАГОЛОВКИ НАД ПЛАШКАМИ
    ============================================================ */
 
-.shiftFormSectionLabel {
+.shiftFormSectionLabelLeft {
   font-size: 17px;
   font-weight: 600;
   color: var(--text-primary, #ffffff);
   margin-bottom: 14px;
-  text-align: center;
+  text-align: left;
+}
+
+.shiftFormSectionLabelWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 16px;
+}
+
+.shiftFormSectionLabelWrapper .shiftFormSectionLabelLeft {
+  margin-bottom: 0;
+  flex-shrink: 0;
 }
 
 /* ============================================================
@@ -91,7 +108,7 @@
 .shiftFormBlock {
   background: var(--bg-card, #1e1e1e);
   border-radius: 16px;
-  padding: 16px 16px 20px;
+  padding: 18px 18px 22px;
   margin-bottom: 28px;
   border: 1px solid rgba(255, 255, 255, 0.04);
 }
@@ -185,13 +202,13 @@
 }
 
 .shiftWorkerChip .shiftWorkerAvatar {
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: white;
   flex-shrink: 0;
@@ -216,7 +233,7 @@
 }
 
 /* ============================================================
-   ГАЛОЧКА — зеленый круг, белая галочка, белая обводка
+   ГАЛОЧКА
    ============================================================ */
 
 .shiftCheckMark {
@@ -226,20 +243,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   background: var(--color-primary, #2d7d46);
   border-radius: 50%;
   color: white;
   font-size: 14px;
   font-weight: 700;
-  border: 2.5px solid var(--bg-body, #1e1e1e);
-  
+  border: 2.5px solid var(--bg-body, #121212);
+  box-shadow: 0 0 0 1.5px var(--color-primary, #2d7d46);
 }
-
-/* ============================================================
-   ЗАМОК
-   ============================================================ */
 
 .shiftLockIcon {
   position: absolute;
@@ -252,39 +265,33 @@
 }
 
 /* ============================================================
-   ЗАГОЛОВОК РАБОТНИКОВ
-   ============================================================ */
-
-.shiftFormWorkersHeader {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  margin-bottom: 12px;
-}
-
-/* ============================================================
    КНОПКА "ВЫБРАТЬ ВСЕХ"
    ============================================================ */
 
 .selectAllBtn {
-  padding: 4px 14px;
-  background: var(--color-primary, #2d7d46);
+  padding: 6px 18px;
+  background: rgba(255, 255, 255, 0.08);
   border: none;
   border-radius: 9999px;
-  color: white;
-  font-size: 13px;
-  font-weight: 600;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.5));
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   font-family: inherit;
   transition: all 0.2s ease;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  height: 32px;
 }
 
 .selectAllBtn:hover {
-  background: var(--color-primary-hover, #3a9a57);
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--text-primary, #ffffff);
 }
 
 /* ============================================================
-   КНОПКИ "ПОКАЗАТЬ ВСЕ" — по центру, со стрелкой
+   КНОПКИ "ПОКАЗАТЬ ВСЕ"
    ============================================================ */
 
 .filterTextBtn {
@@ -326,22 +333,51 @@
 }
 
 /* ============================================================
-   ФУТЕР С КНОПКАМИ
+   ФУТЕР — ТОЧНО КАК В WORKERSTATSPAGE
    ============================================================ */
 
-.shiftFormActions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  padding: 16px 20px 20px;
-  background: var(--bg-body, #121212);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  flex-shrink: 0;
-  position: sticky;
+.shiftFormFooter {
+  position: fixed;
   bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  background: rgba(20, 20, 20, 0.97);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-sizing: border-box;
+  z-index: 9999;
 }
 
-.shiftFormBottomBtn {
+.shiftFormCloseBtn {
+  flex: 1;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.5));
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.shiftFormCloseBtn:hover {
+  background: rgba(255, 255, 255, 0.10);
+  color: var(--text-primary, #ffffff);
+}
+
+.shiftFormSaveBtn {
+  flex: 2;
   padding: 14px;
   background: var(--color-primary, #2d7d46);
   color: white;
@@ -354,31 +390,20 @@
   transition: all 0.2s ease;
 }
 
-.shiftFormBottomBtn:hover:not(:disabled) {
+.shiftFormSaveBtn:hover:not(:disabled) {
   background: var(--color-primary-hover, #3a9a57);
 }
 
-.shiftFormBottomBtn:disabled {
+.shiftFormSaveBtn:disabled {
   opacity: 0.5;
   cursor: default;
 }
 
-.shiftFormCancelBtn {
-  padding: 14px;
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text-secondary, rgba(255, 255, 255, 0.5));
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.2s ease;
-}
-
-.shiftFormCancelBtn:hover {
-  background: rgba(255, 255, 255, 0.10);
-  color: var(--text-primary, #ffffff);
+/* Фикс для iPhone */
+@supports (-webkit-touch-callout: none) {
+  .shiftFormFooter {
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 20px)) !important;
+  }
 }
 
 /* ============================================================
@@ -589,45 +614,46 @@
    ============================================================ */
 
 @media (max-width: 420px) {
-  .shiftFormHeaderCentered {
-    padding: 28px 16px 16px;
+  .shiftFormHeaderLeft {
+    padding: 20px 16px 12px;
+    gap: 12px;
   }
 
-  .shiftFormIconCentered {
-    width: 72px;
-    height: 72px;
-  }
-
-  .shiftFormIconCentered svg {
+  .shiftFormIconLeft {
     width: 56px;
     height: 56px;
   }
 
-  .shiftFormTitleCentered {
-    font-size: 18px;
+  .shiftFormIconLeft svg {
+    width: 44px;
+    height: 44px;
   }
 
-  .shiftFormDateCentered {
-    font-size: 14px;
+  .shiftFormTitleLeft {
+    font-size: 20px;
+  }
+
+  .shiftFormDateLeft {
+    font-size: 13px;
   }
 
   .shiftFormBody {
-    padding: 4px 16px 0;
+    padding: 4px 16px 100px;
   }
 
-  .shiftFormSectionLabel {
+  .shiftFormSectionLabelLeft {
     font-size: 15px;
     margin-bottom: 10px;
   }
 
   .shiftFormBlock {
-    padding: 12px 12px 16px;
+    padding: 14px 14px 18px;
     margin-bottom: 20px;
     border-radius: 14px;
   }
 
   .shiftSiteChip {
-    padding: 6px 28px 6px 12px;
+    padding: 6px 32px 6px 12px;
     gap: 8px;
   }
 
@@ -636,14 +662,14 @@
   }
 
   .shiftWorkerChip {
-    padding: 3px 28px 3px 3px;
+    padding: 3px 32px 3px 3px;
     gap: 8px;
   }
 
   .shiftWorkerChip .shiftWorkerAvatar {
-    width: 26px;
-    height: 26px;
-    font-size: 10px;
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
   }
 
   .shiftWorkerChip .shiftWorkerName {
@@ -651,9 +677,9 @@
   }
 
   .shiftCheckMark {
-    width: 18px;
-    height: 18px;
-    font-size: 10px;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
     top: -5px;
     right: -5px;
   }
@@ -663,13 +689,13 @@
     right: -5px;
   }
 
-  .shiftFormActions {
-    padding: 12px 16px 16px;
+  .shiftFormFooter {
+    padding: 10px 12px;
     gap: 10px;
   }
 
-  .shiftFormBottomBtn,
-  .shiftFormCancelBtn {
+  .shiftFormCloseBtn,
+  .shiftFormSaveBtn {
     padding: 12px;
     font-size: 14px;
     border-radius: 10px;
@@ -677,7 +703,8 @@
 
   .selectAllBtn {
     font-size: 12px;
-    padding: 3px 10px;
+    padding: 4px 12px;
+    height: 28px;
   }
 
   .filterTextBtn {
@@ -691,358 +718,71 @@
   }
 }
 /* ============================================================
-   ЗАГОЛОВОК НАД ПЛАШКАМИ С КНОПКОЙ "ВЫБРАТЬ ВСЕХ"
+   РЕДАКТИРОВАНИЕ — ПОДСКАЗКА И ВЫБРАННЫЙ ОБЪЕКТ
    ============================================================ */
 
-.shiftFormSectionLabelWrapper {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-}
-
-.shiftFormSectionLabel {
-  font-size: 17px;
-  font-weight: 600;
-  color: var(--text-primary, #ffffff);
-}
-
-/* ============================================================
-   КНОПКА "ВЫБРАТЬ ВСЕХ" — серая
-   ============================================================ */
-
-.selectAllBtn {
-  padding: 4px 14px;
-  background: rgba(255, 255, 255, 0.08);
-  border: none;
-  border-radius: 9999px;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.5));
+.shiftFormEditHint {
   font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.selectAllBtn:hover {
-  background: rgba(255, 255, 255, 0.14);
-  color: var(--text-primary, #ffffff);
-}
-
-/* ============================================================
-   АВАТАРКИ — БОЛЬШЕ
-   ============================================================ */
-
-.shiftWorkerChip .shiftWorkerAvatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 600;
-  color: white;
-  flex-shrink: 0;
-  overflow: hidden;
-}
-
-.shiftWorkerAvatarImg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
-/* ============================================================
-   ЗАГОЛОВОК НАД ПЛАШКАМИ С КНОПКОЙ "ВЫБРАТЬ ВСЕХ"
-   ============================================================ */
-
-.shiftFormSectionLabelWrapper {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-}
-
-.shiftFormSectionLabel {
-  font-size: 17px;
-  font-weight: 600;
-  color: var(--text-primary, #ffffff);
-}
-
-/* ============================================================
-   КНОПКА "ВЫБРАТЬ ВСЕХ" — серая, крупнее
-   ============================================================ */
-
-.selectAllBtn {
-  padding: 6px 18px;
-  background: rgba(255, 255, 255, 0.08);
-  border: none;
-  border-radius: 9999px;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.5));
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.selectAllBtn:hover {
-  background: rgba(255, 255, 255, 0.14);
-  color: var(--text-primary, #ffffff);
-}
-
-/* ============================================================
-   УБИРАЕМ СТАРЫЙ ХЕДЕР РАБОТНИКОВ (если был)
-   ============================================================ */
-
-.shiftFormWorkersHeader {
-  display: none;
-}
-/* ============================================================
-   ЗАГОЛОВОК С ИКОНКОЙ СЛЕВА
-   ============================================================ */
-
-.shiftFormHeaderLeft {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 24px 20px 16px;
-  flex-shrink: 0;
-}
-
-.shiftFormIconLeft {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
-  flex-shrink: 0;
-}
-
-.shiftFormIconLeft svg {
-  opacity: 0.3;
-}
-
-.shiftFormHeaderTextLeft {
-  display: flex;
-  flex-direction: column;
-}
-
-.shiftFormTitleLeft {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--text-primary, #ffffff);
-  letter-spacing: -0.3px;
-}
-
-.shiftFormDateLeft {
-  font-size: 15px;
   font-weight: 400;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.5));
+  color: var(--text-secondary, rgba(255, 255, 255, 0.4));
   margin-top: 2px;
 }
 
-/* ============================================================
-   ЗАГОЛОВКИ НАД ПЛАШКАМИ — ПО ЛЕВОМУ КРАЮ
-   ============================================================ */
+.shiftEditSiteDisplay {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
 
-.shiftFormSectionLabelLeft {
-  font-size: 17px;
+.shiftEditSiteName {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary, #ffffff);
+}
+
+.shiftFormLabel {
+  font-size: 16px;
   font-weight: 600;
   color: var(--text-primary, #ffffff);
-  margin-bottom: 14px;
-  text-align: left;
 }
-
 /* ============================================================
-   ЗАГОЛОВОК "ВЫБЕРИТЕ РАБОТНИКОВ" + КНОПКА "ВЫБРАТЬ ВСЕХ"
+   РЕДАКТИРОВАНИЕ — ПОДСКАЗКА ПОД ОБЪЕКТОМ
    ============================================================ */
 
-.shiftFormSectionLabelWrapper {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-}
-
-/* ============================================================
-   КНОПКА "ВЫБРАТЬ ВСЕХ" — СЕРАЯ
-   ============================================================ */
-
-.selectAllBtn {
-  padding: 6px 18px;
-  background: rgba(255, 255, 255, 0.08);
-  border: none;
-  border-radius: 9999px;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.5));
+.shiftEditHint {
   font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.selectAllBtn:hover {
-  background: rgba(255, 255, 255, 0.14);
-  color: var(--text-primary, #ffffff);
-}
-
-/* ============================================================
-   УБИРАЕМ СТАРЫЙ ХЕДЕР РАБОТНИКОВ
-   ============================================================ */
-
-.shiftFormWorkersHeader {
-  display: none;
-}
-/* ============================================================
-   ЗАГОЛОВОК С ИКОНКОЙ СЛЕВА
-   ============================================================ */
-
-.shiftFormHeaderLeft {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 28px 20px 20px;
-  flex-shrink: 0;
-}
-
-.shiftFormIconLeft {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 70px;
-  height: 70px;
-  flex-shrink: 0;
-}
-
-.shiftFormIconLeft svg {
-  opacity: 0.3;
-  width: 70px;
-  height: 70px;
-}
-
-.shiftFormHeaderTextLeft {
-  display: flex;
-  flex-direction: column;
-}
-
-.shiftFormTitleLeft {
-  font-size: 26px;
-  font-weight: 700;
-  color: var(--text-primary, #ffffff);
-  letter-spacing: -0.3px;
-}
-
-.shiftFormDateLeft {
-  font-size: 15px;
   font-weight: 400;
   color: var(--text-secondary, rgba(255, 255, 255, 0.5));
-  margin-top: 4px;
-}
-
-/* ============================================================
-   ТЕЛО
-   ============================================================ */
-
-.shiftFormBody {
-  flex: 1;
-  padding: 12px 20px 0;
-  overflow-y: auto;
-}
-
-/* ============================================================
-   ЗАГОЛОВКИ НАД ПЛАШКАМИ — ПО ЛЕВОМУ КРАЮ
-   ============================================================ */
-
-.shiftFormSectionLabelLeft {
-  font-size: 17px;
-  font-weight: 600;
-  color: var(--text-primary, #ffffff);
-  margin-bottom: 14px;
-  text-align: left;
-}
-
-/* ============================================================
-   ЗАГОЛОВОК "ВЫБЕРИТЕ РАБОТНИКОВ" + КНОПКА "ВЫБРАТЬ ВСЕХ"
-   ============================================================ */
-
-.shiftFormSectionLabelWrapper {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-  gap: 16px;
-}
-
-.shiftFormSectionLabelWrapper .shiftFormSectionLabelLeft {
-  margin-bottom: 0;
-  flex-shrink: 0;
-}
-
-/* ============================================================
-   ПЛАШКА БЛОК — БОЛЬШЕ ВОЗДУХА
-   ============================================================ */
-
-.shiftFormBlock {
-  background: var(--bg-card, #1e1e1e);
-  border-radius: 16px;
-  padding: 18px 18px 22px;
-  margin-bottom: 32px;
+  margin-top: 12px;
+  line-height: 1.5;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
-/* ============================================================
-   КНОПКА "ВЫБРАТЬ ВСЕХ"
-   ============================================================ */
-
-.selectAllBtn {
-  padding: 6px 18px;
-  background: rgba(255, 255, 255, 0.08);
-  border: none;
-  border-radius: 9999px;
-  color: var(--text-secondary, rgba(255, 255, 255, 0.5));
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.2s ease;
-  white-space: nowrap;
+.shiftEditSiteDisplay {
   display: flex;
   align-items: center;
-  height: 32px;
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.selectAllBtn:hover {
-  background: rgba(255, 255, 255, 0.14);
+.shiftEditSiteName {
+  font-size: 16px;
+  font-weight: 500;
   color: var(--text-primary, #ffffff);
 }
-/* ============================================================
-   ЗАГОЛОВОК С ИКОНКОЙ СЛЕВА
-   ============================================================ */
 
-.shiftFormHeaderLeft {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 28px 20px 20px;
-  flex-shrink: 0;
-}
-
-.shiftFormIconLeft {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100px;
-  height: 100px;
-  flex-shrink: 0;
-}
-
-.shiftFormIconLeft svg {
-  opacity: 0.3;
-  width: 100px;
-  height: 100px;
+.shiftFormLabel {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary, #ffffff);
 }
