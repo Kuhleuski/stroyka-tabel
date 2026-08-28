@@ -251,7 +251,7 @@
   font-size: 14px;
   font-weight: 700;
   border: 2.5px solid var(--bg-body, #121212);
-  box-shadow: 0 0 0 1.5px var(--color-primary, #2d7d46);
+  
 }
 
 .shiftLockIcon {
