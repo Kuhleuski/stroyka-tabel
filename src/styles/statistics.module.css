@@ -1,0 +1,76 @@
+/* ============================================================
+   СТРАНИЦА СТАТИСТИКИ
+   ============================================================ */
+
+.statisticsPage {
+    padding: 16px 16px 100px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.statisticsHeader {
+    margin-bottom: 24px;
+}
+
+.statisticsTitle {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.statisticsTitle svg {
+    stroke: var(--text-primary);
+}
+
+.statisticsSubtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+.statisticsGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.statisticsCard {
+    background: var(--bg-card);
+    border-radius: 14px;
+    padding: 18px 20px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.statisticsCard:hover {
+    background: rgba(255, 255, 255, 0.04);
+    transform: translateX(4px);
+}
+
+.statisticsCard:active {
+    transform: scale(0.98);
+}
+
+.statisticsCardIcon {
+    font-size: 32px;
+    flex-shrink: 0;
+}
+
+.statisticsCardTitle {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.statisticsCardDesc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}

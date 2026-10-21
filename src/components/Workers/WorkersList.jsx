@@ -4,21 +4,12 @@ import { useRef } from 'react'
 import { useAvatars } from '../../context/AvatarContext'
 import styles from '../../styles/workers.module.css'
 
-// === ПЛОСКАЯ ИКОНКА ДЛЯ БРИГАДЫ ===
 const WorkersIcon = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
         <circle cx="9" cy="7" r="4"/>
         <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
         <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-    </svg>
-)
-
-// === ИКОНКА АРХИВАЦИИ (корзина) ===
-const ArchiveIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="3 6 5 6 21 6" />
-        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
     </svg>
 )
 
@@ -42,7 +33,6 @@ export function WorkersList({ workers, onWorkerClick, refreshKey, filterStatus, 
         return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
     }
 
-    // === ФИЛЬТРАЦИЯ ===
     const getFilteredWorkers = () => {
         if (!workers || !Array.isArray(workers)) return []
         
@@ -54,7 +44,6 @@ export function WorkersList({ workers, onWorkerClick, refreshKey, filterStatus, 
             filtered = filtered.filter(w => w?.status === 'inactive')
         }
         
-        // Сортировка: сначала активные (по алфавиту), потом неактивные (по алфавиту)
         filtered.sort((a, b) => {
             const aIsActive = a?.status === 'active' || !a?.status
             const bIsActive = b?.status === 'active' || !b?.status
@@ -108,9 +97,8 @@ export function WorkersList({ workers, onWorkerClick, refreshKey, filterStatus, 
                         className={styles.workerListItem}
                         onClick={() => onWorkerClick(worker)}
                     >
-                        {/* АВАТАРКА */}
                         <div 
-                            className={`${styles.workerListAvatar} ${isActive ? styles.active : styles.inactive}`}
+                            className={styles.workerListAvatar}
                             style={{ 
                                 backgroundColor: hasPhoto ? 'transparent' : avatarColor,
                                 overflow: 'hidden',
@@ -138,19 +126,16 @@ export function WorkersList({ workers, onWorkerClick, refreshKey, filterStatus, 
                             )}
                         </div>
 
-                        {/* ИНФОРМАЦИЯ */}
                         <div className={styles.workerListInfo}>
                             <span className={styles.workerListName}>{worker?.name || 'Без имени'}</span>
-                            <span className={styles.workerListStatus}>
-                                <span 
-                                    className={`${styles.workerListStatusDot} ${!isActive ? styles.inactive : ''}`}
-                                    style={{ backgroundColor: isActive ? '#2d7d46' : '#888888' }}
-                                />
-                                {statusText}
-                            </span>
                         </div>
 
-                        {/* КНОПКА АРХИВАЦИИ */}
+                        <span className={`${styles.workerListStatusText} ${isActive ? styles.active : styles.inactive}`}>
+                            {statusText}
+                        </span>
+
+                        {/* ⭐ Кнопка удаления временно скрыта (не удалена) */}
+                        {/*
                         <button 
                             className={styles.workerListDeleteBtn}
                             onClick={(e) => {
@@ -163,6 +148,7 @@ export function WorkersList({ workers, onWorkerClick, refreshKey, filterStatus, 
                         >
                             <ArchiveIcon />
                         </button>
+                        */}
                     </div>
                 )
             })}

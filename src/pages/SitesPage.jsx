@@ -1,6 +1,7 @@
 // src/pages/SitesPage.jsx
 
-import { useState } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { SitesList } from '../components/Sites/SitesList'
 import { SiteDetailPage } from './SiteDetailPage'
 import { AddSiteModal } from '../components/AddSiteModal'
@@ -8,17 +9,20 @@ import { EditSiteModal } from '../components/EditSiteModal'
 import { addSite, updateSite } from '../services/supabase'
 import { useSites } from '../hooks/useSites'
 import { Plus } from 'lucide-react'
+import Magnifier from '@gravity-ui/icons/Magnifier'
+import Xmark from '@gravity-ui/icons/Xmark'
 import styles from '../styles/sites.module.css'
 import globalsStyles from '../styles/globals.module.css'
 
-// === ПЛОСКАЯ ИКОНКА ===
-const SitesIcon = () => (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '8px' }}>
-        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-        <path d="M2 17l10 5 10-5"/>
-        <path d="M2 12l10 5 10-5"/>
-    </svg>
-)
+const SEARCH_DEBOUNCE = 250
+
+// Проверка: каждое слово запроса встречается в названии ИЛИ адресе (в любом порядке)
+const matchesQuery = (site, query) => {
+    const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean)
+    if (words.length === 0) return true
+    const haystack = `${site.name || ''} ${site.address || ''}`.toLowerCase()
+    return words.every(w => haystack.includes(w))
+}
 
 export function SitesPage({ onAddSite }) {
     const [showAddModal, setShowAddModal] = useState(false)
@@ -28,7 +32,127 @@ export function SitesPage({ onAddSite }) {
     const [scrollPosition, setScrollPosition] = useState(0)
     const { sites, loading, error, addSiteToState, removeSiteFromState, updateSiteInState, archiveSiteInState } = useSites()
 
-    // === ФИЛЬТР С СОХРАНЕНИЕМ В localStorage ===
+    // === ПОИСК ===
+    const [searchInput, setSearchInput] = useState('')
+    const [searchQuery, setSearchQuery] = useState('')
+    const [isFocused, setIsFocused] = useState(false)
+    const [dropdownRect, setDropdownRect] = useState(null)
+    const searchWrapRef = useRef(null)
+
+    useEffect(() => {
+        const t = setTimeout(() => setSearchQuery(searchInput), SEARCH_DEBOUNCE)
+        return () => clearTimeout(t)
+    }, [searchInput])
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (searchWrapRef.current && !searchWrapRef.current.contains(e.target)) {
+                // клик по порталу не должен закрывать выпадашку
+                if (e.target.closest && e.target.closest('[data-sites-suggestions]')) return
+                setIsFocused(false)
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [])
+
+    // Подсказки: по словам в названии ИЛИ адресе
+    const suggestions = useMemo(() => {
+        const q = searchInput.trim()
+        if (!q) return []
+        return sites
+            .filter(s => matchesQuery(s, q))
+            .slice(0, 6)
+    }, [searchInput, sites])
+
+    const showSuggestions = isFocused && searchInput.trim().length > 0
+
+    // Позиция выпадашки для портала
+    useEffect(() => {
+        if (!showSuggestions) {
+            setDropdownRect(null)
+            return
+        }
+        const update = () => {
+            const el = searchWrapRef.current
+            if (!el) return
+            const r = el.getBoundingClientRect()
+            setDropdownRect({ top: r.bottom + 6, left: r.left, width: r.width })
+        }
+        update()
+        window.addEventListener('resize', update)
+        window.addEventListener('scroll', update, true)
+        return () => {
+            window.removeEventListener('resize', update)
+            window.removeEventListener('scroll', update, true)
+        }
+    }, [showSuggestions, searchInput])
+
+    const handleSearchChange = (e) => {
+        setSearchInput(e.target.value)
+    }
+
+    const handleClearSearch = () => {
+        setSearchInput('')
+        setSearchQuery('')
+    }
+
+    const handleSuggestionClick = (site) => {
+        setIsFocused(false)
+        if (document.activeElement && document.activeElement.blur) {
+            document.activeElement.blur()
+        }
+        handleSiteClick(site)
+    }
+
+    // Подсветка всех вхождений всех слов запроса
+    const highlightMatch = (text, query) => {
+        if (!text) return text
+        const q = query.trim()
+        if (!q) return text
+        const words = q.toLowerCase().split(/\s+/).filter(Boolean)
+        if (words.length === 0) return text
+
+        const lower = text.toLowerCase()
+        const ranges = []
+        words.forEach(w => {
+            let from = 0
+            while (true) {
+                const idx = lower.indexOf(w, from)
+                if (idx === -1) break
+                ranges.push([idx, idx + w.length])
+                from = idx + w.length
+            }
+        })
+        if (ranges.length === 0) return text
+
+        ranges.sort((a, b) => a[0] - b[0])
+        const merged = []
+        for (const r of ranges) {
+            const last = merged[merged.length - 1]
+            if (last && r[0] <= last[1]) {
+                last[1] = Math.max(last[1], r[1])
+            } else {
+                merged.push([...r])
+            }
+        }
+
+        const parts = []
+        let cursor = 0
+        merged.forEach(([start, end], i) => {
+            if (cursor < start) parts.push(text.slice(cursor, start))
+            parts.push(
+                <span key={i} className={styles.suggestionMatch}>
+                    {text.slice(start, end)}
+                </span>
+            )
+            cursor = end
+        })
+        if (cursor < text.length) parts.push(text.slice(cursor))
+        return <>{parts}</>
+    }
+
+    // === ФИЛЬТР ===
     const [filter, setFilter] = useState(() => {
         return localStorage.getItem('sitesFilter') || 'all'
     })
@@ -38,7 +162,7 @@ export function SitesPage({ onAddSite }) {
         localStorage.setItem('sitesFilter', newFilter)
     }
 
-    // === СОХРАНЕНИЕ ДАТЫ ПОСЛЕДНЕГО ОТКРЫТИЯ ===
+    // === СОХРАНЕНИЕ ДАТЫ ОТКРЫТИЯ ===
     const saveLastOpened = (siteId) => {
         try {
             const now = new Date().toISOString()
@@ -67,12 +191,8 @@ export function SitesPage({ onAddSite }) {
 
     const handleUpdate = async (siteId, name, address, color, status) => {
         try {
-            console.log('🔄 handleUpdate вызван:', { siteId, name, address, color, status })
             const updated = await updateSite(siteId, name, address, color, status)
-            console.log('🔄 updated получен:', updated)
-            
             updateSiteInState(updated)
-            
             if (selectedSite && selectedSite.id === siteId) {
                 setSelectedSite(updated)
             }
@@ -83,11 +203,9 @@ export function SitesPage({ onAddSite }) {
         }
     }
 
-    // === АРХИВАЦИЯ (вместо удаления) ===
     const handleArchive = async (siteId) => {
         try {
             await archiveSiteInState(siteId)
-            // Удаляем запись о последнем открытии
             try {
                 const stored = localStorage.getItem('siteLastOpened')
                 if (stored) {
@@ -105,9 +223,7 @@ export function SitesPage({ onAddSite }) {
     }
 
     const handleSiteClick = (site) => {
-        // Сохраняем дату открытия
         saveLastOpened(site.id)
-        
         const container = document.querySelector('.sites-grid')
         if (container) {
             setScrollPosition(container.scrollTop)
@@ -130,10 +246,14 @@ export function SitesPage({ onAddSite }) {
     }
 
     const handleOpenEditModal = (site) => {
-        console.log('🔄 Открываем редактирование для:', site.name)
         setEditingSite(site)
         setShowEditModal(true)
     }
+
+    // === ФИЛЬТРАЦИЯ СПИСКА ===
+    const filteredSites = searchQuery.trim()
+        ? sites.filter(site => matchesQuery(site, searchQuery))
+        : sites
 
     if (loading) {
         return <div className={globalsStyles.loadingText}>⏳ Загрузка...</div>
@@ -152,13 +272,13 @@ export function SitesPage({ onAddSite }) {
     if (selectedSite) {
         return (
             <>
-                <SiteDetailPage 
+                <SiteDetailPage
                     site={selectedSite}
                     onClose={handleCloseDetail}
                     onArchive={handleArchive}
                     onEdit={handleOpenEditModal}
                 />
-                <EditSiteModal 
+                <EditSiteModal
                     isOpen={showEditModal}
                     onClose={() => setShowEditModal(false)}
                     onSave={handleUpdate}
@@ -171,57 +291,113 @@ export function SitesPage({ onAddSite }) {
     return (
         <>
             <div className={styles.pageHeader}>
-                <div>
-                    <div className={styles.pageTitle}>
-                        <SitesIcon />
-                        Объекты
+                <h1 className={styles.pageTitle}>Объекты</h1>
+                <button
+                    className={styles.addBtn}
+                    onClick={handleOpenAddModal}
+                    aria-label="Добавить объект"
+                >
+                    <Plus size={20} strokeWidth={2.5} />
+                    <span className={styles.addBtnLabel}>Добавить</span>
+                </button>
+            </div>
+
+            <div className={styles.toolbar}>
+                <div className={styles.searchWrap} ref={searchWrapRef}>
+                    <div className={styles.searchField}>
+                        <Magnifier className={styles.searchIcon} />
+                        <input
+                            type="text"
+                            className={styles.searchInput}
+                            placeholder="Поиск по названию или адресу"
+                            value={searchInput}
+                            onChange={handleSearchChange}
+                            onFocus={() => setIsFocused(true)}
+                            autoComplete="off"
+                        />
+                        {searchInput && (
+                            <button
+                                type="button"
+                                className={styles.searchClearBtn}
+                                onClick={handleClearSearch}
+                                aria-label="Очистить поиск"
+                            >
+                                <Xmark />
+                            </button>
+                        )}
                     </div>
-                    <div className={styles.pageSubtitle}>Все объекты</div>
                 </div>
+
+                {!showSuggestions && (
+                    <>
+                        <div className={styles.segmented}>
+                            <button
+                                className={`${styles.segment} ${filter === 'all' ? styles.segmentActive : ''}`}
+                                onClick={() => handleFilterChange('all')}
+                            >
+                                Все
+                            </button>
+                            <button
+                                className={`${styles.segment} ${filter === 'active' ? styles.segmentActive : ''}`}
+                                onClick={() => handleFilterChange('active')}
+                            >
+                                В работе
+                            </button>
+                            <button
+                                className={`${styles.segment} ${filter === 'completed' ? styles.segmentActive : ''}`}
+                                onClick={() => handleFilterChange('completed')}
+                            >
+                                Завершенные
+                            </button>
+                        </div>
+
+                        <SitesList
+                            sites={filteredSites}
+                            filter={filter}
+                            onSiteClick={handleSiteClick}
+                        />
+                    </>
+                )}
             </div>
 
-            {/* === ФИЛЬТР === */}
-            <div className={styles.filterWrapper}>
-                <span className={styles.filterLabel}>Показывать:</span>
-                <div className={styles.filterButtons}>
-                    <button 
-                        className={`${styles.filterBtn} ${filter === 'all' ? styles.filterActive : ''}`}
-                        onClick={() => handleFilterChange('all')}
-                    >
-                        Все
-                    </button>
-                    <button 
-                        className={`${styles.filterBtn} ${filter === 'active' ? styles.filterActive : ''}`}
-                        onClick={() => handleFilterChange('active')}
-                    >
-                        <span className={styles.filterDot} style={{ backgroundColor: '#2d7d46' }} />
-                        В работе
-                    </button>
-                    <button 
-                        className={`${styles.filterBtn} ${filter === 'completed' ? styles.filterActive : ''}`}
-                        onClick={() => handleFilterChange('completed')}
-                    >
-                        <span className={styles.filterDot} style={{ backgroundColor: '#78909C' }} />
-                        Завершенные
-                    </button>
-                </div>
-            </div>
+            {/* Подсказки — через портал, поверх всего */}
+            {showSuggestions && dropdownRect && createPortal(
+                <div
+                    data-sites-suggestions
+                    className={styles.suggestions}
+                    style={{
+                        position: 'fixed',
+                        top: dropdownRect.top,
+                        left: dropdownRect.left,
+                        width: dropdownRect.width
+                    }}
+                >
+                    {suggestions.length > 0 ? (
+                        suggestions.map(site => (
+                            <button
+                                key={site.id}
+                                type="button"
+                                className={styles.suggestionItem}
+                                onClick={() => handleSuggestionClick(site)}
+                            >
+                                <span className={styles.suggestionText}>
+                                    {highlightMatch(site.name, searchInput)}
+                                </span>
+                                {site.address && (
+                                    <span className={styles.suggestionAddress}>
+                                        {highlightMatch(site.address, searchInput)}
+                                    </span>
+                                )}
+                            </button>
+                        ))
+                    ) : (
+                        <div className={styles.suggestionEmpty}>Ничего не найдено</div>
+                    )}
+                </div>,
+                document.body
+            )}
 
-            <SitesList 
-                sites={sites} 
-                filter={filter}
-                onSiteClick={handleSiteClick}
-            />
-
-            <button 
-                className={styles.fabAddSite}
-                onClick={handleOpenAddModal}
-                aria-label="Добавить объект"
-            >
-                <Plus size={28} strokeWidth={2.5} />
-            </button>
-
-            <AddSiteModal 
+            <AddSiteModal
                 isOpen={showAddModal}
                 onClose={() => setShowAddModal(false)}
                 onSave={handleSave}

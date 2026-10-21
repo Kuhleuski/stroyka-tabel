@@ -2,16 +2,9 @@ import { useState, useEffect } from 'react'
 import { useSites } from '../hooks/useSites'
 import { useWorkers } from '../hooks/useWorkers'
 import styles from '../styles/archive.module.css'
+import menuStyles from '../styles/menu.module.css'
 
-const ArchiveIcon = () => (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 8v13H3V8"/>
-        <path d="M1 3h22v5H1z"/>
-        <path d="M10 12h4"/>
-    </svg>
-)
-
-export function ArchivePage() {
+export function ArchivePage({ onBack }) {
     const [activeTab, setActiveTab] = useState('sites')
     const { archivedSites, restoreSiteInState, refreshArchivedSites } = useSites()
     const { archivedWorkers, restoreWorkerInState, refreshArchivedWorkers } = useWorkers()
@@ -32,15 +25,6 @@ export function ArchivePage() {
     }
 
     const handleDeleteForever = (id, type) => {
-        // Визуально удаляем из архива, но в базе остаётся
-        if (type === 'site') {
-            // Можно добавить поле hidden или просто удалить из состояния
-            // Пока просто удаляем из списка архива
-            // В базе остаётся archived = true
-        } else {
-            // Аналогично
-        }
-        // Обновляем список
         if (type === 'site') {
             refreshArchivedSites()
         } else {
@@ -49,25 +33,30 @@ export function ArchivePage() {
     }
 
     return (
-        <div className={styles.archivePage}>
-            <div className={styles.archiveHeader}>
-                <div className={styles.archiveTitle}>
-                    <ArchiveIcon />
-                    Архив
-                </div>
-                <div className={styles.archiveSubtitle}>
-                    Здесь хранятся архивированные объекты и работники
-                </div>
+        <div className={menuStyles.detailPage}>
+            <div className={menuStyles.detailTopBar}>
+                <button
+                    className={menuStyles.detailBackBtn}
+                    onClick={onBack}
+                    aria-label="Назад"
+                >
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                    <span className={menuStyles.detailBackLabel}>Назад</span>
+                </button>
             </div>
 
+            <div className={menuStyles.detailTitleCenter}>Архив</div>
+
             <div className={styles.archiveTabs}>
-                <button 
+                <button
                     className={`${styles.archiveTab} ${activeTab === 'sites' ? styles.active : ''}`}
                     onClick={() => setActiveTab('sites')}
                 >
                     Объекты ({archivedSites.length})
                 </button>
-                <button 
+                <button
                     className={`${styles.archiveTab} ${activeTab === 'workers' ? styles.active : ''}`}
                     onClick={() => setActiveTab('workers')}
                 >
@@ -87,13 +76,13 @@ export function ArchivePage() {
                     <div key={site.id} className={styles.archiveItem}>
                         <span className={styles.archiveItemName}>{site.name}</span>
                         <div className={styles.archiveItemActions}>
-                            <button 
+                            <button
                                 className={styles.archiveRestoreBtn}
                                 onClick={() => handleRestore(site.id, 'site')}
                             >
                                 Восстановить
                             </button>
-                            <button 
+                            <button
                                 className={styles.archiveDeleteBtn}
                                 onClick={() => handleDeleteForever(site.id, 'site')}
                             >
@@ -107,13 +96,13 @@ export function ArchivePage() {
                     <div key={worker.id} className={styles.archiveItem}>
                         <span className={styles.archiveItemName}>{worker.name}</span>
                         <div className={styles.archiveItemActions}>
-                            <button 
+                            <button
                                 className={styles.archiveRestoreBtn}
                                 onClick={() => handleRestore(worker.id, 'worker')}
                             >
                                 Восстановить
                             </button>
-                            <button 
+                            <button
                                 className={styles.archiveDeleteBtn}
                                 onClick={() => handleDeleteForever(worker.id, 'worker')}
                             >

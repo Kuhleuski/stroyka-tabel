@@ -915,3 +915,94 @@ export async function getArchivedWorkers() {
       throw error
    }
 }
+// ============================================================
+// ФУНКЦИИ ДЛЯ ЗАРПЛАТЫ
+// ============================================================
+
+export async function fetchSalaries() {
+   try {
+      const url = `${SUPABASE_URL}/rest/v1/salaries?select=*&order=payment_date.desc`
+      const response = await fetch(url, {
+         method: 'GET',
+         headers: getHeaders()
+      })
+
+      if (!response.ok) {
+         throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      return await response.json()
+   } catch (error) {
+      console.error('Ошибка загрузки зарплат:', error)
+      throw error
+   }
+}
+
+export async function addSalary(workerId, amount, paymentDate) {
+   try {
+      const url = `${SUPABASE_URL}/rest/v1/salaries`
+      const response = await fetch(url, {
+         method: 'POST',
+         headers: getHeaders(),
+         body: JSON.stringify([{
+            worker_id: workerId,
+            amount: amount,
+            payment_date: paymentDate
+         }])
+      })
+
+      if (!response.ok) {
+         const errorText = await response.text()
+         throw new Error(`Ошибка добавления зарплаты: ${response.status} ${errorText}`)
+      }
+
+      return await response.json()
+   } catch (error) {
+      console.error('Ошибка в addSalary:', error)
+      throw error
+   }
+}
+
+export async function updateSalary(salaryId, amount, paymentDate) {
+   try {
+      const url = `${SUPABASE_URL}/rest/v1/salaries?id=eq.${salaryId}`
+      const response = await fetch(url, {
+         method: 'PATCH',
+         headers: getHeaders(),
+         body: JSON.stringify({
+            amount: amount,
+            payment_date: paymentDate
+         })
+      })
+
+      if (!response.ok) {
+         const errorText = await response.text()
+         throw new Error(`Ошибка обновления зарплаты: ${response.status} ${errorText}`)
+      }
+
+      return await response.json()
+   } catch (error) {
+      console.error('Ошибка в updateSalary:', error)
+      throw error
+   }
+}
+
+export async function deleteSalary(salaryId) {
+   try {
+      const url = `${SUPABASE_URL}/rest/v1/salaries?id=eq.${salaryId}`
+      const response = await fetch(url, {
+         method: 'DELETE',
+         headers: getHeaders()
+      })
+
+      if (!response.ok) {
+         const errorText = await response.text()
+         throw new Error(`Ошибка удаления зарплаты: ${response.status} ${errorText}`)
+      }
+
+      return true
+   } catch (error) {
+      console.error('Ошибка в deleteSalary:', error)
+      throw error
+   }
+}

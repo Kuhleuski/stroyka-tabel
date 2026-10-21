@@ -2,43 +2,21 @@ import { useRef, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import styles from '../../styles/layout.module.css'
 
-// === ПЛОСКИЕ SVG-ИКОНКИ (Lucide) ===
+// === ИКОНКИ GRAVITY UI (стиль Яндекса) ===
+import Calendar from '@gravity-ui/icons/Calendar'
+import ChartColumn from '@gravity-ui/icons/ChartColumn'
+import Persons from '@gravity-ui/icons/Persons'
+import Layers from '@gravity-ui/icons/Layers'
+import Ellipsis from '@gravity-ui/icons/Ellipsis'
+
+// Размер задаётся в CSS через --nav-icon-size.
+// Проп size НЕ используем — в @gravity-ui/icons@2.23.0 он игнорируется.
 const icons = {
-    'calendar': (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-            <polyline points="9 22 9 12 15 12 15 22"/>
-        </svg>
-    ),
-    'workers': (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-            <circle cx="9" cy="7" r="4"/>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-        </svg>
-    ),
-    'sites': (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-            <path d="M2 17l10 5 10-5"/>
-            <path d="M2 12l10 5 10-5"/>
-        </svg>
-    ),
-    'archive': (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 8v13H3V8"/>
-            <path d="M1 3h22v5H1z"/>
-            <path d="M10 12h4"/>
-        </svg>
-    ),
-    // ⭐ НОВАЯ ИКОНКА — Профиль
-    'profile': (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-        </svg>
-    ),
+    'tabel': <Calendar />,
+    'statistics': <ChartColumn />,
+    'workers': <Persons />,
+    'sites': <Layers />,
+    'menu': <Ellipsis />,
 }
 
 export function BottomNav({ currentPage, onNavigate }) {
@@ -46,39 +24,23 @@ export function BottomNav({ currentPage, onNavigate }) {
     const scrollRef = useRef(null)
     const isAdmin = user?.role === 'admin'
 
-    // ⭐ НОВЫЙ СПИСОК ПУНКТОВ
-    // Добавлен: archive
-    // Убраны: notifications (закомментированы)
-    const allItems = isAdmin ? [
-        { key: 'calendar', icon: icons.calendar, label: 'Главная' },
+    const allItems = [
+        { key: 'tabel', icon: icons.tabel, label: 'Табель' },
+        { key: 'statistics', icon: icons.statistics, label: 'Статистика' },
         { key: 'workers', icon: icons.workers, label: 'Бригада' },
         { key: 'sites', icon: icons.sites, label: 'Объекты' },
-        { key: 'archive', icon: icons.archive, label: 'Архив' },
-        // { key: 'notifications', icon: icons.notifications, label: 'Уведомления' },
-        { key: 'profile', icon: icons.profile, label: 'Профиль' },
-    ] : [
-        { key: 'calendar', icon: icons.calendar, label: 'Главная' },
-        { key: 'workers', icon: icons.workers, label: 'Бригада' },
-        { key: 'sites', icon: icons.sites, label: 'Объекты' },
-        { key: 'archive', icon: icons.archive, label: 'Архив' },
-        // { key: 'notifications', icon: icons.notifications, label: 'Уведомления' },
-        { key: 'profile', icon: icons.profile, label: 'Профиль' },
+        { key: 'menu', icon: icons.menu, label: 'Ещё' },
     ]
 
-    // При загрузке и при смене страницы — прокручиваем к активному пункту
     useEffect(() => {
         if (!scrollRef.current) return
-
         const container = scrollRef.current
         const activeIndex = allItems.findIndex(item => item.key === currentPage)
         if (activeIndex === -1) return
-
         const activeElement = container.children[activeIndex]
         if (!activeElement) return
-
         const containerRect = container.getBoundingClientRect()
         const elementRect = activeElement.getBoundingClientRect()
-
         if (elementRect.left < containerRect.left) {
             container.scrollLeft -= (containerRect.left - elementRect.left) + 10
         } else if (elementRect.right > containerRect.right) {
@@ -93,17 +55,16 @@ export function BottomNav({ currentPage, onNavigate }) {
     return (
         <div className={styles.bottomNav}>
             <div className={styles.navContainer}>
-                <div 
-                    className={styles.scrollWrapper}
-                    ref={scrollRef}
-                >
+                <div className={styles.scrollWrapper} ref={scrollRef}>
                     {allItems.map(({ key, icon, label }) => (
                         <button
                             key={key}
                             className={`${styles.navItem} ${currentPage === key ? styles.active : ''}`}
                             onClick={() => handleNavigate(key)}
                         >
-                            <span className={styles.navIcon}>{icon}</span>
+                            <span className={styles.navIconWrap}>
+                                <span className={styles.navIcon}>{icon}</span>
+                            </span>
                             <span className={styles.navLabel}>{label}</span>
                         </button>
                     ))}

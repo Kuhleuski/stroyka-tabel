@@ -1,0 +1,363 @@
+/* ============================================================
+   СТРАНИЦА МЕНЮ
+   ============================================================ */
+
+.menuPage {
+    padding: 16px 16px 100px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.menuHeader {
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.menuTitle {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.menuList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.menuItem {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.menuItem:hover {
+    background: rgba(255, 255, 255, 0.04);
+    transform: translateX(4px);
+}
+
+.menuItem:active {
+    transform: scale(0.98);
+}
+
+.menuItemIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.menuItemContent {
+    flex: 1;
+}
+
+.menuItemTitle {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.menuItemDesc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+.menuItemArrow {
+    font-size: 20px;
+    color: var(--text-muted);
+}
+
+/* ============================================================
+   ЗАГЛУШКИ ДЛЯ СТРАНИЦ
+   ============================================================ */
+
+.placeholderPage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 70vh;
+    padding: 20px;
+    text-align: center;
+}
+
+.placeholderIcon {
+    font-size: 64px;
+    margin-bottom: 20px;
+}
+
+.placeholderTitle {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.placeholderText {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.placeholderSubtext {
+    font-size: 14px;
+    color: var(--text-muted);
+}
+/* ============================================================
+   СТРАНИЦА МЕНЮ
+   ============================================================ */
+
+.menuPage {
+    padding: 16px 16px 100px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.menuHeader {
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.menuTitle {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.menuList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.menuItem {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.menuItem:hover {
+    background: rgba(255, 255, 255, 0.04);
+    transform: translateX(4px);
+}
+
+.menuItem:active {
+    transform: scale(0.98);
+}
+
+.menuItemIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.menuItemContent {
+    flex: 1;
+}
+
+.menuItemTitle {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.menuItemDesc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+.menuItemArrow {
+    font-size: 20px;
+    color: var(--text-muted);
+}
+
+/* ============================================================
+   СТРАНИЦЫ ДЕТАЛЕЙ (Уведомления, Telegram)
+   ============================================================ */
+
+.detailPage {
+    padding: 16px 16px 40px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.detailTopBar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.detailBackBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    padding: 6px 10px 6px 6px;
+    border-radius: 24px;
+    cursor: pointer;
+    color: var(--text-primary);
+    flex-shrink: 0;
+    transition: background 0.15s ease, transform 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.detailBackBtn:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.detailBackBtn:active {
+    transform: scale(0.95);
+}
+
+.detailBackBtn svg {
+    width: 32px;
+    height: 32px;
+    display: block;
+    flex-shrink: 0;
+}
+
+.detailBackLabel {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.detailTitleCenter {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Адаптив */
+@media (max-width: 480px) {
+    .detailPage {
+        padding: 12px 12px 32px;
+    }
+
+    .detailBackBtn {
+        padding: 4px 8px 4px 4px;
+    }
+
+    .detailBackBtn svg {
+        width: 30px;
+        height: 30px;
+    }
+
+    .detailBackLabel {
+        font-size: 15px;
+    }
+
+    .detailTitleCenter {
+        font-size: 17px;
+        margin-bottom: 16px;
+    }
+}
+/* ============================================================
+   ПРОФИЛЬ (страница)
+   ============================================================ */
+
+.profileAvatarLarge {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 8px auto 24px;
+}
+
+.profileAvatarLetter {
+    font-size: 36px;
+    font-weight: 700;
+    color: white;
+}
+
+.profileField {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.profileField:last-of-type {
+    border-bottom: none;
+}
+
+.profileLabel {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.profileValue {
+    font-size: 17px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.profileLogoutBtn {
+    width: 100%;
+    padding: 14px;
+    margin-top: 32px;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-primary);
+}
+
+.profileLogoutBtn:hover {
+    background: var(--color-primary-hover);
+    transform: scale(1.01);
+}
+
+.profileLogoutBtn:active {
+    transform: scale(0.97);
+}

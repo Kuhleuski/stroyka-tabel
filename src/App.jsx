@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useShifts } from './hooks/useShifts'
 import { useAuth, AuthProvider } from './context/AuthContext'
 import { AvatarProvider } from './context/AvatarContext'
-import { Header } from './components/Layout/Header'
 import { BottomNav } from './components/Layout/BottomNav'
-import { SettingsModal } from './components/SettingsModal'
 import { SitesPage } from './pages/SitesPage'
 import { WorkersPage } from './pages/WorkersPage'
 import { MyTabelPage } from './pages/MyTabelPage'
@@ -13,19 +12,38 @@ import { ExtraPage } from './pages/ExtraPage'
 import { LoginPage } from './pages/LoginPage'
 import { StatisticsPage } from './pages/StatisticsPage'
 import { CostsPage } from './pages/CostsPage'
-import { ArchivePage } from './pages/ArchivePage'  // ← ДОБАВИТЬ ИМПОРТ
+import { ArchivePage } from './pages/ArchivePage'
+import { MenuPage } from './pages/MenuPage'
+import { NotificationsPage } from './pages/NotificationsPage'
+import { TelegramPage } from './pages/TelegramPage'
+import { ProfilePage } from './pages/ProfilePage'
+import { WorkersStatsPage } from './pages/WorkersStatsPage'
 import TestPage from './pages/TestPage'
 import layoutStyles from './styles/layout.module.css'
 
+// ⭐ Слайд для страниц из меню: быстрый, чёткий (tween)
+const slideInRight = {
+    initial: { x: '100%', opacity: 0 },
+    animate: { x: 0, opacity: 1 },
+    exit: { x: '100%', opacity: 0 },
+    transition: { type: 'tween', ease: [0.32, 0.72, 0, 1], duration: 0.22 }
+}
+
+// Для обычных страниц — без визуальной анимации, но motion.div нужен,
+// чтобы AnimatePresence мог отслеживать смену key и проигрывать exit уходящей страницы
+const noAnimation = {
+    initial: { opacity: 1 },
+    animate: { opacity: 1 },
+    exit: { opacity: 1 },
+    transition: { duration: 0 }
+}
+
 function AppContent() {
-    const [currentPage, setCurrentPage] = useState('calendar')
-    const [showSettings, setShowSettings] = useState(false)
-    const [showNotifications, setShowNotifications] = useState(false)
-    const [unreadCount, setUnreadCount] = useState(1)
+    const [currentPage, setCurrentPage] = useState('tabel')
     const [pageKey, setPageKey] = useState(0)
-    
+
     const [hideBottomNav, setHideBottomNav] = useState(false)
-    
+
     const { shifts, loading, error, refetch } = useShifts()
     const { user, loginByPhone, logout } = useAuth()
 
@@ -47,34 +65,12 @@ function AppContent() {
         )
     }
 
-    const handleOpenNotifications = () => {
-        setShowNotifications(true)
-        setUnreadCount(0)
-    }
-
-    const handleCloseNotifications = () => {
-        setShowNotifications(false)
-    }
-
     const handleNavigate = (page) => {
-        if (page === 'profile') {
-            setShowSettings(true)
-            return
-        }
-        
         setCurrentPage(page)
-        if (page === 'calendar') {
+        if (page === 'tabel' || page === 'calendar') {
             setPageKey(prev => prev + 1)
             refetch()
         }
-    }
-
-    const handleCloseSettings = () => {
-        setShowSettings(false)
-    }
-
-    const handleOpenSettings = () => {
-        setShowSettings(true)
     }
 
     const handleOpenWorkerStats = () => {
@@ -86,62 +82,110 @@ function AppContent() {
         refetch()
     }
 
-    const renderPage = () => {
+    const menuPages = ['archive', 'notifications', 'telegram', 'profile']
+
+    const pagesWithoutBottomNav = ['workers-stats', 'notifications', 'telegram', 'archive', 'profile']
+
+    const renderPageContent = () => {
         switch (currentPage) {
+            case 'tabel':
             case 'calendar':
-                return <TestPage key={`calendar-${pageKey}`} />
-            case 'sites':
-                return <SitesPage key={`sites-${pageKey}`} />
+                return <TestPage key={`tabel-${pageKey}`} />
+            case 'statistics':
+                return <StatisticsPage key={`statistics-${pageKey}`} />
             case 'workers':
-                return <WorkersPage 
-                    key={`workers-${pageKey}`} 
+                return <WorkersPage
+                    key={`workers-${pageKey}`}
                     shifts={shifts}
                     onOpenWorkerStats={handleOpenWorkerStats}
                     onCloseWorkerStats={handleCloseWorkerStats}
                 />
-            case 'archive':  // ← ДОБАВИТЬ КЕЙС
-                return <ArchivePage key={`archive-${pageKey}`} />
-            case 'my-tabel':
-                return <MyTabelPage key={`my-tabel-${pageKey}`} shifts={shifts} />
+            case 'sites':
+                return <SitesPage key={`sites-${pageKey}`} />
+            case 'menu':
+                return <MenuPage
+                    key={`menu-${pageKey}`}
+                    onNavigate={handleNavigate}
+                />
+            case 'archive':
+                return (
+                    <ArchivePage
+                        key={`archive-${pageKey}`}
+                        onBack={() => handleNavigate('menu')}
+                    />
+                )
+            case 'notifications':
+                return (
+                    <NotificationsPage
+                        key={`notifications-${pageKey}`}
+                        onBack={() => handleNavigate('menu')}
+                    />
+                )
+            case 'telegram':
+                return (
+                    <TelegramPage
+                        key={`telegram-${pageKey}`}
+                        onBack={() => handleNavigate('menu')}
+                    />
+                )
+            case 'profile':
+                return (
+                    <ProfilePage
+                        key={`profile-${pageKey}`}
+                        onBack={() => handleNavigate('menu')}
+                        onLogout={logout}
+                    />
+                )
+            case 'workers-stats':
+                return <WorkersStatsPage key={`workers-stats-${pageKey}`} />
             case 'salary':
                 return <SalaryPage key={`salary-${pageKey}`} />
-            case 'extra':
-                return <ExtraPage key={`extra-${pageKey}`} />
-            case 'statistics':
-                return <StatisticsPage key={`statistics-${pageKey}`} />
             case 'costs':
                 return <CostsPage key={`costs-${pageKey}`} />
+            case 'my-tabel':
+                return <MyTabelPage key={`my-tabel-${pageKey}`} shifts={shifts} />
+            case 'extra':
+                return <ExtraPage key={`extra-${pageKey}`} />
             default:
-                return <TestPage key={`calendar-${pageKey}`} />
+                return <TestPage key={`tabel-${pageKey}`} />
         }
     }
 
+    const renderPage = () => {
+        const pageContent = renderPageContent()
+        const isMenuPage = menuPages.includes(currentPage)
+        const animation = isMenuPage ? slideInRight : noAnimation
+
+        return (
+            <AnimatePresence mode="wait">
+                <motion.div
+                    key={currentPage}
+                    initial={animation.initial}
+                    animate={animation.animate}
+                    exit={animation.exit}
+                    transition={animation.transition}
+                    className={layoutStyles.pageWrapper}
+                >
+                    {pageContent}
+                </motion.div>
+            </AnimatePresence>
+        )
+    }
+
+    const shouldShowBottomNav = !hideBottomNav && !pagesWithoutBottomNav.includes(currentPage)
+
     return (
         <div className={layoutStyles.app}>
-            {/* ⭐ ХЕДЕР ВРЕМЕННО ОТКЛЮЧЕН */}
-            {/* <Header 
-                onSettings={handleOpenSettings}
-                onNotifications={handleOpenNotifications}
-                unreadCount={unreadCount}
-                userId={user?.id}
-            /> */}
-            
             <div className="container">
                 {renderPage()}
             </div>
-            
-            {!hideBottomNav && (
-                <BottomNav 
-                    currentPage={currentPage} 
+
+            {shouldShowBottomNav && (
+                <BottomNav
+                    currentPage={currentPage}
                     onNavigate={handleNavigate}
                 />
             )}
-
-            <SettingsModal 
-                isOpen={showSettings}
-                onClose={handleCloseSettings}
-                onLogout={logout}
-            />
         </div>
     )
 }

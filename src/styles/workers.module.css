@@ -2,184 +2,291 @@
    СТРАНИЦА БРИГАДЫ
    ============================================================ */
 
+.pageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: var(--spacing-lg) 0 var(--spacing-md);
+    gap: 12px;
+}
+
 .pageTitle {
     font-size: var(--font-size-2xl);
     font-weight: 700;
     color: var(--text-primary);
-    margin: var(--spacing-lg) 0 var(--spacing-xs);
+    line-height: 1.2;
+    margin: 0;
 }
 
-.pageSubtitle {
-    color: var(--text-secondary);
-    font-size: var(--font-size-md);
-    margin-bottom: var(--spacing-lg);
-}
-
-.pageHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: var(--spacing-xs);
-}
-
-.addWorkerBtn {
-    background: var(--color-primary);
-    color: white;
+.addBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    background: #e9e9e9;
+    color: #121212;
     border: none;
-    padding: var(--spacing-sm) 18px;
-    border-radius: 20px;
-    font-size: var(--font-size-md);
-    font-weight: 500;
     cursor: pointer;
     font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
     white-space: nowrap;
-    margin-top: var(--spacing-md);
-    transition: var(--transition-normal);
-    box-shadow: var(--shadow-primary);
+    flex-shrink: 0;
+    transition: background 0.15s ease, transform 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: none;
 }
 
-.addWorkerBtn:hover {
-    background: var(--color-primary-hover);
-    transform: scale(1.02);
+.addBtn:hover {
+    background: #dedede;
 }
 
-.addWorkerBtn:active {
+.addBtn:active {
     transform: scale(0.97);
+}
+
+.addBtn svg {
+    color: #121212;
+    display: block;
+}
+
+.addBtnLabel {
+    line-height: 1;
 }
 
 /* ============================================================
-   СЕТКА РАБОТНИКОВ
+   ПАНЕЛЬ: ПОИСК + СЕГМЕНТЫ
    ============================================================ */
 
-.workersGridContainer {
+.toolbar {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-lg);
-    padding: var(--spacing-xs) 0;
+    gap: 12px;
+    margin: var(--spacing-md) 0 var(--spacing-lg);
 }
 
-.workersGrid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--spacing-lg);
-}
-
-.workerGridCard {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: var(--spacing-lg) var(--spacing-sm);
-    background: var(--bg-card);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    cursor: pointer;
-    transition: all var(--transition-normal);
-    max-width: 100%;
-    min-width: 0;
-    overflow: hidden;
+.searchWrap {
+    position: relative;
     width: 100%;
+    z-index: 20;
 }
 
-.workerGridCard:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+.searchField {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    border: 1px solid transparent;
+    transition: border-color 0.15s ease, background 0.15s ease;
 }
 
-.workerGridCard:active {
-    transform: scale(0.97);
+.searchField:focus-within {
+    border-color: rgba(134, 214, 23, 0.4);
+    background: rgba(255, 255, 255, 0.08);
 }
 
-.workerGridAvatar {
-    width: 64px;
-    height: 64px;
+.searchIcon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: var(--text-muted);
+    fill: currentColor;
+    display: block;
+}
+
+.searchInput {
+    flex: 1;
+    min-width: 0;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.2;
+    padding: 0;
+}
+
+.searchInput::placeholder {
+    color: var(--text-muted);
+}
+
+.searchClearBtn {
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--text-muted);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
-    font-weight: 600;
-    color: white;
     flex-shrink: 0;
-    margin-bottom: var(--spacing-sm);
-    transition: all 0.3s ease;
+    transition: background 0.15s ease, color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
 }
 
+.searchClearBtn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+}
 
+.searchClearBtn svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+    display: block;
+}
 
+/* === ПОДСКАЗКИ === */
+.suggestions {
+    background: var(--bg-card);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    z-index: 10000;
+    max-height: 320px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 6px;
+    animation: suggestionsIn 0.12s ease;
+}
 
+@keyframes suggestionsIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
 
-.workerGridName {
-    font-size: var(--font-size-md);
+.suggestionItem {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+    padding: 12px 14px;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    color: var(--text-primary);
+    transition: background 0.12s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.suggestionItem:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.suggestionItem:active {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.suggestionText {
+    font-size: 15px;
     font-weight: 500;
     color: var(--text-primary);
-    text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 100%;
-    min-width: 0;
-    flex: 1;
-    display: block;
-    width: 100%;
-    padding: 0 4px;
-}
-/* ⭐ ОБВОДКА ДЛЯ АКТИВНЫХ — зеленая */
-.workerGridAvatar.active {
-    border: 3px solid #2d7d46;
-    box-shadow: 0 0 12px rgba(45, 125, 70, 0.3);
 }
 
-/* ⭐ ОБВОДКА ДЛЯ НЕАКТИВНЫХ — серая */
-.workerGridAvatar.inactive {
-    border: 3px solid #888888;
-    box-shadow: 0 0 8px rgba(136, 136, 136, 0.15);
+.suggestionMatch {
+    color: #86d617;
+    font-weight: 700;
 }
-.workerGridNameWrapper {
-    display: flex;
+
+.suggestionEmpty {
+    padding: 16px 14px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+/* === СЕГМЕНТЫ === */
+.segmented {
+    display: inline-flex;
+    padding: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    gap: 2px;
+    align-self: flex-start;
+}
+
+.segment {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    max-width: 100%;
-    min-width: 0;
-    padding: 0 4px;
-    width: 100%;
-    overflow: hidden;
-}
-/* ============================================================
-   РАЗДЕЛЕНИЕ АКТИВНЫХ И НЕАКТИВНЫХ
-   ============================================================ */
-
-.workersSectionHeader {
-    font-size: var(--font-size-md);
-    font-weight: 400;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 9px;
+    background: transparent;
     color: var(--text-secondary);
-    padding: var(--spacing-sm) 0 var(--spacing-xs) 0;
-    margin-bottom: var(--spacing-xs);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+    transition: background 0.15s ease, color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.workersDivider {
-    height: 1px;
-    background: var(--border-color);
-    margin: var(--spacing-sm) 0;
+.segment:hover {
+    color: var(--text-primary);
+}
+
+.segmentActive {
+    background: #86d617;
+    color: #121212;
+    font-weight: 600;
+}
+
+.segmentActive:hover {
+    color: #121212;
 }
 
 /* ============================================================
-   СТАРЫЙ СПИСОК (если используется)
+   СПИСОК РАБОТНИКОВ
    ============================================================ */
 
-.workerCard {
+.workersListContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 0;
+}
+
+.workerListItem {
     display: flex;
     align-items: center;
-    gap: var(--spacing-md);
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
     cursor: pointer;
-    transition: var(--transition-normal);
+    transition: background 0.15s ease, border-color 0.15s ease;
+    width: 100%;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.workerCard:active {
-    transform: scale(0.98);
+.workerListItem:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--border-color);
 }
 
-.workerCardAvatar {
+.workerListItem:active {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+/* Аватар 48px — без обводки */
+.workerListAvatar {
     width: 48px;
     height: 48px;
     border-radius: 50%;
@@ -192,35 +299,71 @@
     flex-shrink: 0;
 }
 
-.workerCardInfo {
+/* Информация */
+.workerListInfo {
     flex: 1;
-}
-
-.workerCardName {
-    font-size: var(--font-size-lg);
-    font-weight: 500;
-}
-
-.workerCardStats {
+    min-width: 0;
     display: flex;
-    gap: var(--spacing-md);
-    font-size: 13px;
-    color: var(--text-secondary);
-    margin-top: var(--spacing-xs);
+    flex-direction: column;
+    gap: 2px;
 }
 
-.workerCardArrow {
-    color: #ccc;
-    font-size: 18px;
+.workerListName {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Статус — справа, просто текст */
+.workerListStatusText {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+    text-align: right;
+}
+
+/* ⭐ Работает — зелёный */
+.workerListStatusText.active {
+    color: rgba(44, 198, 13, 0.722);
+}
+
+/* ⭐ Не работает — серый */
+.workerListStatusText.inactive {
+    color: rgb(149, 149, 149);
+}
+/* ============================================================
+   ПУСТОЕ СОСТОЯНИЕ
+   ============================================================ */
+
+.emptyState {
+    text-align: center;
+    padding: 40px var(--spacing-xl);
+    color: var(--text-muted);
+}
+
+.emptyIcon {
+    font-size: 48px;
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    justify-content: center;
+}
+
+.emptyText {
+    font-size: var(--font-size-lg);
+    color: var(--text-muted);
 }
 
 /* ============================================================
-   ПЛАВАЮЩАЯ КНОПКА
+   ПЛАВАЮЩАЯ КНОПКА (скрыта в WorkersPage, но стили оставлены)
    ============================================================ */
 
 .fabAddWorker {
     position: fixed;
-    bottom: 5px;
+    bottom: 95px;
     right: 24px;
     width: 60px;
     height: 60px;
@@ -252,163 +395,163 @@
 }
 
 /* ============================================================
-   СТРАНИЦА ДОБАВЛЕНИЯ РАБОТНИКА (устаревшая, но для совместимости)
+   МОДАЛКА АРХИВАЦИИ
    ============================================================ */
 
-.addWorkerPage {
-    animation: fadeIn 0.25s ease;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    padding-bottom: 0;
-}
-
-.addWorkerHeader {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    padding: var(--spacing-md) var(--spacing-xs) var(--spacing-lg) var(--spacing-xs);
-    border-bottom: 2px solid var(--border-color);
-    margin-bottom: var(--spacing-xl);
-}
-
-.addWorkerTitle {
-    font-size: var(--font-size-xl);
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.addWorkerForm {
-    flex: 1;
-    padding: 0 var(--spacing-xs);
-    padding-bottom: 80px;
-}
-
-.addWorkerError {
-    background: #ffebee;
-    color: #c62828;
-    padding: 10px var(--spacing-md);
-    border-radius: var(--radius-sm);
-    font-size: var(--font-size-md);
-    margin-bottom: var(--spacing-lg);
-}
-
-.addWorkerField {
-    margin-bottom: var(--spacing-xl);
-}
-
-.addWorkerLabel {
-    display: block;
-    font-size: var(--font-size-md);
-    font-weight: 500;
-    color: var(--text-primary);
-    margin-bottom: 6px;
-}
-
-.addWorkerInput {
-    width: 100%;
-    padding: var(--spacing-md) var(--spacing-md);
-    border: 1.5px solid var(--border-input);
-    border-radius: 10px;
-    font-size: var(--font-size-lg);
-    font-family: inherit;
-    transition: var(--transition-normal);
-    background: var(--bg-input);
-    color: var(--text-primary);
-}
-
-.addWorkerInput:focus {
-    outline: none;
-    border-color: var(--color-primary);
-}
-
-.addWorkerInput[type="file"] {
-    padding: 10px;
-    cursor: pointer;
-}
-
-.addWorkerInput[type="file"]::-webkit-file-upload-button {
-    background: var(--color-primary);
-    color: white;
-    border: none;
-    padding: 6px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-family: inherit;
-}
-
-.addWorkerInput[type="file"]::-webkit-file-upload-button:hover {
-    background: var(--color-primary-hover);
-}
-
-.addWorkerHint {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-top: var(--spacing-sm);
-}
-
-.addWorkerActions {
+.deleteModalOverlay {
     position: fixed;
-    bottom: 0;
+    top: 0;
     left: 0;
     right: 0;
-    max-width: var(--max-width);
-    margin: 0 auto;
-    padding: 12px 16px 20px;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: modalFadeIn 0.2s ease;
+}
+
+.deleteModal {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 28px 24px 24px;
+    max-width: 360px;
+    width: 90%;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: modalScaleIn 0.25s ease;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modalScaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.deleteModalTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.deleteModalText {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+.deleteModalText strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.deleteModalActions {
     display: flex;
     gap: 10px;
-    background: var(--bg-nav);
-    border-top: 1px solid var(--border-color);
-    z-index: 20;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
 }
 
-[data-theme="dark"] .addWorkerActions {
-    background: rgba(26, 26, 26, 0.92);
-}
-
-.addWorkerCancel {
+.deleteModalCancelBtn {
     flex: 1;
-    padding: 14px;
-    background: #f0f0f0;
-    color: var(--text-secondary);
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.06);
     border: none;
-    border-radius: 12px;
-    font-size: 16px;
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 15px;
     font-weight: 500;
     cursor: pointer;
     font-family: inherit;
     transition: all 0.2s ease;
 }
 
-.addWorkerCancel:hover {
-    background: #e0e0e0;
+.deleteModalCancelBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 
-.addWorkerSaveBtn {
+.deleteModalConfirmBtn {
     flex: 1;
-    padding: 14px;
-    background: var(--color-primary);
-    color: white;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.08);
     border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 15px;
+    font-weight: 500;
     cursor: pointer;
     font-family: inherit;
     transition: all 0.2s ease;
-    box-shadow: var(--shadow-primary);
 }
 
-.addWorkerSaveBtn:hover:not(:disabled) {
-    background: var(--color-primary-hover);
-    transform: scale(1.01);
+.deleteModalConfirmBtn:hover {
+    background: rgba(255, 255, 255, 0.15);
 }
 
-.addWorkerSaveBtn:disabled {
-    opacity: 0.5;
-    cursor: default;
+.deleteModalConfirmBtn:active {
+    transform: scale(0.97);
+}
+
+/* ============================================================
+   ПРЕЛОАДЕР СОХРАНЕНИЯ
+   ============================================================ */
+
+.savingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    animation: fadeIn 0.25s ease;
+}
+
+.savingSpinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.savingText {
+    margin-top: 20px;
+    font-size: 16px;
+    font-weight: 500;
+    color: white;
+    letter-spacing: 0.3px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 /* ============================================================
@@ -466,10 +609,6 @@
 .workerDetailBackBtn:active {
     transform: scale(0.92);
 }
-
-/* ============================================================
-   МЕНЮ С ТРЕМЯ ТОЧКАМИ
-   ============================================================ */
 
 .workerDetailMenuWrapper {
     position: relative;
@@ -571,10 +710,6 @@
     text-align: center;
 }
 
-/* ============================================================
-   СТАТУС РАБОТНИКА (ТОЛЬКО ОТОБРАЖЕНИЕ)
-   ============================================================ */
-
 .workerStatusSection {
     padding: 0 var(--spacing-lg) var(--spacing-lg);
     margin-bottom: var(--spacing-md);
@@ -597,10 +732,6 @@
     font-weight: 500;
     white-space: nowrap;
 }
-
-/* ============================================================
-   КОНТЕНТ ДЕТАЛЕЙ
-   ============================================================ */
 
 .workerDetailContent {
     padding: 0 var(--spacing-lg);
@@ -657,10 +788,6 @@
 [data-theme="dark"] .workerDetailHint {
     background: rgba(255, 255, 255, 0.05);
 }
-
-/* ============================================================
-   КНОПКИ ВНИЗУ (ФИКСИРОВАННЫЕ)
-   ============================================================ */
 
 .workerDetailFooter {
     position: fixed;
@@ -862,104 +989,56 @@
 }
 
 /* ============================================================
-   ПРЕЛОАДЕР СОХРАНЕНИЯ
-   ============================================================ */
-
-.savingOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 99999;
-    animation: fadeIn 0.25s ease;
-}
-
-.savingSpinner {
-    width: 48px;
-    height: 48px;
-    border: 4px solid rgba(255, 255, 255, 0.2);
-    border-top-color: #ffffff;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
-.savingText {
-    margin-top: 20px;
-    font-size: 16px;
-    font-weight: 500;
-    color: white;
-    letter-spacing: 0.3px;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-/* ============================================================
    АДАПТИВ
    ============================================================ */
 
-@media (max-width: 420px) {
-    .workersGrid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--spacing-md);
-    }
-    
-    .workerGridAvatar {
-        width: 56px;
-        height: 56px;
-        font-size: 20px;
-    }
-}
-
-@media (max-width: 400px) {
-    .fabAddWorker {
-        width: 52px;
-        height: 52px;
-        bottom: 80px;
-        right: 16px;
-    }
-    
-    .fabAddWorker svg {
-        width: 24px;
-        height: 24px;
-    }
-
-    .workerCalendar {
-        padding: var(--spacing-md);
-    }
-    
-    .workerCalendarDay {
-        font-size: var(--font-size-sm);
-    }
-}
-
-@media (min-width: 500px) {
-    .fabAddWorker {
-        right: calc(50% - 250px + 24px);
-    }
-}
-
 @media (max-width: 480px) {
+    .pageHeader {
+        margin: var(--spacing-md) 0 var(--spacing-sm);
+    }
+
+    .pageTitle {
+        font-size: var(--font-size-xl);
+    }
+
+    .addBtn {
+        padding: 9px 14px;
+        font-size: 13px;
+    }
+
+    .addBtn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .searchInput {
+        font-size: 14px;
+    }
+
+    .segment {
+        padding: 7px 14px;
+        font-size: 13px;
+    }
+
+    .workerListItem {
+        padding: 12px 14px;
+        gap: 12px;
+    }
+
+    .workerListAvatar {
+        width: 44px;
+        height: 44px;
+        font-size: 16px;
+    }
+
+    .workerListName {
+        font-size: 15px;
+    }
+
+    .workerListStatusText {
+        font-size: 12px;
+    }
+
     .workerDetailHeader {
         padding: var(--spacing-md) var(--spacing-md) var(--spacing-lg);
     }
@@ -1014,9 +1093,75 @@
     .workerStatusSection {
         padding: 0 var(--spacing-md) var(--spacing-md);
     }
+
+    .workerCalendar {
+        padding: var(--spacing-md);
+    }
+
+    .workerCalendarDay {
+        font-size: var(--font-size-sm);
+    }
 }
 
 @media (max-width: 400px) {
+    .addBtnLabel {
+        display: none;
+    }
+
+    .addBtn {
+        padding: 10px;
+        width: 40px;
+        height: 40px;
+        justify-content: center;
+    }
+
+    .addBtn svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .segmented {
+        align-self: stretch;
+        justify-content: space-between;
+    }
+
+    .segment {
+        flex: 1;
+        padding: 7px 8px;
+        font-size: 12px;
+    }
+
+    .workerListItem {
+        padding: 10px 12px;
+        gap: 10px;
+    }
+
+    .workerListAvatar {
+        width: 40px;
+        height: 40px;
+        font-size: 15px;
+    }
+
+    .workerListName {
+        font-size: 14px;
+    }
+
+    .workerListStatusText {
+        font-size: 12px;
+    }
+
+    .fabAddWorker {
+        width: 52px;
+        height: 52px;
+        bottom: 80px;
+        right: 16px;
+    }
+
+    .fabAddWorker svg {
+        width: 24px;
+        height: 24px;
+    }
+
     .workerDetailHeader {
         padding: 12px var(--spacing-sm) var(--spacing-md);
     }
@@ -1080,423 +1225,9 @@
         padding: 0 var(--spacing-sm) var(--spacing-md);
     }
 }
-/* ============================================================
-   СПИСОК РАБОТНИКОВ (ОДНА КОЛОНКА)
-   ============================================================ */
 
-.workersListContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 8px 0;
-}
-
-.workerListItem {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 16px 20px;
-    background: var(--bg-card);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
-    cursor: pointer;
-    transition: all var(--transition-normal);
-    width: 100%;
-}
-
-.workerListItem:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-}
-
-.workerListItem:active {
-    transform: scale(0.98);
-}
-
-/* ============================================================
-   АВАТАРКА В СПИСКЕ
-   ============================================================ */
-.workerListAvatar {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    font-weight: 600;
-    color: white;
-    flex-shrink: 0;
-    transition: all 0.3s ease;
-    border: 2.5px solid transparent;
-}
-
-/* ⭐ ОБВОДКА ДЛЯ АКТИВНЫХ — зеленая */
-.workerListAvatar.active {
-    border: 2.5px solid #2d7d46;
-    box-shadow: 0 0 12px rgba(45, 125, 70, 0.3);
-}
-
-/* ⭐ ОБВОДКА ДЛЯ НЕАКТИВНЫХ — серая */
-.workerListAvatar.inactive {
-    border: 2.5px solid #888888;
-    box-shadow: 0 0 8px rgba(136, 136, 136, 0.1);
-}
-
-/* ============================================================
-   ИНФОРМАЦИЯ О РАБОТНИКЕ
-   ============================================================ */
-
-.workerListInfo {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.workerListName {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text-primary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.workerListStatus {
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.5);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.workerListStatusDot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    box-shadow: 0 0 8px rgba(45, 125, 70, 0.4);
-}
-.workerListStatusDot.inactive {
-    box-shadow: 0 0 8px rgba(136, 136, 136, 0.3);
-}
-
-/* ============================================================
-   КНОПКА УДАЛЕНИЯ
-   ============================================================ */
-
-.workerListDeleteBtn {
-    background: none;
-    border: none;
-    padding: 8px;
-    cursor: pointer;
-    color: rgba(255, 255, 255, 0.25);
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.workerListDeleteBtn:hover {
-    color: rgba(255, 255, 255, 0.6);
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.workerListDeleteBtn:active {
-    transform: scale(0.85);
-}
-
-.workerListDeleteBtn svg {
-    stroke: currentColor;
-}
-
-/* ============================================================
-   ФИЛЬТРЫ
-   ============================================================ */
-
-.filterWrapper {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-}
-
-.filterLabel {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-muted);
-}
-
-.filterButtons {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-}
-
-.filterBtn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    border: 1.5px solid var(--border-color);
-    border-radius: 20px;
-    background: transparent;
-    color: var(--text-secondary);
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-}
-
-.filterBtn:hover {
-    border-color: var(--color-primary);
-    color: var(--text-primary);
-}
-
-.filterBtn.filterActive {
-    border-color: var(--color-primary);
-    background: var(--color-primary-light);
-    color: var(--color-primary);
-    font-weight: 600;
-}
-
-.filterDot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    display: inline-block;
-    flex-shrink: 0;
-}
-/* ============================================================
-   СТРАНИЦА БРИГАДЫ
-   ============================================================ */
-
-.pageTitle {
-    font-size: var(--font-size-2xl);
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: var(--spacing-lg) 0 var(--spacing-xs);
-}
-
-.pageSubtitle {
-    color: var(--text-secondary);
-    font-size: var(--font-size-md);
-    margin-bottom: var(--spacing-lg);
-}
-
-/* ============================================================
-   ФИЛЬТРЫ (НОВЫЙ СТИЛЬ)
-   ============================================================ */
-
-.filterWrapper {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-}
-
-.filterLabel {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-muted);
-}
-
-.filterButtons {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-}
-
-/* ⭐ НЕАКТИВНЫЙ ЧИПС — серый */
-.filterBtn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    border: 1.5px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.04);
-    color: rgba(255, 255, 255, 0.4);
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-}
-
-.filterBtn:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.6);
-}
-
-/* ⭐ АКТИВНЫЙ ЧИПС — почти белый фон, черный текст */
-.filterBtn.filterActive {
-    background: #f0f0f0;
-    color: #000000;
-    border-color: #f0f0f0;
-}
-
-.filterBtn.filterActive .filterDot {
-    box-shadow: 0 0 8px rgba(45, 125, 70, 0.5);
-}
-
-.filterBtn.filterActive .filterDotGray {
-    box-shadow: 0 0 8px rgba(136, 136, 136, 0.3);
-}
-
-/* ⭐ ТОЧКИ В ФИЛЬТРАХ СО СВЕЧЕНИЕМ */
-.filterDot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    display: inline-block;
-    flex-shrink: 0;
-    box-shadow: 0 0 6px rgba(45, 125, 70, 0.3);
-}
-
-.filterDotGray {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    display: inline-block;
-    flex-shrink: 0;
-    box-shadow: 0 0 6px rgba(136, 136, 136, 0.2);
-}
-
-/* ============================================================
-   СТАТУС В СПИСКЕ (ТОЧКА СО СВЕЧЕНИЕМ)
-   ============================================================ */
-
-.workerListStatusDot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    box-shadow: 0 0 8px rgba(45, 125, 70, 0.4);
-}
-
-.workerListStatusDot.inactive {
-    box-shadow: 0 0 8px rgba(136, 136, 136, 0.3);
-}
-
-/* ============================================================
-   МОДАЛКА УДАЛЕНИЯ
-   ============================================================ */
-
-.deleteModalOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-    animation: modalFadeIn 0.2s ease;
-}
-
-.deleteModal {
-    background: var(--bg-card);
-    border-radius: 16px;
-    padding: 28px 24px 24px;
-    max-width: 360px;
-    width: 90%;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    animation: modalScaleIn 0.25s ease;
-}
-
-@keyframes modalFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes modalScaleIn {
-    from {
-        opacity: 0;
-        transform: scale(0.95) translateY(8px);
+@media (min-width: 500px) {
+    .fabAddWorker {
+        right: calc(50% - 250px + 24px);
     }
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-}
-
-.deleteModalTitle {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text-primary);
-    text-align: center;
-    margin-bottom: 12px;
-}
-
-.deleteModalText {
-    font-size: 15px;
-    color: rgba(255, 255, 255, 0.7);
-    text-align: center;
-    line-height: 1.5;
-    margin-bottom: 24px;
-}
-
-.deleteModalText strong {
-    color: var(--text-primary);
-    font-weight: 600;
-}
-
-.deleteModalActions {
-    display: flex;
-    gap: 10px;
-}
-
-.deleteModalCancelBtn {
-    flex: 1;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.06);
-    border: none;
-    border-radius: 10px;
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.2s ease;
-}
-
-.deleteModalCancelBtn:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.deleteModalConfirmBtn {
-    flex: 1;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.08);
-    border: none;
-    border-radius: 10px;
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.2s ease;
-}
-
-.deleteModalConfirmBtn:hover {
-    background: rgba(255, 255, 255, 0.15);
-}
-
-.deleteModalConfirmBtn:active {
-    transform: scale(0.97);
 }
