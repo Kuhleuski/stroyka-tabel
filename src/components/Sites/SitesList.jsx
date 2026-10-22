@@ -52,7 +52,7 @@ export function SitesList({ sites, filter = 'all', onSiteClick }) {
     const getStatus = (status) => {
         switch (status) {
             case 'в работе':
-                return { label: 'В работе', color: 'rgb(43 198 13)' }
+                return { label: 'В работе', color: 'rgb(134 214 24)' }
             case 'завершен':
                 return { label: 'Завершен', color: 'rgb(149 149 149)' }
             default:

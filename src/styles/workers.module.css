@@ -6,7 +6,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: var(--spacing-lg) 0 var(--spacing-md);
+    margin: calc(var(--spacing-lg) + 5px) 0 var(--spacing-md);
+    padding-left: 6px;
     gap: 12px;
 }
 
@@ -242,7 +243,7 @@
 }
 
 .segmentActive {
-    background: #86d617;
+    background: #ececec;
     color: #121212;
     font-weight: 600;
 }
@@ -328,7 +329,7 @@
 
 /* ⭐ Работает — зелёный */
 .workerListStatusText.active {
-    color: rgba(44, 198, 13, 0.722);
+    color: rgb(134 214 24);
 }
 
 /* ⭐ Не работает — серый */
@@ -994,11 +995,12 @@
 
 @media (max-width: 480px) {
     .pageHeader {
-        margin: var(--spacing-md) 0 var(--spacing-sm);
+        margin: calc(var(--spacing-md) + 5px) 0 var(--spacing-sm);
+        padding-left: 6px;
     }
 
     .pageTitle {
-        font-size: var(--font-size-xl);
+        font-size: 24px;
     }
 
     .addBtn {

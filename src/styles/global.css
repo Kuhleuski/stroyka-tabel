@@ -17,7 +17,7 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: var(--font-family);
     background: var(--bg-body);
     color: var(--text-primary);
     padding-bottom: 80px;
@@ -61,4 +61,953 @@ body::-webkit-scrollbar {
     .header-brand .title {
         font-size: 17px;
     }
+}
+
+/* ============================================================
+   ТЕМНАЯ ТЕМА (ТОЛЬКО ОНА)
+   ============================================================ */
+
+:root {
+    --color-primary: #2d7d46;
+    --color-primary-hover: #236835;
+    --color-primary-light: #1a2a1e;
+    --color-primary-bg: #1a2a1e;
+    
+    --bg-body: #121212;
+    --bg-card: #1e1e1e;
+    --bg-input: #2d2d2d;
+    --bg-header: #1a1a1a;
+    --bg-nav: #1a1a1a;
+    
+    --text-primary: #f0f0f0;
+    --text-secondary: #aaaaaa;
+    --text-muted: #777777;
+    --text-light: #888888;
+    
+    --border-color: #333333;
+    --border-light: #2a2a2a;
+    --border-input: #444444;
+    
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.3);
+    --shadow-primary: 0 2px 8px rgba(45, 125, 70, 0.25);
+    --shadow-primary-lg: 0 4px 16px rgba(45, 125, 70, 0.35);
+    
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-full: 50px;
+    
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
+    --spacing-xl: 24px;
+    --spacing-2xl: 32px;
+    --spacing-3xl: 40px;
+    
+    --font-family: 'Golos Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-size-xs: 10px;
+    --font-size-sm: 12px;
+    --font-size-md: 14px;
+    --font-size-lg: 16px;
+    --font-size-xl: 20px;
+    --font-size-2xl: 22px;
+    --font-size-3xl: 28px;
+    
+    --transition-fast: 0.15s;
+    --transition-normal: 0.2s;
+    --transition-slow: 0.3s;
+    
+    --z-header: 25;
+    --z-nav: 25;
+    --z-fab: 15;
+    --z-modal: 1000;
+    --z-save-screen: 2000;
+    --z-shift-form: 1000;
+    
+    --max-width: 500px;
+}
+
+/* ============================================================
+   ПОЛНОЭКРАННАЯ МОДАЛКА (SettingsModal, AddSiteModal и т.д.)
+   ============================================================ */
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--bg-body);
+    z-index: 9999;
+    animation: modalFadeIn 0.25s ease;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modalContent {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: var(--bg-body);
+    max-width: var(--max-width);
+    margin: 0 auto;
+    width: 100%;
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: var(--spacing-xl);
+}
+
+.modalTitle {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.modalBody {
+    flex: 1;
+    padding: 0 var(--spacing-lg);
+    padding-bottom: 100px;
+}
+
+.modalError {
+    background: #ffebee;
+    color: #c62828;
+    padding: 10px var(--spacing-md);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.modalField {
+    margin-bottom: var(--spacing-xl);
+}
+
+.modalLabel {
+    display: block;
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.modalInput {
+    width: 100%;
+    padding: var(--spacing-md) var(--spacing-md);
+    border: 1.5px solid var(--border-input);
+    border-radius: 10px;
+    font-size: var(--font-size-lg);
+    font-family: inherit;
+    transition: var(--transition-normal);
+    background: var(--bg-input);
+    color: var(--text-primary);
+}
+
+.modalInput:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.modalInput[type="file"] {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.modalInput[type="file"]::-webkit-file-upload-button {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.modalInput[type="file"]::-webkit-file-upload-button:hover {
+    background: var(--color-primary-hover);
+}
+
+.modalFooter {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 12px var(--spacing-lg) 20px;
+    display: flex;
+    gap: 10px;
+    background: var(--bg-nav);
+    border-top: 1px solid var(--border-color);
+    z-index: 20;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.modalCancelBtn {
+    flex: 1;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-secondary);
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.modalCancelBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.modalSaveBtn {
+    flex: 1;
+    padding: 14px;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-primary);
+}
+
+.modalSaveBtn:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+    transform: scale(1.01);
+}
+
+.modalSaveBtn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+/* ============================================================
+   ПАЛИТРА ЦВЕТОВ
+   ============================================================ */
+
+.modalColorPalette {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.modalColorBtn {
+    width: 100%;
+    aspect-ratio: 1;
+    border: 3px solid transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.modalColorBtn:hover {
+    transform: scale(1.08);
+}
+
+.modalColorActive {
+    border-color: var(--text-primary);
+    box-shadow: 0 0 0 2px var(--bg-card), 0 0 0 4px var(--text-primary);
+}
+
+@media (min-width: 420px) {
+    .modalColorPalette {
+        grid-template-columns: repeat(10, 1fr);
+    }
+}
+
+/* ============================================================
+   СТАТУС В МОДАЛКЕ
+   ============================================================ */
+
+.modalStatusWrapper {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.modalStatusBtn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.25s ease;
+}
+
+.modalStatusBtn:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+}
+
+.modalStatusBtn:active {
+    transform: scale(0.97);
+}
+
+.modalStatusBtn.modalStatusActive {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+.modalStatusDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+@media (max-width: 400px) {
+    .modalStatusBtn {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+}
+
+/* ============================================================
+   МОДАЛКА НАСТРОЕК
+   ============================================================ */
+
+.modalFooterCenter {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 12px var(--spacing-lg) 20px;
+    display: flex;
+    justify-content: center;
+    background: var(--bg-nav);
+    border-top: 1px solid var(--border-color);
+    z-index: 20;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.modalCloseBtn {
+    padding: 12px 48px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-secondary);
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    min-width: 140px;
+}
+
+.modalCloseBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================================
+   НАСТРОЙКИ (внутри модалки)
+   ============================================================ */
+
+.settingsAvatarLarge {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--spacing-xl) auto;
+}
+
+.settingsAvatarLetter {
+    font-size: 36px;
+    font-weight: 700;
+    color: white;
+}
+
+.settingsField {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md) 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.settingsField:last-of-type {
+    border-bottom: none;
+}
+
+.settingsLabel {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.settingsValue {
+    font-size: 17px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.settingsLogoutBtn {
+    width: 100%;
+    padding: var(--spacing-md);
+    margin-top: var(--spacing-2xl);
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: var(--transition-normal);
+    box-shadow: var(--shadow-primary);
+}
+
+.settingsLogoutBtn:hover {
+    background: var(--color-primary-hover);
+    transform: scale(1.01);
+}
+
+.settingsLogoutBtn:active {
+    transform: scale(0.97);
+}
+
+/* ============================================================
+   ПОДТВЕРЖДЕНИЕ УДАЛЕНИЯ
+   ============================================================ */
+
+.confirmOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: var(--z-modal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
+}
+
+.confirmModal {
+    background: var(--bg-card);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-2xl) 28px var(--spacing-xl);
+    max-width: 340px;
+    width: 90%;
+    text-align: center;
+    box-shadow: var(--shadow-xl);
+    animation: slideUp 0.25s ease;
+}
+
+.confirmIconWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--spacing-md);
+    color: #c62828;
+}
+
+.confirmIconWrapper svg {
+    stroke: currentColor;
+}
+
+.confirmTitle {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.confirmText {
+    font-size: 15px;
+    color: #aaaaaa;
+    line-height: 1.5;
+    margin-bottom: var(--spacing-xl);
+}
+
+.confirmText strong {
+    color: var(--text-primary);
+}
+
+.confirmButtons {
+    display: flex;
+    gap: 10px;
+}
+
+.confirmBtn {
+    flex: 1;
+    padding: var(--spacing-md);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: var(--transition-normal);
+}
+
+.confirmBtn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.confirmBtn.cancel {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-secondary);
+}
+
+.confirmBtn.cancel:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.confirmBtn.delete {
+    background: #c62828;
+    color: white;
+}
+
+.confirmBtn.delete:hover:not(:disabled) {
+    background: #b71c1c;
+}
+
+/* ============================================================
+   СТРАНИЦЫ SALARY, EXTRA, NOTIFICATIONS
+   ============================================================ */
+
+.salaryPage,
+.extraPage,
+.notificationsPage {
+    animation: fadeIn 0.25s ease;
+}
+
+.salaryHeader,
+.extraHeader,
+.notificationsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-xs) var(--spacing-lg) var(--spacing-xs);
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: var(--spacing-xl);
+}
+
+.salaryTitle,
+.extraTitle,
+.notificationsTitle {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.notificationsClose {
+    background: var(--color-primary);
+    border: none;
+    font-size: 24px;
+    font-weight: 400;
+    color: white;
+    cursor: pointer;
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: 30px;
+    transition: var(--transition-normal);
+    line-height: 1.4;
+    min-width: 40px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-primary);
+}
+
+.notificationsClose:hover {
+    background: var(--color-primary-hover);
+    transform: scale(1.05);
+}
+
+.salaryContent,
+.extraContent,
+.notificationsContent {
+    padding: 0 var(--spacing-xs);
+}
+
+.notificationsEmpty {
+    text-align: center;
+    padding: 60px var(--spacing-xl);
+}
+
+.notificationsEmptyIcon {
+    font-size: 48px;
+    margin-bottom: var(--spacing-md);
+}
+
+.notificationsEmptyText {
+    font-size: var(--font-size-lg);
+    color: var(--text-muted);
+}
+
+.notificationsItem {
+    display: flex;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-md);
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-sm);
+    box-shadow: var(--shadow-sm);
+}
+
+.notificationsItemDot {
+    width: 8px;
+    min-width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    margin-top: 6px;
+}
+
+.notificationsItemContent {
+    flex: 1;
+}
+
+.notificationsItemTitle {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.notificationsItemMessage {
+    font-size: var(--font-size-md);
+    color: #aaaaaa;
+    margin-top: 2px;
+}
+
+.notificationsItemTime {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    margin-top: var(--spacing-xs);
+}
+
+.emptyState {
+    text-align: center;
+    padding: 40px var(--spacing-xl);
+}
+
+.emptyIcon {
+    font-size: 48px;
+    margin-bottom: var(--spacing-md);
+}
+
+.emptyText {
+    font-size: var(--font-size-lg);
+    color: var(--text-muted);
+}
+
+/* ============================================================
+   АНИМАЦИИ
+   ============================================================ */
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================================
+   ПЛАВАЮЩАЯ КНОПКА (FAB)
+   ============================================================ */
+
+.fabAddShift {
+    position: fixed;
+    bottom: 95px;
+    right: 24px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 16px rgba(45, 125, 70, 0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    z-index: 210;
+    padding: 0;
+}
+
+.fabAddShift:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 24px rgba(45, 125, 70, 0.5);
+}
+
+.fabAddShift:active {
+    transform: scale(0.92);
+}
+
+.fabAddShift svg {
+    color: white;
+}
+
+/* ============================================================
+   ЭКРАН СОХРАНЕНИЯ
+   ============================================================ */
+
+.savingScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--bg-body);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--z-save-screen);
+    animation: savingFadeIn 0.4s ease;
+}
+
+.savingContent {
+    text-align: center;
+    padding: var(--spacing-3xl);
+    animation: savingScaleIn 0.5s ease;
+}
+
+.savingSpinner {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin: 0 auto var(--spacing-2xl);
+}
+
+.savingDot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    animation: dotBounce 1.4s ease-in-out infinite both;
+}
+
+.savingDot:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.savingDot:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+.savingDot:nth-child(3) {
+    animation-delay: 0s;
+}
+
+@keyframes dotBounce {
+    0%, 80%, 100% {
+        transform: scale(0);
+        opacity: 0.3;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.savingTitle {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 var(--spacing-sm) 0;
+    animation: savingTextPulse 2s ease-in-out infinite;
+}
+
+.savingText {
+    font-size: var(--font-size-md);
+    color: var(--text-secondary);
+    margin: 0;
+    animation: savingTextPulse 2s ease-in-out infinite 0.3s;
+}
+
+@keyframes savingFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes savingScaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.92);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes savingTextPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* ============================================================
+   СТРАНИЦА УВЕДОМЛЕНИЙ (дополнительные стили)
+   ============================================================ */
+
+.notificationsHeaderActions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.notificationsMarkAllRead {
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: background 0.15s ease;
+    font-family: inherit;
+}
+
+.notificationsMarkAllRead:hover {
+    background: var(--color-primary-light);
+}
+
+.notificationsItemUnread {
+    border-left: 3px solid var(--color-primary);
+    background: var(--color-primary-bg);
+}
+
+.notificationsItemUnread:hover {
+    background: var(--color-primary-light);
+}
+
+.notificationsItemDetails {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.notificationsItemDetails span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ============================================================
+   PHONE INPUT (react-phone-number-input) — без флага
+   ============================================================ */
+
+.phoneInput {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 16px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    outline: none;
+    display: flex;
+    align-items: center;
+}
+
+.phoneInput:focus {
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Скрываем флаг и выбор страны */
+.phoneInput :global(.PhoneInputCountry) {
+    display: none !important;
+}
+
+.phoneInput :global(.PhoneInputInput) {
+    background: transparent !important;
+    border: none !important;
+    color: #fff !important;
+    font-size: 16px !important;
+    font-family: inherit !important;
+    outline: none !important;
+    padding: 0 !important;
+    flex: 1 !important;
+    width: 100% !important;
+}
+
+/* ============================================================
+   SELECT (для модалок)
+   ============================================================ */
+
+.modalSelect {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.5)' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    cursor: pointer;
+}
+
+.modalSelect:focus {
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.modalSelect option {
+    background: #1e1e1e;
+    color: #fff;
 }
