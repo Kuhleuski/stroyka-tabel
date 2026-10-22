@@ -16,7 +16,6 @@ import globalsStyles from '../styles/globals.module.css'
 
 const SEARCH_DEBOUNCE = 250
 
-// Каждое слово запроса встречается в имени (в любом порядке)
 const matchesQuery = (worker, query) => {
     const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean)
     if (words.length === 0) return true
@@ -40,14 +39,11 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
     const [refreshKey, setRefreshKey] = useState(0)
     const [isSaving, setIsSaving] = useState(false)
 
-    // Фильтр статуса
-    const [filterStatus, setFilterStatus] = useState('all') // 'all' | 'active' | 'inactive'
+    const [filterStatus, setFilterStatus] = useState('all')
 
-    // Модалка архивации
     const [showArchiveModal, setShowArchiveModal] = useState(false)
     const [workerToArchive, setWorkerToArchive] = useState(null)
 
-    // Поиск
     const [searchInput, setSearchInput] = useState('')
     const [searchQuery, setSearchQuery] = useState('')
     const [isFocused, setIsFocused] = useState(false)
@@ -58,13 +54,11 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
     const { sites, archivedSites } = useSites()
     const { refreshAvatars } = useAvatars()
 
-    // Debounce
     useEffect(() => {
         const t = setTimeout(() => setSearchQuery(searchInput), SEARCH_DEBOUNCE)
         return () => clearTimeout(t)
     }, [searchInput])
 
-    // Клик вне — закрыть подсказки
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (searchWrapRef.current && !searchWrapRef.current.contains(e.target)) {
@@ -76,7 +70,6 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
         return () => document.removeEventListener('mousedown', handleClickOutside)
     }, [])
 
-    // Подсказки
     const suggestions = useMemo(() => {
         const q = searchInput.trim()
         if (!q) return []
@@ -87,7 +80,6 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
 
     const showSuggestions = isFocused && searchInput.trim().length > 0
 
-    // Позиция выпадашки
     useEffect(() => {
         if (!showSuggestions) {
             setDropdownRect(null)
@@ -121,7 +113,6 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
         handleWorkerClick(worker)
     }
 
-    // Подсветка всех вхождений всех слов
     const highlightMatch = (text, query) => {
         if (!text) return text
         const q = query.trim()
@@ -243,7 +234,16 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
         } catch (error) {
             console.error('❌ Ошибка архивации:', error)
             alert('Не удалось архивировать работника: ' + error.message)
+            throw error
         }
+    }
+
+    // Вызывается из WorkerStatsPage из пункта «Удалить работника».
+    // После удаления закрываем страницу работника, чтобы вернуться к списку.
+    const handleArchiveFromStats = async (workerId) => {
+        await handleArchive(workerId)
+        // Страница закроется в WorkerStatsPage после успеха, но на всякий случай
+        // ничего тут дополнительно не делаем — onClose там уже вызовется.
     }
 
     const handleWorkerClick = (worker) => {
@@ -285,7 +285,6 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
         setWorkerToArchive(null)
     }
 
-    // === ФИЛЬТРАЦИЯ СПИСКА (поиск + статус) ===
     const filteredWorkers = useMemo(() => {
         let list = workers || []
         if (searchQuery.trim()) {
@@ -322,6 +321,7 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
                         onClose={handleCloseDetail}
                         onEdit={handleOpenEditModal}
                         onRefresh={forceRefresh}
+                        onArchive={handleArchiveFromStats}
                     />
                     <EditWorkerModal
                         isOpen={showEditModal}
@@ -405,15 +405,6 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
                         )}
                     </div>
 
-                    {/* ⭐ FAB временно скрыт (не удалён) */}
-                    {/* <button
-                        className={styles.fabAddWorker}
-                        onClick={handleOpenAddModal}
-                        aria-label="Добавить работника"
-                    >
-                        <Plus size={28} strokeWidth={2.5} />
-                    </button> */}
-
                     <AddWorkerModal
                         isOpen={showAddModal}
                         onClose={() => setShowAddModal(false)}
@@ -443,7 +434,6 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
                         </div>
                     )}
 
-                    {/* Подсказки — через портал */}
                     {showSuggestions && dropdownRect && createPortal(
                         <div
                             data-workers-suggestions

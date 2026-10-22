@@ -8,11 +8,11 @@ import 'react-calendar/dist/Calendar.css'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { ru } from 'date-fns/locale'
-import { Ellipsis, PersonPencil, ArrowsRotateLeft, Calendar as CalendarIcon, Wallet, ArrowLeft } from '@gravity-ui/icons'
+import { Ellipsis, PersonPencil, ArrowsRotateLeft, Calendar as CalendarIcon, Wallet, ArrowLeft, TrashBin } from '@gravity-ui/icons'
 import styles from '../styles/workerStats.module.css'
 import { WorkerStatsFooter } from '../components/WorkerStatsFooter'
 
-export function WorkerStatsPage({ worker, shifts, sites, archivedSites = [], onClose, onEdit, onRefresh }) {
+export function WorkerStatsPage({ worker, shifts, sites, archivedSites = [], onClose, onEdit, onRefresh, onArchive }) {
     const { getAvatar } = useAvatars()
     const [activeTab, setActiveTab] = useState('month')
 
@@ -20,6 +20,10 @@ export function WorkerStatsPage({ worker, shifts, sites, archivedSites = [], onC
     const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const menuRef = useRef(null)
+
+    // Модалка удаления
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
+    const [isDeleting, setIsDeleting] = useState(false)
 
     const [periodStart, setPeriodStart] = useState(null)
     const [periodEnd, setPeriodEnd] = useState(null)
@@ -160,6 +164,33 @@ export function WorkerStatsPage({ worker, shifts, sites, archivedSites = [], onC
     const handleEditProfile = () => {
         setIsMenuOpen(false)
         if (onEdit && worker) onEdit(worker)
+    }
+
+    const handleOpenDeleteModal = () => {
+        setIsMenuOpen(false)
+        setShowDeleteModal(true)
+    }
+
+    const handleCancelDelete = () => {
+        if (isDeleting) return
+        setShowDeleteModal(false)
+    }
+
+    const handleConfirmDelete = async () => {
+        if (!worker || isDeleting) return
+        setIsDeleting(true)
+        try {
+            if (onArchive) {
+                await onArchive(worker.id)
+            }
+            setShowDeleteModal(false)
+            if (onClose) onClose()
+        } catch (error) {
+            console.error('❌ Ошибка удаления работника:', error)
+            alert('Не удалось удалить работника: ' + (error?.message || 'неизвестная ошибка'))
+        } finally {
+            setIsDeleting(false)
+        }
     }
 
     const toggleSite = (siteId) => {
@@ -400,12 +431,6 @@ export function WorkerStatsPage({ worker, shifts, sites, archivedSites = [], onC
         )
     }
 
-    const formatDateDisplayFull = (dateStr) => {
-        const parts = dateStr.split('-')
-        const date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]))
-        return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
-    }
-
     const handleDragEnd = (event, info) => {
         if (Math.abs(info.offset.y) > Math.abs(info.offset.x)) return
         const threshold = 30
@@ -612,145 +637,158 @@ export function WorkerStatsPage({ worker, shifts, sites, archivedSites = [], onC
 
     return (
         <div className={styles.workerStatsPage}>
-            {/* ХЕДЕР: стрелка назад слева, аватар, имя/статус, кнопка «⋯» справа */}
-            <div className={styles.workerStatsHeader}>
-                <button
-    className={styles.workerStatsBackArrowBtn}
-    onClick={onClose}
-    aria-label="Назад"
->
-    <span className={styles.workerStatsBackArrowIcon}>
-        <ArrowLeft />
-    </span>
-</button>
+            <div className={styles.workerStatsTopBar}>
+                <div className={styles.workerStatsHeader}>
+                    <button
+                        className={styles.workerStatsBackArrowBtn}
+                        onClick={onClose}
+                        aria-label="Назад"
+                    >
+                        <span className={styles.workerStatsBackArrowIcon}>
+                            <ArrowLeft />
+                        </span>
+                    </button>
 
-                <div className={styles.workerStatsAvatarWrapper}>
-                    <div className={styles.workerStatsAvatar}>
-                        {hasPhoto ? (
-                            <img src={avatarUrl} alt={worker.name} />
-                        ) : (
-                            <span style={{ background: avatarColor }}>{initials}</span>
+                    <div className={styles.workerStatsAvatarWrapper}>
+                        <div className={styles.workerStatsAvatar}>
+                            {hasPhoto ? (
+                                <img src={avatarUrl} alt={worker.name} />
+                            ) : (
+                                <span style={{ background: avatarColor }}>{initials}</span>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className={styles.workerStatsInfo}>
+                        <span className={styles.workerStatsName}>{worker.name}</span>
+                        <div className={styles.workerStatsStatusRow}>
+                            <span className={styles.workerStatsStatusLabel}>Статус: </span>
+                            <span className={styles.workerStatsStatusText}>
+                                <span className={`${styles.statusText} ${status === 'active' ? styles.statusActive : styles.statusInactive}`}>
+                                    {status === 'active' ? 'Работает' : 'Не работает'}
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className={styles.workerStatsMenuWrapper} ref={menuRef}>
+                        <button
+                            className={styles.workerStatsMenuBtn}
+                            onClick={() => setIsMenuOpen(prev => !prev)}
+                            aria-label="Меню"
+                            aria-haspopup="menu"
+                            aria-expanded={isMenuOpen}
+                        >
+                            <span className={styles.workerStatsMenuIcon}>
+                                <Ellipsis />
+                            </span>
+                        </button>
+
+                        {isMenuOpen && (
+                            <div className={styles.workerStatsDropdown} role="menu">
+                                <button
+                                    className={styles.workerStatsDropdownItem}
+                                    onClick={handleEditProfile}
+                                    role="menuitem"
+                                >
+                                    <span className={styles.workerStatsDropdownItemIcon}>
+                                        <PersonPencil />
+                                    </span>
+                                    <span className={styles.workerStatsDropdownItemText}>
+                                        Редактировать профиль
+                                    </span>
+                                </button>
+
+                                <div className={styles.workerStatsDropdownDivider} />
+
+                                <button
+                                    className={`${styles.workerStatsDropdownItem} ${styles.workerStatsDropdownItemStatus}`}
+                                    onClick={handleStatusToggle}
+                                    disabled={isUpdatingStatus}
+                                    role="menuitem"
+                                >
+                                    <span className={styles.workerStatsDropdownItemIcon}>
+                                        <ArrowsRotateLeft />
+                                    </span>
+                                    <span className={styles.workerStatsDropdownItemText}>
+                                        <span className={styles.workerStatsDropdownItemTitle}>Установить статус:</span>
+                                        <span
+                                            className={`${styles.workerStatsDropdownItemStatusValue} ${status === 'active' ? styles.statusInactive : styles.statusActive}`}
+                                        >
+                                            {isUpdatingStatus
+                                                ? 'Обновление…'
+                                                : (status === 'active' ? 'Не работает' : 'Работает')}
+                                        </span>
+                                    </span>
+                                </button>
+
+                                <div className={styles.workerStatsDropdownDivider} />
+
+                                <button
+                                    className={`${styles.workerStatsDropdownItem} ${styles.workerStatsDropdownItemDanger}`}
+                                    onClick={handleOpenDeleteModal}
+                                    role="menuitem"
+                                >
+                                    <span className={styles.workerStatsDropdownItemIcon}>
+                                        <TrashBin />
+                                    </span>
+                                    <span className={styles.workerStatsDropdownItemText}>
+                                        Удалить работника
+                                    </span>
+                                </button>
+                            </div>
                         )}
                     </div>
                 </div>
 
-                <div className={styles.workerStatsInfo}>
-                    <span className={styles.workerStatsName}>{worker.name}</span>
-                    <div className={styles.workerStatsStatusRow}>
-                        <span className={styles.workerStatsStatusLabel}>Статус: </span>
-                        <span className={styles.workerStatsStatusText}>
-                            <span className={`${styles.statusText} ${status === 'active' ? styles.statusActive : styles.statusInactive}`}>
-                                {status === 'active' ? 'Работает' : 'Не работает'}
-                            </span>
+                <div className={styles.workerStatsTabs}>
+                    <button
+                        className={`${styles.workerStatsTab} ${activeTab === 'month' ? styles.active : ''}`}
+                        onClick={() => setActiveTab('month')}
+                    >
+                        <span className={styles.workerStatsTabIcon}>
+                            <CalendarIcon />
                         </span>
-                    </div>
+                        <span className={styles.workerStatsTabLabel}>Рабочие дни</span>
+                    </button>
+                    <button
+                        className={`${styles.workerStatsTab} ${activeTab === 'salary' ? styles.active : ''}`}
+                        onClick={() => setActiveTab('salary')}
+                    >
+                        <span className={styles.workerStatsTabIcon}>
+                            <Wallet />
+                        </span>
+                        <span className={styles.workerStatsTabLabel}>Зарплата</span>
+                    </button>
                 </div>
 
-                <div className={styles.workerStatsMenuWrapper} ref={menuRef}>
-                    <button
-                        className={styles.workerStatsMenuBtn}
-                        onClick={() => setIsMenuOpen(prev => !prev)}
-                        aria-label="Меню"
-                        aria-haspopup="menu"
-                        aria-expanded={isMenuOpen}
-                    >
-                        <span className={styles.workerStatsMenuIcon}>
-                            <Ellipsis />
-                        </span>
-                    </button>
-
-                    {isMenuOpen && (
-                        <div className={styles.workerStatsDropdown} role="menu">
+                {activeTab === 'month' && (
+                    <div className={styles.workPeriodRow}>
+                        <span className={styles.workPeriodCaption}>Показать:</span>
+                        <div className={styles.workPeriodChips}>
                             <button
-                                className={styles.workerStatsDropdownItem}
-                                onClick={handleEditProfile}
-                                role="menuitem"
+                                className={`${styles.workPeriodChip} ${workPeriodMode === 'month' ? styles.active : ''}`}
+                                onClick={() => setWorkPeriodMode('month')}
                             >
-                                <span className={styles.workerStatsDropdownItemIcon}>
-                                    <PersonPencil />
-                                </span>
-                                <span className={styles.workerStatsDropdownItemText}>
-                                    Редактировать профиль
-                                </span>
+                                За месяц
                             </button>
-
-                            <div className={styles.workerStatsDropdownDivider} />
-
                             <button
-                                className={`${styles.workerStatsDropdownItem} ${styles.workerStatsDropdownItemStatus}`}
-                                onClick={handleStatusToggle}
-                                disabled={isUpdatingStatus}
-                                role="menuitem"
+                                className={`${styles.workPeriodChip} ${workPeriodMode === 'quarter' ? styles.active : ''}`}
+                                onClick={() => setWorkPeriodMode('quarter')}
                             >
-                                <span className={styles.workerStatsDropdownItemIcon}>
-                                    <ArrowsRotateLeft />
-                                </span>
-                                <span className={styles.workerStatsDropdownItemText}>
-                                    <span className={styles.workerStatsDropdownItemTitle}>Установить статус:</span>
-                                    <span
-                                        className={`${styles.workerStatsDropdownItemStatusValue} ${status === 'active' ? styles.statusInactive : styles.statusActive}`}
-                                    >
-                                        {isUpdatingStatus
-                                            ? 'Обновление…'
-                                            : (status === 'active' ? 'Не работает' : 'Работает')}
-                                    </span>
-                                </span>
+                                За квартал
+                            </button>
+                            <button
+                                className={`${styles.workPeriodChip} ${workPeriodMode === 'all' ? styles.active : ''}`}
+                                onClick={() => setWorkPeriodMode('all')}
+                            >
+                                За весь период
                             </button>
                         </div>
-                    )}
-                </div>
-            </div>
-
-            {/* ВКЛАДКИ — сегмент-контрол, с иконками */}
-            <div className={styles.workerStatsTabs}>
-                <button
-                    className={`${styles.workerStatsTab} ${activeTab === 'month' ? styles.active : ''}`}
-                    onClick={() => setActiveTab('month')}
-                >
-                    <span className={styles.workerStatsTabIcon}>
-                        <CalendarIcon />
-                    </span>
-                    <span className={styles.workerStatsTabLabel}>Рабочие дни</span>
-                </button>
-                <button
-                    className={`${styles.workerStatsTab} ${activeTab === 'salary' ? styles.active : ''}`}
-                    onClick={() => setActiveTab('salary')}
-                >
-                    <span className={styles.workerStatsTabIcon}>
-                        <Wallet />
-                    </span>
-                    <span className={styles.workerStatsTabLabel}>Зарплата</span>
-                </button>
-            </div>
-
-            {/* Показать: + чипсы с горизонтальным скроллом */}
-            {activeTab === 'month' && (
-                <div className={styles.workPeriodRow}>
-                    <span className={styles.workPeriodCaption}>Показать:</span>
-                    <div className={styles.workPeriodChips}>
-                        <button
-                            className={`${styles.workPeriodChip} ${workPeriodMode === 'month' ? styles.active : ''}`}
-                            onClick={() => setWorkPeriodMode('month')}
-                        >
-                            За месяц
-                        </button>
-                        <button
-                            className={`${styles.workPeriodChip} ${workPeriodMode === 'quarter' ? styles.active : ''}`}
-                            onClick={() => setWorkPeriodMode('quarter')}
-                        >
-                            За квартал
-                        </button>
-                        <button
-                            className={`${styles.workPeriodChip} ${workPeriodMode === 'all' ? styles.active : ''}`}
-                            onClick={() => setWorkPeriodMode('all')}
-                        >
-                            За весь период
-                        </button>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
 
-            {/* КОНТЕНТ */}
             <div className={styles.workerStatsContent}>
                 {activeTab === 'month' && (
                     <div className={styles.tabContent}>
@@ -1040,6 +1078,44 @@ export function WorkerStatsPage({ worker, shifts, sites, archivedSites = [], onC
                     </div>
                 )}
             </div>
+
+            {/* Модалка удаления (в стиле проекта) */}
+            {showDeleteModal && (
+                <div
+                    className={styles.workerStatsDeleteModalOverlay}
+                    onClick={handleCancelDelete}
+                >
+                    <div
+                        className={styles.workerStatsDeleteModal}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className={styles.workerStatsDeleteModalTitle}>Удалить работника</div>
+                        <div className={styles.workerStatsDeleteModalText}>
+                            Вы уверены, что хотите удалить <strong>{worker.name}</strong>?
+                            <br />
+                            <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)' }}>
+                                Работник будет перемещён в архив.
+                            </span>
+                        </div>
+                        <div className={styles.workerStatsDeleteModalActions}>
+                            <button
+                                className={styles.workerStatsDeleteModalCancelBtn}
+                                onClick={handleCancelDelete}
+                                disabled={isDeleting}
+                            >
+                                Отмена
+                            </button>
+                            <button
+                                className={styles.workerStatsDeleteModalConfirmBtn}
+                                onClick={handleConfirmDelete}
+                                disabled={isDeleting}
+                            >
+                                {isDeleting ? 'Удаление…' : 'Удалить'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <WorkerStatsFooter onEdit={onEdit} onClose={onClose} worker={worker} />
         </div>

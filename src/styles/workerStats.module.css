@@ -12,7 +12,18 @@
 }
 
 /* ============================================================
-   СТРОКА "НАЗАД" — больше не рендерится, оставлено на случай возврата
+   УЗКИЙ ВЕРХНИЙ БЛОК (стрелка → аватар → инфо → меню → табы → чипсы)
+   ============================================================ */
+
+.workerStatsTopBar {
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+/* ============================================================
+   СТРОКА "НАЗАД" — больше не рендерится
    ============================================================ */
 
 .backRow {
@@ -61,7 +72,7 @@
 }
 
 /* ============================================================
-   КНОПКА НАЗАД (старая — оставлена на случай возврата)
+   КНОПКА НАЗАД (старая)
    ============================================================ */
 
 .workerStatsBackBtn {
@@ -288,7 +299,6 @@
     color: #fff;
 }
 
-/* Оставлено на случай возврата бейджа */
 .workerStatsEditBadge {
     position: absolute;
     bottom: -2px;
@@ -311,7 +321,6 @@
     height: 14px;
 }
 
-/* Старые стили кнопки-карандаша — оставлены на случай возврата */
 .workerStatsEditBtn {
     flex-shrink: 0;
     width: 48px;
@@ -503,7 +512,7 @@
 }
 
 /* ============================================================
-   TABS — сегмент-контрол, увеличенный текст + иконки
+   TABS
    ============================================================ */
 
 .workerStatsTabs {
@@ -540,7 +549,7 @@
 
 .workerStatsTab:hover:not(.active) {
     color: rgba(255, 255, 255, 0.95);
-    background: rgba(255, 255, 255, 0.04);
+    background: #414141;
 }
 
 .workerStatsTab.active {
@@ -628,7 +637,7 @@
 }
 
 /* ============================================================
-   MONTH (старые стили оставлены на случай возврата)
+   MONTH
    ============================================================ */
 
 .monthTitle {
@@ -1514,7 +1523,7 @@
 }
 
 /* ============================================================
-   СПИСОК ОБЪЕКТОВ — УВЕЛИЧЕННЫЙ ТЕКСТ
+   СПИСОК ОБЪЕКТОВ
    ============================================================ */
 
 .siteAccordion {
@@ -1927,7 +1936,7 @@
 }
 
 /* ============================================================
-   «Показать:» + чипсы — горизонтальный скролл
+   «Показать:» + чипсы — горизонтальный скролл, СКРЫТЫЙ скроллбар
    ============================================================ */
 
 .workPeriodRow {
@@ -1945,34 +1954,29 @@
     line-height: 1.2;
     flex-shrink: 0;
     white-space: nowrap;
+    margin-left: 15px;
 }
 
 .workPeriodChips {
     display: flex;
     flex-wrap: nowrap;
     gap: 8px;
-    padding: 0 0 4px 0;
+    padding: 0;
     margin: 0;
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    /* Скрываем полосу прокрутки во всех движках */
+    scrollbar-width: none;       /* Firefox */
+    -ms-overflow-style: none;    /* IE/старый Edge */
     min-width: 0;
     flex: 1;
 }
 
 .workPeriodChips::-webkit-scrollbar {
-    height: 4px;
-}
-
-.workPeriodChips::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.workPeriodChips::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 4px;
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 .workPeriodChip {
@@ -2109,7 +2113,6 @@
     box-sizing: border-box !important;
 }
 
-/* Числа в квартале: без тени, размер меньше на 1px */
 .quarterCalendarWrapper :global(.react-calendar__tile abbr) {
     color: #ffffff !important;
     font-weight: 600 !important;
@@ -2128,7 +2131,6 @@
     text-shadow: none !important;
 }
 
-/* Точка "сегодня" в квартале отключена */
 .quarterCalendarWrapper :global(.react-calendar__tile.today-day)::after {
     content: none !important;
     display: none !important;
@@ -2343,14 +2345,14 @@
     }
 
     .workerStatsBackArrowBtn {
-        width: 34px;
-        height: 34px;
+        width: 44px;
+        height: 44px;
     }
 
     .workerStatsBackArrowIcon,
     .workerStatsBackArrowIcon svg {
-        width: 20px !important;
-        height: 20px !important;
+        width: 24px !important;
+        height: 24px !important;
     }
 
     .workerStatsAvatar {
@@ -2404,4 +2406,147 @@
         right: 0;
         left: auto;
     }
+}
+/* ============================================================
+   ПУНКТ МЕНЮ "УДАЛИТЬ" — красноватый ховер
+   ============================================================ */
+
+.workerStatsDropdownItemDanger {
+    color: #e57373;
+}
+
+.workerStatsDropdownItemDanger .workerStatsDropdownItemIcon svg {
+    color: #e57373;
+}
+
+.workerStatsDropdownItemDanger:hover:not(:disabled) {
+    background: rgba(229, 115, 115, 0.12);
+    color: #ff8a80;
+}
+
+.workerStatsDropdownItemDanger:hover:not(:disabled) .workerStatsDropdownItemIcon svg {
+    color: #ff8a80;
+}
+
+.workerStatsDropdownItemDanger:active:not(:disabled) {
+    background: rgba(229, 115, 115, 0.18);
+}
+
+/* ============================================================
+   МОДАЛКА УДАЛЕНИЯ РАБОТНИКА (в стиле deleteModal)
+   ============================================================ */
+
+.workerStatsDeleteModalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: workerStatsModalFadeIn 0.2s ease;
+}
+
+.workerStatsDeleteModal {
+    background: #1e1e1e;
+    border-radius: 16px;
+    padding: 28px 24px 24px;
+    max-width: 360px;
+    width: 90%;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: workerStatsModalScaleIn 0.25s ease;
+}
+
+@keyframes workerStatsModalFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes workerStatsModalScaleIn {
+    from { opacity: 0; transform: scale(0.95) translateY(8px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.workerStatsDeleteModalTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.workerStatsDeleteModalText {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+.workerStatsDeleteModalText strong {
+    color: #fff;
+    font-weight: 600;
+}
+
+.workerStatsDeleteModalActions {
+    display: flex;
+    gap: 10px;
+}
+
+.workerStatsDeleteModalCancelBtn {
+    flex: 1;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    border: none;
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.workerStatsDeleteModalCancelBtn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.workerStatsDeleteModalCancelBtn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.workerStatsDeleteModalConfirmBtn {
+    flex: 1;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.workerStatsDeleteModalConfirmBtn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.workerStatsDeleteModalConfirmBtn:active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+.workerStatsDeleteModalConfirmBtn:disabled {
+    opacity: 0.6;
+    cursor: default;
 }
