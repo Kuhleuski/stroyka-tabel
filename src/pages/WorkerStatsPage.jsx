@@ -40,6 +40,8 @@ export function WorkerStatsPage({ worker, shifts, sites, archivedSites = [], onC
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const dropdownRef = useRef(null)
 
+    const chipsRef = useRef(null)
+
     const [tempStartDate, setTempStartDate] = useState(null)
     const [tempEndDate, setTempEndDate] = useState(null)
 
@@ -104,6 +106,57 @@ export function WorkerStatsPage({ worker, shifts, sites, archivedSites = [], onC
         return () => document.removeEventListener('mousedown', handleClickOutside)
     }, [])
 
+    useEffect(() => {
+        if (activeTab !== 'month') return
+        const container = chipsRef.current
+        if (!container) return
+        const active = container.querySelector('[data-mode-active="true"]')
+        if (!active) return
+
+        const LEFT_FADE = 16
+        const RIGHT_FADE = 32
+
+        const containerRect = container.getBoundingClientRect()
+        const chipRect = active.getBoundingClientRect()
+
+        const visibleLeft = containerRect.left + LEFT_FADE
+        const visibleRight = containerRect.right - RIGHT_FADE
+
+        if (chipRect.left < visibleLeft) {
+            const delta = visibleLeft - chipRect.left
+            container.scrollBy({ left: -delta, behavior: 'smooth' })
+        } else if (chipRect.right > visibleRight) {
+            const delta = chipRect.right - visibleRight
+            container.scrollBy({ left: delta, behavior: 'smooth' })
+        }
+    }, [workPeriodMode, activeTab])
+
+    useEffect(() => {
+        if (activeTab !== 'month') return
+        const container = chipsRef.current
+        if (!container) return
+
+        const updateFades = () => {
+            const hasLeft = container.scrollLeft > 1
+            const hasRight = container.scrollLeft < container.scrollWidth - container.clientWidth - 1
+            container.classList.toggle(styles.workPeriodChipsFadeLeft, hasLeft)
+            container.classList.toggle(styles.workPeriodChipsNoFadeRight, !hasRight)
+        }
+
+        updateFades()
+        container.addEventListener('scroll', updateFades, { passive: true })
+
+        const ro = new ResizeObserver(updateFades)
+        ro.observe(container)
+
+        return () => {
+            container.removeEventListener('scroll', updateFades)
+            ro.disconnect()
+            container.classList.remove(styles.workPeriodChipsFadeLeft)
+            container.classList.remove(styles.workPeriodChipsNoFadeRight)
+        }
+    }, [activeTab, workPeriodMode])
+
     const workerShifts = useMemo(() => {
         if (!shifts || !worker) return []
         return shifts.filter(s => s.worker_id === worker.id)
@@ -119,7 +172,6 @@ export function WorkerStatsPage({ worker, shifts, sites, archivedSites = [], onC
         return 'рабочих дней'
     }
 
-    // Только для блока расшифровки (месяц/квартал) — без слова «рабочих»
     const getDaysWord = (count) => {
         if (count === 0) return 'дней'
         const lastDigit = count % 10
@@ -635,6 +687,15 @@ export function WorkerStatsPage({ worker, shifts, sites, archivedSites = [], onC
 
     const quarterLabelParts = getQuarterLabelParts(currentQuarterStart)
 
+    // Склонение для счётчика объектов на вкладке «За весь период»
+    const getObjectsWord = (n) => {
+        if (n % 10 === 1 && n % 100 !== 11) return 'объект'
+        if ([2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100)) return 'объекта'
+        return 'объектов'
+    }
+
+    const allPeriodTotalDays = siteStatsSortedByRelevance.reduce((acc, s) => acc + s.totalDays, 0)
+
     return (
         <div className={styles.workerStatsPage}>
             <div className={styles.workerStatsTopBar}>
@@ -765,22 +826,28 @@ export function WorkerStatsPage({ worker, shifts, sites, archivedSites = [], onC
                 {activeTab === 'month' && (
                     <div className={styles.workPeriodRow}>
                         <span className={styles.workPeriodCaption}>Показать:</span>
-                        <div className={styles.workPeriodChips}>
+                        <div className={styles.workPeriodChips} ref={chipsRef}>
                             <button
                                 className={`${styles.workPeriodChip} ${workPeriodMode === 'month' ? styles.active : ''}`}
                                 onClick={() => setWorkPeriodMode('month')}
+                                data-mode="month"
+                                data-mode-active={workPeriodMode === 'month' ? 'true' : 'false'}
                             >
                                 За месяц
                             </button>
                             <button
                                 className={`${styles.workPeriodChip} ${workPeriodMode === 'quarter' ? styles.active : ''}`}
                                 onClick={() => setWorkPeriodMode('quarter')}
+                                data-mode="quarter"
+                                data-mode-active={workPeriodMode === 'quarter' ? 'true' : 'false'}
                             >
                                 За квартал
                             </button>
                             <button
                                 className={`${styles.workPeriodChip} ${workPeriodMode === 'all' ? styles.active : ''}`}
                                 onClick={() => setWorkPeriodMode('all')}
+                                data-mode="all"
+                                data-mode-active={workPeriodMode === 'all' ? 'true' : 'false'}
                             >
                                 За весь период
                             </button>
@@ -1028,38 +1095,56 @@ export function WorkerStatsPage({ worker, shifts, sites, archivedSites = [], onC
                         )}
 
                         {workPeriodMode === 'all' && (
-                            <div className={styles.tabContent}>
-                                <div className={styles.sitesHeader}>
-                                    <div className={styles.sitesTitle}>
-                                        Объекты, на которых работал {worker.name.split(' ')[0]} за весь период:
-                                    </div>
+                            <div className={styles.allPeriodBlock}>
+                                <div className={styles.allPeriodHeader}>
+                                    <div className={styles.allPeriodTitle}>Объекты за весь период</div>
+                                    {siteStatsSortedByRelevance.length > 0 && (
+                                        <div className={styles.allPeriodSummary}>
+                                            {siteStatsSortedByRelevance.length} {getObjectsWord(siteStatsSortedByRelevance.length)}
+                                            {' · '}
+                                            {allPeriodTotalDays} {getDaysWord(allPeriodTotalDays)}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {siteStatsSortedByRelevance.length > 0 ? (
-                                    <div className={styles.sitesList}>
+                                    <div className={styles.allPeriodList}>
                                         {siteStatsSortedByRelevance.map((site) => {
-                                            const dayText = site.totalDays === 1 ? 'рабочий день' : 'рабочих дней'
+                                            const isExpanded = expandedSites.has(site.siteId)
                                             return (
-                                                <div key={site.siteId} className={styles.siteAccordion}>
-                                                    <button className={styles.siteAccordionHeader} onClick={() => toggleSite(site.siteId)}>
-                                                        <div className={styles.siteAccordionLeft}>
-                                                            <div className={styles.siteAccordionDot} style={{ backgroundColor: site.color }} />
-                                                            <div>
-                                                                <div className={styles.siteAccordionName}>{site.siteName}</div>
-                                                                <div className={styles.siteAccordionPeriod}>{site.periodText}</div>
-                                                                <div className={styles.siteAccordionSub}>{site.totalDays} {dayText}</div>
-                                                            </div>
-                                                        </div>
-                                                        <span className={`${styles.siteAccordionArrow} ${expandedSites.has(site.siteId) ? styles.expanded : ''}`}>
-                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                                                <polyline points="6 9 12 15 18 9"/>
-                                                            </svg>
+                                                <div
+                                                    key={site.siteId}
+                                                    className={`${styles.allPeriodCard} ${isExpanded ? styles.allPeriodCardExpanded : ''}`}
+                                                >
+                                                    <button
+                                                        type="button"
+                                                        className={styles.allPeriodCardHeader}
+                                                        onClick={() => toggleSite(site.siteId)}
+                                                        aria-expanded={isExpanded}
+                                                    >
+                                                        <span
+                                                            className={styles.allPeriodDot}
+                                                            style={{ backgroundColor: site.color }}
+                                                        />
+                                                        <span className={styles.allPeriodCardText}>
+                                                            <span className={styles.allPeriodCardName}>{site.siteName}</span>
+                                                            <span className={styles.allPeriodCardMeta}>{site.periodText}</span>
+                                                        </span>
+                                                        <span className={styles.allPeriodCardRight}>
+                                                            <span className={styles.allPeriodCardDays}>
+                                                                {site.totalDays} {getDaysWord(site.totalDays)}
+                                                            </span>
+                                                            <span className={`${styles.allPeriodChevron} ${isExpanded ? styles.allPeriodChevronOpen : ''}`}>
+                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                                                                    <polyline points="6 9 12 15 18 9"/>
+                                                                </svg>
+                                                            </span>
                                                         </span>
                                                     </button>
-                                                    {expandedSites.has(site.siteId) && (
-                                                        <div className={styles.siteAccordionBody}>
+                                                    {isExpanded && (
+                                                        <div className={styles.allPeriodCardBody}>
                                                             {site.dates.map((date) => (
-                                                                <div key={date} className={styles.siteAccordionDate}>
+                                                                <div key={date} className={styles.allPeriodDateRow}>
                                                                     {formatDateDisplay(date).date}
                                                                 </div>
                                                             ))}
@@ -1070,7 +1155,7 @@ export function WorkerStatsPage({ worker, shifts, sites, archivedSites = [], onC
                                         })}
                                     </div>
                                 ) : (
-                                    <div className={styles.emptyState}>Нет объектов за весь период</div>
+                                    <div className={styles.allPeriodEmpty}>Нет объектов за весь период</div>
                                 )}
                             </div>
                         )}
