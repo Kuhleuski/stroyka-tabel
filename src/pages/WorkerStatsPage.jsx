@@ -21,7 +21,6 @@ export function WorkerStatsPage({ worker, shifts, sites, archivedSites = [], onC
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const menuRef = useRef(null)
 
-    // Модалка удаления
     const [showDeleteModal, setShowDeleteModal] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)
 
@@ -32,7 +31,7 @@ export function WorkerStatsPage({ worker, shifts, sites, archivedSites = [], onC
     const [expandedSites, setExpandedSites] = useState(new Set())
     const [isDetailVisible, setIsDetailVisible] = useState(true)
 
-    const [workPeriodMode, setWorkPeriodMode] = useState('month') // 'month' | 'quarter' | 'all'
+    const [workPeriodMode, setWorkPeriodMode] = useState('month')
 
     const [sitesFilterMode, setSitesFilterMode] = useState('all')
     const [showPeriodModal, setShowPeriodModal] = useState(false)
@@ -118,6 +117,17 @@ export function WorkerStatsPage({ worker, shifts, sites, archivedSites = [], onC
         if (lastDigit === 1) return 'рабочий день'
         if (lastDigit >= 2 && lastDigit <= 4) return 'рабочих дня'
         return 'рабочих дней'
+    }
+
+    // Только для блока расшифровки (месяц/квартал) — без слова «рабочих»
+    const getDaysWord = (count) => {
+        if (count === 0) return 'дней'
+        const lastDigit = count % 10
+        const lastTwoDigits = count % 100
+        if (lastTwoDigits >= 11 && lastTwoDigits <= 19) return 'дней'
+        if (lastDigit === 1) return 'день'
+        if (lastDigit >= 2 && lastDigit <= 4) return 'дня'
+        return 'дней'
     }
 
     const formatDateDisplay = (dateStr) => {
@@ -484,16 +494,6 @@ export function WorkerStatsPage({ worker, shifts, sites, archivedSites = [], onC
             new Date(year, month + 1, 1),
             new Date(year, month + 2, 1)
         ]
-    }
-
-    const getQuarterLabel = (startDate) => {
-        const months = getQuarterMonths(startDate)
-        const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-                            'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
-        const startMonth = monthNames[months[0].getMonth()]
-        const endMonth = monthNames[months[2].getMonth()]
-        const year = startDate.getFullYear()
-        return `${startMonth} - ${endMonth} ${year}`
     }
 
     const getQuarterLabelParts = (startDate) => {
@@ -867,15 +867,19 @@ export function WorkerStatsPage({ worker, shifts, sites, archivedSites = [], onC
                                                         const color = site?.color || '#666'
                                                         const siteShifts = monthData.shifts.filter(shift => shift.sites.includes(siteName))
                                                         const daysCount = siteShifts.length
-                                                        const dayLabel = getDaysLabel(daysCount)
+                                                        const dayWord = getDaysWord(daysCount)
                                                         return (
-                                                            <div key={siteName} className={styles.detailStatsObjectItem}>
-                                                                <span
-                                                                    className={styles.detailStatsObjectDot}
-                                                                    style={{ backgroundColor: color, boxShadow: `0 0 16px ${color}, 0 0 32px ${color}40` }}
-                                                                />
-                                                                <span className={styles.detailStatsObjectName}>{siteName}</span>
-                                                                <span className={styles.detailStatsObjectCount}>— {daysCount} {dayLabel}</span>
+                                                            <div key={siteName} className={styles.detailStatsObjectRow}>
+                                                                <div className={styles.detailStatsObjectLeft}>
+                                                                    <span
+                                                                        className={styles.detailStatsObjectDot}
+                                                                        style={{ backgroundColor: color, boxShadow: `0 0 16px ${color}, 0 0 32px ${color}40` }}
+                                                                    />
+                                                                    <span className={styles.detailStatsObjectName}>{siteName}</span>
+                                                                </div>
+                                                                <div className={styles.detailStatsObjectRight}>
+                                                                    {daysCount} {dayWord}
+                                                                </div>
                                                             </div>
                                                         )
                                                     })}
@@ -999,14 +1003,19 @@ export function WorkerStatsPage({ worker, shifts, sites, archivedSites = [], onC
                                                     {quarterData.siteList.map((site) => {
                                                         const fullSite = allSites.find(s => s.name === site.name)
                                                         const color = fullSite?.color || site.color || '#666'
+                                                        const dayWord = getDaysWord(site.count)
                                                         return (
-                                                            <div key={site.name} className={styles.detailStatsObjectItem}>
-                                                                <span
-                                                                    className={styles.detailStatsObjectDot}
-                                                                    style={{ backgroundColor: color, boxShadow: `0 0 16px ${color}, 0 0 32px ${color}40` }}
-                                                                />
-                                                                <span className={styles.detailStatsObjectName}>{site.name}</span>
-                                                                <span className={styles.detailStatsObjectCount}>— {site.count} {getDaysLabel(site.count)}</span>
+                                                            <div key={site.name} className={styles.detailStatsObjectRow}>
+                                                                <div className={styles.detailStatsObjectLeft}>
+                                                                    <span
+                                                                        className={styles.detailStatsObjectDot}
+                                                                        style={{ backgroundColor: color, boxShadow: `0 0 16px ${color}, 0 0 32px ${color}40` }}
+                                                                    />
+                                                                    <span className={styles.detailStatsObjectName}>{site.name}</span>
+                                                                </div>
+                                                                <div className={styles.detailStatsObjectRight}>
+                                                                    {site.count} {dayWord}
+                                                                </div>
                                                             </div>
                                                         )
                                                     })}
@@ -1079,7 +1088,6 @@ export function WorkerStatsPage({ worker, shifts, sites, archivedSites = [], onC
                 )}
             </div>
 
-            {/* Модалка удаления (в стиле проекта) */}
             {showDeleteModal && (
                 <div
                     className={styles.workerStatsDeleteModalOverlay}
