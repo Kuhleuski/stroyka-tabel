@@ -3,18 +3,41 @@
 import { useState, useEffect } from 'react'
 import styles from '../styles/components.module.css'
 
-// 10 контрастных цветов (те же, что в AddSiteModal)
+// 30 цветов — те же, что в AddSiteModal (список синхронизирован вручную).
+// ВАЖНО: первые 10 (существующие) сохранены байт-в-байт — на них уже созданы объекты в БД.
 const COLORS = [
-    '#FFC470', // Light Yellow
-    '#E88210', // Dark Orange
-    '#C03F3F', // Reddish
-    '#C0317E', // Pink
-    '#C2217D', // Violet
-    '#2264F3', // Dark Blue
+    '#FFC470', // Light Yellow — дефолт (существующий)
+    // === 9 существующих (перемешаны) ===
     '#27B4E0', // Light Blue
-    '#27F0C1', // Aquamarine
-    '#139520', // Dark Green
     '#B5B4B4', // Gray
+    '#C03F3F', // Reddish
+    '#2264F3', // Dark Blue
+    '#139520', // Dark Green
+    '#C0317E', // Pink
+    '#E88210', // Dark Orange
+    '#27F0C1', // Aquamarine
+    '#C2217D', // Violet
+    // === 20 новых (перемешаны по спектру) ===
+    '#F5A623', // Amber
+    '#D0021B', // Crimson
+    '#8B572A', // Brown
+    '#7ED321', // Lime
+    '#417505', // Forest
+    '#50E3C2', // Teal
+    '#4A90E2', // Sky Blue
+    '#9013FE', // Purple
+    '#BD10E0', // Magenta
+    '#F8E71C', // Bright Yellow
+    '#FF6F61', // Coral
+    '#6B5B95', // Slate Purple
+    '#88B04B', // Moss
+    '#F7CAC9', // Rose Quartz
+    '#92A8D1', // Serenity
+    '#955251', // Marsala
+    '#B565A7', // Orchid
+    '#009B77', // Emerald
+    '#DD4124', // Tangerine
+    '#45B8AC', // Turquoise
 ]
 
 // Список статусов
@@ -47,7 +70,7 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        
+
         if (!name.trim()) {
             setError('Введите название объекта')
             return
@@ -120,7 +143,7 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
                                     className={`${styles.modalStatusBtn} ${status === s.value ? styles.modalStatusActive : ''}`}
                                     onClick={() => setStatus(s.value)}
                                 >
-                                    <span 
+                                    <span
                                         className={styles.modalStatusDot}
                                         style={{ backgroundColor: s.color }}
                                     />
@@ -147,7 +170,7 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
                 </div>
 
                 <div className={styles.modalFooter}>
-                    <button 
+                    <button
                         className={styles.modalCancelBtn}
                         onClick={onClose}
                         type="button"
@@ -155,8 +178,8 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
                     >
                         Отмена
                     </button>
-                    <button 
-                        className={styles.modalSaveBtn} 
+                    <button
+                        className={styles.modalSaveBtn}
                         onClick={handleSubmit}
                         disabled={loading || !name.trim()}
                         type="button"

@@ -984,3 +984,510 @@ body {
     background: #1e1e1e;
     color: #fff;
 }
+/* ============================================================
+   ВЫБОР ЦВЕТА (AddSiteModal) — триггер + маленькая модалка
+   ============================================================ */
+
+/* Триггер в форме создания объекта */
+.colorTrigger {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 15px;
+    text-align: left;
+    transition: background 0.15s ease, border-color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.colorTrigger:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.colorTrigger:active {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.colorTriggerDot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.colorTriggerText {
+    flex: 1;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 14px;
+    color: var(--text-secondary);
+    letter-spacing: 0.3px;
+}
+
+.colorTriggerChevron {
+    font-size: 22px;
+    line-height: 1;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    margin-left: 4px;
+}
+
+/* Оверлей маленькой модалки выбора цвета */
+.colorPickerOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px;
+    animation: colorPickerFadeIn 0.18s ease;
+}
+
+@keyframes colorPickerFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Карточка маленькой модалки */
+.colorPickerCard {
+    background: var(--bg-card);
+    border-radius: 18px;
+    width: 100%;
+    max-width: 380px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    animation: colorPickerSlideIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+}
+
+@keyframes colorPickerSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.96) translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.colorPickerHeader {
+    padding: 18px 20px 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.colorPickerTitle {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Сетка 30 цветов */
+.colorPickerGrid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    padding: 8px 20px 20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 400px) {
+    .colorPickerGrid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+.colorPickerSwatch {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.colorPickerSwatch:hover {
+    transform: scale(1.06);
+}
+
+.colorPickerSwatch:active {
+    transform: scale(0.94);
+}
+
+.colorPickerSwatchActive {
+    border-color: var(--text-primary);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 0 2px var(--bg-card), 0 0 0 4px var(--text-primary);
+}
+
+/* Футер маленькой модалки */
+.colorPickerFooter {
+    display: flex;
+    gap: 10px;
+    padding: 12px 20px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.colorPickerCancelBtn {
+    flex: 1;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-secondary);
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.colorPickerCancelBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.colorPickerConfirmBtn {
+    flex: 1;
+    padding: 12px;
+    background: #86d617;
+    color: #121212;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.colorPickerConfirmBtn:hover {
+    background: #7ac412;
+}
+
+.colorPickerConfirmBtn:active {
+    transform: scale(0.97);
+}
+/* ============================================================
+   ЯНДЕКС-СТИЛЬ: AddSiteModal (Шаг 2 + Шаг 3: bottom sheet)
+   Только для AddSiteModal. Общие .modal* не трогаем.
+   ============================================================ */
+
+/* Оверлей: полупрозрачный + blur (Шаг 3) */
+.yandexOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 9999;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+/* Шторка: 90dvh, скругления сверху 24px (Шаг 3) */
+.yandexSheet {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: var(--max-width);
+    height: 90vh;
+    height: 90dvh;
+    background: #202020;
+    border-radius: 24px 24px 0 0;
+    overflow: hidden;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* Зона ручки — увеличивает hit-area для свайпа */
+.yandexHandleZone {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0 6px;
+    cursor: grab;
+    touch-action: none;
+    flex-shrink: 0;
+}
+
+.yandexHandleZone:active {
+    cursor: grabbing;
+}
+
+/* «Ручка» сверху */
+.yandexHandle {
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.yandexHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 20px 20px;
+    flex-shrink: 0;
+    cursor: grab;
+    touch-action: none;
+}
+
+.yandexHeader:active {
+    cursor: grabbing;
+}
+
+.yandexTitle {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+    margin: 0;
+    letter-spacing: -0.2px;
+}
+
+.yandexCloseBtn {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.06);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: background 0.15s ease, color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    padding: 0;
+    touch-action: auto;
+}
+
+.yandexCloseBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.yandexCloseBtn:active {
+    transform: scale(0.94);
+}
+
+/* Размер иконки Xmark — только через CSS (Gravity UI 2.23 игнорирует проп size) */
+.yandexCloseBtn svg {
+    width: 20px !important;
+    height: 20px !important;
+    display: block;
+}
+
+/* Тело: скроллится независимо от свайпа */
+.yandexBody {
+    flex: 1;
+    padding: 0 20px 20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    min-height: 0;
+}
+
+.yandexField {
+    margin-bottom: 20px;
+}
+
+.yandexField:last-child {
+    margin-bottom: 0;
+}
+
+.yandexLabel {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    letter-spacing: 0.2px;
+}
+
+.yandexInput {
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    font-size: 16px;
+    font-family: inherit;
+    color: var(--text-primary);
+    transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.yandexInput::placeholder {
+    color: var(--text-muted);
+}
+
+.yandexInput:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: #86d617;
+    box-shadow: 0 0 0 3px rgba(134, 214, 23, 0.12);
+}
+
+.yandexColorTrigger {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 15px;
+    text-align: left;
+    transition: background 0.15s ease, border-color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.yandexColorTrigger:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.yandexColorTrigger:active {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.yandexColorDot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.yandexColorText {
+    flex: 1;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 14px;
+    color: var(--text-secondary);
+    letter-spacing: 0.3px;
+}
+
+.yandexColorChevron {
+    font-size: 22px;
+    line-height: 1;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    margin-left: 4px;
+}
+
+.yandexFooter {
+    display: flex;
+    gap: 10px;
+    padding: 16px 20px 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    background: #282828;
+    flex-shrink: 0;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0));
+}
+
+.yandexCancelBtn {
+    flex: 1;
+    padding: 16px;
+    background: #3a3939;
+    color: var(--text-secondary);
+    border: none;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.yandexCancelBtn:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-primary);
+}
+
+.yandexCancelBtn:active {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.yandexSaveBtn {
+    flex: 1;
+    padding: 16px;
+    background: #86d617;
+    color: #121212;
+    border: none;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.yandexSaveBtn:hover:not(:disabled) {
+    background: #7ac412;
+}
+
+.yandexSaveBtn:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.yandexSaveBtn:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+/* Адаптив для узких экранов */
+@media (max-width: 400px) {
+    .yandexSheet {
+        border-radius: 20px 20px 0 0;
+    }
+
+    .yandexTitle {
+        font-size: 20px;
+    }
+
+    .yandexHeader {
+        padding: 4px 16px 16px;
+    }
+
+    .yandexBody {
+        padding: 0 16px 16px;
+    }
+
+    .yandexFooter {
+        padding: 14px 16px 20px;
+        padding-bottom: calc(20px + env(safe-area-inset-bottom, 0));
+    }
+
+    .yandexCancelBtn,
+    .yandexSaveBtn {
+        padding: 14px;
+        font-size: 15px;
+    }
+}
