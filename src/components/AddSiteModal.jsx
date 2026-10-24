@@ -45,12 +45,16 @@ const COLORS = [
 ]
 
 // Паттерн закраски мини-календаря (28 ячеек, индексы 0..27).
-// Закрашено 23 из 28 — «рядами», по горизонтали заполнено хорошо.
+// Воскресенья (6, 13, 20, 27) — пустые.
+// Субботы: 5, 12 — пустые; 19, 26 — заняты.
+// Рабочие дни — как в текущей логике (без воскресений и 2 суббот).
 const MINI_CAL_FILLED = new Set([
-    0, 1, 2, 3, 4, 5, 6,
-    8, 9, 11, 12, 13,
-    14, 15, 16, 17, 18, 19, 20,
-    22, 23, 25, 26,
+    0, 1, 2, 3, 4,
+    8, 9, 11,
+    14, 15, 16, 17, 18,
+    19,
+    22, 23, 25,
+    26,
 ])
 
 // Подписи дней недели над мини-календарём
@@ -429,8 +433,22 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
                                         onChange={handlePhotoSelect}
                                     />
                                 </div>
+
+                                {/* === НОВЫЙ потоковый футер (внизу контента) === */}
+                                <div className={styles.yandexFooterInline}>
+                                    <button
+                                        type="button"
+                                        className={styles.yandexSaveBtnInline}
+                                        onClick={handleSubmit}
+                                        disabled={loading || !name.trim()}
+                                    >
+                                        {loading ? 'Сохранение...' : 'Сохранить'}
+                                    </button>
+                                </div>
                             </div>
 
+                            {/* === СТАРЫЙ футер (flex-bottom) — закомментирован, не удалён === */}
+                            {/*
                             <div className={styles.yandexFooter}>
                                 <button
                                     type="button"
@@ -441,6 +459,7 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
                                     {loading ? 'Сохранение...' : 'Сохранить'}
                                 </button>
                             </div>
+                            */}
                         </motion.div>
                     </motion.div>
                 )}

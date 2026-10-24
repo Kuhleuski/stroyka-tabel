@@ -998,3 +998,201 @@
         right: calc(50% - 250px + 24px);
     }
 }
+/* ============================================================
+   НЕДАВНИЕ ОБЪЕКТЫ (сворачиваемая секция над списком)
+   ============================================================ */
+
+.recentSection {
+    margin: 0 0 4px;
+}
+
+.recentToggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 2px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.15s ease;
+}
+
+.recentToggle:hover {
+    opacity: 0.85;
+}
+
+.recentToggle:active {
+    opacity: 0.7;
+}
+
+.recentTitle {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.recentChevron {
+    font-size: 16px;
+    line-height: 1;
+    color: var(--text-muted);
+    transition: transform 0.2s ease;
+    display: inline-block;
+}
+
+.recentToggleOpen .recentChevron {
+    transform: rotate(90deg);
+}
+
+/* Сворачиваемый контейнер */
+.recentChipsWrap {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease, opacity 0.2s ease;
+    opacity: 0;
+}
+
+.recentChipsWrapOpen {
+    max-height: 90px;
+    opacity: 1;
+}
+
+/* Горизонтальный скролл чипсов + маски + отступы под маски */
+.recentChipsScroll {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 8px 0 4px;
+    padding-left: 16px;   /* отступ под левую маску (когда она появится) */
+    padding-right: 24px;  /* отступ под правую маску */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+
+    /* Базовая маска: ТОЛЬКО правая прозрачность 24px. Левая — 0 (появится через .recentChipsFadeLeft) */
+    -webkit-mask-image: linear-gradient(
+        to right,
+        black 0,
+        black calc(100% - 24px),
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        to right,
+        black 0,
+        black calc(100% - 24px),
+        transparent 100%
+    );
+}
+
+.recentChipsScroll::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+/* Левая маска появляется, когда есть скролл влево (scrollLeft > 1) */
+.recentChipsFadeLeft {
+    -webkit-mask-image: linear-gradient(
+        to right,
+        transparent 0,
+        black 16px,
+        black calc(100% - 24px),
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        to right,
+        transparent 0,
+        black 16px,
+        black calc(100% - 24px),
+        transparent 100%
+    );
+}
+
+/* Правой маски нет, когда доскроллили до конца */
+.recentChipsNoFadeRight {
+    -webkit-mask-image: linear-gradient(
+        to right,
+        black 0,
+        black 100%
+    );
+    mask-image: linear-gradient(
+        to right,
+        black 0,
+        black 100%
+    );
+}
+
+/* Комбинация: левая маска есть, правой нет */
+.recentChipsFadeLeft.recentChipsNoFadeRight {
+    -webkit-mask-image: linear-gradient(
+        to right,
+        transparent 0,
+        black 16px,
+        black 100%
+    );
+    mask-image: linear-gradient(
+        to right,
+        transparent 0,
+        black 16px,
+        black 100%
+    );
+}
+
+.recentChip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    transition: background 0.15s ease, border-color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    max-width: 220px;
+}
+
+.recentChip:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.recentChip:active {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.recentChipDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.recentChipName {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 400px) {
+    .recentChip {
+        padding: 7px 10px;
+        font-size: 13px;
+        max-width: 180px;
+    }
+
+    .recentChipDot {
+        width: 9px;
+        height: 9px;
+    }
+}

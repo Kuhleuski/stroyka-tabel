@@ -15,6 +15,7 @@ import styles from '../styles/sites.module.css'
 import globalsStyles from '../styles/globals.module.css'
 
 const SEARCH_DEBOUNCE = 250
+const RECENT_LIMIT = 5
 
 // Проверка: каждое слово запроса встречается в названии ИЛИ адресе (в любом порядке)
 const matchesQuery = (site, query) => {
@@ -24,7 +25,47 @@ const matchesQuery = (site, query) => {
     return words.every(w => haystack.includes(w))
 }
 
-export function SitesPage({ onAddSite }) {
+// Чтение дат открытия из localStorage
+const readLastOpened = () => {
+    try {
+        const stored = localStorage.getItem('siteLastOpened')
+        if (!stored) return {}
+        const data = JSON.parse(stored)
+        return data && typeof data === 'object' ? data : {}
+    } catch (e) {
+        return {}
+    }
+}
+
+// Сортировка по календарю:
+// 1. Объекты БЕЗ смен — первыми, среди них по created_at (новые сверху).
+// 2. Объекты СО сменами — по max(work_date) (свежие сверху).
+const sortSitesByCalendar = (sites, shifts) => {
+    const shiftsBySite = new Map()
+    ;(shifts || []).forEach(shift => {
+        if (!shift.site_id || !shift.work_date) return
+        const prev = shiftsBySite.get(shift.site_id)
+        if (!prev || shift.work_date > prev) {
+            shiftsBySite.set(shift.site_id, shift.work_date)
+        }
+    })
+
+    return [...(sites || [])].sort((a, b) => {
+        const aLast = shiftsBySite.get(a.id) || null
+        const bLast = shiftsBySite.get(b.id) || null
+
+        if (!aLast && !bLast) {
+            const da = new Date(a.created_at || 0).getTime()
+            const db = new Date(b.created_at || 0).getTime()
+            return db - da
+        }
+        if (!aLast) return -1
+        if (!bLast) return 1
+        return bLast.localeCompare(aLast)
+    })
+}
+
+export function SitesPage({ onAddSite, shifts = [] }) {
     const [showAddModal, setShowAddModal] = useState(false)
     const [showEditModal, setShowEditModal] = useState(false)
     const [selectedSite, setSelectedSite] = useState(null)
@@ -39,6 +80,11 @@ export function SitesPage({ onAddSite }) {
     const [dropdownRect, setDropdownRect] = useState(null)
     const searchWrapRef = useRef(null)
 
+    // === НЕДАВНИЕ ===
+    const [lastOpened, setLastOpened] = useState(() => readLastOpened())
+    const [isRecentOpen, setIsRecentOpen] = useState(false)
+    const recentChipsRef = useRef(null)
+
     useEffect(() => {
         const t = setTimeout(() => setSearchQuery(searchInput), SEARCH_DEBOUNCE)
         return () => clearTimeout(t)
@@ -47,7 +93,6 @@ export function SitesPage({ onAddSite }) {
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (searchWrapRef.current && !searchWrapRef.current.contains(e.target)) {
-                // клик по порталу не должен закрывать выпадашку
                 if (e.target.closest && e.target.closest('[data-sites-suggestions]')) return
                 setIsFocused(false)
             }
@@ -55,6 +100,33 @@ export function SitesPage({ onAddSite }) {
         document.addEventListener('mousedown', handleClickOutside)
         return () => document.removeEventListener('mousedown', handleClickOutside)
     }, [])
+
+    // === Маски для чипсов «Недавние» ===
+    const updateRecentMasks = () => {
+        const el = recentChipsRef.current
+        if (!el) return
+        const hasLeft = el.scrollLeft > 1
+        const hasRight = el.scrollLeft < el.scrollWidth - el.clientWidth - 1
+        el.classList.toggle(styles.recentChipsFadeLeft, hasLeft)
+        el.classList.toggle(styles.recentChipsNoFadeRight, !hasRight)
+    }
+
+    useEffect(() => {
+        if (!isRecentOpen) return
+        const id = requestAnimationFrame(updateRecentMasks)
+        const el = recentChipsRef.current
+        if (!el) return () => cancelAnimationFrame(id)
+
+        el.addEventListener('scroll', updateRecentMasks, { passive: true })
+        const ro = new ResizeObserver(updateRecentMasks)
+        ro.observe(el)
+
+        return () => {
+            cancelAnimationFrame(id)
+            el.removeEventListener('scroll', updateRecentMasks)
+            ro.disconnect()
+        }
+    }, [isRecentOpen])
 
     // Подсказки: по словам в названии ИЛИ адресе
     const suggestions = useMemo(() => {
@@ -166,10 +238,10 @@ export function SitesPage({ onAddSite }) {
     const saveLastOpened = (siteId) => {
         try {
             const now = new Date().toISOString()
-            const stored = localStorage.getItem('siteLastOpened')
-            const data = stored ? JSON.parse(stored) : {}
+            const data = readLastOpened()
             data[siteId] = now
             localStorage.setItem('siteLastOpened', JSON.stringify(data))
+            setLastOpened(data)
         } catch (e) {
             console.warn('Ошибка сохранения даты открытия:', e)
         }
@@ -207,11 +279,11 @@ export function SitesPage({ onAddSite }) {
         try {
             await archiveSiteInState(siteId)
             try {
-                const stored = localStorage.getItem('siteLastOpened')
-                if (stored) {
-                    const data = JSON.parse(stored)
+                const data = readLastOpened()
+                if (data[siteId]) {
                     delete data[siteId]
                     localStorage.setItem('siteLastOpened', JSON.stringify(data))
+                    setLastOpened(data)
                 }
             } catch (e) {
                 console.warn('Ошибка удаления даты открытия:', e)
@@ -223,6 +295,7 @@ export function SitesPage({ onAddSite }) {
     }
 
     const handleSiteClick = (site) => {
+        setIsRecentOpen(false)   // ← сброс секции «Недавние» при любом открытии объекта
         saveLastOpened(site.id)
         const container = document.querySelector('.sites-grid')
         if (container) {
@@ -233,6 +306,7 @@ export function SitesPage({ onAddSite }) {
 
     const handleCloseDetail = () => {
         setSelectedSite(null)
+        setIsRecentOpen(false)   // ← на всякий случай: при возврате к списку секция свёрнута
         setTimeout(() => {
             const container = document.querySelector('.sites-grid')
             if (container) {
@@ -250,10 +324,25 @@ export function SitesPage({ onAddSite }) {
         setShowEditModal(true)
     }
 
-    // === ФИЛЬТРАЦИЯ СПИСКА ===
+    // === ОТСОРТИРОВАННЫЙ + ОТФИЛЬТРОВАННЫЙ СПИСОК ===
+    const sortedSites = useMemo(
+        () => sortSitesByCalendar(sites, shifts),
+        [sites, shifts]
+    )
+
     const filteredSites = searchQuery.trim()
-        ? sites.filter(site => matchesQuery(site, searchQuery))
-        : sites
+        ? sortedSites.filter(site => matchesQuery(site, searchQuery))
+        : sortedSites
+
+    // === НЕДАВНИЕ: 5 последних открытых, по убыванию даты ===
+    const recentSites = useMemo(() => {
+        return (sites || [])
+            .map(site => ({ site, openedAt: lastOpened[site.id] }))
+            .filter(item => item.openedAt)
+            .sort((a, b) => new Date(b.openedAt) - new Date(a.openedAt))
+            .slice(0, RECENT_LIMIT)
+            .map(item => item.site)
+    }, [sites, lastOpened])
 
     if (loading) {
         return <div className={globalsStyles.loadingText}>⏳ Загрузка...</div>
@@ -330,6 +419,46 @@ export function SitesPage({ onAddSite }) {
 
                 {!showSuggestions && (
                     <>
+                        {/* === НЕДАВНИЕ: сворачиваемые === */}
+                        {recentSites.length > 0 && (
+                            <div className={styles.recentSection}>
+                                <button
+                                    type="button"
+                                    className={`${styles.recentToggle} ${isRecentOpen ? styles.recentToggleOpen : ''}`}
+                                    onClick={() => setIsRecentOpen(v => !v)}
+                                >
+                                    <span className={styles.recentTitle}>
+                                        {isRecentOpen ? 'Скрыть недавние' : 'Открыть недавние'}
+                                    </span>
+                                    <span className={styles.recentChevron}>›</span>
+                                </button>
+
+                                <div
+                                    className={`${styles.recentChipsWrap} ${isRecentOpen ? styles.recentChipsWrapOpen : ''}`}
+                                >
+                                    <div
+                                        className={styles.recentChipsScroll}
+                                        ref={recentChipsRef}
+                                    >
+                                        {recentSites.map(site => (
+                                            <button
+                                                key={`recent-${site.id}`}
+                                                type="button"
+                                                className={styles.recentChip}
+                                                onClick={() => handleSiteClick(site)}
+                                            >
+                                                <span
+                                                    className={styles.recentChipDot}
+                                                    style={{ backgroundColor: site.color || '#2d7d46' }}
+                                                />
+                                                <span className={styles.recentChipName}>{site.name}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         <div className={styles.segmented}>
                             <button
                                 className={`${styles.segment} ${filter === 'all' ? styles.segmentActive : ''}`}
@@ -360,7 +489,6 @@ export function SitesPage({ onAddSite }) {
                 )}
             </div>
 
-            {/* Подсказки — через портал, поверх всего */}
             {showSuggestions && dropdownRect && createPortal(
                 <div
                     data-sites-suggestions

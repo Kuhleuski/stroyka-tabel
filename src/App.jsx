@@ -101,7 +101,7 @@ function AppContent() {
                     onCloseWorkerStats={handleCloseWorkerStats}
                 />
             case 'sites':
-                return <SitesPage key={`sites-${pageKey}`} />
+                return <SitesPage key={`sites-${pageKey}`} shifts={shifts} />
             case 'menu':
                 return <MenuPage
                     key={`menu-${pageKey}`}

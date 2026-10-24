@@ -3,33 +3,9 @@
 import styles from '../../styles/sites.module.css'
 
 export function SitesList({ sites, filter = 'all', onSiteClick }) {
-    const getLastOpened = (siteId) => {
-        try {
-            const stored = localStorage.getItem('siteLastOpened')
-            if (!stored) return null
-            const data = JSON.parse(stored)
-            return data[siteId] || null
-        } catch (e) {
-            return null
-        }
-    }
-
-    const sortedSites = [...(sites || [])].sort((a, b) => {
-        const lastOpenedA = getLastOpened(a.id)
-        const lastOpenedB = getLastOpened(b.id)
-
-        if (lastOpenedA && lastOpenedB) {
-            return new Date(lastOpenedB) - new Date(lastOpenedA)
-        }
-        if (lastOpenedA) return -1
-        if (lastOpenedB) return 1
-
-        const dateA = new Date(a.created_at || a.id)
-        const dateB = new Date(b.created_at || b.id)
-        return dateB - dateA
-    })
-
-    const filteredSites = sortedSites.filter(site => {
+    // Сортировка НЕ здесь — SitesPage передаёт уже отсортированный массив
+    // (объекты без смен → первыми по created_at; со сменами → по max(work_date)).
+    const filteredSites = (sites || []).filter(site => {
         if (filter === 'all') return true
         if (filter === 'active') return site.status === 'в работе'
         if (filter === 'completed') return site.status === 'завершен'
@@ -62,7 +38,6 @@ export function SitesList({ sites, filter = 'all', onSiteClick }) {
 
     return (
         <div className={styles.sitesList}>
-            {/* Заголовок списка — как в Gravity UI Table: колонки */}
             <div className={styles.listHeader}>
                 <span className={styles.listHeaderCell}>Объект</span>
                 <span className={styles.listHeaderCellRight}>Статус</span>

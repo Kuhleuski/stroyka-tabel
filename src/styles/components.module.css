@@ -1188,8 +1188,6 @@ body {
 }
 /* ============================================================
    ЯНДЕКС-СТИЛЬ: AddSiteModal
-   (bottom sheet 90dvh, 30 цветов, мини-календарь с подписями,
-    фото-зона, зарплата)
    ============================================================ */
 
 .yandexOverlay {
@@ -1204,17 +1202,20 @@ body {
     justify-content: center;
 }
 
+/* Шторка: max-height 90dvh, height auto — по контенту, но не выше 90% */
 .yandexSheet {
     display: flex;
     flex-direction: column;
     width: 100%;
     max-width: var(--max-width);
-    height: 90vh;
-    height: 90dvh;
+    max-height: 90vh;
+    max-height: 90dvh;
+    height: auto;
     background: #181717;
     border-radius: 24px 24px 0 0;
     overflow: hidden;
     box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
+    position: relative;
 }
 
 .yandexHandleZone {
@@ -1295,8 +1296,9 @@ body {
     display: block;
 }
 
+/* Тело: скроллится, без flex: 1 (футер теперь в потоке) */
 .yandexBody {
-    flex: 1;
+    flex: 1 1 auto;
     padding: 0 20px 20px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -1353,7 +1355,7 @@ body {
     box-shadow: 0 0 0 3px rgba(134, 214, 23, 0.12);
 }
 
-/* === Цвет: серая область === */
+/* === Цвет === */
 .yandexColorBox {
     display: flex;
     flex-direction: column;
@@ -1379,7 +1381,6 @@ body {
     gap: 12px;
 }
 
-/* Кнопка «Выбрать цвет» — фон #ffffff0d, со свотчем и шевроном */
 .yandexColorTriggerCompact {
     display: inline-flex;
     align-items: center;
@@ -1430,7 +1431,6 @@ body {
     margin-left: 2px;
 }
 
-/* Мини-календарь — теперь кнопка */
 .yandexMiniCalendarWrap {
     display: grid;
     grid-template-columns: repeat(7, 16px);
@@ -1580,7 +1580,45 @@ body {
     letter-spacing: 0.3px;
 }
 
-/* === Футер === */
+/* === НОВЫЙ потоковый футер (внизу контента, внутри .yandexBody) === */
+.yandexFooterInline {
+    display: flex;
+    margin-top: 34px;
+    padding-top: 16px;
+    border-top: 0px solid rgba(255, 255, 255, 0.06);
+    margin-bottom:15px;
+}
+
+.yandexSaveBtnInline {
+    flex: 1;
+    width: 100%;
+    padding: 16px;
+    background: #86d617;
+    color: #121212;
+    border: none;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.yandexSaveBtnInline:hover:not(:disabled) {
+    background: #7ac412;
+}
+
+.yandexSaveBtnInline:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.yandexSaveBtnInline:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+/* === СТАРЫЙ футер (flex-bottom) — оставлен для будущих коротких модалок === */
 .yandexFooter {
     display: flex;
     padding: 16px 20px 24px;
@@ -1649,6 +1687,16 @@ body {
     .yandexMiniCalendarCell {
         width: 14px;
         height: 14px;
+    }
+
+    .yandexFooterInline {
+        margin-top: 20px;
+        padding-top: 14px;
+    }
+
+    .yandexSaveBtnInline {
+        padding: 14px;
+        font-size: 15px;
     }
 
     .yandexFooter {
