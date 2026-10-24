@@ -1187,11 +1187,13 @@ body {
     transform: scale(0.97);
 }
 /* ============================================================
-   ЯНДЕКС-СТИЛЬ: AddSiteModal (Шаг 2 + Шаг 3: bottom sheet)
+   ЯНДЕКС-СТИЛЬ: AddSiteModal
+   (bottom sheet 90dvh, 30 цветов, мини-календарь с подписями,
+    фото-зона, зарплата)
    Только для AddSiteModal. Общие .modal* не трогаем.
    ============================================================ */
 
-/* Оверлей: полупрозрачный + blur (Шаг 3) */
+/* Оверлей: полупрозрачный + blur */
 .yandexOverlay {
     position: fixed;
     inset: 0;
@@ -1204,7 +1206,7 @@ body {
     justify-content: center;
 }
 
-/* Шторка: 90dvh, скругления сверху 24px (Шаг 3) */
+/* Шторка: 90dvh, скругления сверху 24px */
 .yandexSheet {
     display: flex;
     flex-direction: column;
@@ -1212,7 +1214,7 @@ body {
     max-width: var(--max-width);
     height: 90vh;
     height: 90dvh;
-    background: #202020;
+    background: #181717;
     border-radius: 24px 24px 0 0;
     overflow: hidden;
     box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
@@ -1317,6 +1319,15 @@ body {
     margin-bottom: 0;
 }
 
+/* Отступы: адрес и блок цвета — 50px снизу */
+.yandexFieldAddress {
+    margin-bottom: 50px;
+}
+
+.yandexFieldColor {
+    margin-bottom: 50px;
+}
+
 .yandexLabel {
     display: block;
     font-size: 13px;
@@ -1350,93 +1361,237 @@ body {
     box-shadow: 0 0 0 3px rgba(134, 214, 23, 0.12);
 }
 
-.yandexColorTrigger {
+/* === Цвет: серая область (подсказка сверху, кнопка + календарь) === */
+.yandexColorBox {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 12px;
-    width: 100%;
-    padding: 14px 16px;
+    padding: 16px;
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 14px;
+}
+
+/* Подсказка — сверху, крупнее, лаконично */
+.yandexColorHint {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.55);
+    letter-spacing: 0.1px;
+}
+
+/* Строка: кнопка слева, календарь справа */
+.yandexColorRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+/* Кнопка «Выбрать цвет» — без фона, со свотчем и шевроном */
+.yandexColorTriggerCompact {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
     color: var(--text-primary);
     cursor: pointer;
     font-family: inherit;
     font-size: 15px;
+    font-weight: 500;
     text-align: left;
-    transition: background 0.15s ease, border-color 0.15s ease;
+    transition: background 0.15s ease;
     -webkit-tap-highlight-color: transparent;
-}
-
-.yandexColorTrigger:hover {
-    background: rgba(255, 255, 255, 0.08);
-}
-
-.yandexColorTrigger:active {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.yandexColorDot {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
     flex-shrink: 0;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 
-.yandexColorText {
-    flex: 1;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 14px;
-    color: var(--text-secondary);
-    letter-spacing: 0.3px;
+.yandexColorTriggerCompact:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.yandexColorTriggerCompact:active {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+/* Квадрат-свотч текущего цвета */
+.yandexColorSwatch {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+.yandexColorTriggerLabel {
+    color: var(--text-primary);
+    font-size: 15px;
+    font-weight: 500;
+    white-space: nowrap;
 }
 
 .yandexColorChevron {
-    font-size: 22px;
+    font-size: 20px;
     line-height: 1;
-    color: var(--text-muted);
+    color: rgba(255, 255, 255, 0.4);
     flex-shrink: 0;
-    margin-left: 4px;
+    margin-left: 2px;
 }
 
+/* Мини-календарь: 7 подписей + 28 ячеек, 7 колонок */
+.yandexMiniCalendarWrap {
+    display: grid;
+    grid-template-columns: repeat(7, 16px);
+    column-gap: 2px;
+    row-gap: 4px;
+    background: transparent;
+    flex-shrink: 0;
+}
+
+.yandexMiniCalendarDayLabel {
+    font-size: 9px;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.4);
+    text-align: center;
+    text-transform: lowercase;
+    letter-spacing: 0.2px;
+    padding-bottom: 2px;
+}
+
+.yandexMiniCalendarCell {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.08);
+    transition: background 0.15s ease;
+}
+
+/* === Фото: зона-дропзона === */
+.yandexPhotoZone {
+    width: 100%;
+    min-height: 96px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1.5px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    color: rgba(255, 255, 255, 0.5);
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.yandexPhotoZone:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.yandexPhotoZone:active {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.yandexPhotoZoneIcon {
+    width: 28px !important;
+    height: 28px !important;
+    display: block;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.yandexPhotoZoneText {
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+}
+
+/* Превью выбранного фото */
+.yandexPhotoPreviewWrap {
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.yandexPhotoPreview {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: block;
+}
+
+.yandexPhotoRemove {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #c62828;
+    color: #fff;
+    border: 2px solid #181717;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.yandexPhotoRemove svg {
+    width: 12px !important;
+    height: 12px !important;
+    display: block;
+}
+
+.yandexHiddenInput {
+    display: none;
+}
+
+/* === Зарплатная часть === */
+.yandexSalaryWrap {
+    position: relative;
+    width: 100%;
+}
+
+.yandexSalaryInput {
+    padding-right: 56px;
+}
+
+.yandexSalarySuffix {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-muted);
+    pointer-events: none;
+    letter-spacing: 0.3px;
+}
+
+/* === Футер: только «Сохранить», фон как у шторки, без бордера === */
 .yandexFooter {
     display: flex;
-    gap: 10px;
     padding: 16px 20px 24px;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
-    background: #282828;
+    background: #181717;
     flex-shrink: 0;
     padding-bottom: calc(24px + env(safe-area-inset-bottom, 0));
 }
 
-.yandexCancelBtn {
-    flex: 1;
-    padding: 16px;
-    background: #3a3939;
-    color: var(--text-secondary);
-    border: none;
-    border-radius: 16px;
-    font-size: 16px;
-    font-weight: 500;
-    font-family: inherit;
-    cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease;
-    -webkit-tap-highlight-color: transparent;
-}
-
-.yandexCancelBtn:hover {
-    background: rgba(255, 255, 255, 0.06);
-    color: var(--text-primary);
-}
-
-.yandexCancelBtn:active {
-    background: rgba(255, 255, 255, 0.08);
-}
-
 .yandexSaveBtn {
     flex: 1;
+    width: 100%;
     padding: 16px;
+    margin-bottom: 15px;
     background: #86d617;
     color: #121212;
     border: none;
@@ -1480,12 +1635,25 @@ body {
         padding: 0 16px 16px;
     }
 
+    .yandexFieldAddress,
+    .yandexFieldColor {
+        margin-bottom: 36px;
+    }
+
+    .yandexMiniCalendarWrap {
+        grid-template-columns: repeat(7, 14px);
+    }
+
+    .yandexMiniCalendarCell {
+        width: 14px;
+        height: 14px;
+    }
+
     .yandexFooter {
         padding: 14px 16px 20px;
         padding-bottom: calc(20px + env(safe-area-inset-bottom, 0));
     }
 
-    .yandexCancelBtn,
     .yandexSaveBtn {
         padding: 14px;
         font-size: 15px;
