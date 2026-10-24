@@ -1274,8 +1274,10 @@ body {
     position: absolute;
     left: 0;
     right: 0;
-    top: 100%;
-    height: var(--yandex-fade-height);
+    /* Поднимаем верх полосы на 3px выше низа шапки — закрываем щель в 1px,
+       в которую просвечивал контент. Нижняя граница остаётся на месте. */
+    top: calc(100% - 3px);
+    height: calc(var(--yandex-fade-height) + 3px);
     pointer-events: none;
     /* Fallback для старых браузеров без color-mix */
     background: linear-gradient(
@@ -1364,7 +1366,7 @@ body {
     width: 6px;
     border-radius: 999px;
     pointer-events: none;
-    z-index: 5;
+    z-index: 7;
 }
 
 .yandexBodyScrollThumb {

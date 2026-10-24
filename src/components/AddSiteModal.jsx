@@ -126,6 +126,10 @@ function ColorPickerModal({ isOpen, currentColor, onSelect, onClose }) {
     )
 }
 
+// Нижний отступ трека скроллбара: 24px + safe-area
+// (чтобы на iPhone трек не заезжал под home-индикатор).
+const SCROLL_TRACK_BOTTOM_PADDING = 24
+
 export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
     const [name, setName] = useState('')
     const [address, setAddress] = useState('')
@@ -171,24 +175,70 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
         // позиционируется именно относительно шторки.
         const sheet = el.closest('[class*="yandexSheet"]')
         let bodyOffsetTop = 0
+        let sheetHeight = 0
+        let bodyOffsetBottom = 0
+
         if (sheet) {
             const sheetRect = sheet.getBoundingClientRect()
             const bodyRect = el.getBoundingClientRect()
             bodyOffsetTop = bodyRect.top - sheetRect.top
+            bodyOffsetBottom = sheetRect.bottom - bodyRect.bottom
+            sheetHeight = sheetRect.height
         }
 
-        const trackH = clientHeight
-        const thumbH = Math.max(28, (clientHeight / scrollHeight) * trackH)
+        // Видимая высота трека = высота .yandexBody минус нижний отступ
+        // (24px + safe-area), чтобы трек не уходил под низ шторки.
+        const safeArea = (() => {
+            if (typeof window === 'undefined' || !window.getComputedStyle) return 0
+            const probe = document.createElement('div')
+            probe.style.position = 'fixed'
+            probe.style.bottom = '0'
+            probe.style.height = 'env(safe-area-inset-bottom, 0px)'
+            probe.style.visibility = 'hidden'
+            probe.style.pointerEvents = 'none'
+            document.body.appendChild(probe)
+            const h = probe.getBoundingClientRect().height
+            document.body.removeChild(probe)
+            return h
+        })()
+
+        const bottomInset = SCROLL_TRACK_BOTTOM_PADDING + safeArea
+
+        // Длина видимого трека (не больше, чем реально есть места)
+        const trackVisibleH = Math.max(
+            0,
+            bodyOffsetTop + clientHeight - bottomInset - bodyOffsetTop
+        ) - 0
+        const visibleTrackH = Math.max(
+            0,
+            clientHeight - bottomInset
+        )
+
+        if (visibleTrackH <= 0) {
+            setScrollbar((prev) =>
+                prev.visible
+                    ? { visible: false, top: 0, height: 0, trackTop: 0, trackHeight: 0 }
+                    : prev
+            )
+            return
+        }
+
+        // thumb: пропорционален clientHeight/scrollHeight,
+        // но «живёт» внутри видимой части трека (visibleTrackH),
+        // чтобы доезжать до низа ровно тогда, когда контент доскроллен до конца.
+        const thumbH = Math.max(28, (clientHeight / scrollHeight) * visibleTrackH)
         const maxScrollTop = scrollHeight - clientHeight
-        const maxThumbTop = trackH - thumbH
-        const thumbTop = maxScrollTop > 0 ? (scrollTop / maxScrollTop) * maxThumbTop : 0
+        const maxThumbTop = visibleTrackH - thumbH
+        const thumbTop = maxScrollTop > 0
+            ? (scrollTop / maxScrollTop) * maxThumbTop
+            : 0
 
         setScrollbar({
             visible: true,
             top: thumbTop,
             height: thumbH,
             trackTop: bodyOffsetTop,
-            trackHeight: trackH,
+            trackHeight: visibleTrackH,
         })
     }, [])
 
@@ -376,15 +426,13 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
                             </div>
 
                             <div
-    ref={bodyRef}
-    className={styles.yandexBody}
-    onClick={handleBodyClick}
->
-   
-
-    {error && (
-        <div className={styles.modalError}>{error}</div>
-    )}
+                                ref={bodyRef}
+                                className={styles.yandexBody}
+                                onClick={handleBodyClick}
+                            >
+                                {error && (
+                                    <div className={styles.modalError}>{error}</div>
+                                )}
 
                                 <div className={styles.yandexField}>
                                     <label className={styles.yandexLabel}>Название объекта</label>
