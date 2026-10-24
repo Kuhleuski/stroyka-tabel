@@ -366,22 +366,134 @@
 }
 
 /* ============================================================
-   ПУСТОЕ СОСТОЯНИЕ
+   ПУСТОЕ СОСТОЯНИЕ (современный стиль)
    ============================================================ */
 
+/* Старые классы оставлены на случай других страниц */
 .emptyState {
     text-align: center;
     padding: 40px var(--spacing-xl);
 }
 
-.emptyIcon {
-    font-size: 48px;
-    margin-bottom: var(--spacing-md);
-}
-
 .emptyText {
     font-size: var(--font-size-lg);
     color: var(--text-muted);
+}
+
+/* Новый центрированный блок пустого состояния */
+.emptyBlock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 48px 24px 56px;
+    gap: 8px;
+}
+
+.emptyIconWrap {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.emptyIconWrapSearch {
+    /* тот же визуал, выделен для читаемости */
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.emptyIcon {
+    width: 28px !important;
+    height: 28px !important;
+    fill: currentColor;
+    color: rgba(255, 255, 255, 0.5);
+    display: block;
+}
+
+.emptyTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+    letter-spacing: -0.1px;
+}
+
+.emptySubtitle {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+.emptyActionBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 12px 20px;
+    background: #86d617;
+    color: #121212;
+    border: none;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+    white-space: nowrap;
+}
+
+.emptyActionBtn:hover {
+    background: #7ac412;
+}
+
+.emptyActionBtn:active {
+    transform: scale(0.97);
+}
+
+.emptyActionIcon {
+    flex-shrink: 0;
+    display: block;
+}
+
+@media (max-width: 400px) {
+    .emptyBlock {
+        padding: 36px 16px 44px;
+    }
+
+    .emptyIconWrap {
+        width: 64px;
+        height: 64px;
+    }
+
+    .emptyIcon {
+        width: 24px !important;
+        height: 24px !important;
+    }
+
+    .emptyTitle {
+        font-size: 17px;
+    }
+
+    .emptySubtitle {
+        font-size: 13px;
+        max-width: 240px;
+    }
+
+    .emptyActionBtn {
+        padding: 11px 18px;
+        font-size: 14px;
+    }
 }
 
 /* ============================================================

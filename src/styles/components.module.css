@@ -1190,6 +1190,15 @@ body {
    ЯНДЕКС-СТИЛЬ: AddSiteModal
    ============================================================ */
 
+:root {
+    /* Единый цвет шторки. Меняешь здесь — меняется фон шторки,
+       градиент затухания, рамка крестика фото и старый футер. */
+    --yandex-sheet-bg: #181717;
+    /* Высота полосы затухания под шапкой (px).
+       Синхронизирована с padding-top у .yandexBody ниже. */
+    --yandex-fade-height: 20px;
+}
+
 .yandexOverlay {
     position: fixed;
     inset: 0;
@@ -1211,7 +1220,7 @@ body {
     max-height: 90vh;
     max-height: 90dvh;
     height: auto;
-    background: #181717;
+    background: var(--yandex-sheet-bg);
     border-radius: 24px 24px 0 0;
     overflow: hidden;
     box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
@@ -1248,10 +1257,40 @@ body {
     flex-shrink: 0;
     cursor: grab;
     touch-action: none;
+    /* База для ::after-градиента затухания */
+    position: relative;
+    z-index: 6;
 }
 
 .yandexHeader:active {
     cursor: grabbing;
+}
+
+/* Полоса затухания строго фиксированной высоты под шапкой.
+   Контент, проезжающий под ней, плавно уходит в цвет фона шторки.
+   Высота берётся из --yandex-fade-height. */
+.yandexHeader::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: var(--yandex-fade-height);
+    pointer-events: none;
+    /* Fallback для старых браузеров без color-mix */
+    background: linear-gradient(
+        to bottom,
+        var(--yandex-sheet-bg) 0%,
+        rgba(24, 23, 23, 0.6) 50%,
+        rgba(24, 23, 23, 0) 100%
+    );
+    /* Современный вариант: цвет автоматически из --yandex-sheet-bg */
+    background: linear-gradient(
+        to bottom,
+        var(--yandex-sheet-bg) 0%,
+        color-mix(in srgb, var(--yandex-sheet-bg) 60%, transparent) 50%,
+        color-mix(in srgb, var(--yandex-sheet-bg) 0%, transparent) 100%
+    );
 }
 
 .yandexTitle {
@@ -1296,14 +1335,51 @@ body {
     display: block;
 }
 
-/* Тело: скроллится, без flex: 1 (футер теперь в потоке) */
+/* Тело: скроллится, без flex: 1 (футер теперь в потоке).
+   padding-top = высоте градиента затухания, чтобы первое поле
+   в покое не попадало под тень. */
 .yandexBody {
     flex: 1 1 auto;
     padding: 0 20px 20px;
+    padding-top: var(--yandex-fade-height);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     min-height: 0;
+    /* Системный скроллбар скрываем — рисуем свой */
+    scrollbar-width: none;               /* Firefox */
+    -ms-overflow-style: none;            /* старый Edge/IE */
+}
+
+.yandexBody::-webkit-scrollbar {
+    display: none;                       /* WebKit / iOS Safari */
+    width: 0;
+    height: 0;
+}
+
+/* === Кастомный постоянный скроллбар внутри шторки === */
+.yandexBodyScrollTrack {
+    position: absolute;
+    right: 4px;
+    width: 6px;
+    border-radius: 999px;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.yandexBodyScrollThumb {
+    position: absolute;
+    right: 0;
+    width: 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.22);
+    pointer-events: auto;
+    transition: background 0.15s ease;
+    will-change: top, height;
+}
+
+.yandexBodyScrollThumb:hover {
+    background: rgba(255, 255, 255, 0.35);
 }
 
 .yandexField {
@@ -1539,7 +1615,7 @@ body {
     border-radius: 50%;
     background: #c62828;
     color: #fff;
-    border: 2px solid #181717;
+    border: 2px solid var(--yandex-sheet-bg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1586,7 +1662,7 @@ body {
     margin-top: 34px;
     padding-top: 16px;
     border-top: 0px solid rgba(255, 255, 255, 0.06);
-    margin-bottom:15px;
+    margin-bottom: 15px;
 }
 
 .yandexSaveBtnInline {
@@ -1622,7 +1698,7 @@ body {
 .yandexFooter {
     display: flex;
     padding: 16px 20px 24px;
-    background: #181717;
+    background: var(--yandex-sheet-bg);
     flex-shrink: 0;
     padding-bottom: calc(24px + env(safe-area-inset-bottom, 0));
 }
@@ -1673,6 +1749,7 @@ body {
 
     .yandexBody {
         padding: 0 16px 16px;
+        padding-top: var(--yandex-fade-height);
     }
 
     .yandexFieldAddress,

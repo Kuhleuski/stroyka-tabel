@@ -1,6 +1,6 @@
 // src/components/AddSiteModal.jsx
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence, useDragControls } from 'framer-motion'
 import Xmark from '@gravity-ui/icons/Xmark'
 import { Camera } from '@gravity-ui/icons'
@@ -47,7 +47,6 @@ const COLORS = [
 // Паттерн закраски мини-календаря (28 ячеек, индексы 0..27).
 // Воскресенья (6, 13, 20, 27) — пустые.
 // Субботы: 5, 12 — пустые; 19, 26 — заняты.
-// Рабочие дни — как в текущей логике (без воскресений и 2 суббот).
 const MINI_CAL_FILLED = new Set([
     0, 1, 2, 3, 4,
     8, 9, 11,
@@ -140,6 +139,82 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
 
     const photoInputRef = useRef(null)
     const dragControls = useDragControls()
+
+    // === Свой постоянный скроллбар внутри .yandexBody ===
+    const bodyRef = useRef(null)
+    const [scrollbar, setScrollbar] = useState({
+        visible: false,
+        top: 0,
+        height: 0,
+        trackTop: 0,
+        trackHeight: 0,
+    })
+
+    const updateScrollbar = useCallback(() => {
+        const el = bodyRef.current
+        if (!el) return
+
+        const { scrollTop, scrollHeight, clientHeight } = el
+        const hasOverflow = scrollHeight - clientHeight > 1
+
+        if (!hasOverflow) {
+            setScrollbar((prev) =>
+                prev.visible
+                    ? { visible: false, top: 0, height: 0, trackTop: 0, trackHeight: 0 }
+                    : prev
+            )
+            return
+        }
+
+        // Позиция .yandexBody относительно .yandexSheet.
+        // .yandexSheet имеет position: relative — absolute-трек
+        // позиционируется именно относительно шторки.
+        const sheet = el.closest('[class*="yandexSheet"]')
+        let bodyOffsetTop = 0
+        if (sheet) {
+            const sheetRect = sheet.getBoundingClientRect()
+            const bodyRect = el.getBoundingClientRect()
+            bodyOffsetTop = bodyRect.top - sheetRect.top
+        }
+
+        const trackH = clientHeight
+        const thumbH = Math.max(28, (clientHeight / scrollHeight) * trackH)
+        const maxScrollTop = scrollHeight - clientHeight
+        const maxThumbTop = trackH - thumbH
+        const thumbTop = maxScrollTop > 0 ? (scrollTop / maxScrollTop) * maxThumbTop : 0
+
+        setScrollbar({
+            visible: true,
+            top: thumbTop,
+            height: thumbH,
+            trackTop: bodyOffsetTop,
+            trackHeight: trackH,
+        })
+    }, [])
+
+    // Пересчёт при открытии + при скролле + при ресайзе + при изменениях контента
+    useEffect(() => {
+        if (!isOpen) return
+        const el = bodyRef.current
+        if (!el) return
+
+        const raf = requestAnimationFrame(updateScrollbar)
+
+        el.addEventListener('scroll', updateScrollbar, { passive: true })
+
+        const ro = new ResizeObserver(updateScrollbar)
+        ro.observe(el)
+        Array.from(el.children).forEach((child) => ro.observe(child))
+
+        window.addEventListener('resize', updateScrollbar)
+
+        return () => {
+            cancelAnimationFrame(raf)
+            el.removeEventListener('scroll', updateScrollbar)
+            ro.disconnect()
+            window.removeEventListener('resize', updateScrollbar)
+        }
+    }, [isOpen, updateScrollbar])
 
     // usedColors в ref — чтобы useEffect зависел только от isOpen,
     // и рандомный дефолт не пересчитывался на каждый ререндер SitesPage.
@@ -300,10 +375,16 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
                                 </button>
                             </div>
 
-                            <div className={styles.yandexBody} onClick={handleBodyClick}>
-                                {error && (
-                                    <div className={styles.modalError}>{error}</div>
-                                )}
+                            <div
+    ref={bodyRef}
+    className={styles.yandexBody}
+    onClick={handleBodyClick}
+>
+   
+
+    {error && (
+        <div className={styles.modalError}>{error}</div>
+    )}
 
                                 <div className={styles.yandexField}>
                                     <label className={styles.yandexLabel}>Название объекта</label>
@@ -446,6 +527,26 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
                                     </button>
                                 </div>
                             </div>
+
+                            {/* === Свой постоянный скроллбар (виден при переполнении) === */}
+                            {scrollbar.visible && (
+                                <div
+                                    className={styles.yandexBodyScrollTrack}
+                                    style={{
+                                        top: scrollbar.trackTop,
+                                        height: scrollbar.trackHeight,
+                                    }}
+                                    aria-hidden="true"
+                                >
+                                    <div
+                                        className={styles.yandexBodyScrollThumb}
+                                        style={{
+                                            top: scrollbar.top,
+                                            height: scrollbar.height,
+                                        }}
+                                    />
+                                </div>
+                            )}
 
                             {/* === СТАРЫЙ футер (flex-bottom) — закомментирован, не удалён === */}
                             {/*

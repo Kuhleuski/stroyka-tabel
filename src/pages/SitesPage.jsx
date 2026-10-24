@@ -481,10 +481,13 @@ export function SitesPage({ onAddSite, shifts = [] }) {
                         </div>
 
                         <SitesList
-                            sites={filteredSites}
-                            filter={filter}
-                            onSiteClick={handleSiteClick}
-                        />
+    sites={filteredSites}
+    filter={filter}
+    onSiteClick={handleSiteClick}
+    onCreate={handleOpenAddModal}
+    hasAnySites={sites.length > 0}
+    searchQuery={searchQuery}
+/>
                     </>
                 )}
             </div>

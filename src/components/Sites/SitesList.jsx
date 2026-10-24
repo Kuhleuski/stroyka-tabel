@@ -1,8 +1,17 @@
 // src/components/Sites/SitesList.jsx
 
+import { Plus } from 'lucide-react'
+import Magnifier from '@gravity-ui/icons/Magnifier'
 import styles from '../../styles/sites.module.css'
 
-export function SitesList({ sites, filter = 'all', onSiteClick }) {
+export function SitesList({
+    sites,
+    filter = 'all',
+    onSiteClick,
+    onCreate,
+    hasAnySites = false,
+    searchQuery = '',
+}) {
     // Сортировка НЕ здесь — SitesPage передаёт уже отсортированный массив
     // (объекты без смен → первыми по created_at; со сменами → по max(work_date)).
     const filteredSites = (sites || []).filter(site => {
@@ -12,15 +21,86 @@ export function SitesList({ sites, filter = 'all', onSiteClick }) {
         return true
     })
 
-    if (!filteredSites || filteredSites.length === 0) {
-        let emptyMessage = 'Нет объектов'
-        if (filter === 'active') emptyMessage = 'Нет объектов в работе'
-        if (filter === 'completed') emptyMessage = 'Нет завершенных объектов'
+    const isSearchActive = (searchQuery || '').trim().length > 0
 
+    if (!filteredSites || filteredSites.length === 0) {
+        // 1) Поиск ничего не нашёл
+        if (isSearchActive) {
+            return (
+                <div className={styles.emptyBlock}>
+                    <div className={`${styles.emptyIconWrap} ${styles.emptyIconWrapSearch}`}>
+                        <Magnifier className={styles.emptyIcon} />
+                    </div>
+                    <div className={styles.emptyTitle}>Ничего не найдено</div>
+                    <div className={styles.emptySubtitle}>
+                        Попробуйте изменить запрос или проверьте написание
+                    </div>
+                </div>
+            )
+        }
+
+        // 2) Вкладка «Все» — объектов вообще нет
+        if (filter === 'all') {
+            return (
+                <div className={styles.emptyBlock}>
+                    <div className={styles.emptyTitle}>Пока нет объектов</div>
+                    <div className={styles.emptySubtitle}>
+                        Добавьте первый объект, чтобы отмечать на нём рабочие дни
+                    </div>
+                    {onCreate && (
+                        <button
+                            type="button"
+                            className={styles.emptyActionBtn}
+                            onClick={onCreate}
+                        >
+                            <Plus size={18} strokeWidth={2.5} className={styles.emptyActionIcon} />
+                            <span>Создать объект</span>
+                        </button>
+                    )}
+                </div>
+            )
+        }
+
+        // 3) Вкладка «В работе» — объектов в работе нет
+        if (filter === 'active') {
+            return (
+                <div className={styles.emptyBlock}>
+                    <div className={styles.emptyTitle}>Нет объектов в работе</div>
+                    <div className={styles.emptySubtitle}>
+                        {hasAnySites
+                            ? 'Сейчас все объекты завершены. Создайте новый, чтобы продолжить'
+                            : 'Добавьте объект, чтобы начать отмечать рабочие дни'}
+                    </div>
+                    {onCreate && (
+                        <button
+                            type="button"
+                            className={styles.emptyActionBtn}
+                            onClick={onCreate}
+                        >
+                            <Plus size={18} strokeWidth={2.5} className={styles.emptyActionIcon} />
+                            <span>Создать объект</span>
+                        </button>
+                    )}
+                </div>
+            )
+        }
+
+        // 4) Вкладка «Завершенные» — без кнопки
+        if (filter === 'completed') {
+            return (
+                <div className={styles.emptyBlock}>
+                    <div className={styles.emptyTitle}>Нет завершенных объектов</div>
+                    <div className={styles.emptySubtitle}>
+                        Здесь появятся объекты, которые вы завершите
+                    </div>
+                </div>
+            )
+        }
+
+        // fallback
         return (
-            <div className={styles.emptyState}>
-                <div className={styles.emptyIcon}>🏗️</div>
-                <div className={styles.emptyText}>{emptyMessage}</div>
+            <div className={styles.emptyBlock}>
+                <div className={styles.emptyTitle}>Нет объектов</div>
             </div>
         )
     }
