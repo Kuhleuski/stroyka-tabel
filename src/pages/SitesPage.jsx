@@ -401,6 +401,7 @@ export function SitesPage({ onAddSite }) {
                 isOpen={showAddModal}
                 onClose={() => setShowAddModal(false)}
                 onSave={handleSave}
+                usedColors={sites.map(s => s.color).filter(Boolean)}
             />
         </>
     )

@@ -1190,10 +1190,8 @@ body {
    ЯНДЕКС-СТИЛЬ: AddSiteModal
    (bottom sheet 90dvh, 30 цветов, мини-календарь с подписями,
     фото-зона, зарплата)
-   Только для AddSiteModal. Общие .modal* не трогаем.
    ============================================================ */
 
-/* Оверлей: полупрозрачный + blur */
 .yandexOverlay {
     position: fixed;
     inset: 0;
@@ -1206,7 +1204,6 @@ body {
     justify-content: center;
 }
 
-/* Шторка: 90dvh, скругления сверху 24px */
 .yandexSheet {
     display: flex;
     flex-direction: column;
@@ -1220,7 +1217,6 @@ body {
     box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
 }
 
-/* Зона ручки — увеличивает hit-area для свайпа */
 .yandexHandleZone {
     display: flex;
     justify-content: center;
@@ -1235,7 +1231,6 @@ body {
     cursor: grabbing;
 }
 
-/* «Ручка» сверху */
 .yandexHandle {
     width: 40px;
     height: 4px;
@@ -1294,14 +1289,12 @@ body {
     transform: scale(0.94);
 }
 
-/* Размер иконки Xmark — только через CSS (Gravity UI 2.23 игнорирует проп size) */
 .yandexCloseBtn svg {
     width: 20px !important;
     height: 20px !important;
     display: block;
 }
 
-/* Тело: скроллится независимо от свайпа */
 .yandexBody {
     flex: 1;
     padding: 0 20px 20px;
@@ -1319,7 +1312,6 @@ body {
     margin-bottom: 0;
 }
 
-/* Отступы: адрес и блок цвета — 50px снизу */
 .yandexFieldAddress {
     margin-bottom: 50px;
 }
@@ -1361,7 +1353,7 @@ body {
     box-shadow: 0 0 0 3px rgba(134, 214, 23, 0.12);
 }
 
-/* === Цвет: серая область (подсказка сверху, кнопка + календарь) === */
+/* === Цвет: серая область === */
 .yandexColorBox {
     display: flex;
     flex-direction: column;
@@ -1372,7 +1364,6 @@ body {
     border-radius: 14px;
 }
 
-/* Подсказка — сверху, крупнее, лаконично */
 .yandexColorHint {
     margin: 0;
     font-size: 14px;
@@ -1381,7 +1372,6 @@ body {
     letter-spacing: 0.1px;
 }
 
-/* Строка: кнопка слева, календарь справа */
 .yandexColorRow {
     display: flex;
     align-items: center;
@@ -1389,13 +1379,13 @@ body {
     gap: 12px;
 }
 
-/* Кнопка «Выбрать цвет» — без фона, со свотчем и шевроном */
+/* Кнопка «Выбрать цвет» — фон #ffffff0d, со свотчем и шевроном */
 .yandexColorTriggerCompact {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     padding: 8px 12px;
-    background: transparent;
+    background: #ffffff0d;
     border: none;
     border-radius: 10px;
     color: var(--text-primary);
@@ -1410,14 +1400,13 @@ body {
 }
 
 .yandexColorTriggerCompact:hover {
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .yandexColorTriggerCompact:active {
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.1);
 }
 
-/* Квадрат-свотч текущего цвета */
 .yandexColorSwatch {
     width: 20px;
     height: 20px;
@@ -1441,7 +1430,7 @@ body {
     margin-left: 2px;
 }
 
-/* Мини-календарь: 7 подписей + 28 ячеек, 7 колонок */
+/* Мини-календарь — теперь кнопка */
 .yandexMiniCalendarWrap {
     display: grid;
     grid-template-columns: repeat(7, 16px);
@@ -1449,6 +1438,20 @@ body {
     row-gap: 4px;
     background: transparent;
     flex-shrink: 0;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.15s ease;
+}
+
+.yandexMiniCalendarWrap:hover {
+    opacity: 0.9;
+}
+
+.yandexMiniCalendarWrap:active {
+    opacity: 0.8;
 }
 
 .yandexMiniCalendarDayLabel {
@@ -1469,7 +1472,7 @@ body {
     transition: background 0.15s ease;
 }
 
-/* === Фото: зона-дропзона === */
+/* === Фото === */
 .yandexPhotoZone {
     width: 100%;
     min-height: 96px;
@@ -1512,7 +1515,6 @@ body {
     letter-spacing: 0.2px;
 }
 
-/* Превью выбранного фото */
 .yandexPhotoPreviewWrap {
     position: relative;
     width: 80px;
@@ -1556,7 +1558,7 @@ body {
     display: none;
 }
 
-/* === Зарплатная часть === */
+/* === Зарплата === */
 .yandexSalaryWrap {
     position: relative;
     width: 100%;
@@ -1578,7 +1580,7 @@ body {
     letter-spacing: 0.3px;
 }
 
-/* === Футер: только «Сохранить», фон как у шторки, без бордера === */
+/* === Футер === */
 .yandexFooter {
     display: flex;
     padding: 16px 20px 24px;
@@ -1617,7 +1619,7 @@ body {
     cursor: default;
 }
 
-/* Адаптив для узких экранов */
+/* Адаптив */
 @media (max-width: 400px) {
     .yandexSheet {
         border-radius: 20px 20px 0 0;

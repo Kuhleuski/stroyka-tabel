@@ -47,18 +47,29 @@ const COLORS = [
 // Паттерн закраски мини-календаря (28 ячеек, индексы 0..27).
 // Закрашено 23 из 28 — «рядами», по горизонтали заполнено хорошо.
 const MINI_CAL_FILLED = new Set([
-    // Ряд 1 (0–6) — весь
     0, 1, 2, 3, 4, 5, 6,
-    // Ряд 2 (7–13) — частично
     8, 9, 11, 12, 13,
-    // Ряд 3 (14–20) — весь
     14, 15, 16, 17, 18, 19, 20,
-    // Ряд 4 (21–27) — частично
     22, 23, 25, 26,
 ])
 
 // Подписи дней недели над мини-календарём
 const WEEKDAY_LABELS = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс']
+
+// Случайный дефолтный цвет: из неиспользованных, иначе из всех
+function pickDefaultColor(usedColors) {
+    const used = new Set((usedColors || []).filter(Boolean))
+    const available = COLORS.filter(c => !used.has(c))
+    const pool = available.length > 0 ? available : COLORS
+    return pool[Math.floor(Math.random() * pool.length)]
+}
+
+// Форматирование зарплаты: 50000 → «50 000»
+function formatSalary(raw) {
+    const digits = (raw || '').replace(/\D/g, '')
+    if (!digits) return ''
+    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+}
 
 // Маленькая модалка выбора цвета (центрированная карточка)
 function ColorPickerModal({ isOpen, currentColor, onSelect, onClose }) {
@@ -112,7 +123,7 @@ function ColorPickerModal({ isOpen, currentColor, onSelect, onClose }) {
     )
 }
 
-export function AddSiteModal({ isOpen, onClose, onSave }) {
+export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
     const [name, setName] = useState('')
     const [address, setAddress] = useState('')
     const [selectedColor, setSelectedColor] = useState(COLORS[0])
@@ -125,6 +136,20 @@ export function AddSiteModal({ isOpen, onClose, onSave }) {
 
     const photoInputRef = useRef(null)
     const dragControls = useDragControls()
+
+    // usedColors в ref — чтобы useEffect зависел только от isOpen,
+    // и рандомный дефолт не пересчитывался на каждый ререндер SitesPage.
+    const usedColorsRef = useRef(usedColors)
+    usedColorsRef.current = usedColors
+
+    // Дефолтный цвет — только при переходе «закрыто → открыто».
+    const prevIsOpenRef = useRef(false)
+    useEffect(() => {
+        if (isOpen && !prevIsOpenRef.current) {
+            setSelectedColor(pickDefaultColor(usedColorsRef.current))
+        }
+        prevIsOpenRef.current = isOpen
+    }, [isOpen])
 
     // Блокировка скролла фона, пока модалка открыта
     useEffect(() => {
@@ -172,10 +197,20 @@ export function AddSiteModal({ isOpen, onClose, onSave }) {
         setPhotoPreview(null)
     }
 
+    // Enter → blur (для текстовых полей «Название», «Адрес»)
     const blurOnEnter = (e) => {
         if (e.key === 'Enter') {
             e.preventDefault()
             e.currentTarget.blur()
+        }
+    }
+
+    // Клик по пустому месту в теле формы — скрыть клавиатуру
+    const handleBodyClick = (e) => {
+        const tag = (e.target.tagName || '').toLowerCase()
+        if (tag === 'input' || tag === 'textarea' || tag === 'button') return
+        if (document.activeElement && document.activeElement.blur) {
+            document.activeElement.blur()
         }
     }
 
@@ -195,7 +230,6 @@ export function AddSiteModal({ isOpen, onClose, onSave }) {
             await onSave(name.trim(), address.trim(), selectedColor)
             setName('')
             setAddress('')
-            setSelectedColor(COLORS[0])
             setSalaryPart('')
             handleRemovePhoto()
             onClose()
@@ -262,7 +296,7 @@ export function AddSiteModal({ isOpen, onClose, onSave }) {
                                 </button>
                             </div>
 
-                            <div className={styles.yandexBody}>
+                            <div className={styles.yandexBody} onClick={handleBodyClick}>
                                 {error && (
                                     <div className={styles.modalError}>{error}</div>
                                 )}
@@ -293,7 +327,7 @@ export function AddSiteModal({ isOpen, onClose, onSave }) {
                                     />
                                 </div>
 
-                                {/* Цвет: серая область — подсказка сверху, кнопка+календарь, без label */}
+                                {/* Цвет: серая область — подсказка сверху, кнопка+календарь */}
                                 <div className={`${styles.yandexField} ${styles.yandexFieldColor}`}>
                                     <div className={styles.yandexColorBox}>
                                         <p className={styles.yandexColorHint}>
@@ -314,7 +348,12 @@ export function AddSiteModal({ isOpen, onClose, onSave }) {
                                                 <span className={styles.yandexColorChevron}>›</span>
                                             </button>
 
-                                            <div className={styles.yandexMiniCalendarWrap} aria-hidden="true">
+                                            <button
+                                                type="button"
+                                                className={styles.yandexMiniCalendarWrap}
+                                                onClick={() => setShowColorPicker(true)}
+                                                aria-label="Выбрать цвет"
+                                            >
                                                 {WEEKDAY_LABELS.map((d, i) => (
                                                     <span key={`d-${i}`} className={styles.yandexMiniCalendarDayLabel}>
                                                         {d}
@@ -331,7 +370,7 @@ export function AddSiteModal({ isOpen, onClose, onSave }) {
                                                         }
                                                     />
                                                 ))}
-                                            </div>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -344,10 +383,8 @@ export function AddSiteModal({ isOpen, onClose, onSave }) {
                                             type="text"
                                             inputMode="numeric"
                                             value={salaryPart}
-                                            onChange={(e) => setSalaryPart(e.target.value.replace(/\D/g, ''))}
-                                            onKeyDown={blurOnEnter}
-                                            enterKeyHint="done"
-                                            placeholder="Например: 5000"
+                                            onChange={(e) => setSalaryPart(formatSalary(e.target.value))}
+                                            placeholder="Например: 50 000"
                                         />
                                         <span className={styles.yandexSalarySuffix}>BYN</span>
                                     </div>
