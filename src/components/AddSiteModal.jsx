@@ -354,15 +354,16 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
         setLoading(true)
         setError('')
 
-        try {
-            // Заглушки (фото, зарплата) в onSave НЕ передаются — по договорённости.
-            await onSave(name.trim(), address.trim(), selectedColor)
-            setName('')
-            setAddress('')
-            setSalaryPart('')
-            handleRemovePhoto()
-            onClose()
-        } catch (err) {
+       try {
+    // Фото остаётся заглушкой (в onSave не передаётся).
+    // Зарплатная часть передаётся 4-м аргументом; SitesPage приведёт её к числу/null.
+    await onSave(name.trim(), address.trim(), selectedColor, salaryPart)
+    setName('')
+    setAddress('')
+    setSalaryPart('')
+    handleRemovePhoto()
+    onClose()
+}catch (err) {
             setError(err.message || 'Ошибка при добавлении')
         } finally {
             setLoading(false)

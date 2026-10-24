@@ -490,12 +490,22 @@ export async function fetchSites() {
    }
 }
 
-export async function addSite(name, address, color) {
+export async function addSite(name, address, color, salaryPart = null) {
    const url = `${SUPABASE_URL}/rest/v1/sites`
+   // salary_part: null → «не задано», число → целые BYN.
+   // Supabase-js (и REST) нормально принимает null в nullable bigint.
+   const payload = [{
+      name,
+      address,
+      color,
+      salary_part: (salaryPart === null || salaryPart === undefined || salaryPart === '')
+         ? null
+         : Number(salaryPart)
+   }]
    const response = await fetch(url, {
       method: 'POST',
       headers: getHeaders(),
-      body: JSON.stringify([{ name, address, color }])
+      body: JSON.stringify(payload)
    })
 
    if (!response.ok) {

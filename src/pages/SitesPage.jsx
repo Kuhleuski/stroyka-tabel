@@ -247,19 +247,28 @@ export function SitesPage({ onAddSite, shifts = [] }) {
         }
     }
 
-    const handleSave = async (name, address, color) => {
-        try {
-            const newSite = await addSite(name, address, color)
-            const siteData = newSite[0] || newSite
-            addSiteToState(siteData)
-            if (onAddSite) {
-                onAddSite(siteData)
-            }
-            setShowAddModal(false)
-        } catch (err) {
-            throw err
+const handleSave = async (name, address, color, salaryPart = null) => {
+    try {
+        // salaryPart приходит из AddSiteModal строкой с пробелами («50 000») или пустой строкой.
+        // Приводим к числу или null:
+        //   '' / null / undefined → null
+        //   '50 000' → 50000
+        let salaryValue = null
+        if (salaryPart !== null && salaryPart !== undefined) {
+            const cleaned = String(salaryPart).replace(/\D/g, '')
+            salaryValue = cleaned === '' ? null : Number(cleaned)
         }
+        const newSite = await addSite(name, address, color, salaryValue)
+        const siteData = newSite[0] || newSite
+        addSiteToState(siteData)
+        if (onAddSite) {
+            onAddSite(siteData)
+        }
+        setShowAddModal(false)
+    } catch (err) {
+        throw err
     }
+}
 
     const handleUpdate = async (siteId, name, address, color, status) => {
         try {
