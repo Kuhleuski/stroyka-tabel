@@ -1,52 +1,48 @@
 // src/components/AddSiteModal.jsx
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence, useDragControls } from 'framer-motion'
 import Xmark from '@gravity-ui/icons/Xmark'
 import { Camera } from '@gravity-ui/icons'
+import { compressSquare } from '../services/supabase'
 import styles from '../styles/components.module.css'
 
 // 30 цветов для объектов.
-// ВАЖНО: первые 10 (существующие) сохранены байт-в-байт — на них уже созданы объекты в БД.
+// Первые 10 (существующие) сохранены байт-в-байт — на них уже созданы объекты в БД.
 // #FFC470 — первый (дефолт). Остальные 29 перемешаны.
 const COLORS = [
-    '#FFC470', // Light Yellow — дефолт (существующий)
-    // === 9 существующих (перемешаны) ===
-    '#27B4E0', // Light Blue
-    '#B5B4B4', // Gray
-    '#C03F3F', // Reddish
-    '#2264F3', // Dark Blue
-    '#139520', // Dark Green
-    '#C0317E', // Pink
-    '#E88210', // Dark Orange
-    '#27F0C1', // Aquamarine
-    '#C2217D', // Violet
-    // === 20 новых (перемешаны по спектру) ===
-    '#F5A623', // Amber
-    '#D0021B', // Crimson
-    '#8B572A', // Brown
-    '#7ED321', // Lime
-    '#417505', // Forest
-    '#50E3C2', // Teal
-    '#4A90E2', // Sky Blue
-    '#9013FE', // Purple
-    '#BD10E0', // Magenta
-    '#F8E71C', // Bright Yellow
-    '#FF6F61', // Coral
-    '#6B5B95', // Slate Purple
-    '#88B04B', // Moss
-    '#F7CAC9', // Rose Quartz
-    '#92A8D1', // Serenity
-    '#955251', // Marsala
-    '#B565A7', // Orchid
-    '#009B77', // Emerald
-    '#DD4124', // Tangerine
-    '#45B8AC', // Turquoise
+    '#FFC470',
+    '#27B4E0',
+    '#B5B4B4',
+    '#C03F3F',
+    '#2264F3',
+    '#139520',
+    '#C0317E',
+    '#E88210',
+    '#27F0C1',
+    '#C2217D',
+    '#F5A623',
+    '#D0021B',
+    '#8B572A',
+    '#7ED321',
+    '#417505',
+    '#50E3C2',
+    '#4A90E2',
+    '#9013FE',
+    '#BD10E0',
+    '#F8E71C',
+    '#FF6F61',
+    '#6B5B95',
+    '#88B04B',
+    '#F7CAC9',
+    '#92A8D1',
+    '#955251',
+    '#B565A7',
+    '#009B77',
+    '#DD4124',
+    '#45B8AC',
 ]
 
-// Паттерн закраски мини-календаря (28 ячеек, индексы 0..27).
-// Воскресенья (6, 13, 20, 27) — пустые.
-// Субботы: 5, 12 — пустые; 19, 26 — заняты.
 const MINI_CAL_FILLED = new Set([
     0, 1, 2, 3, 4,
     8, 9, 11,
@@ -56,10 +52,8 @@ const MINI_CAL_FILLED = new Set([
     26,
 ])
 
-// Подписи дней недели над мини-календарём
 const WEEKDAY_LABELS = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс']
 
-// Случайный дефолтный цвет: из неиспользованных, иначе из всех
 function pickDefaultColor(usedColors) {
     const used = new Set((usedColors || []).filter(Boolean))
     const available = COLORS.filter(c => !used.has(c))
@@ -67,14 +61,20 @@ function pickDefaultColor(usedColors) {
     return pool[Math.floor(Math.random() * pool.length)]
 }
 
-// Форматирование зарплаты: 50000 → «50 000»
 function formatSalary(raw) {
     const digits = (raw || '').replace(/\D/g, '')
     if (!digits) return ''
     return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 }
 
-// Маленькая модалка выбора цвета (центрированная карточка)
+// '' → null, '50 000' → 50000, '0' → 0
+function parseSalary(raw) {
+    if (raw === null || raw === undefined) return null
+    const cleaned = String(raw).replace(/\D/g, '')
+    if (cleaned === '') return null
+    return Number(cleaned)
+}
+
 function ColorPickerModal({ isOpen, currentColor, onSelect, onClose }) {
     const [tempColor, setTempColor] = useState(currentColor)
 
@@ -126,12 +126,6 @@ function ColorPickerModal({ isOpen, currentColor, onSelect, onClose }) {
     )
 }
 
-// Нижний отступ трека скроллбара: 24px + safe-area
-// (чтобы на iPhone трек не заезжал под home-индикатор).
-const SCROLL_TRACK_BOTTOM_PADDING = 24
-
-// Обязательные поля. Расширяемо: добавляешь новый объект — он автоматически
-// участвует в валидации, скролле и подсветке.
 const REQUIRED_FIELDS = [
     {
         key: 'name',
@@ -146,144 +140,27 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
     const [address, setAddress] = useState('')
     const [selectedColor, setSelectedColor] = useState(COLORS[0])
     const [salaryPart, setSalaryPart] = useState('')
-    const [photoFile, setPhotoFile] = useState(null)
-    const [photoPreview, setPhotoPreview] = useState(null)
+    // Base64 dataURL с префиксом — он же превью (квадрат 250×250)
+    const [photoBase64, setPhotoBase64] = useState(null)
+    const [photoProcessing, setPhotoProcessing] = useState(false)
+    const [photoError, setPhotoError] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
     const [showColorPicker, setShowColorPicker] = useState(false)
 
-    // === Валидация: какие поля сейчас в ошибке ===
-    // { [key]: true } — подсветка + сообщение под полем.
     const [invalidFields, setInvalidFields] = useState({})
-    // Плашки, которые сейчас плавно гаснут при раннем вводе (280мс)
     const [hidingErrors, setHidingErrors] = useState({})
-    // Таймеры автосброса подсветки (3 сек), чтобы «не висело» бесконечно
     const invalidTimersRef = useRef({})
-    // Таймеры плавного ухода плашки при раннем вводе (280мс)
     const hideTimersRef = useRef({})
 
     const photoInputRef = useRef(null)
     const dragControls = useDragControls()
 
-    // Ссылки на DOM-элементы полей (для скролла и фокуса)
     const fieldRefs = useRef({})
 
-    // === Свой постоянный скроллбар внутри .yandexBody ===
-    const bodyRef = useRef(null)
-    const [scrollbar, setScrollbar] = useState({
-        visible: false,
-        top: 0,
-        height: 0,
-        trackTop: 0,
-        trackHeight: 0,
-    })
-
-    const updateScrollbar = useCallback(() => {
-        const el = bodyRef.current
-        if (!el) return
-
-        const { scrollTop, scrollHeight, clientHeight } = el
-        const hasOverflow = scrollHeight - clientHeight > 1
-
-        if (!hasOverflow) {
-            setScrollbar((prev) =>
-                prev.visible
-                    ? { visible: false, top: 0, height: 0, trackTop: 0, trackHeight: 0 }
-                    : prev
-            )
-            return
-        }
-
-        // Позиция .yandexBody относительно .yandexSheet.
-        // .yandexSheet имеет position: relative — absolute-трек
-        // позиционируется именно относительно шторки.
-        const sheet = el.closest('[class*="yandexSheet"]')
-        let bodyOffsetTop = 0
-        if (sheet) {
-            const sheetRect = sheet.getBoundingClientRect()
-            const bodyRect = el.getBoundingClientRect()
-            bodyOffsetTop = bodyRect.top - sheetRect.top
-        }
-
-        // Видимая высота трека = высота .yandexBody минус нижний отступ
-        // (24px + safe-area), чтобы трек не уходил под низ шторки.
-        const safeArea = (() => {
-            if (typeof window === 'undefined' || !window.getComputedStyle) return 0
-            const probe = document.createElement('div')
-            probe.style.position = 'fixed'
-            probe.style.bottom = '0'
-            probe.style.height = 'env(safe-area-inset-bottom, 0px)'
-            probe.style.visibility = 'hidden'
-            probe.style.pointerEvents = 'none'
-            document.body.appendChild(probe)
-            const h = probe.getBoundingClientRect().height
-            document.body.removeChild(probe)
-            return h
-        })()
-
-        const bottomInset = SCROLL_TRACK_BOTTOM_PADDING + safeArea
-        const visibleTrackH = Math.max(0, clientHeight - bottomInset)
-
-        if (visibleTrackH <= 0) {
-            setScrollbar((prev) =>
-                prev.visible
-                    ? { visible: false, top: 0, height: 0, trackTop: 0, trackHeight: 0 }
-                    : prev
-            )
-            return
-        }
-
-        // thumb в 2 раза короче пропорционального, но не меньше 28px.
-        // Трек (visibleTrackH) остаётся на всю видимую высоту,
-        // поэтому thumb проезжает всю амплитуду и упирается в низ трека,
-        // когда контент доскроллен до конца.
-        const proportionalThumbH = (clientHeight / scrollHeight) * visibleTrackH
-        const thumbH = Math.max(28, proportionalThumbH * 0.5)
-        const maxScrollTop = scrollHeight - clientHeight
-        const maxThumbTop = visibleTrackH - thumbH
-        const thumbTop = maxScrollTop > 0
-            ? (scrollTop / maxScrollTop) * maxThumbTop
-            : 0
-
-        setScrollbar({
-            visible: true,
-            top: thumbTop,
-            height: thumbH,
-            trackTop: bodyOffsetTop,
-            trackHeight: visibleTrackH,
-        })
-    }, [])
-
-    // Пересчёт при открытии + при скролле + при ресайзе + при изменениях контента
-    useEffect(() => {
-        if (!isOpen) return
-        const el = bodyRef.current
-        if (!el) return
-
-        const raf = requestAnimationFrame(updateScrollbar)
-
-        el.addEventListener('scroll', updateScrollbar, { passive: true })
-
-        const ro = new ResizeObserver(updateScrollbar)
-        ro.observe(el)
-        Array.from(el.children).forEach((child) => ro.observe(child))
-
-        window.addEventListener('resize', updateScrollbar)
-
-        return () => {
-            cancelAnimationFrame(raf)
-            el.removeEventListener('scroll', updateScrollbar)
-            ro.disconnect()
-            window.removeEventListener('resize', updateScrollbar)
-        }
-    }, [isOpen, updateScrollbar])
-
-    // usedColors в ref — чтобы useEffect зависел только от isOpen,
-    // и рандомный дефолт не пересчитывался на каждый ререндер SitesPage.
     const usedColorsRef = useRef(usedColors)
     usedColorsRef.current = usedColors
 
-    // Дефолтный цвет — только при переходе «закрыто → открыто».
     const prevIsOpenRef = useRef(false)
     useEffect(() => {
         if (isOpen && !prevIsOpenRef.current) {
@@ -292,7 +169,7 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
         prevIsOpenRef.current = isOpen
     }, [isOpen])
 
-    // Блокировка скролла фона, пока модалка открыта
+    // Блокировка скролла фона
     useEffect(() => {
         if (!isOpen) return
 
@@ -316,14 +193,7 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
         }
     }, [isOpen])
 
-    // Освобождение objectURL при смене/закрытии
-    useEffect(() => {
-        return () => {
-            if (photoPreview) URL.revokeObjectURL(photoPreview)
-        }
-    }, [photoPreview])
-
-    // При закрытии модалки — чистим все таймеры подсветки и плашек
+    // При закрытии — сброс валидации и таймеров
     useEffect(() => {
         if (isOpen) return
         Object.values(invalidTimersRef.current).forEach(clearTimeout)
@@ -334,22 +204,40 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
         setHidingErrors({})
     }, [isOpen])
 
-    const handlePhotoSelect = (e) => {
+    // Сброс полей при закрытии (чтобы не копилось между открытиями)
+    useEffect(() => {
+        if (isOpen) return
+        setName('')
+        setAddress('')
+        setSalaryPart('')
+        setPhotoBase64(null)
+        setPhotoError('')
+        setPhotoProcessing(false)
+        setError('')
+    }, [isOpen])
+
+    const handlePhotoSelect = async (e) => {
         const file = e.target.files && e.target.files[0]
-        if (!file) return
-        if (photoPreview) URL.revokeObjectURL(photoPreview)
-        setPhotoFile(file)
-        setPhotoPreview(URL.createObjectURL(file))
         e.target.value = ''
+        if (!file) return
+
+        setPhotoError('')
+        setPhotoProcessing(true)
+        try {
+            const dataUrl = await compressSquare(file, 250, 0.82)
+            setPhotoBase64(dataUrl)
+        } catch (err) {
+            setPhotoError(err.message || 'Не удалось обработать фото')
+        } finally {
+            setPhotoProcessing(false)
+        }
     }
 
     const handleRemovePhoto = () => {
-        if (photoPreview) URL.revokeObjectURL(photoPreview)
-        setPhotoFile(null)
-        setPhotoPreview(null)
+        setPhotoBase64(null)
+        setPhotoError('')
     }
 
-    // Enter → blur (для текстовых полей «Название», «Адрес»)
     const blurOnEnter = (e) => {
         if (e.key === 'Enter') {
             e.preventDefault()
@@ -357,7 +245,6 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
         }
     }
 
-    // Клик по пустому месту в теле формы — скрыть клавиатуру
     const handleBodyClick = (e) => {
         const tag = (e.target.tagName || '').toLowerCase()
         if (tag === 'input' || tag === 'textarea' || tag === 'button') return
@@ -366,20 +253,14 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
         }
     }
 
-    // === Вспомогательные функции валидации ===
-
-    // Снять подсветку с поля (например, когда пользователь начал печатать).
-    // Плашка и обводка уходят плавно (~280мс), затем DOM очищается.
     const clearFieldError = (key) => {
         if (!invalidFields[key] && !hidingErrors[key]) return
 
-        // Снимаем таймаут автосброса (3с)
         if (invalidTimersRef.current[key]) {
             clearTimeout(invalidTimersRef.current[key])
             delete invalidTimersRef.current[key]
         }
 
-        // Переводим плашку в плавно угасающую фазу
         setHidingErrors(prev => ({ ...prev, [key]: true }))
 
         if (hideTimersRef.current[key]) {
@@ -402,8 +283,6 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
         }, 280)
     }
 
-    // Показать подсветку для поля + автосброс через 3 секунды,
-    // если пользователь так и не начал печатать.
     const markFieldInvalid = (key) => {
         setInvalidFields(prev => ({ ...prev, [key]: true }))
         if (invalidTimersRef.current[key]) {
@@ -420,18 +299,14 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
         }, 3000)
     }
 
-    // Плавный скролл к полю + фокус (если браузер позволяет)
     const scrollToField = (key) => {
         const node = fieldRefs.current[key]
         if (!node) return
         try {
             node.scrollIntoView({ behavior: 'smooth', block: 'center' })
         } catch (e) {
-            // fallback, если scrollIntoView с опциями не поддерживается
             node.scrollIntoView()
         }
-        // Небольшая задержка, чтобы скролл успел стартовать,
-        // и фокус не отменял плавность.
         setTimeout(() => {
             try {
                 const input = node.querySelector('input, textarea, select')
@@ -444,19 +319,16 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        if (loading || photoProcessing) return
 
-        // 1. Собираем все невалидные обязательные поля
         const values = { name }
         const invalidKeys = REQUIRED_FIELDS
             .filter(field => field.isEmpty(values[field.key]))
             .map(field => field.key)
 
         if (invalidKeys.length > 0) {
-            // 2. Подсвечиваем ВСЕ невалидные поля и ставим таймеры автосброса
             invalidKeys.forEach(key => markFieldInvalid(key))
-            // 3. Скроллим к первому невалидному полю
             scrollToField(invalidKeys[0])
-            // 4. POST не отправляем
             return
         }
 
@@ -464,15 +336,13 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
         setError('')
 
         try {
-            // Фото остаётся заглушкой (в onSave не передаётся).
-            // Зарплатная часть передаётся 4-м аргументом; SitesPage приведёт её к числу/null.
-            await onSave(name.trim(), address.trim(), selectedColor, salaryPart)
-            setName('')
-            setAddress('')
-            setSalaryPart('')
-            handleRemovePhoto()
-            setInvalidFields({})
-            setHidingErrors({})
+            await onSave({
+                name: name.trim(),
+                address: address.trim(),
+                color: selectedColor,
+                salaryPart: parseSalary(salaryPart),
+                photo: photoBase64 || null,
+            })
             onClose()
         } catch (err) {
             setError(err.message || 'Ошибка при добавлении')
@@ -487,8 +357,8 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
         }
     }
 
-    // Проверка, есть ли у поля ошибка
     const isInvalid = (key) => !!invalidFields[key]
+    const saveDisabled = loading || photoProcessing
 
     return (
         <>
@@ -541,7 +411,6 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
                             </div>
 
                             <div
-                                ref={bodyRef}
                                 className={styles.yandexBody}
                                 onClick={handleBodyClick}
                             >
@@ -549,7 +418,6 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
                                     <div className={styles.modalError}>{error}</div>
                                 )}
 
-                                {/* === Название объекта (обязательное) === */}
                                 <div
                                     className={`${styles.yandexField} ${styles.yandexFieldRequired}`}
                                     ref={(el) => { fieldRefs.current.name = el }}
@@ -595,7 +463,6 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
                                     />
                                 </div>
 
-                                {/* Цвет: серая область — подсказка сверху, кнопка+календарь */}
                                 <div className={`${styles.yandexField} ${styles.yandexFieldColor}`}>
                                     <div className={styles.yandexColorBox}>
                                         <p className={styles.yandexColorHint}>
@@ -658,14 +525,14 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
                                     </div>
                                 </div>
 
-                                {/* Фото — в конце, зона-дропзона */}
+                                {/* === ФОТО === */}
                                 <div className={styles.yandexField}>
                                     <label className={styles.yandexLabel}>Фото объекта</label>
 
-                                    {photoPreview ? (
+                                    {photoBase64 ? (
                                         <div className={styles.yandexPhotoPreviewWrap}>
                                             <img
-                                                src={photoPreview}
+                                                src={photoBase64}
                                                 alt="Превью"
                                                 className={styles.yandexPhotoPreview}
                                             />
@@ -682,11 +549,28 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
                                         <button
                                             type="button"
                                             className={styles.yandexPhotoZone}
-                                            onClick={() => photoInputRef.current && photoInputRef.current.click()}
+                                            onClick={() => {
+                                                if (photoProcessing) return
+                                                photoInputRef.current && photoInputRef.current.click()
+                                            }}
+                                            disabled={photoProcessing}
                                         >
-                                            <Camera className={styles.yandexPhotoZoneIcon} />
-                                            <span className={styles.yandexPhotoZoneText}>Загрузить фото</span>
+                                            {photoProcessing ? (
+                                                <>
+                                                    <span className={styles.yandexPhotoSpinner} aria-hidden="true" />
+                                                    <span className={styles.yandexPhotoZoneText}>Обработка...</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Camera className={styles.yandexPhotoZoneIcon} />
+                                                    <span className={styles.yandexPhotoZoneText}>Загрузить фото</span>
+                                                </>
+                                            )}
                                         </button>
+                                    )}
+
+                                    {photoError && (
+                                        <div className={styles.yandexPhotoError}>{photoError}</div>
                                     )}
 
                                     <input
@@ -698,52 +582,17 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
                                     />
                                 </div>
 
-                                {/* === НОВЫЙ потоковый футер (внизу контента) === */}
                                 <div className={styles.yandexFooterInline}>
                                     <button
                                         type="button"
                                         className={styles.yandexSaveBtnInline}
                                         onClick={handleSubmit}
-                                        disabled={loading}
+                                        disabled={saveDisabled}
                                     >
                                         {loading ? 'Сохранение...' : 'Сохранить'}
                                     </button>
                                 </div>
                             </div>
-
-                            {/* === Свой постоянный скроллбар (виден при переполнении) === */}
-                            {scrollbar.visible && (
-                                <div
-                                    className={styles.yandexBodyScrollTrack}
-                                    style={{
-                                        top: scrollbar.trackTop,
-                                        height: scrollbar.trackHeight,
-                                    }}
-                                    aria-hidden="true"
-                                >
-                                    <div
-                                        className={styles.yandexBodyScrollThumb}
-                                        style={{
-                                            top: scrollbar.top,
-                                            height: scrollbar.height,
-                                        }}
-                                    />
-                                </div>
-                            )}
-
-                            {/* === СТАРЫЙ футер (flex-bottom) — закомментирован, не удалён === */}
-                            {/*
-                            <div className={styles.yandexFooter}>
-                                <button
-                                    type="button"
-                                    className={styles.yandexSaveBtn}
-                                    onClick={handleSubmit}
-                                    disabled={loading}
-                                >
-                                    {loading ? 'Сохранение...' : 'Сохранить'}
-                                </button>
-                            </div>
-                            */}
                         </motion.div>
                     </motion.div>
                 )}

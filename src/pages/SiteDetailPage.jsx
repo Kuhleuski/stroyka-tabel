@@ -5,6 +5,7 @@ import { useShifts } from '../hooks/useShifts'
 import { useWorkers } from '../hooks/useWorkers'
 import styles from '../styles/sites.module.css'
 import compStyles from '../styles/components.module.css'
+import { Camera } from '@gravity-ui/icons'
 
 export function SiteDetailPage({ site, onClose, onArchive, onEdit }) {
     const [showConfirm, setShowConfirm] = useState(false)
@@ -194,16 +195,56 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit }) {
     return (
         <div className={styles.siteDetailPage}>
             {/* === ХЕДЕР === */}
-            <div className={styles.siteDetailHeader}>
+                       <div className={styles.siteDetailHeader}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
-                    <div style={{
-                        width: '52px',
-                        height: '52px',
-                        borderRadius: '50%',
-                        backgroundColor: site.color || '#2d7d46',
-                        flexShrink: 0,
-                        border: '2px solid #e8eaed'
-                    }} />
+                    <div style={{ position: 'relative', width: '64px', height: '64px', flexShrink: 0 }}>
+                        {site.photo ? (
+                            <img
+                                src={site.photo}
+                                alt=""
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    borderRadius: '12px',
+                                    objectFit: 'cover',
+                                    display: 'block',
+                                    background: 'rgba(255,255,255,0.04)'
+                                }}
+                            />
+                        ) : (
+                            <div
+                                aria-hidden="true"
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    borderRadius: '12px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    background: 'rgba(255,255,255,0.04)',
+                                    border: '1px solid rgba(255,255,255,0.06)',
+                                    color: 'var(--text-muted)'
+                                }}
+                            >
+                                <Camera style={{ width: '24px', height: '24px', fill: 'currentColor' }} />
+                            </div>
+                        )}
+                        <span
+                            aria-hidden="true"
+                            style={{
+                                position: 'absolute',
+                                right: '-3px',
+                                bottom: '-3px',
+                                width: '14px',
+                                height: '14px',
+                                borderRadius: '50%',
+                                backgroundColor: site.color || '#2d7d46',
+                                border: '2px solid var(--bg-card)',
+                                boxSizing: 'content-box',
+                                pointerEvents: 'none'
+                            }}
+                        />
+                    </div>
                     <span className={styles.siteDetailTitle}>{site.name}</span>
                 </div>
 

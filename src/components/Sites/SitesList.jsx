@@ -2,6 +2,7 @@
 
 import { Plus } from 'lucide-react'
 import Magnifier from '@gravity-ui/icons/Magnifier'
+import { Camera } from '@gravity-ui/icons'
 import styles from '../../styles/sites.module.css'
 
 export function SitesList({
@@ -125,6 +126,7 @@ export function SitesList({
 
             {filteredSites.map((site) => {
                 const status = getStatus(site.status)
+                const color = site.color || '#2d7d46'
 
                 return (
                     <div
@@ -133,10 +135,27 @@ export function SitesList({
                         onClick={() => onSiteClick && onSiteClick(site)}
                     >
                         <div className={styles.siteRowMain}>
-                            <span
-                                className={styles.siteDot}
-                                style={{ backgroundColor: site.color || '#2d7d46' }}
-                            />
+                            <div className={styles.siteRowThumb}>
+                                {site.photo ? (
+                                    <img
+                                        src={site.photo}
+                                        alt=""
+                                        className={styles.siteRowPhoto}
+                                        loading="lazy"
+                                        decoding="async"
+                                    />
+                                ) : (
+                                    <div className={styles.siteRowPhotoPlaceholder} aria-hidden="true">
+                                        <Camera className={styles.siteRowPhotoIcon} />
+                                    </div>
+                                )}
+                                <span
+                                    className={styles.siteRowThumbDot}
+                                    style={{ backgroundColor: color }}
+                                    aria-hidden="true"
+                                />
+                            </div>
+
                             <div className={styles.siteRowText}>
                                 <span className={styles.siteRowName}>{site.name}</span>
                                 {site.address && (

@@ -47,7 +47,65 @@ export const compressImage = (file, maxWidth = 300, maxHeight = 300, quality = 0
       reader.onerror = (error) => reject(error)
    })
 }
+// === СЖАТИЕ ФОТО ОБЪЕКТА: ЦЕНТРАЛЬНЫЙ КРОП В КВАДРАТ ===
+// Возвращает dataURL с префиксом: 'data:image/jpeg;base64,...'
+// side — сторона квадрата в px, quality — JPEG-качество.
+export const compressSquare = (file, side = 250, quality = 0.82) => {
+   return new Promise((resolve, reject) => {
+      if (!file) {
+         reject(new Error('Файл не выбран'))
+         return
+      }
 
+      const allowed = ['image/jpeg', 'image/png', 'image/webp']
+      if (!allowed.includes(file.type)) {
+         reject(new Error('Этот формат не поддерживается. Выберите JPEG или PNG.'))
+         return
+      }
+
+      const MAX_INPUT = 20 * 1024 * 1024
+      if (file.size > MAX_INPUT) {
+         reject(new Error('Файл слишком большой (макс. 20 МБ).'))
+         return
+      }
+
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = (event) => {
+         const img = new Image()
+         img.src = event.target.result
+         img.onload = () => {
+            const w = img.naturalWidth || img.width
+            const h = img.naturalHeight || img.height
+            if (!w || !h) {
+               reject(new Error('Не удалось прочитать изображение'))
+               return
+            }
+
+            // Центральный квадрат
+            const srcSide = Math.min(w, h)
+            const sx = Math.floor((w - srcSide) / 2)
+            const sy = Math.floor((h - srcSide) / 2)
+
+            const canvas = document.createElement('canvas')
+            canvas.width = side
+            canvas.height = side
+            const ctx = canvas.getContext('2d')
+            ctx.imageSmoothingQuality = 'high'
+            ctx.drawImage(img, sx, sy, srcSide, srcSide, 0, 0, side, side)
+
+            try {
+               const dataUrl = canvas.toDataURL('image/jpeg', quality)
+               resolve(dataUrl)
+            } catch (e) {
+               reject(new Error('Не удалось обработать фото'))
+            }
+         }
+         img.onerror = () => reject(new Error('Не удалось прочитать изображение'))
+      }
+      reader.onerror = () => reject(new Error('Не удалось прочитать файл'))
+   })
+}
 // === ФУНКЦИЯ КОНВЕРТАЦИИ ФАЙЛА В BASE64 (без сжатия) ===
 export const fileToBase64 = (file) => {
    return new Promise((resolve, reject) => {
@@ -490,17 +548,18 @@ export async function fetchSites() {
    }
 }
 
-export async function addSite(name, address, color, salaryPart = null) {
+// onSave-совместимая сигнатура: принимает объект.
+// photo — dataURL с префиксом или null.
+export async function addSite({ name, address, color, salaryPart = null, photo = null }) {
    const url = `${SUPABASE_URL}/rest/v1/sites`
-   // salary_part: null → «не задано», число → целые BYN.
-   // Supabase-js (и REST) нормально принимает null в nullable bigint.
    const payload = [{
       name,
       address,
       color,
       salary_part: (salaryPart === null || salaryPart === undefined || salaryPart === '')
          ? null
-         : Number(salaryPart)
+         : Number(salaryPart),
+      photo: photo || null
    }]
    const response = await fetch(url, {
       method: 'POST',
@@ -684,7 +743,9 @@ export async function updateWorker(workerId, name, avatarFile = null, status = n
    }
 }
 
-export async function updateSite(siteId, name, address, color, status) {
+// Объектная сигнатура. Патчим только переданные ключи.
+// photo: если ключа 'photo' нет в payload — не трогаем поле в БД (оптимизация).
+export async function updateSite({ siteId, name, address, color, status, salaryPart, photo }) {
    try {
       if (!siteId) {
          throw new Error('ID объекта не указан')
@@ -692,9 +753,21 @@ export async function updateSite(siteId, name, address, color, status) {
 
       const updateData = {
          name: name.trim(),
-         address: address.trim(),
+         address: (address || '').trim(),
          color,
          status
+      }
+
+      // salary_part: null → «не задано», число → целые BYN
+      if (salaryPart !== undefined) {
+         updateData.salary_part = (salaryPart === null || salaryPart === '')
+            ? null
+            : Number(salaryPart)
+      }
+
+      // photo: патчим только если ключ передан (photoChanged)
+      if (Object.prototype.hasOwnProperty.call(arguments[0], 'photo')) {
+         updateData.photo = photo || null
       }
 
       console.log('📤 Обновляем объект:', siteId, updateData)

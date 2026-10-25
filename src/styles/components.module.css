@@ -1348,41 +1348,35 @@ body {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     min-height: 0;
-    /* Системный скроллбар скрываем — рисуем свой */
-    scrollbar-width: none;               /* Firefox */
-    -ms-overflow-style: none;            /* старый Edge/IE */
+  
 }
 
+/* === Системный скроллбар только для .yandexBody (стилизован под тёмную тему) === */
 .yandexBody::-webkit-scrollbar {
-    display: none;                       /* WebKit / iOS Safari */
-    width: 0;
+    width: 6px;
     height: 0;
 }
 
-/* === Кастомный постоянный скроллбар внутри шторки === */
-.yandexBodyScrollTrack {
-    position: absolute;
-    right: 4px;
-    width: 6px;
-    border-radius: 999px;
-    pointer-events: none;
-    z-index: 7;
+.yandexBody::-webkit-scrollbar-track {
+    background: transparent;
 }
 
-.yandexBodyScrollThumb {
-    position: absolute;
-    right: 0;
-    width: 6px;
-    border-radius: 999px;
+.yandexBody::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.22);
-    pointer-events: auto;
-    transition: background 0.15s ease;
-    will-change: top, height;
+    border-radius: 999px;
 }
 
-.yandexBodyScrollThumb:hover {
+.yandexBody::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.35);
 }
+
+/* Firefox (на всякий, хотя у Алёны Safari) */
+.yandexBody {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+}
+
+
 
 .yandexField {
     margin-bottom: 20px;
@@ -1879,4 +1873,75 @@ body {
         padding: 14px;
         font-size: 15px;
     }
+}
+
+/* === ФОТО ОБЪЕКТА: спиннер обработки + ошибка === */
+
+.yandexPhotoSpinner {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.12);
+    border-top-color: #86d617;
+    animation: yandexPhotoSpin 0.8s linear infinite;
+    display: inline-block;
+}
+
+@keyframes yandexPhotoSpin {
+    to { transform: rotate(360deg); }
+}
+
+.yandexPhotoError {
+    margin-top: 8px;
+    font-size: 13px;
+    line-height: 1.35;
+    color: #f08a8a;
+}
+
+/* зона фото в состоянии disabled (обработка) */
+.yandexPhotoZone:disabled {
+    opacity: 0.7;
+    cursor: default;
+}
+/* === СТАТУС В EditSiteModal (Яндекс-сегмент) === */
+
+.yandexStatusRow {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.yandexStatusPill {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 16px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.yandexStatusPill:hover {
+    background: rgba(255, 255, 255, 0.09);
+    color: var(--text-primary);
+}
+
+.yandexStatusPillActive {
+    background: #ececec;
+    color: #121212;
+    border-color: #ececec;
+    font-weight: 600;
+}
+
+.yandexStatusPillActive:hover {
+    background: #ececec;
+    color: #121212;
 }
