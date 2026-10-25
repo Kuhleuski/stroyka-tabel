@@ -130,6 +130,17 @@ function ColorPickerModal({ isOpen, currentColor, onSelect, onClose }) {
 // (чтобы на iPhone трек не заезжал под home-индикатор).
 const SCROLL_TRACK_BOTTOM_PADDING = 24
 
+// Обязательные поля. Расширяемо: добавляешь новый объект — он автоматически
+// участвует в валидации, скролле и подсветке.
+const REQUIRED_FIELDS = [
+    {
+        key: 'name',
+        label: 'Название объекта',
+        message: 'Укажите название объекта',
+        isEmpty: (value) => !value || !String(value).trim(),
+    },
+]
+
 export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
     const [name, setName] = useState('')
     const [address, setAddress] = useState('')
@@ -141,8 +152,21 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
     const [error, setError] = useState('')
     const [showColorPicker, setShowColorPicker] = useState(false)
 
+    // === Валидация: какие поля сейчас в ошибке ===
+    // { [key]: true } — подсветка + сообщение под полем.
+    const [invalidFields, setInvalidFields] = useState({})
+    // Плашки, которые сейчас плавно гаснут при раннем вводе (280мс)
+    const [hidingErrors, setHidingErrors] = useState({})
+    // Таймеры автосброса подсветки (3 сек), чтобы «не висело» бесконечно
+    const invalidTimersRef = useRef({})
+    // Таймеры плавного ухода плашки при раннем вводе (280мс)
+    const hideTimersRef = useRef({})
+
     const photoInputRef = useRef(null)
     const dragControls = useDragControls()
+
+    // Ссылки на DOM-элементы полей (для скролла и фокуса)
+    const fieldRefs = useRef({})
 
     // === Свой постоянный скроллбар внутри .yandexBody ===
     const bodyRef = useRef(null)
@@ -175,15 +199,10 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
         // позиционируется именно относительно шторки.
         const sheet = el.closest('[class*="yandexSheet"]')
         let bodyOffsetTop = 0
-        let sheetHeight = 0
-        let bodyOffsetBottom = 0
-
         if (sheet) {
             const sheetRect = sheet.getBoundingClientRect()
             const bodyRect = el.getBoundingClientRect()
             bodyOffsetTop = bodyRect.top - sheetRect.top
-            bodyOffsetBottom = sheetRect.bottom - bodyRect.bottom
-            sheetHeight = sheetRect.height
         }
 
         // Видимая высота трека = высота .yandexBody минус нижний отступ
@@ -203,16 +222,7 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
         })()
 
         const bottomInset = SCROLL_TRACK_BOTTOM_PADDING + safeArea
-
-        // Длина видимого трека (не больше, чем реально есть места)
-        const trackVisibleH = Math.max(
-            0,
-            bodyOffsetTop + clientHeight - bottomInset - bodyOffsetTop
-        ) - 0
-        const visibleTrackH = Math.max(
-            0,
-            clientHeight - bottomInset
-        )
+        const visibleTrackH = Math.max(0, clientHeight - bottomInset)
 
         if (visibleTrackH <= 0) {
             setScrollbar((prev) =>
@@ -223,10 +233,12 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
             return
         }
 
-        // thumb: пропорционален clientHeight/scrollHeight,
-        // но «живёт» внутри видимой части трека (visibleTrackH),
-        // чтобы доезжать до низа ровно тогда, когда контент доскроллен до конца.
-        const thumbH = Math.max(28, (clientHeight / scrollHeight) * visibleTrackH)
+        // thumb в 2 раза короче пропорционального, но не меньше 28px.
+        // Трек (visibleTrackH) остаётся на всю видимую высоту,
+        // поэтому thumb проезжает всю амплитуду и упирается в низ трека,
+        // когда контент доскроллен до конца.
+        const proportionalThumbH = (clientHeight / scrollHeight) * visibleTrackH
+        const thumbH = Math.max(28, proportionalThumbH * 0.5)
         const maxScrollTop = scrollHeight - clientHeight
         const maxThumbTop = visibleTrackH - thumbH
         const thumbTop = maxScrollTop > 0
@@ -311,6 +323,17 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
         }
     }, [photoPreview])
 
+    // При закрытии модалки — чистим все таймеры подсветки и плашек
+    useEffect(() => {
+        if (isOpen) return
+        Object.values(invalidTimersRef.current).forEach(clearTimeout)
+        Object.values(hideTimersRef.current).forEach(clearTimeout)
+        invalidTimersRef.current = {}
+        hideTimersRef.current = {}
+        setInvalidFields({})
+        setHidingErrors({})
+    }, [isOpen])
+
     const handlePhotoSelect = (e) => {
         const file = e.target.files && e.target.files[0]
         if (!file) return
@@ -343,27 +366,115 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
         }
     }
 
+    // === Вспомогательные функции валидации ===
+
+    // Снять подсветку с поля (например, когда пользователь начал печатать).
+    // Плашка и обводка уходят плавно (~280мс), затем DOM очищается.
+    const clearFieldError = (key) => {
+        if (!invalidFields[key] && !hidingErrors[key]) return
+
+        // Снимаем таймаут автосброса (3с)
+        if (invalidTimersRef.current[key]) {
+            clearTimeout(invalidTimersRef.current[key])
+            delete invalidTimersRef.current[key]
+        }
+
+        // Переводим плашку в плавно угасающую фазу
+        setHidingErrors(prev => ({ ...prev, [key]: true }))
+
+        if (hideTimersRef.current[key]) {
+            clearTimeout(hideTimersRef.current[key])
+        }
+        hideTimersRef.current[key] = setTimeout(() => {
+            setInvalidFields(prev => {
+                if (!prev[key]) return prev
+                const next = { ...prev }
+                delete next[key]
+                return next
+            })
+            setHidingErrors(prev => {
+                if (!prev[key]) return prev
+                const next = { ...prev }
+                delete next[key]
+                return next
+            })
+            delete hideTimersRef.current[key]
+        }, 280)
+    }
+
+    // Показать подсветку для поля + автосброс через 3 секунды,
+    // если пользователь так и не начал печатать.
+    const markFieldInvalid = (key) => {
+        setInvalidFields(prev => ({ ...prev, [key]: true }))
+        if (invalidTimersRef.current[key]) {
+            clearTimeout(invalidTimersRef.current[key])
+        }
+        invalidTimersRef.current[key] = setTimeout(() => {
+            setInvalidFields(prev => {
+                if (!prev[key]) return prev
+                const next = { ...prev }
+                delete next[key]
+                return next
+            })
+            delete invalidTimersRef.current[key]
+        }, 3000)
+    }
+
+    // Плавный скролл к полю + фокус (если браузер позволяет)
+    const scrollToField = (key) => {
+        const node = fieldRefs.current[key]
+        if (!node) return
+        try {
+            node.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        } catch (e) {
+            // fallback, если scrollIntoView с опциями не поддерживается
+            node.scrollIntoView()
+        }
+        // Небольшая задержка, чтобы скролл успел стартовать,
+        // и фокус не отменял плавность.
+        setTimeout(() => {
+            try {
+                const input = node.querySelector('input, textarea, select')
+                if (input && typeof input.focus === 'function') {
+                    input.focus({ preventScroll: true })
+                }
+            } catch (e) { /* no-op */ }
+        }, 300)
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault()
 
-        if (!name.trim()) {
-            setError('Введите название объекта')
+        // 1. Собираем все невалидные обязательные поля
+        const values = { name }
+        const invalidKeys = REQUIRED_FIELDS
+            .filter(field => field.isEmpty(values[field.key]))
+            .map(field => field.key)
+
+        if (invalidKeys.length > 0) {
+            // 2. Подсвечиваем ВСЕ невалидные поля и ставим таймеры автосброса
+            invalidKeys.forEach(key => markFieldInvalid(key))
+            // 3. Скроллим к первому невалидному полю
+            scrollToField(invalidKeys[0])
+            // 4. POST не отправляем
             return
         }
 
         setLoading(true)
         setError('')
 
-       try {
-    // Фото остаётся заглушкой (в onSave не передаётся).
-    // Зарплатная часть передаётся 4-м аргументом; SitesPage приведёт её к числу/null.
-    await onSave(name.trim(), address.trim(), selectedColor, salaryPart)
-    setName('')
-    setAddress('')
-    setSalaryPart('')
-    handleRemovePhoto()
-    onClose()
-}catch (err) {
+        try {
+            // Фото остаётся заглушкой (в onSave не передаётся).
+            // Зарплатная часть передаётся 4-м аргументом; SitesPage приведёт её к числу/null.
+            await onSave(name.trim(), address.trim(), selectedColor, salaryPart)
+            setName('')
+            setAddress('')
+            setSalaryPart('')
+            handleRemovePhoto()
+            setInvalidFields({})
+            setHidingErrors({})
+            onClose()
+        } catch (err) {
             setError(err.message || 'Ошибка при добавлении')
         } finally {
             setLoading(false)
@@ -375,6 +486,9 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
             onClose()
         }
     }
+
+    // Проверка, есть ли у поля ошибка
+    const isInvalid = (key) => !!invalidFields[key]
 
     return (
         <>
@@ -435,17 +549,37 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
                                     <div className={styles.modalError}>{error}</div>
                                 )}
 
-                                <div className={styles.yandexField}>
-                                    <label className={styles.yandexLabel}>Название объекта</label>
+                                {/* === Название объекта (обязательное) === */}
+                                <div
+                                    className={`${styles.yandexField} ${styles.yandexFieldRequired}`}
+                                    ref={(el) => { fieldRefs.current.name = el }}
+                                >
+                                    <label className={styles.yandexLabel}>
+                                        Название объекта
+                                        <span className={styles.yandexRequired}>обязательно</span>
+                                    </label>
                                     <input
-                                        className={styles.yandexInput}
+                                        className={`${styles.yandexInput} ${isInvalid('name') ? styles.yandexInputError : ''}`}
                                         type="text"
                                         value={name}
-                                        onChange={(e) => setName(e.target.value)}
+                                        onChange={(e) => {
+                                            setName(e.target.value)
+                                            if (isInvalid('name') && e.target.value.trim()) {
+                                                clearFieldError('name')
+                                            }
+                                        }}
                                         onKeyDown={blurOnEnter}
                                         enterKeyHint="done"
                                         placeholder="Например: Дом на Ленина"
+                                        aria-invalid={isInvalid('name')}
                                     />
+                                    {(isInvalid('name') || hidingErrors.name) && (
+                                        <div
+                                            className={`${styles.yandexFieldError} ${hidingErrors.name ? styles.yandexFieldErrorHiding : ''}`}
+                                        >
+                                            Укажите название объекта
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className={`${styles.yandexField} ${styles.yandexFieldAddress}`}>
@@ -570,7 +704,7 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
                                         type="button"
                                         className={styles.yandexSaveBtnInline}
                                         onClick={handleSubmit}
-                                        disabled={loading || !name.trim()}
+                                        disabled={loading}
                                     >
                                         {loading ? 'Сохранение...' : 'Сохранить'}
                                     </button>
@@ -604,7 +738,7 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
                                     type="button"
                                     className={styles.yandexSaveBtn}
                                     onClick={handleSubmit}
-                                    disabled={loading || !name.trim()}
+                                    disabled={loading}
                                 >
                                     {loading ? 'Сохранение...' : 'Сохранить'}
                                 </button>
