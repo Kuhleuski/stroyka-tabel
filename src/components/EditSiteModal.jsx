@@ -40,11 +40,6 @@ const COLORS = [
     '#45B8AC',
 ]
 
-const STATUSES = [
-    { value: 'в работе', label: 'В работе' },
-    { value: 'завершен', label: 'Завершен' },
-]
-
 const MINI_CAL_FILLED = new Set([
     0, 1, 2, 3, 4,
     8, 9, 11,
@@ -137,10 +132,11 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
     const [salaryPart, setSalaryPart] = useState('')
 
     const [photoBase64, setPhotoBase64] = useState(null)
-    // Менялось ли фото (замена или удаление) — чтобы не гонять base64 зря
     const [photoChanged, setPhotoChanged] = useState(false)
     const [photoProcessing, setPhotoProcessing] = useState(false)
     const [photoError, setPhotoError] = useState('')
+
+    const [salaryChanged, setSalaryChanged] = useState(false)
 
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
@@ -155,7 +151,6 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
     const dragControls = useDragControls()
     const fieldRefs = useRef({})
 
-    // Предзаполнение: только при переходе «закрыто → открыто»
     const prevIsOpenRef = useRef(false)
     useEffect(() => {
         if (isOpen && !prevIsOpenRef.current && site) {
@@ -168,8 +163,9 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
             setSalaryPart(
                 site.salary_part !== null && site.salary_part !== undefined
                     ? formatSalary(String(site.salary_part))
-                    : ''
+                    : '0'
             )
+            setSalaryChanged(false)
             setPhotoBase64(site.photo || null)
             setPhotoChanged(false)
             setPhotoError('')
@@ -180,7 +176,6 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
         prevIsOpenRef.current = isOpen
     }, [isOpen, site])
 
-    // Блокировка скролла фона
     useEffect(() => {
         if (!isOpen) return
 
@@ -204,7 +199,6 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
         }
     }, [isOpen])
 
-    // Сброс таймеров валидации при закрытии
     useEffect(() => {
         if (isOpen) return
         Object.values(invalidTimersRef.current).forEach(clearTimeout)
@@ -237,6 +231,11 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
         setPhotoBase64(null)
         setPhotoChanged(true)
         setPhotoError('')
+    }
+
+    const handleSalaryChange = (e) => {
+        setSalaryPart(formatSalary(e.target.value))
+        setSalaryChanged(true)
     }
 
     const blurOnEnter = (e) => {
@@ -343,9 +342,12 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
                 address: address.trim(),
                 color: selectedColor,
                 status,
-                salaryPart: parseSalary(salaryPart),
             }
-            // photo передаём только если менялось — иначе updateSite не тронет поле
+
+            if (salaryChanged) {
+                payload.salaryPart = parseSalary(salaryPart)
+            }
+
             if (photoChanged) {
                 payload.photo = photoBase64 || null
             }
@@ -367,6 +369,7 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
 
     const isInvalid = (key) => !!invalidFields[key]
     const saveDisabled = loading || photoProcessing
+    const isWorking = status === 'в работе'
 
     return (
         <>
@@ -426,13 +429,14 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
                                     <div className={styles.modalError}>{error}</div>
                                 )}
 
+                                {/* Название — обязательное, звёздочка только в Edit */}
                                 <div
                                     className={`${styles.yandexField} ${styles.yandexFieldRequired}`}
                                     ref={(el) => { fieldRefs.current.name = el }}
                                 >
                                     <label className={styles.yandexLabel}>
                                         Название объекта
-                                        <span className={styles.yandexRequired}>обязательно</span>
+                                        <span className={styles.yandexRequiredStar} aria-hidden="true">*</span>
                                     </label>
                                     <input
                                         className={`${styles.yandexInput} ${isInvalid('name') ? styles.yandexInputError : ''}`}
@@ -458,7 +462,7 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
                                     )}
                                 </div>
 
-                                <div className={`${styles.yandexField} ${styles.yandexFieldAddress}`}>
+                                <div className={`${styles.yandexField} ${styles.yandexFieldAddressEdit}`}>
                                     <label className={styles.yandexLabel}>Адрес</label>
                                     <input
                                         className={styles.yandexInput}
@@ -471,23 +475,117 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
                                     />
                                 </div>
 
+                                {/* Статус — после адреса.
+                                    Лейбл сверху как у остальных полей.
+                                    Внутри плашки — только слово статуса + свитч. */}
                                 <div className={styles.yandexField}>
                                     <label className={styles.yandexLabel}>Статус</label>
-                                    <div className={styles.yandexStatusRow}>
-                                        {STATUSES.map((s) => (
-                                            <button
-                                                key={s.value}
-                                                type="button"
-                                                className={`${styles.yandexStatusPill} ${status === s.value ? styles.yandexStatusPillActive : ''}`}
-                                                onClick={() => setStatus(s.value)}
-                                            >
-                                                {s.label}
-                                            </button>
-                                        ))}
+                                    <div className={styles.yandexStatusField}>
+                                        <span
+                                            className={
+                                                isWorking
+                                                    ? styles.yandexStatusFieldValueWork
+                                                    : styles.yandexStatusFieldValueDone
+                                            }
+                                        >
+                                            {isWorking ? 'В работе' : 'Завершен'}
+                                        </span>
+
+                                        <button
+                                            type="button"
+                                            role="switch"
+                                            aria-checked={isWorking}
+                                            aria-label="Переключить статус"
+                                            className={`${styles.yandexSwitch} ${isWorking ? styles.yandexSwitchOn : ''}`}
+                                            onClick={() => setStatus(isWorking ? 'завершен' : 'в работе')}
+                                        >
+                                            <span className={styles.yandexSwitchThumb} />
+                                        </button>
                                     </div>
                                 </div>
 
+                                {/* Фото — после статуса.
+                                    Есть фото → обёртка min-height 96 (как зона в Add):
+                                    превью 80×80 с красным крестиком + «Заменить фото»
+                                    по центру свободной области справа.
+                                    Нет фото → обычная .yandexPhotoZone как в Add.
+                                    Отступ снизу 30px (класс .yandexFieldPhotoEdit). */}
+                                <div className={`${styles.yandexField} ${styles.yandexFieldPhotoEdit}`}>
+                                    <label className={styles.yandexLabel}>Фото объекта</label>
+
+                                    {photoBase64 ? (
+                                        <div className={styles.yandexPhotoEditWrap}>
+                                            <div className={styles.yandexPhotoPreviewWrap}>
+                                                <img
+                                                    src={photoBase64}
+                                                    alt="Превью"
+                                                    className={styles.yandexPhotoPreview}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    className={styles.yandexPhotoRemove}
+                                                    onClick={handleRemovePhoto}
+                                                    disabled={photoProcessing}
+                                                    aria-label="Удалить фото"
+                                                >
+                                                    <Xmark />
+                                                </button>
+                                            </div>
+
+                                            <div className={styles.yandexPhotoReplaceCenter}>
+                                                <button
+                                                    type="button"
+                                                    className={styles.yandexPhotoReplaceBtn}
+                                                    onClick={() => {
+                                                        if (photoProcessing) return
+                                                        photoInputRef.current && photoInputRef.current.click()
+                                                    }}
+                                                    disabled={photoProcessing}
+                                                >
+                                                    {photoProcessing ? 'Обработка...' : 'Заменить фото'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            className={styles.yandexPhotoZone}
+                                            onClick={() => {
+                                                if (photoProcessing) return
+                                                photoInputRef.current && photoInputRef.current.click()
+                                            }}
+                                            disabled={photoProcessing}
+                                        >
+                                            {photoProcessing ? (
+                                                <>
+                                                    <span className={styles.yandexPhotoSpinner} aria-hidden="true" />
+                                                    <span className={styles.yandexPhotoZoneText}>Обработка...</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Camera className={styles.yandexPhotoZoneIcon} />
+                                                    <span className={styles.yandexPhotoZoneText}>Загрузить фото</span>
+                                                </>
+                                            )}
+                                        </button>
+                                    )}
+
+                                    {photoError && (
+                                        <div className={styles.yandexPhotoError}>{photoError}</div>
+                                    )}
+
+                                    <input
+                                        ref={photoInputRef}
+                                        type="file"
+                                        accept="image/*"
+                                        className={styles.yandexHiddenInput}
+                                        onChange={handlePhotoSelect}
+                                    />
+                                </div>
+
+                                {/* Цвет — с лейблом над блоком: «Отметки в календаре» */}
                                 <div className={`${styles.yandexField} ${styles.yandexFieldColor}`}>
+                                    <label className={styles.yandexLabel}>Отметки в календаре</label>
                                     <div className={styles.yandexColorBox}>
                                         <p className={styles.yandexColorHint}>
                                             Цвет, которым отмечаются рабочие дни в календаре
@@ -542,79 +640,24 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
                                             type="text"
                                             inputMode="numeric"
                                             value={salaryPart}
-                                            onChange={(e) => setSalaryPart(formatSalary(e.target.value))}
-                                            placeholder="Например: 50 000"
+                                            onChange={handleSalaryChange}
+                                            placeholder="0"
                                         />
                                         <span className={styles.yandexSalarySuffix}>BYN</span>
                                     </div>
                                 </div>
+                            </div>
 
-                                <div className={styles.yandexField}>
-                                    <label className={styles.yandexLabel}>Фото объекта</label>
-
-                                    {photoBase64 ? (
-                                        <div className={styles.yandexPhotoPreviewWrap}>
-                                            <img
-                                                src={photoBase64}
-                                                alt="Превью"
-                                                className={styles.yandexPhotoPreview}
-                                            />
-                                            <button
-                                                type="button"
-                                                className={styles.yandexPhotoRemove}
-                                                onClick={handleRemovePhoto}
-                                                aria-label="Удалить фото"
-                                            >
-                                                <Xmark />
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <button
-                                            type="button"
-                                            className={styles.yandexPhotoZone}
-                                            onClick={() => {
-                                                if (photoProcessing) return
-                                                photoInputRef.current && photoInputRef.current.click()
-                                            }}
-                                            disabled={photoProcessing}
-                                        >
-                                            {photoProcessing ? (
-                                                <>
-                                                    <span className={styles.yandexPhotoSpinner} aria-hidden="true" />
-                                                    <span className={styles.yandexPhotoZoneText}>Обработка...</span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Camera className={styles.yandexPhotoZoneIcon} />
-                                                    <span className={styles.yandexPhotoZoneText}>Загрузить фото</span>
-                                                </>
-                                            )}
-                                        </button>
-                                    )}
-
-                                    {photoError && (
-                                        <div className={styles.yandexPhotoError}>{photoError}</div>
-                                    )}
-
-                                    <input
-                                        ref={photoInputRef}
-                                        type="file"
-                                        accept="image/*"
-                                        className={styles.yandexHiddenInput}
-                                        onChange={handlePhotoSelect}
-                                    />
-                                </div>
-
-                                <div className={styles.yandexFooterInline}>
-                                    <button
-                                        type="button"
-                                        className={styles.yandexSaveBtnInline}
-                                        onClick={handleSubmit}
-                                        disabled={saveDisabled}
-                                    >
-                                        {loading ? 'Сохранение...' : 'Сохранить'}
-                                    </button>
-                                </div>
+                            {/* Футер прижат к низу шита (flex-shrink: 0), вне скроллящегося .yandexBody */}
+                            <div className={styles.yandexFooter}>
+                                <button
+                                    type="button"
+                                    className={styles.yandexSaveBtn}
+                                    onClick={handleSubmit}
+                                    disabled={saveDisabled}
+                                >
+                                    {loading ? 'Сохранение...' : 'Сохранить'}
+                                </button>
                             </div>
                         </motion.div>
                     </motion.div>

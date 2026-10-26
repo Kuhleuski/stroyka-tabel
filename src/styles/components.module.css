@@ -1342,13 +1342,12 @@ body {
    в покое не попадало под тень. */
 .yandexBody {
     flex: 1 1 auto;
-    padding: 0 20px 20px;
+    padding: 0 20px 80px;
     padding-top: var(--yandex-fade-height);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     min-height: 0;
-  
 }
 
 /* === Системный скроллбар только для .yandexBody (стилизован под тёмную тему) === */
@@ -1782,13 +1781,41 @@ body {
     cursor: default;
 }
 
-/* === СТАРЫЙ футер (flex-bottom) — оставлен для будущих коротких модалок === */
+/* === СТАРЫЙ футер (flex-bottom) — прижат к низу шита === */
 .yandexFooter {
+    position: relative;
     display: flex;
     padding: 16px 20px 24px;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0));
     background: var(--yandex-sheet-bg);
     flex-shrink: 0;
-    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0));
+}
+
+/* Затухание НАД футером: контент, уходящий под футер,
+   плавно растворяется в цвете шторки. Зеркально .yandexHeader::after. */
+.yandexFooter::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    margin-bottom: -3px;
+    height: calc(var(--yandex-fade-height) + 3px);
+    pointer-events: none;
+    /* Fallback для старых браузеров без color-mix */
+    background: linear-gradient(
+        to bottom,
+        rgba(24, 23, 23, 0) 0%,
+        rgba(24, 23, 23, 0.6) 50%,
+        var(--yandex-sheet-bg) 100%
+    );
+    /* Современный вариант: цвет автоматически из --yandex-sheet-bg */
+    background: linear-gradient(
+        to bottom,
+        color-mix(in srgb, var(--yandex-sheet-bg) 0%, transparent) 0%,
+        color-mix(in srgb, var(--yandex-sheet-bg) 60%, transparent) 50%,
+        var(--yandex-sheet-bg) 100%
+    );
 }
 
 .yandexSaveBtn {
@@ -1836,7 +1863,7 @@ body {
     }
 
     .yandexBody {
-        padding: 0 16px 16px;
+        padding: 0 16px 60px;
         padding-top: var(--yandex-fade-height);
     }
 
@@ -1944,4 +1971,183 @@ body {
 .yandexStatusPillActive:hover {
     background: #ececec;
     color: #121212;
+}
+/* ============================================================
+   EditSiteModal — правки (полная замена прошлых вставок)
+   ============================================================ */
+
+/* === Звёздочка обязательного поля === */
+
+.yandexRequiredStar {
+    display: inline-block;
+    margin-left: 4px;
+    margin-top: -2px;
+    font-size: 25px;
+    font-weight: 100;
+    line-height: 1;
+    color: #86d617;
+    vertical-align: top;
+    letter-spacing: 0;
+}
+
+/* === Адрес в Edit: уменьшенный нижний отступ === */
+
+.yandexFieldAddressEdit {
+    margin-bottom: 30px;
+}
+
+/* === Фото в Edit: обёртка как зона в Add + отступ снизу 30px === */
+
+.yandexFieldPhotoEdit {
+    margin-bottom: 30px;
+}
+
+.yandexPhotoEditWrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 96px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1.5px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 14px;
+}
+
+.yandexPhotoPreviewWrap {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+}
+
+.yandexPhotoReplaceCenter {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+}
+
+.yandexPhotoReplaceBtn {
+    padding: 10px 16px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, opacity 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    white-space: nowrap;
+}
+
+.yandexPhotoReplaceBtn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.09);
+}
+
+.yandexPhotoReplaceBtn:active:not(:disabled) {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.yandexPhotoReplaceBtn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+/* красный крестик удаления (на превью в Edit) */
+.yandexPhotoRemove {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #c62828;
+    color: #fff;
+    border: 2px solid var(--yandex-sheet-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.yandexPhotoRemove:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.yandexPhotoRemove svg {
+    width: 12px !important;
+    height: 12px !important;
+    display: block;
+}
+
+/* === Статус — плашка как поле со свитчем (лейбл снаружи) === */
+
+.yandexStatusField {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+}
+
+.yandexStatusFieldValueWork {
+    font-size: 15px;
+    font-weight: 600;
+    color: #86d617;
+    white-space: nowrap;
+}
+
+.yandexStatusFieldValueDone {
+    font-size: 15px;
+    font-weight: 600;
+    color: rgb(149 149 149);
+    white-space: nowrap;
+}
+
+/* === iOS-свитч === */
+
+.yandexSwitch {
+    position: relative;
+    width: 44px;
+    height: 26px;
+    flex-shrink: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.16);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.yandexSwitchOn {
+    background: #86d617;
+}
+
+.yandexSwitchThumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    display: block;
+    pointer-events: none;
+}
+
+.yandexSwitchOn .yandexSwitchThumb {
+    transform: translateX(18px);
 }

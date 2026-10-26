@@ -744,9 +744,11 @@ export async function updateWorker(workerId, name, avatarFile = null, status = n
 }
 
 // Объектная сигнатура. Патчим только переданные ключи.
-// photo: если ключа 'photo' нет в payload — не трогаем поле в БД (оптимизация).
-export async function updateSite({ siteId, name, address, color, status, salaryPart, photo }) {
+// photo / salaryPart: если ключа нет в payload — поле в БД не трогаем (оптимизация).
+export async function updateSite(payload) {
    try {
+      const { siteId, name, address, color, status, salaryPart, photo } = payload
+
       if (!siteId) {
          throw new Error('ID объекта не указан')
       }
@@ -758,15 +760,13 @@ export async function updateSite({ siteId, name, address, color, status, salaryP
          status
       }
 
-      // salary_part: null → «не задано», число → целые BYN
-      if (salaryPart !== undefined) {
+      if (Object.prototype.hasOwnProperty.call(payload, 'salaryPart')) {
          updateData.salary_part = (salaryPart === null || salaryPart === '')
             ? null
             : Number(salaryPart)
       }
 
-      // photo: патчим только если ключ передан (photoChanged)
-      if (Object.prototype.hasOwnProperty.call(arguments[0], 'photo')) {
+      if (Object.prototype.hasOwnProperty.call(payload, 'photo')) {
          updateData.photo = photo || null
       }
 
