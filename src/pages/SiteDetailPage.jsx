@@ -85,6 +85,16 @@ const formatDateWithMonth = (dateString) => {
     })
 }
 
+const formatDateShort = (dateString) => {
+    if (!dateString) return ''
+    const date = new Date(dateString + 'T00:00:00')
+    return date.toLocaleDateString('ru-RU', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+    })
+}
+
 const formatMoney = (value) => {
     if (value === null || value === undefined || Number.isNaN(value)) return '—'
     const rounded = Math.round(value)
@@ -147,11 +157,11 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
 
     const [showConfirm, setShowConfirm] = useState(false)
     const [showCostsSheet, setShowCostsSheet] = useState(false)
+    const [showDetailsModal, setShowDetailsModal] = useState(false)
     const [archiving, setArchiving] = useState(false)
     const [updatingStatus, setUpdatingStatus] = useState(false)
     const [localStatus, setLocalStatus] = useState(site?.status || 'в работе')
 
-    // Мини-модалка «Установить зарплатную часть»
     const [showSalaryModal, setShowSalaryModal] = useState(false)
     const [salaryInput, setSalaryInput] = useState('')
     const [salarySaving, setSalarySaving] = useState(false)
@@ -162,6 +172,8 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
 
     const monthsScrollRef = useRef(null)
     const [activeMonthIdx, setActiveMonthIdx] = useState(0)
+
+    const brigadeRef = useRef(null)
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -177,13 +189,11 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
         setLocalStatus(site?.status || 'в работе')
     }, [site?.id, site?.status])
 
-    // === СМЕНЫ НА ЭТОМ ОБЪЕКТЕ ===
     const siteShifts = useMemo(() => {
         if (!shifts || !site) return []
         return shifts.filter(shift => shift.site_id === site.id)
     }, [shifts, site?.id])
 
-    // === ДАТА НАЧАЛА РАБОТ ===
     const startDate = useMemo(() => {
         if (siteShifts.length === 0) return null
         const dates = siteShifts
@@ -193,7 +203,6 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
         return dates.length > 0 ? dates[0] : null
     }, [siteShifts])
 
-    // === ДАТА ОКОНЧАНИЯ (только если завершён) ===
     const endDate = useMemo(() => {
         if (!site || site.status !== 'завершен') return null
         if (siteShifts.length === 0) return null
@@ -204,14 +213,12 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
         return dates.length > 0 ? dates[dates.length - 1] : null
     }, [siteShifts, site?.status])
 
-    // === УНИКАЛЬНЫЕ ДНИ ===
     const uniqueDays = useMemo(() => {
         const set = new Set()
         siteShifts.forEach(s => { if (s.work_date) set.add(s.work_date) })
         return set.size
     }, [siteShifts])
 
-    // === СТАТИСТИКА ПО РАБОТНИКАМ (по алфавиту) ===
     const workersStats = useMemo(() => {
         if (siteShifts.length === 0) return []
         const statsMap = new Map()
@@ -238,7 +245,6 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
 
     const uniqueWorkers = workersStats.length
 
-    // === АВАТАРКИ ДЛЯ ПЛАШКИ (макс 4 + "+N") ===
     const MAX_AVATARS = 4
     const avatarsPreview = useMemo(() => {
         return workersStats.slice(0, MAX_AVATARS).map(stat => {
@@ -254,13 +260,91 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
     }, [workersStats, workers])
     const avatarsRest = Math.max(0, uniqueWorkers - MAX_AVATARS)
 
-    // === СУММА ДНЕЙ ВСЕХ РАБОТНИКОВ ===
+    const daysTable = useMemo(() => {
+        if (siteShifts.length === 0) return []
+        const map = new Map()
+        siteShifts.forEach(s => {
+            if (!s.work_date || !s.worker_id) return
+            if (!map.has(s.work_date)) {
+                map.set(s.work_date, { date: s.work_date, workerIds: new Set() })
+            }
+            map.get(s.work_date).workerIds.add(s.worker_id)
+        })
+        return Array.from(map.values())
+            .sort((a, b) => a.date.localeCompare(b.date))
+            .map(row => {
+                const list = Array.from(row.workerIds).map(id => {
+                    const w = workers.find(x => x.id === id)
+                    return {
+                        workerId: id,
+                        name: w?.name || 'Неизвестный',
+                        avatar: w?.avatar || null,
+                        initials: getInitials(w?.name || ''),
+                        color: getColorFromName(w?.name || '')
+                    }
+                })
+                return { date: row.date, workers: list }
+            })
+    }, [siteShifts, workers])
+
+    // === ДИНАМИКА ПО ДНЯМ ===
+    const dynamics = useMemo(() => {
+        if (daysTable.length === 0) {
+            return { total: 0, max: 0, min: 0, isFlat: false, segments: [], flat: null }
+        }
+
+        const counts = daysTable.map(row => row.workers.length)
+        const total = counts.length
+        const max = Math.max(...counts)
+        const min = Math.min(...counts)
+        const isFlat = max === min
+
+        if (isFlat) {
+            return {
+                total,
+                max,
+                min,
+                isFlat: true,
+                segments: [],
+                flat: { days: total, perDay: max, percent: 100 }
+            }
+        }
+
+        const half = Math.ceil(max / 2)
+
+        let all = 0
+        let most = 0
+        let lessHalf = 0
+        let minCount = 0
+
+        counts.forEach(n => {
+            if (n === max) { all += 1; return }
+            if (n === min) { minCount += 1; return }
+            if (n >= half) { most += 1; return }
+            lessHalf += 1
+        })
+
+        const pct = (n) => total > 0 ? Math.round((n / total) * 100) : 0
+
+        const raw = [
+            { key: 'all', label: 'Все', color: '#86d617', days: all },
+            { key: 'most', label: 'Большинство', color: '#5dbb45', days: most },
+            { key: 'lessHalf', label: 'Меньше половины', color: '#f5a623', days: lessHalf },
+            { key: 'min', label: 'Минимум', color: '#e57373', days: minCount }
+        ]
+
+        const segments = raw
+            .filter(s => s.days > 0)
+            .map(s => ({ ...s, percent: pct(s.days) }))
+
+        return { total, max, min, isFlat: false, segments, flat: null }
+    }, [daysTable])
+
     const totalWorkerDays = useMemo(
         () => workersStats.reduce((sum, w) => sum + w.days, 0),
         [workersStats]
     )
 
-    // === СТАВКА ЗА ДЕНЬ ===
     const salaryPart = (site && site.salary_part != null && Number(site.salary_part) > 0)
         ? Number(site.salary_part)
         : null
@@ -274,7 +358,6 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
         return Math.round(days * ratePerDay)
     }
 
-    // === МЕСЯЦЫ СО СМЕНАМИ ===
     const monthsList = useMemo(() => {
         if (siteShifts.length === 0) return []
         const map = new Map()
@@ -330,7 +413,6 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
     const getWorkerAvatar = (workerId) => workers.find(w => w.id === workerId)?.avatar || null
     const getWorkerInitials = (workerId) => getInitials(getWorkerName(workerId))
 
-    // === СВИТЧ СТАТУСА ===
     const isWorking = localStatus === 'в работе'
 
     const handleStatusToggle = async () => {
@@ -353,7 +435,6 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
         }
     }
 
-    // === ОТКРЫТЬ МИНИ-МОДАЛКУ ЗАРПЛАТЫ ===
     const openSalaryModal = () => {
         setSalaryInput(site?.salary_part != null ? String(site.salary_part) : '')
         setSalaryError('')
@@ -366,7 +447,6 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
         setSalaryError('')
     }
 
-    // === СОХРАНИТЬ ЗАРПЛАТНУЮ ЧАСТЬ ===
     const handleSaveSalary = async () => {
         if (salarySaving || !site) return
         const raw = String(salaryInput).replace(/\s/g, '').replace(',', '.')
@@ -388,7 +468,6 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                 status: site.status,
                 salaryPart: num
             })
-            // Обновляем родителя — пересчёт ratePerDay произойдёт автоматически
             const merged = { ...site, ...(updated || {}), salary_part: num }
             if (onUpdate) onUpdate(merged)
             setShowSalaryModal(false)
@@ -436,7 +515,6 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
 
             <div className={styles.siteDetailBody}>
 
-                {/* === ШАПКА === */}
                 <div className={styles.siteDetailTopBar}>
                     <div className={styles.siteDetailHeader}>
                         <button
@@ -522,7 +600,6 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                     </div>
                 </div>
 
-                {/* === СТАТУС === */}
                 <div className={styles.siteDetailStatusRow}>
                     <div className={styles.siteDetailStatusText}>
                         <span className={styles.siteDetailStatusLabel}>Статус: </span>
@@ -546,7 +623,6 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                     </button>
                 </div>
 
-                {/* === СВОДКА: 2 плашки === */}
                 <div className={styles.siteDetailSummaryTwo}>
                     <div className={styles.siteDetailStatCard}>
                         <div className={styles.siteDetailStatValue}>{uniqueDays}</div>
@@ -581,9 +657,7 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                     </div>
                 </div>
 
-                {/* === 2 КВАДРАТНЫЕ ПЛАШКИ === */}
                 <div className={styles.siteDetailInfoTwo}>
-                    {/* Плашка 1 — даты, две равные половины */}
                     <div className={styles.siteDetailInfoCard}>
                         <div className={styles.siteDetailInfoHalf}>
                             <div className={styles.siteDetailInfoLabel}>Начало работ</div>
@@ -608,8 +682,14 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                         </div>
                     </div>
 
-                    {/* Плашка 2 — работники + аватарки */}
-                    <div className={styles.siteDetailInfoCard}>
+                    <button
+                        type="button"
+                        className={`${styles.siteDetailInfoCard} ${styles.siteDetailInfoCardClickable}`}
+                        onClick={() => {
+                            if (daysTable.length > 0) setShowDetailsModal(true)
+                        }}
+                        aria-label="Подробнее: даты смен и кто работал"
+                    >
                         <div className={styles.siteDetailInfoHalf}>
                             <div className={styles.siteDetailInfoLabel}>Работники</div>
                             <div className={styles.siteDetailInfoCount}>
@@ -617,38 +697,42 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                             </div>
                         </div>
                         {uniqueWorkers > 0 ? (
-                            <div className={styles.siteDetailInfoAvatars}>
-                                {avatarsPreview.map((a) => (
-                                    <div
-                                        key={a.workerId}
-                                        className={styles.siteDetailInfoAvatar}
-                                        style={{ backgroundColor: a.color }}
-                                        title={a.name}
-                                    >
-                                        {isBase64Image(a.avatar) ? (
-                                            <img
-                                                src={a.avatar}
-                                                alt={a.name}
-                                                className={styles.siteDetailInfoAvatarImg}
-                                            />
-                                        ) : (
-                                            <span>{a.initials}</span>
-                                        )}
-                                    </div>
-                                ))}
-                                {avatarsRest > 0 && (
-                                    <div className={`${styles.siteDetailInfoAvatar} ${styles.siteDetailInfoMore}`}>
-                                        +{avatarsRest}
-                                    </div>
-                                )}
-                            </div>
+                            <>
+                                <div className={styles.siteDetailInfoAvatars}>
+                                    {avatarsPreview.map((a) => (
+                                        <div
+                                            key={a.workerId}
+                                            className={styles.siteDetailInfoAvatar}
+                                            style={{ backgroundColor: a.color }}
+                                            title={a.name}
+                                        >
+                                            {isBase64Image(a.avatar) ? (
+                                                <img
+                                                    src={a.avatar}
+                                                    alt={a.name}
+                                                    className={styles.siteDetailInfoAvatarImg}
+                                                />
+                                            ) : (
+                                                <span>{a.initials}</span>
+                                            )}
+                                        </div>
+                                    ))}
+                                    {avatarsRest > 0 && (
+                                        <div className={styles.siteDetailInfoMore}>
+                                            +{avatarsRest}
+                                        </div>
+                                    )}
+                                </div>
+                                <span className={styles.siteDetailInfoMoreLink}>
+                                    Подробнее
+                                </span>
+                            </>
                         ) : (
                             <div className={styles.siteDetailInfoMuted}>Пока никто не работал</div>
                         )}
-                    </div>
+                    </button>
                 </div>
 
-                {/* === КАЛЕНДАРЬ === */}
                 <div className={styles.siteDetailCalendarSection}>
                     <div className={styles.siteDetailSectionHeader}>
                         <span className={styles.siteDetailSectionTitle}>Календарь</span>
@@ -699,8 +783,7 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                     )}
                 </div>
 
-                {/* === БРИГАДА === */}
-                <div className={styles.siteDetailWorkersSection}>
+                <div className={styles.siteDetailWorkersSection} ref={brigadeRef}>
                     <div className={styles.siteDetailSectionHeader}>
                         <span className={styles.siteDetailSectionTitle}>Бригада</span>
                         <span className={styles.siteDetailWorkersCount}>
@@ -768,7 +851,6 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                     )}
                 </div>
 
-                {/* === ЗАТРАТЫ === */}
                 <button
                     type="button"
                     className={styles.siteDetailCostsLinkBtn}
@@ -782,7 +864,6 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                 </button>
             </div>
 
-            {/* === ФУТЕР === */}
             <div className={styles.siteDetailFooter}>
                 <button
                     type="button"
@@ -792,6 +873,147 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                     Назад
                 </button>
             </div>
+
+            {/* === МОДАЛКА «ПОДРОБНЕЕ»: ДИНАМИКА + ТАБЛИЦА === */}
+            {showDetailsModal && createPortal(
+                <div
+                    className={styles.siteDetailDaysOverlay}
+                    onClick={() => setShowDetailsModal(false)}
+                >
+                    <div
+                        className={styles.siteDetailDaysSheet}
+                        onClick={(e) => e.stopPropagation()}
+                        role="dialog"
+                        aria-modal="true"
+                    >
+                        <div className={styles.siteDetailDaysHandleZone}>
+                            <span className={styles.siteDetailDaysHandle} />
+                        </div>
+
+                        <div className={styles.siteDetailDaysHeader}>
+                            <h2 className={styles.siteDetailDaysTitle}>Смены по дням</h2>
+                            <button
+                                type="button"
+                                className={styles.siteDetailDaysCloseBtn}
+                                onClick={() => setShowDetailsModal(false)}
+                                aria-label="Закрыть"
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div className={styles.siteDetailDaysBody}>
+                            {/* ДИНАМИКА */}
+                            {dynamics.total > 0 && (
+                                <div className={styles.siteDetailDynamics}>
+                                    <div className={styles.siteDetailDynamicsHeader}>
+                                        <span className={styles.siteDetailDynamicsTitle}>Динамика</span>
+                                        <span className={styles.siteDetailDynamicsMeta}>
+                                            макс {dynamics.max} · мин {dynamics.min}
+                                        </span>
+                                    </div>
+
+                                    {dynamics.isFlat ? (
+                                        <div className={styles.siteDetailDynamicsFlat}>
+                                            <div className={styles.siteDetailDynamicsFlatBar} />
+                                            <div className={styles.siteDetailDynamicsFlatText}>
+                                                Ровная загрузка · {dynamics.flat.days}{' '}
+                                                {getDaysWord(dynamics.flat.days)} по{' '}
+                                                {dynamics.flat.perDay}{' '}
+                                                {getPeopleWord(dynamics.flat.perDay)}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className={styles.siteDetailDynamicsBar}>
+                                                {dynamics.segments.map(s => (
+                                                    <div
+                                                        key={s.key}
+                                                        className={styles.siteDetailDynamicsSegment}
+                                                        style={{
+                                                            flexGrow: s.days,
+                                                            backgroundColor: s.color
+                                                        }}
+                                                        title={`${s.label}: ${s.days} (${s.percent}%)`}
+                                                    />
+                                                ))}
+                                            </div>
+
+                                            <div className={styles.siteDetailDynamicsLegend}>
+                                                {dynamics.segments.map(s => (
+                                                    <div key={s.key} className={styles.siteDetailDynamicsLegendRow}>
+                                                        <span
+                                                            className={styles.siteDetailDynamicsDot}
+                                                            style={{ backgroundColor: s.color }}
+                                                        />
+                                                        <span className={styles.siteDetailDynamicsLegendLabel}>
+                                                            {s.label}
+                                                        </span>
+                                                        <span className={styles.siteDetailDynamicsLegendValue}>
+                                                            {s.days} {getDaysWord(s.days)} · {s.percent}%
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* ТАБЛИЦА */}
+                            {daysTable.length === 0 ? (
+                                <div className={styles.siteDetailDaysEmpty}>
+                                    Пока нет смен
+                                </div>
+                            ) : (
+                                <div className={styles.siteDetailDaysTable}>
+                                    {daysTable.map((row) => (
+                                        <div key={row.date} className={styles.siteDetailDaysRow}>
+                                            <div className={styles.siteDetailDaysDate}>
+                                                {formatDateShort(row.date)}
+                                            </div>
+                                            <div className={styles.siteDetailDaysWorkers}>
+                                                {row.workers.map(w => (
+                                                    <div
+                                                        key={w.workerId}
+                                                        className={styles.siteDetailDaysAvatar}
+                                                        style={{ backgroundColor: w.color }}
+                                                        title={w.name}
+                                                    >
+                                                        {isBase64Image(w.avatar) ? (
+                                                            <img
+                                                                src={w.avatar}
+                                                                alt={w.name}
+                                                                className={styles.siteDetailDaysAvatarImg}
+                                                            />
+                                                        ) : (
+                                                            <span>{w.initials}</span>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className={styles.siteDetailDaysFooter}>
+                            <button
+                                type="button"
+                                className={styles.siteDetailDaysCloseFooterBtn}
+                                onClick={() => setShowDetailsModal(false)}
+                            >
+                                Закрыть
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
 
             {/* === МИНИ-ШИТ: УСТАНОВИТЬ ЗАРПЛАТНУЮ ЧАСТЬ === */}
             {showSalaryModal && createPortal(
@@ -876,7 +1098,6 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                 document.body
             )}
 
-            {/* === BOTTOM SHEET: ЗАТРАТЫ === */}
             {showCostsSheet && createPortal(
                 <div
                     className={archiveStyles.confirmSheetOverlay}
@@ -931,7 +1152,6 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                 document.body
             )}
 
-            {/* === CONFIRM-ШИТ: УДАЛИТЬ ОБЪЕКТ === */}
             {showConfirm && createPortal(
                 <div
                     className={archiveStyles.confirmSheetOverlay}

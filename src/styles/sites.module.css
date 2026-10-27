@@ -688,6 +688,9 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
     z-index: 10;
 }
 
@@ -695,8 +698,10 @@
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+    touch-action: pan-y;
     padding: 16px;
 }
 
@@ -1247,7 +1252,7 @@
 }
 
 .siteDetailInfoAvatar:not(:first-child) {
-    margin-left: -16px;
+    margin-left: -20px;
 }
 
 .siteDetailInfoAvatarImg {
@@ -1259,13 +1264,52 @@
 }
 
 .siteDetailInfoMore {
-    background: rgba(255, 255, 255, 0.12);
-    color: var(--text-primary);
-    font-size: 14px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(255 255 255 / 93%);
+    color: #464646;
+    font-size: 11px;
     font-weight: 600;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    border: 3px solid var(--bg-body);
+    margin-left: -6px;
 }
 
-/* === ДАТА (старый блок — совместимость) === */
+/* === Ссылка/надпись «Подробнее» под аватарками === */
+.siteDetailInfoMoreLink {
+    align-self: flex-start;
+    margin-top: 8px;
+    padding: 6px 10px;
+    background: rgb(255 255 255 / 0%);
+    border: 1px solid rgb(223 223 223 / 0%);
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.55);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.2;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.siteDetailInfoMoreLink:hover {
+    background: rgb(255 255 255 / 6%);
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.siteDetailInfoMoreLink:active {
+    background: rgb(255 255 255 / 10%);
+    color: rgba(255, 255, 255, 0.85);
+}
+
+
 .siteDetailDateRow {
     display: flex;
     align-items: flex-start;
@@ -1503,6 +1547,7 @@
     scrollbar-width: none;
     -ms-overflow-style: none;
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
 }
 
 .siteDetailMonthsNav::-webkit-scrollbar {
@@ -1556,6 +1601,7 @@
     -ms-overflow-style: none;
     -webkit-overflow-scrolling: touch;
     padding-bottom: 4px;
+    touch-action: pan-x;
 }
 
 .siteDetailMonthsScroll::-webkit-scrollbar {
@@ -1713,7 +1759,302 @@
     line-height: 1.45;
     max-width: 280px;
 }
+/* === ДИНАМИКА ПО ДНЯМ (в модалке «Подробнее») === */
+.siteDetailDynamics {
+    margin-bottom: 16px;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+}
 
+.siteDetailDynamicsHeader {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.siteDetailDynamicsTitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.siteDetailDynamicsMeta {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.siteDetailDynamicsBar {
+    display: flex;
+    width: 100%;
+    height: 14px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.06);
+    gap: 2px;
+}
+
+.siteDetailDynamicsSegment {
+    height: 100%;
+    flex-basis: 0;
+    flex-shrink: 0;
+    transition: flex-grow 0.2s ease;
+}
+
+.siteDetailDynamicsLegend {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 12px;
+}
+
+.siteDetailDynamicsLegendRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    line-height: 1.2;
+    min-width: 0;
+}
+
+.siteDetailDynamicsDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.siteDetailDynamicsLegendLabel {
+    color: var(--text-secondary);
+    font-weight: 500;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.siteDetailDynamicsLegendValue {
+    color: var(--text-primary);
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.siteDetailDynamicsFlat {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.siteDetailDynamicsFlatBar {
+    width: 100%;
+    height: 14px;
+    border-radius: 999px;
+    background: #86d617;
+}
+
+.siteDetailDynamicsFlatText {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    line-height: 1.35;
+}
+/* === МОДАЛКА «ПОДРОБНЕЕ»: ТАБЛИЦА ДАТ И РАБОТНИКОВ === */
+.siteDetailDaysOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 9999;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    animation: siteDetailDaysOverlayIn 0.18s ease-out;
+}
+
+@keyframes siteDetailDaysOverlayIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.siteDetailDaysSheet {
+    width: 100%;
+    max-width: 500px;
+    max-height: 85dvh;
+    background: #181717;
+    border-radius: 24px 24px 0 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: siteDetailDaysSheetIn 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes siteDetailDaysSheetIn {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+}
+
+.siteDetailDaysHandleZone {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0 6px;
+    flex-shrink: 0;
+}
+
+.siteDetailDaysHandle {
+    width: 40px;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.22);
+    display: block;
+}
+
+.siteDetailDaysHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 20px 12px;
+    flex-shrink: 0;
+}
+
+.siteDetailDaysTitle {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.siteDetailDaysCloseBtn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+    transition: background 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.siteDetailDaysCloseBtn:hover { background: rgba(255, 255, 255, 0.12); }
+.siteDetailDaysCloseBtn:active { transform: scale(0.96); }
+
+.siteDetailDaysBody {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 0 20px 16px;
+}
+
+.siteDetailDaysTable {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.siteDetailDaysRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+}
+
+.siteDetailDaysDate {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.3;
+    flex-shrink: 0;
+    min-width: 0;
+}
+
+.siteDetailDaysWorkers {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.siteDetailDaysAvatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+    overflow: hidden;
+    border: 2px solid #181717;
+    box-sizing: border-box;
+}
+
+.siteDetailDaysAvatar:not(:first-child) {
+    margin-left: -10px;
+}
+
+.siteDetailDaysAvatarImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+.siteDetailDaysEmpty {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.siteDetailDaysFooter {
+    display: flex;
+    gap: 10px;
+    padding: 12px 20px calc(20px + env(safe-area-inset-bottom, 0));
+    flex-shrink: 0;
+}
+
+.siteDetailDaysCloseFooterBtn {
+    flex: 1;
+    padding: 14px;
+    background: #3a3a3a;
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.siteDetailDaysCloseFooterBtn:hover { background: #464646; }
+.siteDetailDaysCloseFooterBtn:active { transform: scale(0.97); }
 /* === МИНИ-ШИТ: ЗАРПЛАТНАЯ ЧАСТЬ === */
 .siteDetailSalaryOverlay {
     position: fixed;
@@ -2068,9 +2409,15 @@
     .siteDetailInfoValue { font-size: 13px; }
     .siteDetailInfoCount { font-size: 20px; }
     .siteDetailInfoMuted { font-size: 12px; }
-    .siteDetailInfoAvatar { width: 56px; height: 56px; font-size: 18px; }
-    .siteDetailInfoAvatar:not(:first-child) { margin-left: -14px; }
-    .siteDetailInfoMore { font-size: 13px; }
+       .siteDetailInfoAvatar { width: 48px; height: 48px; font-size: 18px; }
+    .siteDetailInfoAvatar:not(:first-child) { margin-left: -18px; }
+    .siteDetailInfoMore {
+        width: 26px;
+        height: 26px;
+        font-size: 11px;
+        margin-left: -15px;
+        margin-top: 20px;
+    }
 
     .siteDetailDateRow { padding: 12px 14px; gap: 10px; }
     .siteDetailDateValue { font-size: 14px; }
@@ -2114,6 +2461,24 @@
         font-size: 15px;
         min-width: 140px;
     }
+    .siteDetailInfoMoreLink {
+        font-size: 13px;
+        padding: 5px 15px;
+    }
+        .siteDetailDaysTitle { font-size: 18px; }
+    .siteDetailDaysRow { padding: 10px 12px; }
+    .siteDetailDaysDate { font-size: 13px; }
+    .siteDetailDaysAvatar { width: 32px; height: 32px; font-size: 11px; }
+    .siteDetailDaysAvatar:not(:first-child) { margin-left: -9px; }
+    .siteDetailDaysCloseFooterBtn { padding: 13px; font-size: 14px; }
+        .siteDetailDynamics { padding: 12px; margin-bottom: 14px; }
+    .siteDetailDynamicsTitle { font-size: 13px; }
+    .siteDetailDynamicsMeta { font-size: 10px; }
+    .siteDetailDynamicsBar,
+    .siteDetailDynamicsFlatBar { height: 12px; }
+    .siteDetailDynamicsLegendRow { font-size: 11px; gap: 7px; }
+    .siteDetailDynamicsDot { width: 9px; height: 9px; }
+    .siteDetailDynamicsFlatText { font-size: 11px; }
 }
 
 /* ============================================================
@@ -2188,11 +2553,29 @@
     .siteDetailSummaryTwo .siteDetailStatLabel { font-size: 12px; }
 
     .siteDetailInfoCard { padding: 10px; min-height: 150px; }
+    .siteDetailInfoCardClickable {
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    color: inherit;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.siteDetailInfoCardClickable:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.siteDetailInfoCardClickable:active {
+    transform: scale(0.99);
+    background: rgba(255, 255, 255, 0.08);
+}
     .siteDetailInfoValue { font-size: 12px; }
     .siteDetailInfoCount { font-size: 18px; }
     .siteDetailInfoAvatar { width: 48px; height: 48px; font-size: 16px; }
-    .siteDetailInfoAvatar:not(:first-child) { margin-left: -12px; }
-    .siteDetailInfoMore { font-size: 12px; }
+    .siteDetailInfoAvatar:not(:first-child) { margin-left: -16px; }
+        .siteDetailInfoMore { width: 20px; height: 20px; font-size: 9px; margin-left: -4px; }
 
     .siteDetailMonthDay { font-size: 10px; }
     .siteDetailMonthWeekday { font-size: 8.5px; }
