@@ -424,7 +424,7 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
                                 >
                                     <label className={styles.yandexLabel}>
                                         Название объекта
-                                        <span className={styles.yandexRequired}>обязательно</span>
+                                        <span className={styles.yandexRequiredStar} aria-hidden="true">*</span>
                                     </label>
                                     <input
                                         className={`${styles.yandexInput} ${isInvalid('name') ? styles.yandexInputError : ''}`}
@@ -463,7 +463,66 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
                                     />
                                 </div>
 
+                                {/* Фото — сразу после адреса, отступ снизу 30px */}
+                                <div className={`${styles.yandexField} ${styles.yandexFieldPhotoAdd}`}>
+                                    <label className={styles.yandexLabel}>Фото объекта</label>
+
+                                    {photoBase64 ? (
+                                        <div className={styles.yandexPhotoPreviewWrap}>
+                                            <img
+                                                src={photoBase64}
+                                                alt="Превью"
+                                                className={styles.yandexPhotoPreview}
+                                            />
+                                            <button
+                                                type="button"
+                                                className={styles.yandexPhotoRemove}
+                                                onClick={handleRemovePhoto}
+                                                aria-label="Удалить фото"
+                                            >
+                                                <Xmark />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            className={styles.yandexPhotoZone}
+                                            onClick={() => {
+                                                if (photoProcessing) return
+                                                photoInputRef.current && photoInputRef.current.click()
+                                            }}
+                                            disabled={photoProcessing}
+                                        >
+                                            {photoProcessing ? (
+                                                <>
+                                                    <span className={styles.yandexPhotoSpinner} aria-hidden="true" />
+                                                    <span className={styles.yandexPhotoZoneText}>Обработка...</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Camera className={styles.yandexPhotoZoneIcon} />
+                                                    <span className={styles.yandexPhotoZoneText}>Загрузить фото</span>
+                                                </>
+                                            )}
+                                        </button>
+                                    )}
+
+                                    {photoError && (
+                                        <div className={styles.yandexPhotoError}>{photoError}</div>
+                                    )}
+
+                                    <input
+                                        ref={photoInputRef}
+                                        type="file"
+                                        accept="image/*"
+                                        className={styles.yandexHiddenInput}
+                                        onChange={handlePhotoSelect}
+                                    />
+                                </div>
+
+                                {/* Цвет — с лейблом над блоком: «Отметки в календаре» */}
                                 <div className={`${styles.yandexField} ${styles.yandexFieldColor}`}>
+                                    <label className={styles.yandexLabel}>Отметки в календаре</label>
                                     <div className={styles.yandexColorBox}>
                                         <p className={styles.yandexColorHint}>
                                             Цвет, которым отмечаются рабочие дни в календаре
@@ -524,74 +583,19 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
                                         <span className={styles.yandexSalarySuffix}>BYN</span>
                                     </div>
                                 </div>
+                            </div>
 
-                                {/* === ФОТО === */}
-                                <div className={styles.yandexField}>
-                                    <label className={styles.yandexLabel}>Фото объекта</label>
-
-                                    {photoBase64 ? (
-                                        <div className={styles.yandexPhotoPreviewWrap}>
-                                            <img
-                                                src={photoBase64}
-                                                alt="Превью"
-                                                className={styles.yandexPhotoPreview}
-                                            />
-                                            <button
-                                                type="button"
-                                                className={styles.yandexPhotoRemove}
-                                                onClick={handleRemovePhoto}
-                                                aria-label="Удалить фото"
-                                            >
-                                                <Xmark />
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <button
-                                            type="button"
-                                            className={styles.yandexPhotoZone}
-                                            onClick={() => {
-                                                if (photoProcessing) return
-                                                photoInputRef.current && photoInputRef.current.click()
-                                            }}
-                                            disabled={photoProcessing}
-                                        >
-                                            {photoProcessing ? (
-                                                <>
-                                                    <span className={styles.yandexPhotoSpinner} aria-hidden="true" />
-                                                    <span className={styles.yandexPhotoZoneText}>Обработка...</span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Camera className={styles.yandexPhotoZoneIcon} />
-                                                    <span className={styles.yandexPhotoZoneText}>Загрузить фото</span>
-                                                </>
-                                            )}
-                                        </button>
-                                    )}
-
-                                    {photoError && (
-                                        <div className={styles.yandexPhotoError}>{photoError}</div>
-                                    )}
-
-                                    <input
-                                        ref={photoInputRef}
-                                        type="file"
-                                        accept="image/*"
-                                        className={styles.yandexHiddenInput}
-                                        onChange={handlePhotoSelect}
-                                    />
-                                </div>
-
-                                <div className={styles.yandexFooterInline}>
-                                    <button
-                                        type="button"
-                                        className={styles.yandexSaveBtnInline}
-                                        onClick={handleSubmit}
-                                        disabled={saveDisabled}
-                                    >
-                                        {loading ? 'Сохранение...' : 'Сохранить'}
-                                    </button>
-                                </div>
+                            {/* Футер прижат к низу шита (flex-shrink: 0), вне скроллящегося .yandexBody.
+                                Градиент над футером — .yandexFooter::before (уже в CSS). */}
+                            <div className={styles.yandexFooter}>
+                                <button
+                                    type="button"
+                                    className={styles.yandexSaveBtn}
+                                    onClick={handleSubmit}
+                                    disabled={saveDisabled}
+                                >
+                                    {loading ? 'Сохранение...' : 'Сохранить'}
+                                </button>
                             </div>
                         </motion.div>
                     </motion.div>
