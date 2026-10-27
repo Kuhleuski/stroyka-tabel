@@ -1,127 +1,661 @@
+/* ============================================================
+   АРХИВ — финальная вёрстка
+   (единственный источник правды по стилям страницы архива)
+   ============================================================ */
+
+/* === Обёртка страницы: fixed на весь вьюпорт, flex-column ===
+   fixed — чтобы не зависеть от .container / .pageWrapper и их padding.
+   z-index: 10 — ниже confirmSheetOverlay (10000), модалки поверх.
+   BottomNav на архиве скрыт в App.jsx, конфликта снизу нет.
+   safe-area учтён в .yandexFooter (components.module.css). */
 .archivePage {
-    padding: 16px 16px 100px;
+    height: calc(100dvh - 24px);
     max-width: 500px;
     margin: 0 auto;
+    background: var(--bg-body);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* === Скроллящаяся часть: шапка + сегменты + карточки === */
+.archiveBody {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 16px;
+}
+
+/* ============================================================
+   ШАПКА: стрелка + заголовок
+   ============================================================ */
+
+.archiveTopBar {
+    margin-left: -22px;
+    margin-right: -22px;
+    padding-left: 8px;
+    padding-right: 8px;
 }
 
 .archiveHeader {
-    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 0 20px 0;
+    margin-bottom: 0;
+}
+
+/* Стрелка «Назад» — как в WorkerStatsPage */
+.archiveBackBtn {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 0;
+    border-radius: 50%;
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    transition: color 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+    padding: 0;
+}
+
+.archiveBackBtn:hover { color: #ffffff; }
+.archiveBackBtn:active { transform: scale(0.94); }
+
+.archiveBackIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    line-height: 0;
+}
+
+/* Gravity 2.23 игнорирует size → размер только CSS !important */
+.archiveBackIcon svg {
+    width: 26px !important;
+    height: 26px !important;
+    display: block;
 }
 
 .archiveTitle {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: 700;
     color: var(--text-primary);
-    display: flex;
+    line-height: 1.15;
+    margin: 0;
+    letter-spacing: -0.3px;
+}
+
+/* ============================================================
+   PILL-СЕГМЕНТ (как у Объектов / Бригады)
+   ============================================================ */
+
+.archiveSegmented {
+    display: inline-flex;
+    padding: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    gap: 2px;
+    margin: 0 0 16px 0;
+    align-self: flex-start;
+}
+
+.archiveSegment {
+    display: inline-flex;
     align-items: center;
-    gap: 10px;
-}
-
-.archiveTitle svg {
-    stroke: var(--text-primary);
-}
-
-.archiveSubtitle {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin-top: 4px;
-}
-
-.archiveTabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    padding-bottom: 12px;
-}
-
-.archiveTab {
-    padding: 8px 16px;
-    background: transparent;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 14px;
     border: none;
+    border-radius: 9px;
+    background: transparent;
     color: var(--text-secondary);
-    font-size: 15px;
-    font-weight: 500;
     cursor: pointer;
     font-family: inherit;
-    border-radius: 8px;
-    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+    transition: background 0.15s ease, color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.archiveTab:hover {
-    color: var(--text-primary);
+.archiveSegment:hover { color: var(--text-primary); }
+
+.archiveSegmentActive {
+    background: #ececec;
+    color: #121212;
+    font-weight: 600;
 }
 
-.archiveTab.active {
-    background: rgba(255, 255, 255, 0.06);
-    color: var(--text-primary);
+.archiveSegmentActive:hover { color: #121212; }
+
+.archiveSegmentBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
 }
 
-.archiveList {
+.archiveSegmentActive .archiveSegmentBadge {
+    background: rgba(0, 0, 0, 0.12);
+    color: #121212;
+}
+
+/* ============================================================
+   СПИСОК КАРТОЧЕК
+   ============================================================ */
+
+.archiveCards {
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
 
-.archiveItem {
+.archiveCard {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 14px 16px;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 14px;
     background: var(--bg-card);
-    border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 16px;
 }
 
-.archiveItemName {
-    font-size: 16px;
+/* Превью (фото / аватар) */
+.archiveCardThumb {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+}
+
+.archiveCardPhoto {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    object-fit: cover;
+    display: block;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.archiveCardPhotoPlaceholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+}
+
+.archiveCardPhotoIcon {
+    width: 22px !important;
+    height: 22px !important;
+    color: currentColor !important;
+    fill: currentColor;
+    display: block;
+}
+
+.archiveCardAvatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+    overflow: hidden;
+}
+
+.archiveCardAvatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+/* Текст */
+.archiveCardText {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.archiveCardName {
+    font-size: 15px;
     font-weight: 500;
     color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.2;
 }
 
-.archiveItemActions {
+.archiveCardSub {
+    font-size: 13px;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.2;
+}
+
+.archiveCardSubMuted {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.3);
+    font-style: italic;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.2;
+}
+
+/* Две кнопки справа: восстановить + корзина */
+.archiveCardActions {
     display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.archiveActionBtnRestore,
+.archiveActionBtnDelete {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s ease, transform 0.1s ease, color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    padding: 0;
+}
+.archiveActionBtnRestore {
+    background: rgba(255, 255, 255, 0.12);
+    color: #5dbb45;
+}
+
+.archiveActionBtnRestore:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.archiveActionBtnRestore:active:not(:disabled) {
+    transform: scale(0.94);
+}
+
+.archiveActionBtnRestore:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.archiveActionBtnDelete {
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(212, 212, 212, 0.78);   /* #d4d4d4c7 */
+}
+
+.archiveActionBtnDelete:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.archiveActionBtnDelete:active {
+    transform: scale(0.94);
+}
+
+.archiveActionIcon {
+    width: 20px !important;
+    height: 20px !important;
+    display: block;
+}
+
+.archiveActionBtnRestore svg,
+.archiveActionBtnDelete svg {
+    display: block;
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   ПУСТОЕ СОСТОЯНИЕ (в стиле Яндекса)
+   ============================================================ */
+
+.archiveEmptyBlock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 48px 24px 56px;
     gap: 8px;
 }
 
-.archiveRestoreBtn {
-    padding: 6px 14px;
-    background: var(--color-primary);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 13px;
+.archiveEmptyIconWrap {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.archiveEmptyIconWrap svg {
+    display: block;
+}
+
+.archiveEmptyTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+    letter-spacing: -0.1px;
+}
+
+.archiveEmptySubtitle {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+/* ============================================================
+   НИЖНИЙ ФУТЕР: кнопка «Назад»
+   (используется внутри .yandexFooter из components.module.css —
+    градиент над футером оттуда же, серая кнопка — здесь)
+   ============================================================ */
+
+.archiveCloseBtn {
+    flex: 1;
+    width: 100%;
+    padding: 14px;
+    background: #3a3a3a;
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    font-size: 16px;
     font-weight: 500;
-    cursor: pointer;
     font-family: inherit;
-    transition: all 0.2s ease;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 160px;
 }
 
-.archiveRestoreBtn:hover {
-    background: var(--color-primary-hover);
+.archiveCloseBtn:hover {
+    background: #464646;
 }
 
-.archiveDeleteBtn {
-    padding: 6px 14px;
+.archiveCloseBtn:active {
+    transform: scale(0.97);
+}
+
+/* ============================================================
+   CONFIRM-ШИТ: «Удалить навсегда»
+   ============================================================ */
+
+.confirmSheetOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 10000;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    animation: confirmSheetFadeIn 0.18s ease;
+}
+
+@keyframes confirmSheetFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.confirmSheet {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: var(--max-width);
+    max-height: 92vh;
+    max-height: 92dvh;
+    background: var(--yandex-sheet-bg, #181717);
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
+    animation: confirmSheetSlideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+}
+
+@keyframes confirmSheetSlideUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+}
+
+.confirmSheetHandleZone {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0 6px;
+    flex-shrink: 0;
+}
+
+.confirmSheetHandle {
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.2);
+    display: block;
+}
+
+.confirmSheetHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 20px 16px;
+    flex-shrink: 0;
+}
+
+.confirmSheetTitle {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+    margin: 0;
+    letter-spacing: -0.2px;
+}
+
+.confirmSheetCloseBtn {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.06);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: background 0.15s ease, color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    padding: 0;
+}
+
+.confirmSheetCloseBtn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.confirmSheetCloseBtn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.confirmSheetCloseBtn svg { display: block; }
+
+.confirmSheetBody {
+    padding: 0 20px 24px;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.confirmSheetText {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--text-primary);
+    margin: 0 0 12px;
+}
+
+.confirmSheetText strong {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.confirmSheetHint {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-muted);
+    margin: 0;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+}
+
+.confirmSheetFooter {
+    display: flex;
+    gap: 10px;
+    padding: 16px 20px 24px;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0));
+    background: var(--yandex-sheet-bg, #181717);
+    flex-shrink: 0;
+    position: relative;
+}
+
+.confirmSheetCancelBtn {
+    flex: 1;
+    padding: 14px;
     background: rgba(255, 255, 255, 0.06);
     color: var(--text-secondary);
     border: none;
-    border-radius: 8px;
-    font-size: 13px;
+    border-radius: 14px;
+    font-size: 16px;
     font-weight: 500;
-    cursor: pointer;
     font-family: inherit;
-    transition: all 0.2s ease;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.archiveDeleteBtn:hover {
-    background: rgba(255, 70, 70, 0.15);
-    color: #ff6b6b;
+.confirmSheetCancelBtn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
 }
 
-.archiveEmpty {
-    text-align: center;
-    padding: 40px 0;
-    color: var(--text-muted);
-    font-size: 15px;
+.confirmSheetCancelBtn:active:not(:disabled) { transform: scale(0.98); }
+.confirmSheetCancelBtn:disabled { opacity: 0.5; cursor: default; }
+
+.confirmSheetDeleteBtn {
+    flex: 1;
+    padding: 14px;
+    background: #c62828;
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.confirmSheetDeleteBtn:hover:not(:disabled) { background: #b71c1c; }
+.confirmSheetDeleteBtn:active:not(:disabled) { transform: scale(0.98); }
+.confirmSheetDeleteBtn:disabled { opacity: 0.5; cursor: default; }
+
+/* ============================================================
+   АДАПТИВ ≤400
+   ============================================================ */
+
+@media (max-width: 400px) {
+    .archiveBody { padding: 16px; }
+    .archiveTitle { font-size: 24px; }
+
+    .archiveBackBtn { width: 44px; height: 44px; }
+    .archiveBackIcon,
+    .archiveBackIcon svg { width: 24px !important; height: 24px !important; }
+
+    .archiveSegment { padding: 7px 12px; font-size: 13px; }
+    .archiveSegmentBadge { min-width: 16px; height: 16px; font-size: 10px; }
+
+    .archiveCard { padding: 10px 12px; gap: 10px; }
+    .archiveCardThumb { width: 52px; height: 52px; }
+    .archiveCardName { font-size: 14px; }
+    .archiveCardSub,
+    .archiveCardSubMuted { font-size: 12px; }
+
+    .archiveActionBtnRestore,
+    .archiveActionBtnDelete {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+    }
+    .archiveActionIcon { width: 18px !important; height: 18px !important; }
+    .archiveActionBtnDelete svg { width: 18px; height: 18px; }
+
+    .archiveEmptyBlock { padding: 36px 16px 44px; }
+    .archiveEmptyIconWrap { width: 64px; height: 64px; }
+    .archiveEmptyTitle { font-size: 17px; }
+    .archiveEmptySubtitle { font-size: 13px; }
+
+    .archiveCloseBtn {
+        padding: 13px;
+        font-size: 15px;
+        min-width: 140px;
+    }
+
+    .confirmSheet { border-radius: 20px 20px 0 0; }
+    .confirmSheetHeader { padding: 4px 16px 14px; }
+    .confirmSheetTitle { font-size: 18px; }
+    .confirmSheetBody { padding: 0 16px 20px; }
+    .confirmSheetText { font-size: 14px; }
+    .confirmSheetHint { font-size: 12px; padding: 10px 12px; }
+    .confirmSheetFooter {
+        padding: 14px 16px 20px;
+        padding-bottom: calc(20px + env(safe-area-inset-bottom, 0));
+    }
+    .confirmSheetCancelBtn,
+    .confirmSheetDeleteBtn { padding: 12px; font-size: 15px; }
 }

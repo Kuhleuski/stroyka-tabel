@@ -70,13 +70,20 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
         return () => document.removeEventListener('mousedown', handleClickOutside)
     }, [])
 
+    // === ВИДИМЫЕ РАБОТНИКИ (без удалённых навсегда) ===
+    // deleted=true остаются в памяти хука для календаря, но в списке скрыты.
+    const visibleWorkers = useMemo(
+        () => (workers || []).filter(w => w.deleted !== true),
+        [workers]
+    )
+
     const suggestions = useMemo(() => {
         const q = searchInput.trim()
         if (!q) return []
-        return workers
+        return visibleWorkers
             .filter(w => matchesQuery(w, q))
             .slice(0, 6)
-    }, [searchInput, workers])
+    }, [searchInput, visibleWorkers])
 
     const showSuggestions = isFocused && searchInput.trim().length > 0
 
@@ -172,6 +179,8 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
         setRefreshKey(prev => prev + 1)
         await refreshWorkers()
         if (selectedWorker) {
+            // Ищем в полном списке (workers, а не visibleWorkers) —
+            // на случай если открыт «удалённый» работник.
             const updated = workers.find(w => w.id === selectedWorker.id)
             if (updated && updated.status !== selectedWorker.status) {
                 setSelectedWorker(updated)
@@ -239,11 +248,8 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
     }
 
     // Вызывается из WorkerStatsPage из пункта «Удалить работника».
-    // После удаления закрываем страницу работника, чтобы вернуться к списку.
     const handleArchiveFromStats = async (workerId) => {
         await handleArchive(workerId)
-        // Страница закроется в WorkerStatsPage после успеха, но на всякий случай
-        // ничего тут дополнительно не делаем — onClose там уже вызовется.
     }
 
     const handleWorkerClick = (worker) => {
@@ -285,13 +291,14 @@ export function WorkersPage({ shifts, onOpenWorkerStats, onCloseWorkerStats }) {
         setWorkerToArchive(null)
     }
 
+    // === ВИДИМЫЕ + ОТФИЛЬТРОВАННЫЕ ПО ПОИСКУ ===
     const filteredWorkers = useMemo(() => {
-        let list = workers || []
+        let list = visibleWorkers
         if (searchQuery.trim()) {
             list = list.filter(w => matchesQuery(w, searchQuery))
         }
         return list
-    }, [workers, searchQuery])
+    }, [visibleWorkers, searchQuery])
 
     if (loading) {
         return <div className={globalsStyles.loadingText}>⏳ Загрузка...</div>

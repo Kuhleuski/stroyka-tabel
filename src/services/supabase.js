@@ -196,7 +196,7 @@ export async function addShift(shiftData) {
    }
 }
 
-// === УДАЛЕНИЕ СМЕНЫ ПО ID ===
+// === УДАЛЕНИЕ СМЕНЫ ПО ID (смена — не сущность с историей, физический DELETE ок) ===
 export async function deleteShiftById(shiftId) {
    try {
       console.log('🗑️ Удаляем смену ID:', shiftId)
@@ -575,25 +575,29 @@ export async function addSite({ name, address, color, salaryPart = null, photo =
    return await response.json()
 }
 
-export async function deleteSite(siteId) {
+// ============================================================
+// SOFT DELETE: удалить НАВСЕГДА = скрыть из UI, строку в БД не трогаем
+// (история смен shifts остаётся валидной, FK не рвётся)
+// ============================================================
+
+export async function deleteSitePermanently(siteId) {
    try {
       const url = `${SUPABASE_URL}/rest/v1/sites?id=eq.${siteId}`
-      console.log('🔍 Удаление объекта:', siteId)
       const response = await fetch(url, {
-         method: 'DELETE',
-         headers: getHeaders()
+         method: 'PATCH',
+         headers: getHeaders(),
+         body: JSON.stringify({ deleted: true, archived: false })
       })
-      console.log('📡 Статус удаления:', response.status)
+
       if (!response.ok) {
          const errorText = await response.text()
-         console.error('❌ Ошибка удаления:', errorText)
          throw new Error(`Ошибка удаления: ${response.status} ${errorText}`)
       }
+
       const result = await response.json()
-      console.log('✅ Удалено:', result)
-      return true
+      return result[0] || result
    } catch (error) {
-      console.error('❌ Ошибка в deleteSite:', error)
+      console.error('❌ Ошибка в deleteSitePermanently:', error)
       throw error
    }
 }
@@ -652,17 +656,30 @@ export async function addWorker(name, avatarFile = null, phone = '') {
    }
 }
 
-export async function deleteWorker(workerId) {
-   const url = `${SUPABASE_URL}/rest/v1/workers?id=eq.${workerId}`
-   const response = await fetch(url, {
-      method: 'DELETE',
-      headers: getHeaders()
-   })
-   if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`Ошибка удаления: ${response.status} ${errorText}`)
+// ============================================================
+// SOFT DELETE для работников
+// ============================================================
+
+export async function deleteWorkerPermanently(workerId) {
+   try {
+      const url = `${SUPABASE_URL}/rest/v1/workers?id=eq.${workerId}`
+      const response = await fetch(url, {
+         method: 'PATCH',
+         headers: getHeaders(),
+         body: JSON.stringify({ deleted: true, archived: false })
+      })
+
+      if (!response.ok) {
+         const errorText = await response.text()
+         throw new Error(`Ошибка удаления: ${response.status} ${errorText}`)
+      }
+
+      const result = await response.json()
+      return result[0] || result
+   } catch (error) {
+      console.error('❌ Ошибка в deleteWorkerPermanently:', error)
+      throw error
    }
-   return true
 }
 
 // ============================================================

@@ -1,5 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
-import { fetchWorkers, archiveWorker, restoreWorker, getArchivedWorkers } from '../services/supabase'
+import {
+   fetchWorkers,
+   archiveWorker,
+   restoreWorker,
+   getArchivedWorkers,
+   deleteWorkerPermanently
+} from '../services/supabase'
 
 export function useWorkers() {
    const [workers, setWorkers] = useState([])
@@ -8,15 +14,18 @@ export function useWorkers() {
    const [archivedWorkers, setArchivedWorkers] = useState([])
 
    // === ЗАГРУЗКА ВСЕХ ДАННЫХ ===
+   // ВАЖНО: не фильтруем deleted — календарь (TestPage) должен видеть
+   // удалённых работников, чтобы история смен отображалась корректно.
+   // Фильтрация deleted — на уровне UI-страниц (WorkersPage / ArchivePage).
    const loadAllData = useCallback(async () => {
       try {
          setLoading(true)
 
-         // Загружаем активных работников
+         // Загружаем активных (не архивных). deleted оставляем — календарь увидит.
          const data = await fetchWorkers()
          setWorkers((data || []).filter(w => w.archived !== true))
 
-         // Загружаем архивных работников
+         // Загружаем архивных. deleted оставляем — календарь увидит.
          const archived = await getArchivedWorkers()
          setArchivedWorkers(archived || [])
 
@@ -62,7 +71,7 @@ export function useWorkers() {
       setWorkers(prev => [...prev, newWorker])
    }
 
-   // === УДАЛЕНИЕ ===
+   // === УДАЛЕНИЕ ИЗ СОСТОЯНИЯ (без БД) ===
    const removeWorkerFromState = (workerId) => {
       setWorkers(prev => prev.filter(w => w.id !== workerId))
    }
@@ -113,6 +122,19 @@ export function useWorkers() {
       }
    }
 
+   // === SOFT DELETE: «удалить навсегда» = скрыть из UI (БД не трогаем) ===
+   const deleteWorkerPermanentlyInState = async (workerId) => {
+      try {
+         const result = await deleteWorkerPermanently(workerId)
+         setArchivedWorkers(prev => prev.filter(w => w.id !== workerId))
+         setWorkers(prev => prev.filter(w => w.id !== workerId))
+         return result
+      } catch (error) {
+         console.error('❌ Ошибка удаления навсегда:', error)
+         throw error
+      }
+   }
+
    const refreshArchivedWorkers = async () => {
       try {
          const data = await getArchivedWorkers()
@@ -133,6 +155,7 @@ export function useWorkers() {
       refreshWorkers,
       archiveWorkerInState,
       restoreWorkerInState,
+      deleteWorkerPermanentlyInState,
       archivedWorkers,
       refreshArchivedWorkers
    }

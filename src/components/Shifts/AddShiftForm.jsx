@@ -54,13 +54,16 @@ export const AddShiftForm = ({
     }
   }, [initialSiteId, initialWorkerIds])
 
-  // Объекты - фильтруем по статусу (русские значения)
+  // === ОБЪЕКТЫ: только НЕ архивные и НЕ удалённые навсегда ===
+  // Сначала базовый отсев (archived / deleted), потом — по статусу.
   const getFilteredSites = () => {
-    if (showAllSites) return sites
-    
-    const hasStatus = sites.some(s => s.status !== undefined && s.status !== null)
-    if (!hasStatus) return sites
-    return sites.filter(site => site.status === 'в работе')
+    const baseSites = sites.filter(s => s.archived !== true && s.deleted !== true)
+
+    if (showAllSites) return baseSites
+
+    const hasStatus = baseSites.some(s => s.status !== undefined && s.status !== null)
+    if (!hasStatus) return baseSites
+    return baseSites.filter(site => site.status === 'в работе')
   }
 
   // Ранжирование объектов по дате последней смены
@@ -81,10 +84,13 @@ export const AddShiftForm = ({
     })
   }
 
-  // Работники - фильтруем по статусу
+  // === РАБОТНИКИ: только НЕ архивные и НЕ удалённые навсегда ===
+  // Сначала базовый отсев (archived / deleted), потом — по статусу.
   const getFilteredWorkers = () => {
-    if (showAllWorkers) return workers
-    return workers.filter(worker => worker.status === 'active')
+    const baseWorkers = workers.filter(w => w.archived !== true && w.deleted !== true)
+
+    if (showAllWorkers) return baseWorkers
+    return baseWorkers.filter(worker => worker.status === 'active')
   }
 
   // Ранжирование работников: активные сверху по алфавиту, неактивные снизу по алфавиту

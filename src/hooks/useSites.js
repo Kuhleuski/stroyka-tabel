@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react'
-import { fetchSites, archiveSite, restoreSite, getArchivedSites } from '../services/supabase'
+import {
+   fetchSites,
+   archiveSite,
+   restoreSite,
+   getArchivedSites,
+   deleteSitePermanently
+} from '../services/supabase'
 
 export function useSites() {
    const [sites, setSites] = useState([])
@@ -8,15 +14,18 @@ export function useSites() {
    const [archivedSites, setArchivedSites] = useState([])
 
    // === ЗАГРУЗКА ВСЕХ ДАННЫХ ===
+   // ВАЖНО: не фильтруем deleted — календарь (TestPage) должен видеть
+   // удалённые объекты, чтобы история смен отображалась корректно.
+   // Фильтрация deleted — на уровне UI-страниц (SitesPage / ArchivePage).
    const loadAllData = async () => {
       try {
          setLoading(true)
 
-         // Загружаем активные объекты
+         // Загружаем активные (не архивные). deleted оставляем — календарь увидит.
          const data = await fetchSites()
          setSites((data || []).filter(s => s.archived !== true))
 
-         // Загружаем архивные объекты
+         // Загружаем архивные. deleted оставляем — календарь увидит.
          const archived = await getArchivedSites()
          setArchivedSites(archived || [])
 
@@ -92,6 +101,20 @@ export function useSites() {
       }
    }
 
+   // === SOFT DELETE: «удалить навсегда» = скрыть из UI (БД не трогаем) ===
+   const deleteSitePermanentlyInState = async (siteId) => {
+      try {
+         const result = await deleteSitePermanently(siteId)
+         // Убираем из архива (и из активных на всякий случай)
+         setArchivedSites(prev => prev.filter(s => s.id !== siteId))
+         setSites(prev => prev.filter(s => s.id !== siteId))
+         return result
+      } catch (error) {
+         console.error('❌ Ошибка удаления навсегда:', error)
+         throw error
+      }
+   }
+
    const refreshArchivedSites = async () => {
       try {
          const data = await getArchivedSites()
@@ -111,6 +134,7 @@ export function useSites() {
       updateSiteInState,
       archiveSiteInState,
       restoreSiteInState,
+      deleteSitePermanentlyInState,
       archivedSites,
       refreshArchivedSites
    }
