@@ -82,6 +82,15 @@ function AppContent() {
         refetch()
     }
 
+    // === SiteDetail: скрыть/показать BottomNav ===
+    const handleOpenSiteDetail = () => {
+        setHideBottomNav(true)
+    }
+
+    const handleCloseSiteDetail = () => {
+        setHideBottomNav(false)
+    }
+
     const menuPages = ['archive', 'notifications', 'telegram', 'profile']
 
     const pagesWithoutBottomNav = ['workers-stats', 'notifications', 'telegram', 'archive', 'profile']
@@ -101,7 +110,12 @@ function AppContent() {
                     onCloseWorkerStats={handleCloseWorkerStats}
                 />
             case 'sites':
-                return <SitesPage key={`sites-${pageKey}`} shifts={shifts} />
+                return <SitesPage
+                    key={`sites-${pageKey}`}
+                    shifts={shifts}
+                    onOpenSiteDetail={handleOpenSiteDetail}
+                    onCloseSiteDetail={handleCloseSiteDetail}
+                />
             case 'menu':
                 return <MenuPage
                     key={`menu-${pageKey}`}

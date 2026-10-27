@@ -1,360 +1,710 @@
 // src/pages/SiteDetailPage.jsx
 
-import { useState, useRef, useEffect, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { useShifts } from '../hooks/useShifts'
 import { useWorkers } from '../hooks/useWorkers'
+import {
+    Camera,
+    ArrowLeft,
+    Ellipsis,
+    PersonPencil,
+    TrashBin,
+    Calendar as CalendarIcon,
+    Wallet,
+} from '@gravity-ui/icons'
+import { updateSiteStatus, updateSite } from '../services/supabase'
+import { MONTHS, getMonthDays, formatDateLocal, isToday as isTodayUtil } from '../utils/dateHelpers'
 import styles from '../styles/sites.module.css'
-import compStyles from '../styles/components.module.css'
-import { Camera } from '@gravity-ui/icons'
+import archiveStyles from '../styles/archive.module.css'
 
-export function SiteDetailPage({ site, onClose, onArchive, onEdit }) {
-    const [showConfirm, setShowConfirm] = useState(false)
-    const [deleting, setDeleting] = useState(false)
-    const [showMenu, setShowMenu] = useState(false)
-    const menuRef = useRef(null)
+// ============================================================
+// ХЕЛПЕРЫ
+// ============================================================
 
-    // === ПОЛУЧАЕМ СМЕНЫ И РАБОТНИКОВ ===
+const getInitials = (name) => {
+    if (!name) return '?'
+    const parts = name.trim().split(' ')
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase()
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
+}
+
+const getColorFromName = (name) => {
+    const colors = [
+        '#2d7d46', '#1976D2', '#D32F2F', '#F57C00',
+        '#7B1FA2', '#00897B', '#C2185B', '#303F9F',
+        '#E64A19', '#388E3C', '#1565C0', '#6D4C41'
+    ]
+    if (!name) return '#666'
+    let hash = 0
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash)
+    }
+    return colors[Math.abs(hash) % colors.length]
+}
+
+const isBase64Image = (str) => str && str.startsWith('data:image')
+
+const getDaysWord = (count) => {
+    if (count === 0) return 'дней'
+    const lastDigit = count % 10
+    const lastTwoDigits = count % 100
+    if (lastTwoDigits >= 11 && lastTwoDigits <= 19) return 'дней'
+    if (lastDigit === 1) return 'день'
+    if (lastDigit >= 2 && lastDigit <= 4) return 'дня'
+    return 'дней'
+}
+
+const getWorkingDaysWord = (count) => {
+    if (count === 0) return 'рабочих дней'
+    const lastDigit = count % 10
+    const lastTwoDigits = count % 100
+    if (lastTwoDigits >= 11 && lastTwoDigits <= 19) return 'рабочих дней'
+    if (lastDigit === 1) return 'рабочий день'
+    if (lastDigit >= 2 && lastDigit <= 4) return 'рабочих дня'
+    return 'рабочих дней'
+}
+
+const getPeopleWord = (count) => {
+    if (count === 0) return 'человек'
+    const lastDigit = count % 10
+    const lastTwoDigits = count % 100
+    if (lastTwoDigits >= 11 && lastTwoDigits <= 19) return 'человек'
+    if (lastDigit === 1) return 'человек'
+    if (lastDigit >= 2 && lastDigit <= 4) return 'человека'
+    return 'человек'
+}
+
+const formatDateWithMonth = (dateString) => {
+    if (!dateString) return ''
+    const date = new Date(dateString + 'T00:00:00')
+    return date.toLocaleDateString('ru-RU', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+    })
+}
+
+const formatMoney = (value) => {
+    if (value === null || value === undefined || Number.isNaN(value)) return '—'
+    const rounded = Math.round(value)
+    return rounded.toLocaleString('ru-RU').replace(/\u00A0/g, ' ').replace(/,/g, ' ') + ' BYN'
+}
+
+// ============================================================
+// МИНИ-КАЛЕНДАРЬ ОДНОГО МЕСЯЦА
+// ============================================================
+
+function MonthCalendar({ year, month, markedDates, color }) {
+    const days = getMonthDays(year, month)
+    const weekLabels = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+
+    return (
+        <div className={styles.siteDetailMonthBlock}>
+            <div className={styles.siteDetailMonthTitle}>
+                {MONTHS[month]} {year}
+            </div>
+
+            <div className={styles.siteDetailMonthGrid}>
+                {weekLabels.map((w) => (
+                    <div key={w} className={styles.siteDetailMonthWeekday}>{w}</div>
+                ))}
+
+                {days.map((d, idx) => {
+                    if (d.empty) {
+                        return <div key={`e-${idx}`} className={styles.siteDetailMonthDayEmpty} />
+                    }
+                    const dateStr = formatDateLocal(d.date)
+                    const marked = markedDates.has(dateStr)
+                    const today = isTodayUtil(d.date)
+
+                    return (
+                        <div
+                            key={dateStr}
+                            className={
+                                `${styles.siteDetailMonthDay} ` +
+                                `${marked ? styles.siteDetailMonthDayMarked : ''} ` +
+                                `${today ? styles.siteDetailMonthDayToday : ''}`
+                            }
+                            style={marked ? { backgroundColor: color, color: '#121212' } : undefined}
+                        >
+                            {d.day}
+                        </div>
+                    )
+                })}
+            </div>
+        </div>
+    )
+}
+
+// ============================================================
+// СТРАНИЦА
+// ============================================================
+
+export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
     const { shifts } = useShifts()
     const { workers } = useWorkers()
 
-    // === ФИЛЬТРУЕМ СМЕНЫ ДЛЯ ЭТОГО ОБЪЕКТА ===
-    const siteShifts = useMemo(() => {
-        if (!shifts || shifts.length === 0) return []
-        return shifts.filter(shift => shift.site_id === site.id)
-    }, [shifts, site.id])
+    const [showConfirm, setShowConfirm] = useState(false)
+    const [showCostsSheet, setShowCostsSheet] = useState(false)
+    const [archiving, setArchiving] = useState(false)
+    const [updatingStatus, setUpdatingStatus] = useState(false)
+    const [localStatus, setLocalStatus] = useState(site?.status || 'в работе')
 
-    // === ВЫЧИСЛЯЕМ ДАТУ НАЧАЛА РАБОТ ===
+    // Мини-модалка «Установить зарплатную часть»
+    const [showSalaryModal, setShowSalaryModal] = useState(false)
+    const [salaryInput, setSalaryInput] = useState('')
+    const [salarySaving, setSalarySaving] = useState(false)
+    const [salaryError, setSalaryError] = useState('')
+
+    const [isMenuOpen, setIsMenuOpen] = useState(false)
+    const menuRef = useRef(null)
+
+    const monthsScrollRef = useRef(null)
+    const [activeMonthIdx, setActiveMonthIdx] = useState(0)
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setIsMenuOpen(false)
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [])
+
+    useEffect(() => {
+        setLocalStatus(site?.status || 'в работе')
+    }, [site?.id, site?.status])
+
+    // === СМЕНЫ НА ЭТОМ ОБЪЕКТЕ ===
+    const siteShifts = useMemo(() => {
+        if (!shifts || !site) return []
+        return shifts.filter(shift => shift.site_id === site.id)
+    }, [shifts, site?.id])
+
+    // === ДАТА НАЧАЛА РАБОТ ===
     const startDate = useMemo(() => {
         if (siteShifts.length === 0) return null
-        
-        // Находим самую раннюю дату (используем work_date)
         const dates = siteShifts
             .map(shift => shift.work_date)
-            .filter(date => date)
+            .filter(Boolean)
             .sort()
-        
         return dates.length > 0 ? dates[0] : null
     }, [siteShifts])
 
-    // === СОБИРАЕМ СТАТИСТИКУ ПО СОТРУДНИКАМ ===
+    // === ДАТА ОКОНЧАНИЯ (только если завершён) ===
+    const endDate = useMemo(() => {
+        if (!site || site.status !== 'завершен') return null
+        if (siteShifts.length === 0) return null
+        const dates = siteShifts
+            .map(shift => shift.work_date)
+            .filter(Boolean)
+            .sort()
+        return dates.length > 0 ? dates[dates.length - 1] : null
+    }, [siteShifts, site?.status])
+
+    // === УНИКАЛЬНЫЕ ДНИ ===
+    const uniqueDays = useMemo(() => {
+        const set = new Set()
+        siteShifts.forEach(s => { if (s.work_date) set.add(s.work_date) })
+        return set.size
+    }, [siteShifts])
+
+    // === СТАТИСТИКА ПО РАБОТНИКАМ (по алфавиту) ===
     const workersStats = useMemo(() => {
         if (siteShifts.length === 0) return []
-        
-        // Считаем дни для каждого работника
         const statsMap = new Map()
-        
         siteShifts.forEach(shift => {
             if (!shift.worker_id) return
-            
             const workerId = shift.worker_id
             if (!statsMap.has(workerId)) {
-                statsMap.set(workerId, {
-                    workerId,
-                    days: 0,
-                    dates: new Set()
-                })
+                statsMap.set(workerId, { workerId, dates: new Set() })
             }
-            
-            const stat = statsMap.get(workerId)
-            // Добавляем дату (убираем дубликаты в один день)
             if (shift.work_date) {
-                stat.dates.add(shift.work_date)
+                statsMap.get(workerId).dates.add(shift.work_date)
             }
         })
-        
-        // Преобразуем в массив с количеством дней
-        const statsArray = Array.from(statsMap.entries()).map(([workerId, data]) => ({
+        const arr = Array.from(statsMap.entries()).map(([workerId, data]) => ({
             workerId,
             days: data.dates.size
         }))
-        
-        // Сортируем по алфавиту (по имени работника)
-        return statsArray.sort((a, b) => {
-            const workerA = workers.find(w => w.id === a.workerId)
-            const workerB = workers.find(w => w.id === b.workerId)
-            
-            const nameA = workerA?.name || ''
-            const nameB = workerB?.name || ''
-            
+        return arr.sort((a, b) => {
+            const nameA = workers.find(w => w.id === a.workerId)?.name || ''
+            const nameB = workers.find(w => w.id === b.workerId)?.name || ''
             return nameA.localeCompare(nameB, 'ru')
         })
     }, [siteShifts, workers])
 
-    // === ФОРМАТИРОВАНИЕ ДАТЫ ===
-    const formatDate = (dateString) => {
-        if (!dateString) return ''
-        const date = new Date(dateString + 'T00:00:00')
-        return date.toLocaleDateString('ru-RU', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
+    const uniqueWorkers = workersStats.length
+
+    // === АВАТАРКИ ДЛЯ ПЛАШКИ (макс 4 + "+N") ===
+    const MAX_AVATARS = 4
+    const avatarsPreview = useMemo(() => {
+        return workersStats.slice(0, MAX_AVATARS).map(stat => {
+            const worker = workers.find(w => w.id === stat.workerId)
+            return {
+                workerId: stat.workerId,
+                name: worker?.name || 'Неизвестный',
+                avatar: worker?.avatar || null,
+                initials: getInitials(worker?.name || ''),
+                color: getColorFromName(worker?.name || '')
+            }
         })
+    }, [workersStats, workers])
+    const avatarsRest = Math.max(0, uniqueWorkers - MAX_AVATARS)
+
+    // === СУММА ДНЕЙ ВСЕХ РАБОТНИКОВ ===
+    const totalWorkerDays = useMemo(
+        () => workersStats.reduce((sum, w) => sum + w.days, 0),
+        [workersStats]
+    )
+
+    // === СТАВКА ЗА ДЕНЬ ===
+    const salaryPart = (site && site.salary_part != null && Number(site.salary_part) > 0)
+        ? Number(site.salary_part)
+        : null
+
+    const ratePerDay = (salaryPart && totalWorkerDays > 0)
+        ? salaryPart / totalWorkerDays
+        : null
+
+    const getEarned = (days) => {
+        if (ratePerDay === null) return null
+        return Math.round(days * ratePerDay)
     }
 
-    // === ФОРМАТИРОВАНИЕ ДАТЫ С МЕСЯЦЕМ ===
-    const formatDateWithMonth = (dateString) => {
-        if (!dateString) return ''
-        const date = new Date(dateString + 'T00:00:00')
-        return date.toLocaleDateString('ru-RU', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric'
+    // === МЕСЯЦЫ СО СМЕНАМИ ===
+    const monthsList = useMemo(() => {
+        if (siteShifts.length === 0) return []
+        const map = new Map()
+        siteShifts.forEach(s => {
+            if (!s.work_date) return
+            const [y, m] = s.work_date.split('-').map(Number)
+            const key = `${y}-${m}`
+            if (!map.has(key)) {
+                map.set(key, { year: y, month: m - 1, dates: new Set() })
+            }
+            map.get(key).dates.add(s.work_date)
         })
-    }
+        return Array.from(map.values()).sort((a, b) => {
+            if (a.year !== b.year) return a.year - b.year
+            return a.month - b.month
+        })
+    }, [siteShifts])
 
-    // === ПОЛУЧАЕМ ДАННЫЕ РАБОТНИКА ПО ID ===
-    const getWorkerName = (workerId) => {
-        const worker = workers.find(w => w.id === workerId)
-        return worker?.name || 'Неизвестный'
-    }
-
-    const getWorkerAvatar = (workerId) => {
-        const worker = workers.find(w => w.id === workerId)
-        return worker?.avatar || null
-    }
-
-    const getWorkerInitials = (workerId) => {
-        const worker = workers.find(w => w.id === workerId)
-        if (!worker || !worker.name) return '?'
-        const names = worker.name.split(' ')
-        if (names.length >= 2) {
-            return `${names[0][0]}${names[1][0]}`.toUpperCase()
+    useEffect(() => {
+        setActiveMonthIdx(0)
+        if (monthsScrollRef.current) {
+            monthsScrollRef.current.scrollTo({ left: 0, behavior: 'auto' })
         }
-        return worker.name.slice(0, 2).toUpperCase()
-    }
+    }, [site?.id])
 
-    // === ГЕНЕРАЦИЯ ЦВЕТА ДЛЯ АВАТАРКИ (на основе имени) ===
-    const getColorFromName = (name) => {
-        const colors = [
-            '#2d7d46', '#1976D2', '#D32F2F', '#F57C00', 
-            '#7B1FA2', '#00897B', '#C2185B', '#303F9F',
-            '#E64A19', '#388E3C', '#1565C0', '#6D4C41'
-        ]
-        if (!name) return '#666'
-        let hash = 0
-        for (let i = 0; i < name.length; i++) {
-            hash = name.charCodeAt(i) + ((hash << 5) - hash)
+    const scrollToMonth = (idx) => {
+        setActiveMonthIdx(idx)
+        const el = monthsScrollRef.current
+        if (!el) return
+        const child = el.children[idx]
+        if (child) {
+            el.scrollTo({ left: child.offsetLeft, behavior: 'smooth' })
         }
-        return colors[Math.abs(hash) % colors.length]
     }
 
-    // === ОБРАБОТЧИКИ ===
+    const handleMonthsScroll = () => {
+        const el = monthsScrollRef.current
+        if (!el) return
+        const scrollLeft = el.scrollLeft
+        let bestIdx = 0
+        let bestDelta = Infinity
+        Array.from(el.children).forEach((child, idx) => {
+            const delta = Math.abs(child.offsetLeft - scrollLeft)
+            if (delta < bestDelta) {
+                bestDelta = delta
+                bestIdx = idx
+            }
+        })
+        if (bestIdx !== activeMonthIdx) setActiveMonthIdx(bestIdx)
+    }
+
+    const getWorkerName = (workerId) => workers.find(w => w.id === workerId)?.name || 'Неизвестный'
+    const getWorkerAvatar = (workerId) => workers.find(w => w.id === workerId)?.avatar || null
+    const getWorkerInitials = (workerId) => getInitials(getWorkerName(workerId))
+
+    // === СВИТЧ СТАТУСА ===
+    const isWorking = localStatus === 'в работе'
+
+    const handleStatusToggle = async () => {
+        if (updatingStatus || !site) return
+        const newStatus = isWorking ? 'завершен' : 'в работе'
+        const prevStatus = localStatus
+        setLocalStatus(newStatus)
+        setUpdatingStatus(true)
+        try {
+            await updateSiteStatus(site.id, newStatus)
+            if (onUpdate) {
+                onUpdate({ ...site, status: newStatus })
+            }
+        } catch (e) {
+            console.error('❌ Ошибка обновления статуса:', e)
+            setLocalStatus(prevStatus)
+            alert('Не удалось обновить статус: ' + (e?.message || 'неизвестная ошибка'))
+        } finally {
+            setUpdatingStatus(false)
+        }
+    }
+
+    // === ОТКРЫТЬ МИНИ-МОДАЛКУ ЗАРПЛАТЫ ===
+    const openSalaryModal = () => {
+        setSalaryInput(site?.salary_part != null ? String(site.salary_part) : '')
+        setSalaryError('')
+        setShowSalaryModal(true)
+    }
+
+    const closeSalaryModal = () => {
+        if (salarySaving) return
+        setShowSalaryModal(false)
+        setSalaryError('')
+    }
+
+    // === СОХРАНИТЬ ЗАРПЛАТНУЮ ЧАСТЬ ===
+    const handleSaveSalary = async () => {
+        if (salarySaving || !site) return
+        const raw = String(salaryInput).replace(/\s/g, '').replace(',', '.')
+        const num = Number(raw)
+
+        if (!raw || Number.isNaN(num) || num <= 0) {
+            setSalaryError('Введите сумму больше нуля')
+            return
+        }
+
+        setSalarySaving(true)
+        setSalaryError('')
+        try {
+            const updated = await updateSite({
+                siteId: site.id,
+                name: site.name,
+                address: site.address || '',
+                color: site.color,
+                status: site.status,
+                salaryPart: num
+            })
+            // Обновляем родителя — пересчёт ratePerDay произойдёт автоматически
+            const merged = { ...site, ...(updated || {}), salary_part: num }
+            if (onUpdate) onUpdate(merged)
+            setShowSalaryModal(false)
+        } catch (e) {
+            console.error('❌ Ошибка сохранения зарплатной части:', e)
+            setSalaryError('Не удалось сохранить: ' + (e?.message || 'неизвестная ошибка'))
+        } finally {
+            setSalarySaving(false)
+        }
+    }
+
     const handleArchive = async () => {
-        setDeleting(true)
+        if (archiving) return
+        setArchiving(true)
         try {
             await onArchive(site.id)
             onClose()
-        } catch (error) {
-            console.error('Ошибка архивации:', error)
-            alert(`Не удалось архивировать объект: ${error.message}`)
-        } finally {
-            setDeleting(false)
+        } catch (e) {
+            console.error('❌ Ошибка удаления:', e)
+            alert(`Не удалось удалить: ${e?.message || 'неизвестная ошибка'}`)
+            setArchiving(false)
             setShowConfirm(false)
         }
     }
 
     const handleEdit = () => {
-        setShowMenu(false)
-        if (onEdit) {
-            onEdit(site)
-        }
+        setIsMenuOpen(false)
+        if (onEdit) onEdit(site)
     }
 
-    const handleMenuToggle = () => {
-        setShowMenu(!showMenu)
+    const handleOpenDeleteModal = () => {
+        setIsMenuOpen(false)
+        setShowConfirm(true)
     }
 
-    // Закрываем меню при клике вне его
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (menuRef.current && !menuRef.current.contains(event.target)) {
-                setShowMenu(false)
-            }
-        }
+    if (!site) return null
 
-        document.addEventListener('mousedown', handleClickOutside)
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside)
-        }
-    }, [])
-
-    // Получаем статус для отображения
-    const getStatusDisplay = (status) => {
-        switch (status) {
-            case 'в работе':
-                return { label: 'В работе', color: '#2d7d46' }
-            case 'завершен':
-                return { label: 'Завершен', color: '#78909C' }
-            default:
-                return { label: 'Не указан', color: '#FFB300' }
-        }
-    }
-
-    const statusDisplay = getStatusDisplay(site.status)
+    const hasPhoto = isBase64Image(site.photo)
+    const statusLabel = isWorking ? 'В работе' : 'Завершён'
+    const statusColor = isWorking ? '#86d617' : 'rgb(149 149 149)'
+    const siteColor = site.color || '#86d617'
 
     return (
         <div className={styles.siteDetailPage}>
-            {/* === ХЕДЕР === */}
-                       <div className={styles.siteDetailHeader}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
-                    <div style={{ position: 'relative', width: '64px', height: '64px', flexShrink: 0 }}>
-                        {site.photo ? (
-                            <img
-                                src={site.photo}
-                                alt=""
-                                style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    borderRadius: '12px',
-                                    objectFit: 'cover',
-                                    display: 'block',
-                                    background: 'rgba(255,255,255,0.04)'
-                                }}
-                            />
-                        ) : (
-                            <div
-                                aria-hidden="true"
-                                style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    borderRadius: '12px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    background: 'rgba(255,255,255,0.04)',
-                                    border: '1px solid rgba(255,255,255,0.06)',
-                                    color: 'var(--text-muted)'
-                                }}
-                            >
-                                <Camera style={{ width: '24px', height: '24px', fill: 'currentColor' }} />
+
+            <div className={styles.siteDetailBody}>
+
+                {/* === ШАПКА === */}
+                <div className={styles.siteDetailTopBar}>
+                    <div className={styles.siteDetailHeader}>
+                        <button
+                            type="button"
+                            className={styles.siteDetailBackBtn}
+                            onClick={onClose}
+                            aria-label="Назад"
+                        >
+                            <span className={styles.siteDetailBackIcon}>
+                                <ArrowLeft />
+                            </span>
+                        </button>
+
+                        <div className={styles.siteDetailAvatarWrapper}>
+                            <div className={styles.siteDetailAvatar}>
+                                {hasPhoto ? (
+                                    <img src={site.photo} alt={site.name} />
+                                ) : (
+                                    <span className={styles.siteDetailAvatarPlaceholder}>
+                                        <Camera className={styles.siteDetailAvatarPlaceholderIcon} />
+                                    </span>
+                                )}
                             </div>
-                        )}
-                        <span
-                            aria-hidden="true"
-                            style={{
-                                position: 'absolute',
-                                right: '-3px',
-                                bottom: '-3px',
-                                width: '14px',
-                                height: '14px',
-                                borderRadius: '50%',
-                                backgroundColor: site.color || '#2d7d46',
-                                border: '2px solid var(--bg-card)',
-                                boxSizing: 'content-box',
-                                pointerEvents: 'none'
-                            }}
-                        />
-                    </div>
-                    <span className={styles.siteDetailTitle}>{site.name}</span>
-                </div>
-
-                {/* === ТРИ ТОЧКИ (МЕНЮ) === */}
-                <div className={styles.siteDetailMenuWrapper} ref={menuRef}>
-                    <button 
-                        className={styles.siteDetailMenuBtn}
-                        onClick={handleMenuToggle}
-                        aria-label="Меню"
-                    >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <circle cx="12" cy="5" r="2.5" />
-                            <circle cx="12" cy="12" r="2.5" />
-                            <circle cx="12" cy="19" r="2.5" />
-                        </svg>
-                    </button>
-
-                    {showMenu && (
-                        <div className={styles.siteDetailMenu}>
-                            <button 
-                                className={styles.siteDetailMenuItem}
-                                onClick={handleEdit}
-                            >
-                                <span className={styles.siteDetailMenuItemIcon}>
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <path d="M12 20h9"/>
-                                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-                                    </svg>
-                                </span>
-                                Редактировать объект
-                            </button>
-                            <button 
-                                className={styles.siteDetailMenuItem}
-                                onClick={() => {
-                                    setShowMenu(false)
-                                    setShowConfirm(true)
-                                }}
-                            >
-                                <span className={styles.siteDetailMenuItemIcon}>
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <polyline points="3 6 5 6 21 6" />
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                    </svg>
-                                </span>
-                                Архивировать объект
-                            </button>
                         </div>
-                    )}
-                </div>
-            </div>
-            
-            {/* === КОНТЕНТ === */}
-            <div className={styles.siteDetailContent}>
-                <div className={styles.siteDetailField}>
-                    <span className={styles.siteDetailLabel}>Название</span>
-                    <span className={styles.siteDetailValue}>{site.name}</span>
-                </div>
-                
-                {site.address && (
-                    <div className={styles.siteDetailField}>
-                        <span className={styles.siteDetailLabel}>Адрес</span>
-                        <span className={styles.siteDetailValue}>{site.address}</span>
-                    </div>
-                )}
-                
-                {/* === ДАТА НАЧАЛА РАБОТ (вместо даты создания) === */}
-                <div className={styles.siteDetailField}>
-                    <span className={styles.siteDetailLabel}>📅 Дата начала работ</span>
-                    <span className={styles.siteDetailValue}>
-                        {startDate ? (
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <span>{formatDateWithMonth(startDate)}</span>
-                                <span style={{ 
-                                    fontSize: '13px', 
-                                    color: 'var(--text-muted)',
-                                    fontWeight: '400'
-                                }}>
-                                    (первая смена)
+
+                        <div className={styles.siteDetailInfo}>
+                            <span className={styles.siteDetailHeroName}>{site.name}</span>
+                            {site.address ? (
+                                <span className={styles.siteDetailHeroAddress}>{site.address}</span>
+                            ) : (
+                                <span className={styles.siteDetailHeroAddressMuted}>Без адреса</span>
+                            )}
+                        </div>
+
+                        <div className={styles.siteDetailMenuWrapper} ref={menuRef}>
+                            <button
+                                type="button"
+                                className={styles.siteDetailMenuBtn}
+                                onClick={() => setIsMenuOpen(prev => !prev)}
+                                aria-label="Меню"
+                                aria-haspopup="menu"
+                                aria-expanded={isMenuOpen}
+                            >
+                                <span className={styles.siteDetailMenuIcon}>
+                                    <Ellipsis />
                                 </span>
-                            </span>
-                        ) : (
-                            <span style={{ color: 'var(--text-muted)', fontWeight: '400' }}>
-                                Нет данных
-                            </span>
-                        )}
-                    </span>
+                            </button>
+
+                            {isMenuOpen && (
+                                <div className={styles.siteDetailDropdown} role="menu">
+                                    <button
+                                        type="button"
+                                        className={styles.siteDetailDropdownItem}
+                                        onClick={handleEdit}
+                                        role="menuitem"
+                                    >
+                                        <span className={styles.siteDetailDropdownItemIcon}>
+                                            <PersonPencil />
+                                        </span>
+                                        <span className={styles.siteDetailDropdownItemText}>
+                                            Редактировать
+                                        </span>
+                                    </button>
+
+                                    <div className={styles.siteDetailDropdownDivider} />
+
+                                    <button
+                                        type="button"
+                                        className={`${styles.siteDetailDropdownItem} ${styles.siteDetailDropdownItemDanger}`}
+                                        onClick={handleOpenDeleteModal}
+                                        role="menuitem"
+                                    >
+                                        <span className={styles.siteDetailDropdownItemIcon}>
+                                            <TrashBin />
+                                        </span>
+                                        <span className={styles.siteDetailDropdownItemText}>
+                                            Удалить
+                                        </span>
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
 
                 {/* === СТАТУС === */}
-                <div className={styles.siteDetailField}>
-                    <span className={styles.siteDetailLabel}>Статус</span>
-                    <span className={styles.siteDetailValue}>
-                        <span 
-                            className={styles.siteDetailStatusBadge}
-                            style={{ 
-                                backgroundColor: statusDisplay.color,
-                                color: statusDisplay.color === '#2d7d46' ? 'white' : '#333'
-                            }}
+                <div className={styles.siteDetailStatusRow}>
+                    <div className={styles.siteDetailStatusText}>
+                        <span className={styles.siteDetailStatusLabel}>Статус: </span>
+                        <span
+                            className={styles.siteDetailStatusValue}
+                            style={{ color: statusColor }}
                         >
-                            {statusDisplay.label}
+                            {statusLabel}
                         </span>
-                    </span>
+                    </div>
+                    <button
+                        type="button"
+                        className={`${styles.siteDetailSwitch} ${isWorking ? styles.siteDetailSwitchOn : ''}`}
+                        onClick={handleStatusToggle}
+                        disabled={updatingStatus}
+                        aria-label="Изменить статус"
+                        role="switch"
+                        aria-checked={isWorking}
+                    >
+                        <span className={styles.siteDetailSwitchThumb} />
+                    </button>
                 </div>
 
-                {/* === СПИСОК СОТРУДНИКОВ === */}
+                {/* === СВОДКА: 2 плашки === */}
+                <div className={styles.siteDetailSummaryTwo}>
+                    <div className={styles.siteDetailStatCard}>
+                        <div className={styles.siteDetailStatValue}>{uniqueDays}</div>
+                        <div className={styles.siteDetailStatLabel}>
+                            {getWorkingDaysWord(uniqueDays)}
+                        </div>
+                    </div>
+                    <div className={styles.siteDetailStatCard}>
+                        {salaryPart !== null ? (
+                            <>
+                                <div className={styles.siteDetailStatValue}>
+                                    {formatMoney(ratePerDay)}
+                                </div>
+                                <div className={styles.siteDetailStatLabel}>
+                                    Ставка за день
+                                </div>
+                            </>
+                        ) : (
+                            <div className={styles.siteDetailSalaryEmpty}>
+                                <div className={styles.siteDetailSalaryEmptyText}>
+                                    Зарплатная часть не установлена
+                                </div>
+                                <button
+                                    type="button"
+                                    className={styles.siteDetailSalarySetBtn}
+                                    onClick={openSalaryModal}
+                                >
+                                    Установить
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* === 2 КВАДРАТНЫЕ ПЛАШКИ === */}
+                <div className={styles.siteDetailInfoTwo}>
+                    {/* Плашка 1 — даты, две равные половины */}
+                    <div className={styles.siteDetailInfoCard}>
+                        <div className={styles.siteDetailInfoHalf}>
+                            <div className={styles.siteDetailInfoLabel}>Начало работ</div>
+                            <div className={styles.siteDetailInfoValue}>
+                                {startDate ? formatDateWithMonth(startDate) : '—'}
+                            </div>
+                        </div>
+                        <div className={styles.siteDetailInfoHalfDivider} />
+                        <div className={styles.siteDetailInfoHalf}>
+                            <div className={styles.siteDetailInfoLabel}>Окончание работ</div>
+                            <div className={styles.siteDetailInfoValue}>
+                                {isWorking ? (
+                                    <span className={styles.siteDetailInfoValueWork}>
+                                        Объект ещё в работе
+                                    </span>
+                                ) : endDate ? (
+                                    formatDateWithMonth(endDate)
+                                ) : (
+                                    '—'
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Плашка 2 — работники + аватарки */}
+                    <div className={styles.siteDetailInfoCard}>
+                        <div className={styles.siteDetailInfoHalf}>
+                            <div className={styles.siteDetailInfoLabel}>Работники</div>
+                            <div className={styles.siteDetailInfoCount}>
+                                {uniqueWorkers} {getPeopleWord(uniqueWorkers)}
+                            </div>
+                        </div>
+                        {uniqueWorkers > 0 ? (
+                            <div className={styles.siteDetailInfoAvatars}>
+                                {avatarsPreview.map((a) => (
+                                    <div
+                                        key={a.workerId}
+                                        className={styles.siteDetailInfoAvatar}
+                                        style={{ backgroundColor: a.color }}
+                                        title={a.name}
+                                    >
+                                        {isBase64Image(a.avatar) ? (
+                                            <img
+                                                src={a.avatar}
+                                                alt={a.name}
+                                                className={styles.siteDetailInfoAvatarImg}
+                                            />
+                                        ) : (
+                                            <span>{a.initials}</span>
+                                        )}
+                                    </div>
+                                ))}
+                                {avatarsRest > 0 && (
+                                    <div className={`${styles.siteDetailInfoAvatar} ${styles.siteDetailInfoMore}`}>
+                                        +{avatarsRest}
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className={styles.siteDetailInfoMuted}>Пока никто не работал</div>
+                        )}
+                    </div>
+                </div>
+
+                {/* === КАЛЕНДАРЬ === */}
+                <div className={styles.siteDetailCalendarSection}>
+                    <div className={styles.siteDetailSectionHeader}>
+                        <span className={styles.siteDetailSectionTitle}>Календарь</span>
+                    </div>
+
+                    {monthsList.length === 0 ? (
+                        <div className={styles.siteDetailEmptyWorkers}>
+                            <div className={styles.siteDetailEmptyTitle}>
+                                На этом объекте ещё не было смен
+                            </div>
+                        </div>
+                    ) : (
+                        <>
+                            {monthsList.length > 1 && (
+                                <div className={styles.siteDetailMonthsNav}>
+                                    {monthsList.map((m, idx) => (
+                                        <button
+                                            key={`${m.year}-${m.month}`}
+                                            type="button"
+                                            className={
+                                                `${styles.siteDetailMonthChip} ` +
+                                                `${idx === activeMonthIdx ? styles.siteDetailMonthChipActive : ''}`
+                                            }
+                                            onClick={() => scrollToMonth(idx)}
+                                        >
+                                            {MONTHS[m.month].slice(0, 3)} {m.year}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+
+                            <div
+                                ref={monthsScrollRef}
+                                className={styles.siteDetailMonthsScroll}
+                                onScroll={handleMonthsScroll}
+                            >
+                                {monthsList.map((m) => (
+                                    <MonthCalendar
+                                        key={`${m.year}-${m.month}`}
+                                        year={m.year}
+                                        month={m.month}
+                                        markedDates={m.dates}
+                                        color={siteColor}
+                                    />
+                                ))}
+                            </div>
+                        </>
+                    )}
+                </div>
+
+                {/* === БРИГАДА === */}
                 <div className={styles.siteDetailWorkersSection}>
                     <div className={styles.siteDetailSectionHeader}>
-                        <span className={styles.siteDetailLabel}>👷 Сотрудники</span>
+                        <span className={styles.siteDetailSectionTitle}>Бригада</span>
                         <span className={styles.siteDetailWorkersCount}>
-                            {workersStats.length} {workersStats.length === 1 ? 'человек' : workersStats.length < 5 ? 'человека' : 'человек'}
+                            {uniqueWorkers} {getPeopleWord(uniqueWorkers)}
                         </span>
                     </div>
 
@@ -365,23 +715,18 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit }) {
                                 const avatar = getWorkerAvatar(stat.workerId)
                                 const initials = getWorkerInitials(stat.workerId)
                                 const color = getColorFromName(workerName)
-                                
+                                const earned = getEarned(stat.days)
                                 return (
                                     <div key={stat.workerId} className={styles.siteDetailWorkerItem}>
-                                        <div 
-                                            className={styles.siteDetailWorkerAvatar} 
+                                        <div
+                                            className={styles.siteDetailWorkerAvatar}
                                             style={{ backgroundColor: color }}
                                         >
-                                            {avatar ? (
-                                                <img 
-                                                    src={avatar} 
+                                            {isBase64Image(avatar) ? (
+                                                <img
+                                                    src={avatar}
                                                     alt={workerName}
-                                                    style={{
-                                                        width: '100%',
-                                                        height: '100%',
-                                                        borderRadius: '50%',
-                                                        objectFit: 'cover'
-                                                    }}
+                                                    className={styles.siteDetailWorkerAvatarImg}
                                                 />
                                             ) : (
                                                 initials
@@ -391,8 +736,15 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit }) {
                                             <span className={styles.siteDetailWorkerName}>
                                                 {workerName}
                                             </span>
-                                            <span className={styles.siteDetailWorkerDays}>
-                                                {stat.days} {stat.days === 1 ? 'день' : stat.days < 5 ? 'дня' : 'дней'}
+                                            <span className={styles.siteDetailWorkerMeta}>
+                                                <span className={styles.siteDetailWorkerDays}>
+                                                    {stat.days} {getDaysWord(stat.days)}
+                                                </span>
+                                                {earned !== null && (
+                                                    <span className={styles.siteDetailWorkerEarned}>
+                                                        {formatMoney(earned)}
+                                                    </span>
+                                                )}
                                             </span>
                                         </div>
                                     </div>
@@ -401,63 +753,244 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit }) {
                         </div>
                     ) : (
                         <div className={styles.siteDetailEmptyWorkers}>
-                            <span className={styles.siteDetailEmptyIcon}>👷</span>
-                            <span>Нет сотрудников</span>
-                            <span style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>
-                                На этом объекте пока нет смен
-                            </span>
+                            <div className={styles.siteDetailEmptyIconWrap}>
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                    <circle cx="9" cy="7" r="4" />
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                </svg>
+                            </div>
+                            <div className={styles.siteDetailEmptyTitle}>
+                                На этом объекте ещё никто не работал
+                            </div>
                         </div>
                     )}
                 </div>
-            </div>
 
-            {/* === КНОПКА "ЗАКРЫТЬ" ВНИЗУ === */}
-            <div className={styles.siteDetailFooter}>
-                <button 
-                    className={styles.siteDetailCloseBtn}
-                    onClick={onClose}
+                {/* === ЗАТРАТЫ === */}
+                <button
+                    type="button"
+                    className={styles.siteDetailCostsLinkBtn}
+                    onClick={() => setShowCostsSheet(true)}
                 >
-                    Закрыть
+                    <span className={styles.siteDetailCostsLinkIcon}>
+                        <Wallet />
+                    </span>
+                    <span className={styles.siteDetailCostsLinkText}>Затраты</span>
+                    <span className={styles.siteDetailCostsLinkChevron}>›</span>
                 </button>
             </div>
 
-            {/* === ПОДТВЕРЖДЕНИЕ АРХИВАЦИИ === */}
-            {showConfirm && (
-                <div className={compStyles.confirmOverlay}>
-                    <div className={compStyles.confirmModal}>
-                        <div className={compStyles.confirmIconWrapper}>
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="10"/>
-                                <line x1="12" y1="8" x2="12" y2="12"/>
-                                <line x1="12" y1="16" x2="12.01" y2="16"/>
-                            </svg>
+            {/* === ФУТЕР === */}
+            <div className={styles.siteDetailFooter}>
+                <button
+                    type="button"
+                    className={styles.siteDetailCloseBtn}
+                    onClick={onClose}
+                >
+                    Назад
+                </button>
+            </div>
+
+            {/* === МИНИ-ШИТ: УСТАНОВИТЬ ЗАРПЛАТНУЮ ЧАСТЬ === */}
+            {showSalaryModal && createPortal(
+                <div
+                    className={styles.siteDetailSalaryOverlay}
+                    onClick={closeSalaryModal}
+                >
+                    <div
+                        className={styles.siteDetailSalarySheet}
+                        onClick={(e) => e.stopPropagation()}
+                        role="dialog"
+                        aria-modal="true"
+                    >
+                        <div className={styles.siteDetailSalaryHandleZone}>
+                            <span className={styles.siteDetailSalaryHandle} />
                         </div>
-                        <div className={compStyles.confirmTitle}>Архивировать объект?</div>
-                        <div className={compStyles.confirmText}>
-                            Вы уверены, что хотите архивировать объект <strong>«{site.name}»</strong>?
-                            <br />
-                            <span style={{ fontSize: '13px', color: '#999' }}>
-                                Объект будет перемещён в архив.
-                            </span>
+
+                        <div className={styles.siteDetailSalaryHeader}>
+                            <h2 className={styles.siteDetailSalaryTitle}>Зарплатная часть</h2>
+                            <button
+                                type="button"
+                                className={styles.siteDetailSalaryCloseBtn}
+                                onClick={closeSalaryModal}
+                                aria-label="Закрыть"
+                                disabled={salarySaving}
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                </svg>
+                            </button>
                         </div>
-                        <div className={compStyles.confirmButtons}>
-                            <button 
-                                className={`${compStyles.confirmBtn} ${compStyles.cancel}`}
-                                onClick={() => setShowConfirm(false)}
-                                disabled={deleting}
+
+                        <div className={styles.siteDetailSalaryBody}>
+                            <label className={styles.siteDetailSalaryLabel} htmlFor="salary-part-input">
+                                Сумма на объект, BYN
+                            </label>
+                            <div className={styles.siteDetailSalaryInputWrap}>
+                                <input
+                                    id="salary-part-input"
+                                    type="number"
+                                    inputMode="decimal"
+                                    min="0"
+                                    step="any"
+                                    className={styles.siteDetailSalaryInput}
+                                    value={salaryInput}
+                                    onChange={(e) => {
+                                        setSalaryInput(e.target.value)
+                                        if (salaryError) setSalaryError('')
+                                    }}
+                                    placeholder="0"
+                                    autoFocus
+                                    disabled={salarySaving}
+                                />
+                                <span className={styles.siteDetailSalarySuffix}>BYN</span>
+                            </div>
+                            {salaryError && (
+                                <div className={styles.siteDetailSalaryError}>{salaryError}</div>
+                            )}
+                        </div>
+
+                        <div className={styles.siteDetailSalaryFooter}>
+                            <button
+                                type="button"
+                                className={styles.siteDetailSalaryCancelBtn}
+                                onClick={closeSalaryModal}
+                                disabled={salarySaving}
                             >
                                 Отмена
                             </button>
-                            <button 
-                                className={`${compStyles.confirmBtn} ${compStyles.delete}`}
-                                onClick={handleArchive}
-                                disabled={deleting}
+                            <button
+                                type="button"
+                                className={styles.siteDetailSalarySaveBtn}
+                                onClick={handleSaveSalary}
+                                disabled={salarySaving}
                             >
-                                {deleting ? 'Архивация...' : 'Архивировать'}
+                                {salarySaving ? 'Сохраняем…' : 'Сохранить'}
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
+            )}
+
+            {/* === BOTTOM SHEET: ЗАТРАТЫ === */}
+            {showCostsSheet && createPortal(
+                <div
+                    className={archiveStyles.confirmSheetOverlay}
+                    onClick={() => setShowCostsSheet(false)}
+                >
+                    <div
+                        className={archiveStyles.confirmSheet}
+                        onClick={(e) => e.stopPropagation()}
+                        role="dialog"
+                        aria-modal="true"
+                    >
+                        <div className={archiveStyles.confirmSheetHandleZone}>
+                            <span className={archiveStyles.confirmSheetHandle} />
+                        </div>
+
+                        <div className={archiveStyles.confirmSheetHeader}>
+                            <h2 className={archiveStyles.confirmSheetTitle}>Затраты</h2>
+                            <button
+                                type="button"
+                                className={archiveStyles.confirmSheetCloseBtn}
+                                onClick={() => setShowCostsSheet(false)}
+                                aria-label="Закрыть"
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div className={archiveStyles.confirmSheetBody}>
+                            <div className={styles.siteDetailPlaceholder}>
+                                <div className={styles.siteDetailPlaceholderIcon}>💰</div>
+                                <div className={styles.siteDetailPlaceholderTitle}>Затраты</div>
+                                <div className={styles.siteDetailPlaceholderText}>
+                                    Информация о затратах появится позже
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={archiveStyles.confirmSheetFooter}>
+                            <button
+                                type="button"
+                                className={archiveStyles.confirmSheetCancelBtn}
+                                onClick={() => setShowCostsSheet(false)}
+                            >
+                                Закрыть
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
+
+            {/* === CONFIRM-ШИТ: УДАЛИТЬ ОБЪЕКТ === */}
+            {showConfirm && createPortal(
+                <div
+                    className={archiveStyles.confirmSheetOverlay}
+                    onClick={() => !archiving && setShowConfirm(false)}
+                >
+                    <div
+                        className={archiveStyles.confirmSheet}
+                        onClick={(e) => e.stopPropagation()}
+                        role="dialog"
+                        aria-modal="true"
+                    >
+                        <div className={archiveStyles.confirmSheetHandleZone}>
+                            <span className={archiveStyles.confirmSheetHandle} />
+                        </div>
+
+                        <div className={archiveStyles.confirmSheetHeader}>
+                            <h2 className={archiveStyles.confirmSheetTitle}>Удалить объект?</h2>
+                            <button
+                                type="button"
+                                className={archiveStyles.confirmSheetCloseBtn}
+                                onClick={() => setShowConfirm(false)}
+                                aria-label="Закрыть"
+                                disabled={archiving}
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div className={archiveStyles.confirmSheetBody}>
+                            <p className={archiveStyles.confirmSheetText}>
+                                Объект <strong>«{site.name}»</strong> будет удалён.
+                                Вы сможете восстановить его из архива.
+                            </p>
+                        </div>
+
+                        <div className={archiveStyles.confirmSheetFooter}>
+                            <button
+                                type="button"
+                                className={archiveStyles.confirmSheetCancelBtn}
+                                onClick={() => setShowConfirm(false)}
+                                disabled={archiving}
+                            >
+                                Отмена
+                            </button>
+                            <button
+                                type="button"
+                                className={archiveStyles.confirmSheetDeleteBtn}
+                                onClick={handleArchive}
+                                disabled={archiving}
+                            >
+                                {archiving ? 'Удаляем…' : 'Удалить'}
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
             )}
         </div>
     )

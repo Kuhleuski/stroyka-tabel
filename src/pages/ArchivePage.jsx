@@ -5,7 +5,7 @@ import { useWorkers } from '../hooks/useWorkers'
 import { Camera, ArrowLeft, TrashBin } from '@gravity-ui/icons'
 import ArrowsRotateLeft from '@gravity-ui/icons/ArrowsRotateLeft'
 import styles from '../styles/archive.module.css'
-import componentsStyles from '../styles/components.module.css'
+
 
 const getInitials = (name) => {
     if (!name) return '?'
@@ -279,15 +279,15 @@ export function ArchivePage({ onBack }) {
             </div>
 
             {/* === НИЖНИЙ ФУТЕР — как .yandexFooter в AddSiteModal === */}
-            <div className={componentsStyles.yandexFooter}>
-                <button
-                    type="button"
-                    className={styles.archiveCloseBtn}
-                    onClick={onBack}
-                >
-                    Назад
-                </button>
-            </div>
+            <div className={styles.archiveFooter}>
+    <button
+        type="button"
+        className={styles.archiveCloseBtn}
+        onClick={onBack}
+    >
+        Назад
+    </button>
+</div>
 
             {/* === CONFIRM-ШИТ: УДАЛИТЬ НАВСЕГДА === */}
             {confirmTarget && createPortal(

@@ -17,7 +17,6 @@ import globalsStyles from '../styles/globals.module.css'
 const SEARCH_DEBOUNCE = 250
 const RECENT_LIMIT = 5
 
-// Проверка: каждое слово запроса встречается в названии ИЛИ адресе (в любом порядке)
 const matchesQuery = (site, query) => {
     const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean)
     if (words.length === 0) return true
@@ -25,7 +24,6 @@ const matchesQuery = (site, query) => {
     return words.every(w => haystack.includes(w))
 }
 
-// Чтение дат открытия из localStorage
 const readLastOpened = () => {
     try {
         const stored = localStorage.getItem('siteLastOpened')
@@ -37,9 +35,6 @@ const readLastOpened = () => {
     }
 }
 
-// Сортировка по календарю:
-// 1. Объекты БЕЗ смен — первыми, среди них по created_at (новые сверху).
-// 2. Объекты СО сменами — по max(work_date) (свежие сверху).
 const sortSitesByCalendar = (sites, shifts) => {
     const shiftsBySite = new Map()
     ;(shifts || []).forEach(shift => {
@@ -65,7 +60,7 @@ const sortSitesByCalendar = (sites, shifts) => {
     })
 }
 
-export function SitesPage({ onAddSite, shifts = [] }) {
+export function SitesPage({ onAddSite, shifts = [], onOpenSiteDetail, onCloseSiteDetail }) {
     const [showAddModal, setShowAddModal] = useState(false)
     const [showEditModal, setShowEditModal] = useState(false)
     const [selectedSite, setSelectedSite] = useState(null)
@@ -101,7 +96,6 @@ export function SitesPage({ onAddSite, shifts = [] }) {
         return () => document.removeEventListener('mousedown', handleClickOutside)
     }, [])
 
-    // === Маски для чипсов «Недавние» ===
     const updateRecentMasks = () => {
         const el = recentChipsRef.current
         if (!el) return
@@ -128,14 +122,11 @@ export function SitesPage({ onAddSite, shifts = [] }) {
         }
     }, [isRecentOpen])
 
-    // === ВИДИМЫЕ ОБЪЕКТЫ (без удалённых навсегда) ===
-    // deleted=true остаются в памяти хука для календаря, но в списке скрыты.
     const visibleSites = useMemo(
         () => (sites || []).filter(s => s.deleted !== true),
         [sites]
     )
 
-    // Подсказки: по словам в названии ИЛИ адресе (только среди видимых)
     const suggestions = useMemo(() => {
         const q = searchInput.trim()
         if (!q) return []
@@ -146,7 +137,6 @@ export function SitesPage({ onAddSite, shifts = [] }) {
 
     const showSuggestions = isFocused && searchInput.trim().length > 0
 
-    // Позиция выпадашки для портала
     useEffect(() => {
         if (!showSuggestions) {
             setDropdownRect(null)
@@ -184,7 +174,6 @@ export function SitesPage({ onAddSite, shifts = [] }) {
         handleSiteClick(site)
     }
 
-    // Подсветка всех вхождений всех слов запроса
     const highlightMatch = (text, query) => {
         if (!text) return text
         const q = query.trim()
@@ -282,6 +271,13 @@ export function SitesPage({ onAddSite, shifts = [] }) {
         }
     }
 
+    // === ОБНОВЛЕНИЕ ИЗ ДЕТАЛКИ (статус через свитч) ===
+    const handleStatusUpdate = (updatedSite) => {
+        if (!updatedSite || !updatedSite.id) return
+        updateSiteInState(updatedSite)
+        setSelectedSite(updatedSite)
+    }
+
     const handleArchive = async (siteId) => {
         try {
             await archiveSiteInState(siteId)
@@ -309,11 +305,13 @@ export function SitesPage({ onAddSite, shifts = [] }) {
             setScrollPosition(container.scrollTop)
         }
         setSelectedSite(site)
+        if (onOpenSiteDetail) onOpenSiteDetail()
     }
 
     const handleCloseDetail = () => {
         setSelectedSite(null)
         setIsRecentOpen(false)
+        if (onCloseSiteDetail) onCloseSiteDetail()
         setTimeout(() => {
             const container = document.querySelector('.sites-grid')
             if (container) {
@@ -331,8 +329,6 @@ export function SitesPage({ onAddSite, shifts = [] }) {
         setShowEditModal(true)
     }
 
-    // === ОТСОРТИРОВАННЫЙ + ОТФИЛЬТРОВАННЫЙ СПИСОК ===
-    // sortSitesByCalendar работает по visibleSites (без удалённых)
     const sortedSites = useMemo(
         () => sortSitesByCalendar(visibleSites, shifts),
         [visibleSites, shifts]
@@ -342,7 +338,6 @@ export function SitesPage({ onAddSite, shifts = [] }) {
         ? sortedSites.filter(site => matchesQuery(site, searchQuery))
         : sortedSites
 
-    // === НЕДАВНИЕ: 5 последних открытых, по убыванию даты (только видимые) ===
     const recentSites = useMemo(() => {
         return visibleSites
             .map(site => ({ site, openedAt: lastOpened[site.id] }))
@@ -374,6 +369,7 @@ export function SitesPage({ onAddSite, shifts = [] }) {
                     onClose={handleCloseDetail}
                     onArchive={handleArchive}
                     onEdit={handleOpenEditModal}
+                    onUpdate={handleStatusUpdate}
                 />
                 <EditSiteModal
                     isOpen={showEditModal}
@@ -427,7 +423,6 @@ export function SitesPage({ onAddSite, shifts = [] }) {
 
                 {!showSuggestions && (
                     <>
-                        {/* === НЕДАВНИЕ: сворачиваемые === */}
                         {recentSites.length > 0 && (
                             <div className={styles.recentSection}>
                                 <button
