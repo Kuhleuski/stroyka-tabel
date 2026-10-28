@@ -976,7 +976,7 @@
     background: rgba(229, 115, 115, 0.18);
 }
 
-/* === СТАТУС (плашка) === */
+/* === СТАТУС (плашка) — старая версия, оставлена как есть === */
 .siteDetailStatusRow {
     display: flex;
     align-items: center;
@@ -2397,8 +2397,8 @@
 
     .siteDetailSummaryTwo { gap: 10px; }
     .siteDetailSummaryTwo .siteDetailStatCard { padding: 16px 8px; }
-    .siteDetailSummaryTwo .siteDetailStatValue { font-size: 23px; }
-    .siteDetailSummaryTwo .siteDetailStatLabel { font-size: 12px; }
+    .siteDetailSummaryTwo .siteDetailStatValue { font-size: 26px; }
+    .siteDetailSummaryTwo .siteDetailStatLabel { font-size: 14px; }
 
     .siteDetailSalaryEmptyText { font-size: 11px; max-width: 120px; }
     .siteDetailSalarySetBtn { padding: 7px 14px; font-size: 12px; }
@@ -2550,7 +2550,7 @@
     .siteDetailStatValue { font-size: 18px; }
 
     .siteDetailSummaryTwo .siteDetailStatValue { font-size: 21px; }
-    .siteDetailSummaryTwo .siteDetailStatLabel { font-size: 12px; }
+   .siteDetailSummaryTwo .siteDetailStatLabel { font-size: 14px; }
 
     .siteDetailInfoCard { padding: 10px; min-height: 150px; }
     .siteDetailInfoCardClickable {
@@ -2580,4 +2580,333 @@
     .siteDetailMonthDay { font-size: 10px; }
     .siteDetailMonthWeekday { font-size: 8.5px; }
     .siteDetailMonthTitle { font-size: 14px; }
+}
+
+/* ============================================================
+   НОВОЕ: СТРОКА «СТАТИСТИКА:» + ПЛАШКА СТАТУСА
+   (используется в SiteDetailPage вместо .siteDetailStatusRow)
+   ============================================================ */
+
+.siteDetailDetailsRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+.siteDetailStatCurrency {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-left: 4px;
+    white-space: nowrap;
+}
+
+.siteDetailDetailsTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary, #ececec);
+    letter-spacing: 0.2px;
+    line-height: 1.2;
+    flex-shrink: 0;
+}
+
+.siteDetailStatusPill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.siteDetailStatusLabelWork {
+    font-size: 13px;
+    font-weight: 500;
+    color: #86d617;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.siteDetailStatusLabelDone {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.siteDetailStatusLabelDoneText {
+    font-size: 13px;
+    font-weight: 500;
+    color: #959595;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.siteDetailStatusCheck {
+    width: 16px !important;
+    height: 16px !important;
+    color: #86d618;
+    flex-shrink: 0;
+    display: block;
+}
+
+@media (max-width: 480px) {
+    .siteDetailDetailsRow {
+        margin-top: 24px;
+        margin-bottom: 10px;
+        gap: 10px;
+        margin-left: 10px;
+    }
+    .siteDetailDetailsTitle {
+        font-size: 20px;
+    }
+    .siteDetailStatusPill {
+        padding: 7px 10px;
+        gap: 8px;
+    }
+    .siteDetailSummaryTwo .siteDetailStatValue {
+    font-size: 26px;
+}
+    .siteDetailStatusLabelWork,
+    .siteDetailStatusLabelDoneText {
+        font-size: 14px;
+    }
+    .siteDetailStatusCheck {
+        width: 18px !important;
+        height: 18px !important;
+    }
+}
+/* ============================================================
+   КАРТОЧКА «СТАВКА ЗА ДЕНЬ» — кликабельная (иконка карандаша)
+   ============================================================ */
+
+.siteDetailStatCardClickable {
+    cursor: pointer;
+    font-family: inherit;
+    color: inherit;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+    text-align: center;
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.siteDetailStatCardClickable:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.siteDetailStatCardClickable:active {
+    transform: scale(0.99);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.siteDetailStatEditIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    margin-left: 6px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    vertical-align: middle;
+}
+
+.siteDetailStatEditIcon svg {
+    width: 14px !important;
+    height: 14px !important;
+    display: block;
+}
+/* ============================================================
+   КАРТОЧКА «ЗАРПЛАТНАЯ ЧАСТЬ» + «СТАВКА ЗА ДЕНЬ»
+   (две мини-плашки в правой ячейке; верхняя — кнопка, нижняя — нет)
+   ============================================================ */
+
+.siteDetailSalaryStack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    height: auto;
+    align-self: stretch;
+}
+
+.siteDetailSalaryMini {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    flex: 0 0 auto;
+    min-height: 0;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    text-align: center;
+    overflow: visible;
+    box-sizing: border-box;
+}
+
+.siteDetailSalaryMiniClickable {
+    cursor: pointer;
+    font-family: inherit;
+    color: inherit;
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.siteDetailSalaryMiniClickable:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.siteDetailSalaryMiniClickable:active {
+    transform: scale(0.99);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.siteDetailSalaryMiniLabel {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    display: block;
+    text-align: center;
+}
+
+.siteDetailSalaryMiniValue {
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: center;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    text-align: center;
+}
+
+/* Размеры для верхней плашки (зарплатная часть) */
+.siteDetailSalaryMiniValueSmall {
+    font-size: 16px;
+}
+
+/* Размеры для нижней плашки (ставка за день) */
+.siteDetailSalaryMiniValueLarge {
+    font-size: 25px;
+}
+
+/* Валюта: базовый класс (16px) — оставляем как есть, добавляем модификаторы */
+.siteDetailStatCurrencySmall {
+    font-size: 14px;
+}
+
+.siteDetailStatCurrencyLarge {
+    font-size: 20px;
+}
+
+.siteDetailSalaryMiniPencil {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.siteDetailSalaryMiniPencil svg {
+    width: 13px !important;
+    height: 13px !important;
+    display: block;
+}
+
+/* Адаптив */
+@media (max-width: 480px) {
+    .siteDetailSalaryStack {
+        gap: 8px;
+    }
+    .siteDetailSalaryMini {
+        padding: 15px 12px;
+    }
+    .siteDetailSalaryMiniLabel {
+        font-size: 10px;
+    }
+    .siteDetailSalaryMiniValueSmall {
+        font-size: 15px;
+    }
+    .siteDetailSalaryMiniValueLarge {
+        font-size: 26px;
+    }
+    .siteDetailStatCurrencySmall {
+        font-size: 13px;
+    }
+    .siteDetailStatCurrencyLarge {
+        font-size: 18px;
+    }
+    .siteDetailSalaryMiniPencil {
+        width: 22px;
+        height: 22px;
+        right: 6px;
+        bottom: 6px;
+        border-radius: 7px;
+    }
+    .siteDetailSalaryMiniPencil svg {
+        width: 12px !important;
+        height: 12px !important;
+    }
+}
+@media (max-width: 400px) {
+    .siteDetailSalaryMiniValueSmall {
+        font-size: 14px;
+    }
+    .siteDetailSalaryMiniValueLarge {
+        font-size: 20px;
+    }
+    .siteDetailStatCurrencySmall {
+        font-size: 12px;
+    }
+    .siteDetailStatCurrencyLarge {
+        font-size: 16px;
+    }
+    .siteDetailSalaryMiniLabel {
+        font-size: 9.5px;
+    }
 }

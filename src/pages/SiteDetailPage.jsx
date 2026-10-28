@@ -12,7 +12,9 @@ import {
     TrashBin,
     Calendar as CalendarIcon,
     Wallet,
+    Pencil,
 } from '@gravity-ui/icons'
+import SquareCheckIcon from '@gravity-ui/icons/SquareCheck'
 import { updateSiteStatus, updateSite } from '../services/supabase'
 import { MONTHS, getMonthDays, formatDateLocal, isToday as isTodayUtil } from '../utils/dateHelpers'
 import styles from '../styles/sites.module.css'
@@ -506,8 +508,6 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
     if (!site) return null
 
     const hasPhoto = isBase64Image(site.photo)
-    const statusLabel = isWorking ? 'В работе' : 'Завершён'
-    const statusColor = isWorking ? '#86d617' : 'rgb(149 149 149)'
     const siteColor = site.color || '#86d617'
 
     return (
@@ -600,28 +600,38 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                     </div>
                 </div>
 
-                <div className={styles.siteDetailStatusRow}>
-                    <div className={styles.siteDetailStatusText}>
-                        <span className={styles.siteDetailStatusLabel}>Статус: </span>
-                        <span
-                            className={styles.siteDetailStatusValue}
-                            style={{ color: statusColor }}
+                {/* === НОВОЕ: «Статистика:» + плашка статуса в одну строку === */}
+                <div className={styles.siteDetailDetailsRow}>
+                    <span className={styles.siteDetailDetailsTitle}>Статистика:</span>
+
+                    <div className={styles.siteDetailStatusPill}>
+                        {isWorking ? (
+                            <span className={styles.siteDetailStatusLabelWork}>
+                                Объект в работе
+                            </span>
+                        ) : (
+                            <span className={styles.siteDetailStatusLabelDone}>
+                                <span className={styles.siteDetailStatusLabelDoneText}>
+                                    Объект завершён
+                                </span>
+                                <SquareCheckIcon className={styles.siteDetailStatusCheck} />
+                            </span>
+                        )}
+
+                        <button
+                            type="button"
+                            className={`${styles.siteDetailSwitch} ${isWorking ? styles.siteDetailSwitchOn : ''}`}
+                            onClick={handleStatusToggle}
+                            disabled={updatingStatus}
+                            aria-label="Изменить статус"
+                            role="switch"
+                            aria-checked={isWorking}
                         >
-                            {statusLabel}
-                        </span>
+                            <span className={styles.siteDetailSwitchThumb} />
+                        </button>
                     </div>
-                    <button
-                        type="button"
-                        className={`${styles.siteDetailSwitch} ${isWorking ? styles.siteDetailSwitchOn : ''}`}
-                        onClick={handleStatusToggle}
-                        disabled={updatingStatus}
-                        aria-label="Изменить статус"
-                        role="switch"
-                        aria-checked={isWorking}
-                    >
-                        <span className={styles.siteDetailSwitchThumb} />
-                    </button>
                 </div>
+                {/* === /НОВОЕ === */}
 
                 <div className={styles.siteDetailSummaryTwo}>
                     <div className={styles.siteDetailStatCard}>
@@ -630,31 +640,59 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                             {getWorkingDaysWord(uniqueDays)}
                         </div>
                     </div>
-                    <div className={styles.siteDetailStatCard}>
-                        {salaryPart !== null ? (
-                            <>
-                                <div className={styles.siteDetailStatValue}>
-                                    {formatMoney(ratePerDay)}
-                                </div>
-                                <div className={styles.siteDetailStatLabel}>
-                                    Ставка за день
-                                </div>
-                            </>
-                        ) : (
-                            <div className={styles.siteDetailSalaryEmpty}>
-                                <div className={styles.siteDetailSalaryEmptyText}>
-                                    Зарплатная часть не установлена
-                                </div>
-                                <button
-                                    type="button"
-                                    className={styles.siteDetailSalarySetBtn}
-                                    onClick={openSalaryModal}
-                                >
-                                    Установить
-                                </button>
-                            </div>
-                        )}
-                    </div>
+
+                    {/* === КАРТОЧКА «СТАВКА ЗА ДЕНЬ» — кликабельная (иконка карандаша) === */}
+                    {salaryPart !== null ? (
+    <div className={styles.siteDetailSalaryStack}>
+        <button
+            type="button"
+            className={`${styles.siteDetailSalaryMini} ${styles.siteDetailSalaryMiniClickable}`}
+            onClick={openSalaryModal}
+            aria-label="Изменить зарплатную часть"
+        >
+            <div className={styles.siteDetailSalaryMiniLabel}>
+                Зарплатная часть:
+            </div>
+            <div className={`${styles.siteDetailSalaryMiniValue} ${styles.siteDetailSalaryMiniValueSmall}`}>
+                {formatMoney(salaryPart).replace(/\s*BYN$/, '')}
+                <span className={`${styles.siteDetailStatCurrency} ${styles.siteDetailStatCurrencySmall}`}> BYN</span>
+            </div>
+
+            <span className={styles.siteDetailSalaryMiniPencil} aria-hidden="true">
+                <Pencil />
+            </span>
+        </button>
+
+        <div className={styles.siteDetailSalaryMini}>
+            <div className={styles.siteDetailSalaryMiniLabel}>
+                Ставка за день
+            </div>
+            <div className={`${styles.siteDetailSalaryMiniValue} ${styles.siteDetailSalaryMiniValueLarge}`}>
+                {formatMoney(ratePerDay).replace(/\s*BYN$/, '')}
+                <span className={`${styles.siteDetailStatCurrency} ${styles.siteDetailStatCurrencyLarge}`}> BYN</span>
+            </div>
+        </div>
+    </div>
+) : (
+    <div className={styles.siteDetailStatCard}>
+        <div className={styles.siteDetailSalaryEmpty}>
+            <div className={styles.siteDetailSalaryEmptyText}>
+                Зарплатная часть не установлена
+            </div>
+            <button
+                type="button"
+                className={styles.siteDetailSalarySetBtn}
+                onClick={openSalaryModal}
+            >
+                Установить
+            </button>
+        </div>
+    </div>
+)}
+
+
+
+                    {/* === /КАРТОЧКА «СТАВКА ЗА ДЕНЬ» === */}
                 </div>
 
                 <div className={styles.siteDetailInfoTwo}>
