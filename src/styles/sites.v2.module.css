@@ -1,0 +1,3231 @@
+/* ============================================================
+   СТРАНИЦА ОБЪЕКТОВ — ШАПКА
+   ============================================================ */
+
+.pageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: calc(var(--spacing-lg) + 5px) 0 var(--spacing-md);
+    padding-left: 6px;
+    gap: 12px;
+}
+
+.pageTitle {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+    margin: 0;
+}
+
+.addBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    background: #e9e9e9;
+    color: #121212;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.15s ease, transform 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: none;
+}
+
+.addBtn:hover { background: #dedede; }
+.addBtn:active { transform: scale(0.97); }
+.addBtn svg { color: #121212; display: block; }
+
+/* ============================================================
+   ПАНЕЛЬ: ПОИСК + СЕГМЕНТЫ
+   ============================================================ */
+
+.toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: var(--spacing-md) 0 var(--spacing-lg);
+}
+
+.searchWrap {
+    position: relative;
+    width: 100%;
+    z-index: 20;
+}
+
+.searchField {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    border: 1px solid transparent;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.searchField:focus-within {
+    border-color: rgba(134, 214, 23, 0.4);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.searchIcon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: var(--text-muted);
+    fill: currentColor;
+    display: block;
+}
+
+.searchInput {
+    flex: 1;
+    min-width: 0;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.2;
+    padding: 0;
+}
+
+.searchInput::placeholder { color: var(--text-muted); }
+
+.searchClearBtn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s ease, color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.searchClearBtn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+}
+
+.searchClearBtn svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+    display: block;
+}
+
+/* === ПОДСКАЗКИ === */
+.suggestions {
+    background: var(--bg-card);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    z-index: 10000;
+    max-height: 320px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 6px;
+    animation: suggestionsIn 0.12s ease;
+}
+
+@keyframes suggestionsIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.suggestionItem {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+    padding: 12px 14px;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    color: var(--text-primary);
+    transition: background 0.12s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.suggestionItem:hover { background: rgba(255, 255, 255, 0.05); }
+.suggestionItem:active { background: rgba(255, 255, 255, 0.08); }
+
+.suggestionText {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.suggestionMatch {
+    color: #86d617;
+    font-weight: 700;
+}
+
+.suggestionAddress {
+    font-size: 12px;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.suggestionEmpty {
+    padding: 16px 14px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+/* Сегментированный контрол */
+.segmented {
+    display: inline-flex;
+    padding: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    gap: 2px;
+    align-self: flex-start;
+}
+
+.segment {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+    transition: background 0.15s ease, color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.segment:hover { color: var(--text-primary); }
+
+.segmentActive {
+    background: #ececec;
+    color: #121212;
+    font-weight: 600;
+}
+
+.segmentActive:hover { color: #121212; }
+
+/* ============================================================
+   СПИСОК ОБЪЕКТОВ
+   ============================================================ */
+
+.sitesList {
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.listHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.listHeaderCell {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.listHeaderCellRight {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    text-align: right;
+}
+
+.siteRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-light);
+    cursor: pointer;
+    transition: background 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.siteRow:last-child { border-bottom: none; }
+.siteRow:hover { background: rgba(255, 255, 255, 0.04); }
+.siteRow:active { background: rgba(255, 255, 255, 0.06); }
+
+.siteRowMain {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+/* === ФОТО + ЦВЕТНАЯ ТОЧКА В УГЛУ (Яндекс Go style) === */
+.siteRowThumb {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+}
+
+.siteRowPhoto {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    object-fit: cover;
+    display: block;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.siteRowPhotoPlaceholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+}
+
+.siteRowPhotoIcon {
+    width: 24px !important;
+    height: 24px !important;
+    color: currentColor !important;
+    fill: currentColor;
+    display: block;
+}
+
+.siteRowThumbDot {
+    position: absolute;
+    right: -8px;
+    bottom: -7px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 4px solid var(--bg-card);
+    box-sizing: content-box;
+    pointer-events: none;
+}
+
+.siteRowText {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.siteRowName {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.siteRowAddress {
+    font-size: 13px;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.siteRowStatus {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+    text-align: right;
+}
+
+/* ============================================================
+   ПУСТОЕ СОСТОЯНИЕ
+   ============================================================ */
+
+.emptyState {
+    text-align: center;
+    padding: 40px var(--spacing-xl);
+}
+
+.emptyText {
+    font-size: var(--font-size-lg);
+    color: var(--text-muted);
+}
+
+.emptyBlock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 48px 24px 56px;
+    gap: 8px;
+}
+
+.emptyIconWrap {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.emptyIconWrapSearch { background: rgba(255, 255, 255, 0.05); }
+
+.emptyIcon {
+    width: 28px !important;
+    height: 28px !important;
+    fill: currentColor;
+    color: rgba(255, 255, 255, 0.5);
+    display: block;
+}
+
+.emptyTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+    letter-spacing: -0.1px;
+}
+
+.emptySubtitle {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+.emptyActionBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 12px 20px;
+    background: #86d617;
+    color: #121212;
+    border: none;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+    white-space: nowrap;
+}
+
+.emptyActionBtn:hover { background: #7ac412; }
+.emptyActionBtn:active { transform: scale(0.97); }
+
+.emptyActionIcon {
+    flex-shrink: 0;
+    display: block;
+}
+
+/* ============================================================
+   ПЛАВАЮЩАЯ КНОПКА
+   ============================================================ */
+
+.fabAddSite {
+    position: fixed;
+    bottom: 95px;
+    right: 24px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 16px rgba(45, 125, 70, 0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    z-index: 210;
+    padding: 0;
+}
+
+.fabAddSite:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 24px rgba(45, 125, 70, 0.5);
+}
+
+.fabAddSite:active { transform: scale(0.92); }
+.fabAddSite svg { color: white; }
+
+/* ============================================================
+   НЕДАВНИЕ ОБЪЕКТЫ
+   ============================================================ */
+
+.recentSection {
+    margin: 0 0 4px;
+}
+
+.recentToggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 2px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.15s ease;
+}
+
+.recentToggle:hover { opacity: 0.85; }
+.recentToggle:active { opacity: 0.7; }
+
+.recentTitle {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.recentChevron {
+    font-size: 16px;
+    line-height: 1;
+    color: var(--text-muted);
+    transition: transform 0.2s ease;
+    display: inline-block;
+}
+
+.recentToggleOpen .recentChevron {
+    transform: rotate(90deg);
+}
+
+.recentChipsWrap {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease, opacity 0.2s ease;
+    opacity: 0;
+}
+
+.recentChipsWrapOpen {
+    max-height: 90px;
+    opacity: 1;
+}
+
+.recentChipsScroll {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 8px 0 4px;
+    padding-left: 16px;
+    padding-right: 24px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+
+    -webkit-mask-image: linear-gradient(
+        to right,
+        black 0,
+        black calc(100% - 24px),
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        to right,
+        black 0,
+        black calc(100% - 24px),
+        transparent 100%
+    );
+}
+
+.recentChipsScroll::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.recentChipsFadeLeft {
+    -webkit-mask-image: linear-gradient(
+        to right,
+        transparent 0,
+        black 16px,
+        black calc(100% - 24px),
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        to right,
+        transparent 0,
+        black 16px,
+        black calc(100% - 24px),
+        transparent 100%
+    );
+}
+
+.recentChipsNoFadeRight {
+    -webkit-mask-image: linear-gradient(
+        to right,
+        black 0,
+        black 100%
+    );
+    mask-image: linear-gradient(
+        to right,
+        black 0,
+        black 100%
+    );
+}
+
+.recentChipsFadeLeft.recentChipsNoFadeRight {
+    -webkit-mask-image: linear-gradient(
+        to right,
+        transparent 0,
+        black 16px,
+        black 100%
+    );
+    mask-image: linear-gradient(
+        to right,
+        transparent 0,
+        black 16px,
+        black 100%
+    );
+}
+
+.recentChip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    transition: background 0.15s ease, border-color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    max-width: 220px;
+}
+
+.recentChip:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.recentChip:active { background: rgba(255, 255, 255, 0.12); }
+
+.recentChipDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.recentChipName {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ============================================================
+   СТРАНИЦА ДЕТАЛЕЙ ОБЪЕКТА
+   ============================================================ */
+
+.siteDetailPage {
+    position: fixed;
+    inset: 0;
+    max-width: 500px;
+    margin: 0 auto;
+    background: var(--bg-body);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+    z-index: 10;
+}
+
+.siteDetailBody {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+    padding: 16px;
+}
+
+/* === ШАПКА === */
+.siteDetailTopBar {
+    margin-left: -22px;
+    margin-right: -22px;
+    padding-left: 8px;
+    padding-right: 8px;
+    margin-top: 10px;
+}
+
+.siteDetailHeader {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 0 0 12px 0;
+    margin: 0;
+}
+
+.siteDetailBackBtn {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 0;
+    border-radius: 50%;
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    transition: color 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+    padding: 0;
+}
+
+.siteDetailBackBtn:hover { color: #ffffff; }
+.siteDetailBackBtn:active { transform: scale(0.94); }
+
+.siteDetailBackIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    line-height: 0;
+}
+
+.siteDetailBackIcon svg {
+    width: 26px !important;
+    height: 26px !important;
+    display: block;
+}
+
+.siteDetailAvatarWrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.siteDetailAvatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.siteDetailAvatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.siteDetailAvatarPlaceholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+}
+
+.siteDetailAvatarPlaceholderIcon {
+    width: 24px !important;
+    height: 24px !important;
+    color: currentColor !important;
+    fill: currentColor;
+    display: block;
+}
+
+.siteDetailInfo {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+    padding-top: 2px;
+}
+
+.siteDetailHeroName {
+    display: block;
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+    text-align: left;
+    line-height: 1.25;
+}
+
+.siteDetailHeroAddress {
+    display: block;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
+}
+
+.siteDetailHeroAddressMuted {
+    display: block;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.35);
+    font-style: italic;
+    line-height: 1.3;
+    text-align: left;
+}
+
+/* === Три точки + меню === */
+.siteDetailMenuWrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.siteDetailMenuBtn {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 14px;
+    color: rgba(255, 255, 255, 0.95);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+    padding: 0;
+}
+
+.siteDetailMenuBtn:hover {
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+}
+
+.siteDetailMenuBtn:active { transform: scale(0.96); }
+
+.siteDetailMenuIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    line-height: 0;
+}
+
+.siteDetailMenuIcon svg {
+    width: 24px !important;
+    height: 24px !important;
+    display: block;
+}
+
+.siteDetailDropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 240px;
+    max-width: 280px;
+    background: #2a2a2a;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    padding: 6px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    animation: siteDetailMenuFade 0.14s ease-out;
+}
+
+@keyframes siteDetailMenuFade {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.siteDetailDropdownItem {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    line-height: 1.3;
+}
+
+.siteDetailDropdownItem:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+
+.siteDetailDropdownItem:active:not(:disabled) {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.siteDetailDropdownItemIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+    line-height: 0;
+}
+
+.siteDetailDropdownItemIcon svg {
+    width: 18px !important;
+    height: 18px !important;
+    display: block;
+}
+
+.siteDetailDropdownItemText {
+    flex: 1;
+    min-width: 0;
+}
+
+.siteDetailDropdownDivider {
+    height: 1px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 4px 0;
+    flex-shrink: 0;
+}
+
+.siteDetailDropdownItemDanger { color: #e57373; }
+.siteDetailDropdownItemDanger .siteDetailDropdownItemIcon svg { color: #e57373; }
+.siteDetailDropdownItemDanger:hover:not(:disabled) {
+    background: rgba(229, 115, 115, 0.12);
+    color: #ff8a80;
+}
+.siteDetailDropdownItemDanger:hover:not(:disabled) .siteDetailDropdownItemIcon svg {
+    color: #ff8a80;
+}
+.siteDetailDropdownItemDanger:active:not(:disabled) {
+    background: rgba(229, 115, 115, 0.18);
+}
+
+/* === СТАТУС (плашка) — старая версия, оставлена как есть === */
+.siteDetailStatusRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+.siteDetailStatusText {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.siteDetailStatusLabel {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 400;
+    flex-shrink: 0;
+}
+
+.siteDetailStatusValue {
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.siteDetailSwitch {
+    position: relative;
+    width: 44px;
+    height: 26px;
+    flex-shrink: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.16);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.siteDetailSwitch:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.siteDetailSwitchOn { background: #86d617; }
+
+.siteDetailSwitchThumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    display: block;
+    pointer-events: none;
+}
+
+.siteDetailSwitchOn .siteDetailSwitchThumb {
+    transform: translateX(18px);
+}
+
+/* === СВОДКА === */
+.siteDetailStatsTwo {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.siteDetailStatCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    text-align: center;
+    min-width: 0;
+}
+
+.siteDetailStatValue {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.1;
+    margin-bottom: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+}
+
+.siteDetailStatLabel {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+/* === СВОДКА: 2 плашки === */
+.siteDetailSummaryTwo {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.siteDetailSummaryTwo .siteDetailStatCard {
+    padding: 18px 12px;
+}
+
+.siteDetailSummaryTwo .siteDetailStatValue {
+    font-size: 26px;
+    margin-bottom: 6px;
+}
+
+.siteDetailSummaryTwo .siteDetailStatLabel {
+    font-size: 12px;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.2;
+}
+
+/* === Не установлена зарплатная часть === */
+.siteDetailSalaryEmpty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 2px 0;
+}
+
+.siteDetailSalaryEmptyText {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    line-height: 1.3;
+    text-align: center;
+    max-width: 140px;
+}
+
+.siteDetailSalarySetBtn {
+    padding: 8px 16px;
+    border-radius: 10px;
+    background: #86d617;
+    color: #121212;
+    border: none;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.2;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.siteDetailSalarySetBtn:hover { background: #7ac412; }
+.siteDetailSalarySetBtn:active { transform: scale(0.97); }
+
+/* === 2 КВАДРАТНЫЕ ПЛАШКИ === */
+.siteDetailInfoTwo {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.siteDetailInfoCard {
+    display: flex;
+    flex-direction: column;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    min-width: 0;
+    min-height: 170px;
+}
+
+.siteDetailInfoHalf {
+    flex: 1 1 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    text-align: left;
+    min-width: 0;
+}
+
+.siteDetailInfoHalfDivider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.06);
+    margin: 8px 0;
+    flex-shrink: 0;
+}
+
+.siteDetailInfoLabel {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    line-height: 1.2;
+    margin-bottom: 4px;
+}
+
+.siteDetailInfoValue {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+    overflow-wrap: break-word;
+}
+
+.siteDetailInfoValueWork {
+    color: #86d617;
+    font-weight: 500;
+}
+
+.siteDetailInfoCount {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.1;
+    overflow-wrap: break-word;
+}
+
+.siteDetailInfoMuted {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-muted);
+    line-height: 1.3;
+}
+
+.siteDetailInfoAvatars {
+    display: flex;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 10px;
+}
+
+.siteDetailInfoAvatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 600;
+    flex-shrink: 0;
+    overflow: hidden;
+    border: 2px solid var(--bg-body);
+    box-sizing: border-box;
+}
+
+.siteDetailInfoAvatar:not(:first-child) {
+    margin-left: -20px;
+}
+
+.siteDetailInfoAvatarImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+.siteDetailInfoMore {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(255 255 255 / 93%);
+    color: #464646;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    border: 3px solid var(--bg-body);
+    margin-left: -6px;
+}
+
+/* === Ссылка/надпись «Подробнее» под аватарками === */
+.siteDetailInfoMoreLink {
+    align-self: flex-start;
+    margin-top: 8px;
+    padding: 6px 10px;
+    background: rgb(255 255 255 / 0%);
+    border: 1px solid rgb(223 223 223 / 0%);
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.55);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.2;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.siteDetailInfoMoreLink:hover {
+    background: rgb(255 255 255 / 6%);
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.siteDetailInfoMoreLink:active {
+    background: rgb(255 255 255 / 10%);
+    color: rgba(255, 255, 255, 0.85);
+}
+
+
+.siteDetailDateRow {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    margin-bottom: 20px;
+}
+
+.siteDetailDateIcon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+.siteDetailDateIcon svg {
+    width: 20px !important;
+    height: 20px !important;
+    display: block;
+}
+
+.siteDetailDateText {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.siteDetailDateLabel {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    line-height: 1.2;
+}
+
+.siteDetailDateValue {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.3;
+}
+
+.siteDetailDateHint {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-muted);
+}
+
+.siteDetailDateEmpty {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.siteDetailDateEnd {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* === БРИГАДА === */
+.siteDetailWorkersSection {
+    margin-bottom: 20px;
+    padding: 12px 3px;
+    background-color: #1b1b1b;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 15px;
+}
+
+.siteDetailSectionHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding: 0 2px;
+}
+
+.siteDetailSectionTitle {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.2;
+    letter-spacing: 0.1px;
+}
+
+.siteDetailSectionHint {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.siteDetailWorkersCount {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    line-height: 1.2;
+}
+
+.siteDetailWorkersList {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.siteDetailWorkerItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: #1b1b1b;
+    
+    border-radius: 14px;
+}
+
+.siteDetailWorkerAvatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.siteDetailWorkerAvatarImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+.siteDetailWorkerInfo {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.siteDetailWorkerName {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.siteDetailWorkerMeta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.siteDetailWorkerDays {
+    flex-shrink: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.siteDetailWorkerEarned {
+    font-size: 13px;
+    font-weight: 600;
+    color: #86d617;
+    white-space: nowrap;
+}
+
+.siteDetailEmptyWorkers {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 24px 44px;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+}
+
+.siteDetailEmptyIconWrap {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.siteDetailEmptyIconWrap svg { display: block; }
+
+.siteDetailEmptyTitle {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    max-width: 260px;
+}
+
+/* === КАЛЕНДАРЬ === */
+.siteDetailCalendarSection {
+    margin-bottom: 50px;
+}
+
+.siteDetailMonthsNav {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 2px 0 10px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+}
+
+.siteDetailMonthsNav::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.siteDetailMonthChip {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.2;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.siteDetailMonthChip:hover {
+    background: rgba(255, 255, 255, 0.09);
+    color: var(--text-primary);
+}
+
+.siteDetailMonthChipActive {
+    background: #ececec;
+    border-color: #ececec;
+    color: #121212;
+    font-weight: 600;
+}
+
+.siteDetailMonthChipActive:hover {
+    background: #ececec;
+    color: #121212;
+}
+
+.siteDetailMonthsScroll {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+    touch-action: pan-x;
+}
+
+.siteDetailMonthsScroll::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.siteDetailMonthBlock {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    padding: 14px 12px;
+    box-sizing: border-box;
+}
+
+.siteDetailMonthTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 12px;
+    line-height: 1.2;
+}
+
+.siteDetailMonthGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.siteDetailMonthWeekday {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+    padding-bottom: 2px;
+}
+
+.siteDetailMonthDayEmpty {
+    aspect-ratio: 1;
+}
+
+.siteDetailMonthDay {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.02);
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.siteDetailMonthDayMarked {
+    color: #121212;
+    font-weight: 700;
+}
+
+.siteDetailMonthDayToday {
+    outline: 2px solid rgba(134, 214, 23, 0.9);
+    outline-offset: -2px;
+}
+
+/* === ЗАТРАТЫ — кнопка-строка === */
+.siteDetailCostsLinkBtn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+    text-align: left;
+}
+
+.siteDetailCostsLinkBtn:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.siteDetailCostsLinkBtn:active {
+    transform: scale(0.99);
+}
+
+.siteDetailCostsLinkIcon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+}
+
+.siteDetailCostsLinkIcon svg {
+    width: 20px !important;
+    height: 20px !important;
+    display: block;
+}
+
+.siteDetailCostsLinkText {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.siteDetailCostsLinkChevron {
+    flex-shrink: 0;
+    font-size: 22px;
+    line-height: 1;
+    color: var(--text-muted);
+}
+
+/* === Заглушка в шите «Затраты» === */
+.siteDetailPlaceholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px 8px;
+    gap: 8px;
+}
+
+.siteDetailPlaceholderIcon {
+    font-size: 48px;
+    margin-bottom: 8px;
+    opacity: 0.7;
+}
+
+.siteDetailPlaceholderTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+}
+
+.siteDetailPlaceholderText {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-muted);
+    line-height: 1.45;
+    max-width: 280px;
+}
+/* === ДИНАМИКА ПО ДНЯМ (в модалке «Подробнее») === */
+.siteDetailDynamics {
+    margin-bottom: 16px;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+}
+
+.siteDetailDynamicsHeader {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.siteDetailDynamicsTitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.siteDetailDynamicsMeta {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.siteDetailDynamicsBar {
+    display: flex;
+    width: 100%;
+    height: 14px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.06);
+    gap: 2px;
+}
+
+.siteDetailDynamicsSegment {
+    height: 100%;
+    flex-basis: 0;
+    flex-shrink: 0;
+    transition: flex-grow 0.2s ease;
+}
+
+.siteDetailDynamicsLegend {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 12px;
+}
+
+.siteDetailDynamicsLegendRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    line-height: 1.2;
+    min-width: 0;
+}
+
+.siteDetailDynamicsDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.siteDetailDynamicsLegendLabel {
+    color: var(--text-secondary);
+    font-weight: 500;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.siteDetailDynamicsLegendValue {
+    color: var(--text-primary);
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.siteDetailDynamicsFlat {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.siteDetailDynamicsFlatBar {
+    width: 100%;
+    height: 14px;
+    border-radius: 999px;
+    background: #86d617;
+}
+
+.siteDetailDynamicsFlatText {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    line-height: 1.35;
+}
+/* === МОДАЛКА «ПОДРОБНЕЕ»: ТАБЛИЦА ДАТ И РАБОТНИКОВ === */
+.siteDetailDaysOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 9999;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    animation: siteDetailDaysOverlayIn 0.18s ease-out;
+}
+
+@keyframes siteDetailDaysOverlayIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.siteDetailDaysSheet {
+    width: 100%;
+    max-width: 500px;
+    max-height: 85dvh;
+    background: #181717;
+    border-radius: 24px 24px 0 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: siteDetailDaysSheetIn 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes siteDetailDaysSheetIn {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+}
+
+.siteDetailDaysHandleZone {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0 6px;
+    flex-shrink: 0;
+}
+
+.siteDetailDaysHandle {
+    width: 40px;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.22);
+    display: block;
+}
+
+.siteDetailDaysHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 20px 12px;
+    flex-shrink: 0;
+}
+
+.siteDetailDaysTitle {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.siteDetailDaysCloseBtn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+    transition: background 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.siteDetailDaysCloseBtn:hover { background: rgba(255, 255, 255, 0.12); }
+.siteDetailDaysCloseBtn:active { transform: scale(0.96); }
+
+.siteDetailDaysBody {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 0 20px 16px;
+}
+
+.siteDetailDaysTable {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.siteDetailDaysRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+}
+
+.siteDetailDaysDate {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.3;
+    flex-shrink: 0;
+    min-width: 0;
+}
+
+.siteDetailDaysWorkers {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.siteDetailDaysAvatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+    overflow: hidden;
+    border: 2px solid #181717;
+    box-sizing: border-box;
+}
+
+.siteDetailDaysAvatar:not(:first-child) {
+    margin-left: -10px;
+}
+
+.siteDetailDaysAvatarImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+.siteDetailDaysEmpty {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.siteDetailDaysFooter {
+    display: flex;
+    gap: 10px;
+    padding: 12px 20px calc(20px + env(safe-area-inset-bottom, 0));
+    flex-shrink: 0;
+}
+
+.siteDetailDaysCloseFooterBtn {
+    flex: 1;
+    padding: 14px;
+    background: #3a3a3a;
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.siteDetailDaysCloseFooterBtn:hover { background: #464646; }
+.siteDetailDaysCloseFooterBtn:active { transform: scale(0.97); }
+/* === МИНИ-ШИТ: ЗАРПЛАТНАЯ ЧАСТЬ === */
+.siteDetailSalaryOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 9999;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    animation: salaryOverlayIn 0.18s ease-out;
+}
+
+@keyframes salaryOverlayIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.siteDetailSalarySheet {
+    width: 100%;
+    max-width: 500px;
+    background: #181717;
+    border-radius: 24px 24px 0 0;
+    padding: 0 20px calc(20px + env(safe-area-inset-bottom, 0));
+    box-sizing: border-box;
+    animation: salarySheetIn 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes salarySheetIn {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+}
+
+.siteDetailSalaryHandleZone {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0 6px;
+}
+
+.siteDetailSalaryHandle {
+    width: 40px;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.22);
+    display: block;
+}
+
+.siteDetailSalaryHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0 12px;
+}
+
+.siteDetailSalaryTitle {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.siteDetailSalaryCloseBtn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+    transition: background 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.siteDetailSalaryCloseBtn:hover { background: rgba(255, 255, 255, 0.12); }
+.siteDetailSalaryCloseBtn:active { transform: scale(0.96); }
+.siteDetailSalaryCloseBtn:disabled { opacity: 0.5; cursor: default; }
+
+.siteDetailSalaryBody {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-bottom: 16px;
+}
+
+.siteDetailSalaryLabel {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    letter-spacing: 0.2px;
+}
+
+.siteDetailSalaryInputWrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.siteDetailSalaryInputWrap:focus-within {
+    border-color: rgba(134, 214, 23, 0.55);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.siteDetailSalaryInput {
+    flex: 1;
+    min-width: 0;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.2;
+    padding: 0;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.siteDetailSalaryInput::-webkit-outer-spin-button,
+.siteDetailSalaryInput::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.siteDetailSalaryInput[type="number"] { -moz-appearance: textfield; }
+
+.siteDetailSalaryInput::placeholder { color: var(--text-muted); font-weight: 500; }
+
+.siteDetailSalarySuffix {
+    flex-shrink: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.siteDetailSalaryError {
+    font-size: 12px;
+    font-weight: 500;
+    color: #e57373;
+    line-height: 1.3;
+    margin-top: 2px;
+}
+
+.siteDetailSalaryFooter {
+    display: flex;
+    gap: 10px;
+    padding-top: 8px;
+}
+
+.siteDetailSalaryCancelBtn {
+    flex: 1;
+    padding: 14px;
+    background: #3a3a3a;
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.siteDetailSalaryCancelBtn:hover { background: #464646; }
+.siteDetailSalaryCancelBtn:active { transform: scale(0.97); }
+.siteDetailSalaryCancelBtn:disabled { opacity: 0.5; cursor: default; }
+
+.siteDetailSalarySaveBtn {
+    flex: 1;
+    padding: 14px;
+    background: #86d617;
+    color: #121212;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.siteDetailSalarySaveBtn:hover { background: #7ac412; }
+.siteDetailSalarySaveBtn:active { transform: scale(0.97); }
+.siteDetailSalarySaveBtn:disabled { opacity: 0.6; cursor: default; }
+
+/* === ФУТЕР === */
+.siteDetailFooter {
+    position: relative;
+    display: flex;
+    padding: 16px 20px 24px;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0));
+    background: #121212;
+    flex-shrink: 0;
+    max-width: 500px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+    z-index: 2;
+}
+
+.siteDetailFooter::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    margin-bottom: -3px;
+    height: 42px;
+    pointer-events: none;
+    background: linear-gradient(
+        to bottom,
+        rgba(18, 18, 18, 0) 0%,
+        rgba(18, 18, 18, 0.7) 35%,
+        rgba(18, 18, 18, 0.85) 70%,
+        #121212 100%
+    );
+}
+
+.siteDetailCloseBtn {
+    flex: 1;
+    width: 100%;
+    padding: 14px;
+    background: #3a3a3a;
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 160px;
+    box-shadow: none;
+}
+
+.siteDetailCloseBtn:hover {
+    background: #464646;
+    transform: none;
+}
+
+.siteDetailCloseBtn:active {
+    transform: scale(0.97);
+}
+
+/* ============================================================
+   АДАПТИВ ≤480
+   ============================================================ */
+
+@media (max-width: 480px) {
+    .pageHeader {
+        margin: calc(var(--spacing-md) + 5px) 0 var(--spacing-sm);
+        padding-left: 6px;
+    }
+
+    .pageTitle { font-size: 24px; }
+
+    .addBtn { padding: 9px 14px; font-size: 13px; }
+    .addBtn svg { width: 18px; height: 18px; }
+
+    .searchInput { font-size: 14px; }
+
+    .segment { padding: 7px 14px; font-size: 13px; }
+
+    .siteRow { padding: 12px 14px; }
+
+    .siteRowThumb { width: 56px; height: 56px; }
+
+    .siteRowPhoto,
+    .siteRowPhotoPlaceholder {
+        width: 56px;
+        height: 56px;
+        border-radius: 10px;
+    }
+
+    .siteRowPhotoIcon {
+        width: 22px !important;
+        height: 22px !important;
+    }
+
+    .siteRowName { font-size: 14px; }
+    .siteRowAddress { font-size: 12px; }
+    .siteRowStatus { font-size: 12px; }
+
+    /* Деталка объекта */
+    .siteDetailBody { padding: 16px; }
+
+    .siteDetailBackBtn {
+        width: 44px;
+        height: 44px;
+        margin-left: 13px;
+    }
+    .siteDetailBackIcon,
+    .siteDetailBackIcon svg { width: 24px !important; height: 24px !important; }
+
+    .siteDetailAvatar { width: 56px; height: 56px; }
+    .siteDetailAvatarPlaceholderIcon { width: 22px !important; height: 22px !important; }
+
+    .siteDetailHeroName { font-size: 18px; }
+    .siteDetailHeroAddress,
+    .siteDetailHeroAddressMuted { font-size: 13px; }
+
+    .siteDetailStatusRow { padding: 12px 14px; }
+    .siteDetailStatusLabel,
+    .siteDetailStatusValue { font-size: 13px; }
+
+    .siteDetailMenuBtn {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        margin-right: 15px;
+    }
+    .siteDetailMenuIcon,
+    .siteDetailMenuIcon svg { width: 22px !important; height: 22px !important; }
+
+    .siteDetailDropdown { min-width: 220px; max-width: 260px; }
+
+    .siteDetailStatsTwo { gap: 6px; }
+    .siteDetailStatCard { padding: 14px 8px; }
+    .siteDetailStatValue { font-size: 20px; }
+    .siteDetailStatLabel { font-size: 12px; }
+
+    .siteDetailSummaryTwo { gap: 10px; }
+    .siteDetailSummaryTwo .siteDetailStatCard { padding: 16px 8px; }
+    .siteDetailSummaryTwo .siteDetailStatValue { font-size: 26px; }
+    .siteDetailSummaryTwo .siteDetailStatLabel { font-size: 14px; }
+
+    .siteDetailSalaryEmptyText { font-size: 11px; max-width: 120px; }
+    .siteDetailSalarySetBtn { padding: 7px 14px; font-size: 12px; }
+
+    .siteDetailInfoTwo { gap: 10px; }
+    .siteDetailInfoCard { padding: 12px; min-height: 160px; }
+    .siteDetailInfoLabel { font-size: 10px; }
+    .siteDetailInfoValue { font-size: 13px; }
+    .siteDetailInfoCount { font-size: 20px; }
+    .siteDetailInfoMuted { font-size: 12px; }
+       .siteDetailInfoAvatar { width: 48px; height: 48px; font-size: 18px; }
+    .siteDetailInfoAvatar:not(:first-child) { margin-left: -18px; }
+    .siteDetailInfoMore {
+        width: 26px;
+        height: 26px;
+        font-size: 11px;
+        margin-left: -15px;
+        margin-top: 20px;
+    }
+
+    .siteDetailDateRow { padding: 12px 14px; gap: 10px; }
+    .siteDetailDateValue { font-size: 14px; }
+    .siteDetailDateHint { font-size: 12px; }
+
+    .siteDetailWorkerItem { padding: 8px 10px; gap: 10px; }
+    .siteDetailWorkerAvatar { width: 36px; height: 36px; font-size: 13px; }
+    .siteDetailWorkerName { font-size: 14px; }
+    .siteDetailWorkerDays { font-size: 12px; }
+    .siteDetailWorkerEarned { font-size: 15px; }
+
+    .siteDetailEmptyIconWrap { width: 48px; height: 48px; }
+    .siteDetailEmptyTitle { font-size: 13px; }
+
+    .siteDetailMonthChip { padding: 7px 12px; font-size: 12px; }
+    .siteDetailMonthBlock { padding: 12px 10px; }
+    .siteDetailMonthTitle { font-size: 15px; margin-bottom: 10px; }
+    .siteDetailMonthGrid { gap: 3px; }
+    .siteDetailMonthWeekday { font-size: 9px; }
+    .siteDetailMonthDay { font-size: 11px; border-radius: 7px; }
+
+    .siteDetailCostsLinkBtn { padding: 12px 14px; }
+    .siteDetailCostsLinkText { font-size: 14px; }
+
+    .siteDetailPlaceholderIcon { font-size: 40px; }
+    .siteDetailPlaceholderTitle { font-size: 17px; }
+    .siteDetailPlaceholderText { font-size: 13px; }
+
+    .siteDetailSalaryTitle { font-size: 18px; }
+    .siteDetailSalaryInput { font-size: 17px; }
+    .siteDetailSalaryCancelBtn,
+    .siteDetailSalarySaveBtn { padding: 13px; font-size: 14px; }
+
+    .siteDetailFooter {
+        padding: 14px 16px 20px;
+        padding-bottom: calc(20px + env(safe-area-inset-bottom, 0));
+    }
+
+    .siteDetailCloseBtn {
+        padding: 13px;
+        font-size: 15px;
+        min-width: 140px;
+    }
+    .siteDetailInfoMoreLink {
+        font-size: 13px;
+        padding: 5px 15px;
+    }
+        .siteDetailDaysTitle { font-size: 18px; }
+    .siteDetailDaysRow { padding: 10px 12px; }
+    .siteDetailDaysDate { font-size: 13px; }
+    .siteDetailDaysAvatar { width: 32px; height: 32px; font-size: 11px; }
+    .siteDetailDaysAvatar:not(:first-child) { margin-left: -9px; }
+    .siteDetailDaysCloseFooterBtn { padding: 13px; font-size: 14px; }
+        .siteDetailDynamics { padding: 12px; margin-bottom: 14px; }
+    .siteDetailDynamicsTitle { font-size: 13px; }
+    .siteDetailDynamicsMeta { font-size: 10px; }
+    .siteDetailDynamicsBar,
+    .siteDetailDynamicsFlatBar { height: 12px; }
+    .siteDetailDynamicsLegendRow { font-size: 11px; gap: 7px; }
+    .siteDetailDynamicsDot { width: 9px; height: 9px; }
+    .siteDetailDynamicsFlatText { font-size: 11px; }
+}
+
+/* ============================================================
+   АДАПТИВ ≤400
+   ============================================================ */
+
+@media (max-width: 400px) {
+    .addBtnLabel { display: none; }
+
+    .addBtn {
+        padding: 10px;
+        width: 40px;
+        height: 40px;
+        justify-content: center;
+    }
+
+    .addBtn svg { width: 20px; height: 20px; }
+
+    .segmented {
+        align-self: stretch;
+        justify-content: space-between;
+    }
+
+    .segment {
+        flex: 1;
+        padding: 7px 8px;
+        font-size: 12px;
+    }
+
+    .fabAddSite {
+        width: 52px;
+        height: 52px;
+        bottom: 80px;
+        right: 16px;
+    }
+
+    .fabAddSite svg { width: 24px; height: 24px; }
+
+    .siteRowPhoto,
+    .siteRowPhotoPlaceholder {
+        width: 52px;
+        height: 52px;
+        border-radius: 10px;
+    }
+
+    .siteRowThumb { width: 52px; height: 52px; }
+
+    .siteRowThumbDot {
+        width: 14px;
+        height: 14px;
+        right: -2px;
+        bottom: -2px;
+    }
+
+    .emptyBlock { padding: 36px 16px 44px; }
+    .emptyIconWrap { width: 64px; height: 64px; }
+    .emptyIcon { width: 24px !important; height: 24px !important; }
+    .emptyTitle { font-size: 17px; }
+    .emptySubtitle { font-size: 13px; max-width: 240px; }
+    .emptyActionBtn { padding: 11px 18px; font-size: 14px; }
+
+    .recentChip { padding: 7px 10px; font-size: 13px; max-width: 180px; }
+    .recentChipDot { width: 9px; height: 9px; }
+
+    /* Деталка объекта */
+    .siteDetailHeroName { font-size: 17px; }
+    .siteDetailStatusLabel,
+    .siteDetailStatusValue { font-size: 12px; }
+    .siteDetailStatValue { font-size: 18px; }
+
+    .siteDetailSummaryTwo .siteDetailStatValue { font-size: 21px; }
+   .siteDetailSummaryTwo .siteDetailStatLabel { font-size: 14px; }
+
+    .siteDetailInfoCard { padding: 10px; min-height: 150px; }
+    .siteDetailInfoCardClickable {
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    color: inherit;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.siteDetailInfoCardClickable:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.siteDetailInfoCardClickable:active {
+    transform: scale(0.99);
+    background: rgba(255, 255, 255, 0.08);
+}
+    .siteDetailInfoValue { font-size: 12px; }
+    .siteDetailInfoCount { font-size: 18px; }
+    .siteDetailInfoAvatar { width: 48px; height: 48px; font-size: 16px; }
+    .siteDetailInfoAvatar:not(:first-child) { margin-left: -16px; }
+        .siteDetailInfoMore { width: 20px; height: 20px; font-size: 9px; margin-left: -4px; }
+
+    .siteDetailMonthDay { font-size: 10px; }
+    .siteDetailMonthWeekday { font-size: 8.5px; }
+    .siteDetailMonthTitle { font-size: 14px; }
+}
+
+/* ============================================================
+   НОВОЕ: СТРОКА «СТАТИСТИКА:» + ПЛАШКА СТАТУСА
+   (используется в SiteDetailPage вместо .siteDetailStatusRow)
+   ============================================================ */
+
+.siteDetailDetailsRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+.siteDetailStatCurrency {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-left: 4px;
+    white-space: nowrap;
+}
+
+.siteDetailDetailsTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary, #ececec);
+    letter-spacing: 0.2px;
+    line-height: 1.2;
+    flex-shrink: 0;
+}
+
+.siteDetailStatusPill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.siteDetailStatusLabelWork {
+    font-size: 13px;
+    font-weight: 500;
+    color: #86d617;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.siteDetailStatusLabelDone {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.siteDetailStatusLabelDoneText {
+    font-size: 13px;
+    font-weight: 500;
+    color: #959595;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.siteDetailStatusCheck {
+    width: 16px !important;
+    height: 16px !important;
+    color: #86d618;
+    flex-shrink: 0;
+    display: block;
+}
+
+@media (max-width: 480px) {
+    .siteDetailDetailsRow {
+        margin-top: 24px;
+        margin-bottom: 10px;
+        gap: 10px;
+        margin-left: 10px;
+    }
+    .siteDetailDetailsTitle {
+        font-size: 20px;
+    }
+    .siteDetailStatusPill {
+        padding: 7px 10px;
+        gap: 8px;
+    }
+    .siteDetailSummaryTwo .siteDetailStatValue {
+    font-size: 26px;
+}
+    .siteDetailStatusLabelWork,
+    .siteDetailStatusLabelDoneText {
+        font-size: 14px;
+    }
+    .siteDetailStatusCheck {
+        width: 18px !important;
+        height: 18px !important;
+    }
+}
+/* ============================================================
+   КАРТОЧКА «СТАВКА ЗА ДЕНЬ» — кликабельная (иконка карандаша)
+   ============================================================ */
+
+.siteDetailStatCardClickable {
+    cursor: pointer;
+    font-family: inherit;
+    color: inherit;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+    text-align: center;
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.siteDetailStatCardClickable:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.siteDetailStatCardClickable:active {
+    transform: scale(0.99);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.siteDetailStatEditIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    margin-left: 6px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    vertical-align: middle;
+}
+
+.siteDetailStatEditIcon svg {
+    width: 14px !important;
+    height: 14px !important;
+    display: block;
+}
+/* ============================================================
+   КАРТОЧКА «ЗАРПЛАТНАЯ ЧАСТЬ» + «СТАВКА ЗА ДЕНЬ»
+   (две мини-плашки в правой ячейке; верхняя — кнопка, нижняя — нет)
+   ============================================================ */
+
+.siteDetailSalaryStack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    height: auto;
+    align-self: stretch;
+}
+
+.siteDetailSalaryMini {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    flex: 0 0 auto;
+    min-height: 0;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    text-align: center;
+    overflow: visible;
+    box-sizing: border-box;
+}
+
+.siteDetailSalaryMiniClickable {
+    cursor: pointer;
+    font-family: inherit;
+    color: inherit;
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.siteDetailSalaryMiniClickable:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.siteDetailSalaryMiniClickable:active {
+    transform: scale(0.99);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.siteDetailSalaryMiniLabel {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    display: block;
+    text-align: center;
+}
+
+.siteDetailSalaryMiniValue {
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: center;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    text-align: center;
+}
+
+/* Размеры для верхней плашки (зарплатная часть) */
+.siteDetailSalaryMiniValueSmall {
+    font-size: 16px;
+}
+
+/* Размеры для нижней плашки (ставка за день) */
+.siteDetailSalaryMiniValueLarge {
+    font-size: 25px;
+}
+
+/* Валюта: базовый класс (16px) — оставляем как есть, добавляем модификаторы */
+.siteDetailStatCurrencySmall {
+    font-size: 14px;
+}
+
+.siteDetailStatCurrencyLarge {
+    font-size: 20px;
+}
+
+.siteDetailSalaryMiniPencil {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.siteDetailSalaryMiniPencil svg {
+    width: 13px !important;
+    height: 13px !important;
+    display: block;
+}
+
+/* Адаптив */
+@media (max-width: 480px) {
+    .siteDetailSalaryStack {
+        gap: 8px;
+    }
+    .siteDetailSalaryMini {
+        padding: 15px 12px;
+    }
+    .siteDetailSalaryMiniLabel {
+        font-size: 10px;
+    }
+    .siteDetailSalaryMiniValueSmall {
+        font-size: 15px;
+    }
+    .siteDetailSalaryMiniValueLarge {
+        font-size: 26px;
+    }
+    .siteDetailStatCurrencySmall {
+        font-size: 13px;
+    }
+    .siteDetailStatCurrencyLarge {
+        font-size: 18px;
+    }
+    .siteDetailSalaryMiniPencil {
+        width: 22px;
+        height: 22px;
+        right: 6px;
+        bottom: 6px;
+        border-radius: 7px;
+    }
+    .siteDetailSalaryMiniPencil svg {
+        width: 12px !important;
+        height: 12px !important;
+    }
+}
+@media (max-width: 400px) {
+    .siteDetailSalaryMiniValueSmall {
+        font-size: 14px;
+    }
+    .siteDetailSalaryMiniValueLarge {
+        font-size: 20px;
+    }
+    .siteDetailStatCurrencySmall {
+        font-size: 12px;
+    }
+    .siteDetailStatCurrencyLarge {
+        font-size: 16px;
+    }
+    .siteDetailSalaryMiniLabel {
+        font-size: 9.5px;
+    }
+}
+/* ============================================================
+   V2: HERO-ШАПКА ДЕТАЛКИ ОБЪЕКТА
+   (фото как кусок фона — сильно затемнено, растворяется в фоне)
+   ============================================================ */
+
+/* Контейнер hero: на всю ширину контента, ~180px видимой части */
+.siteDetailHero {
+    position: relative;
+    width: calc(100% + 32px);      /* компенсируем padding 16px у siteDetailBody */
+    height: 150px;
+    margin: -16px -16px 12px -16px;
+    overflow: hidden;
+    background: #1a1a1a;
+    isolation: isolate;
+}
+
+/* Фон: фото тянется на 100% ширины, сохраняет пропорции (cover) */
+.siteDetailHeroBg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 0;
+    /* лёгкое затемнение самого фото, чтобы текст читался */
+    filter: brightness(0.90);
+}
+
+/* Оверлей: сильный градиент сверху вниз + растворяется в цвет фона */
+.siteDetailHeroOverlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+        /* верхняя дымка под кнопки — слабее */
+        linear-gradient(
+            to bottom,
+            rgba(0, 0, 0, 0.28) 0%,
+            rgba(0, 0, 0, 0.12) 22%,
+            rgba(0, 0, 0, 0.0) 45%
+        ),
+        /* средний тёмный слой — фото «глушится», но не убивается */
+        linear-gradient(
+            to bottom,
+            rgba(18, 18, 18, 0.05) 0%,
+            rgba(18, 18, 18, 0.15) 45%,
+            rgba(18, 18, 18, 0.45) 65%
+        ),
+        /* нижний градиент — растворяется в фон страницы */
+        linear-gradient(
+            to bottom,
+            rgba(18, 18, 18, 0) 55%,
+            rgba(18, 18, 18, 0.7) 80%,
+            rgba(18, 18, 18, 0.93) 93%,
+            #121212 100%
+        );
+}
+
+/* Верхняя строка: назад + меню */
+.siteDetailHeroTopRow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 16px 0;
+    padding-top: calc(18px + env(safe-area-inset-top, 0));
+    gap: 12px;
+}
+
+/* Нижний блок: имя + адрес */
+.siteDetailHeroBottom {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+    padding: 0 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.siteDetailHeroName {
+    font-size: 22px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+    letter-spacing: -0.2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+}
+
+.siteDetailHeroAddress {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.82);
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+}
+
+.siteDetailHeroAddressMuted {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.55);
+    font-style: italic;
+    line-height: 1.3;
+    margin: 0;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+}
+
+/* Кнопки поверх hero — стеклянные */
+.siteDetailHeroBackBtn,
+.siteDetailHeroMenuBtn {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(20, 20, 20, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+    flex-shrink: 0;
+}
+
+.siteDetailHeroBackBtn:hover,
+.siteDetailHeroMenuBtn:hover {
+    background: rgba(20, 20, 20, 0.6);
+}
+
+.siteDetailHeroBackBtn:active,
+.siteDetailHeroMenuBtn:active {
+    transform: scale(0.96);
+}
+
+.siteDetailHeroBackIcon,
+.siteDetailHeroMenuIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    line-height: 0;
+}
+
+.siteDetailHeroBackIcon svg,
+.siteDetailHeroMenuIcon svg {
+    width: 22px !important;
+    height: 22px !important;
+    display: block;
+}
+
+/* Выпадающее меню ⋯ */
+.siteDetailHeroMenuWrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+/* Адаптив */
+@media (max-width: 480px) {
+    .siteDetailHero {
+        height: 170px;
+        margin: -16px -16px 10px -16px;
+    }
+    .siteDetailHeroName {
+        font-size: 20px;
+    }
+    .siteDetailHeroAddress,
+    .siteDetailHeroAddressMuted {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 400px) {
+    .siteDetailHero {
+        height: 160px;
+    }
+    .siteDetailHeroName {
+        font-size: 18px;
+    }
+    .siteDetailHeroAddress,
+    .siteDetailHeroAddressMuted {
+        font-size: 12px;
+    }
+}
+/* ============================================================
+   V2: Карточка «дней» — визуально делится на две половины:
+   верх — Начало / Конец (две колонки), низ — счётчик дней.
+   Внешний вид (фон/рамка/радиус/размер) — как у обычной
+   .siteDetailStatCard, «квадрат» остаётся единым блоком.
+   ============================================================ */
+
+/* Модификатор: та же карточка, но с делением по вертикали */
+.siteDetailStatCardSplit {
+    justify-content: stretch;
+    align-items: stretch;
+    text-align: center;
+    padding: 0;              /* padding задаётся половинам */
+    overflow: hidden;
+}
+
+.siteDetailStatDatesHalf {
+    flex: 1 1 0;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    justify-items: center;
+    gap: 0;
+    padding: 10px 8px;
+    width: 100%;
+    min-width: 0;
+    border-bottom: 0px solid rgba(255, 255, 255, 0.06);
+}
+
+.siteDetailStatDatesCol {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-width: 0;
+    width: 100%;
+    text-align: center;
+    overflow: hidden;
+}
+
+.siteDetailStatDatesKey {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.siteDetailStatDatesVal {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* Вертикальный разделитель между колонками */
+.siteDetailStatDatesDivider {
+    width: 1px;
+    align-self: stretch;
+    margin: 6px 0;
+    background: rgba(255, 255, 255, 0.08);
+    flex-shrink: 0;
+}
+
+/* Нижняя половина: счётчик дней */
+.siteDetailStatDaysHalf {
+    flex: 2 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 10px 8px;
+    width: 100%;
+    min-width: 0;
+}
+
+/* Адаптив */
+@media (max-width: 480px) {
+    .siteDetailStatDatesHalf {
+        padding: 8px 6px;
+    }
+    .siteDetailStatDatesKey {
+        font-size: 9.5px;
+    }
+    .siteDetailStatDatesVal {
+        font-size: 11px;
+    }
+    .siteDetailStatDaysHalf {
+        padding: 8px 6px;
+    }
+}
+
+@media (max-width: 400px) {
+    .siteDetailStatDatesKey {
+        font-size: 9px;
+    }
+    .siteDetailStatDatesVal {
+        font-size: 10.5px;
+    }
+}

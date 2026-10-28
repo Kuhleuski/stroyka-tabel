@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { SitesList } from '../components/Sites/SitesList'
-import { SiteDetailPage } from './SiteDetailPage'
+import { SiteDetailPage } from './SiteDetailPage.v2'
 import { AddSiteModal } from '../components/AddSiteModal'
 import { EditSiteModal } from '../components/EditSiteModal'
 import { addSite, updateSite } from '../services/supabase'
