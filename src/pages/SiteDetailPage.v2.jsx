@@ -10,6 +10,7 @@ import {
     PersonPencil,
     TrashBin,
     Pencil,
+    CircleQuestion,
 } from '@gravity-ui/icons'
 import SquareCheckIcon from '@gravity-ui/icons/SquareCheck'
 import { updateSiteStatus, updateSite } from '../services/supabase'
@@ -153,6 +154,8 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
     const [salaryInput, setSalaryInput] = useState('')
     const [salarySaving, setSalarySaving] = useState(false)
     const [salaryError, setSalaryError] = useState('')
+
+    const [showRateHelp, setShowRateHelp] = useState(false)
 
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const menuRef = useRef(null)
@@ -536,13 +539,50 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                             </div>
                         </div>
 
-                        {/* Нижняя половина: счётчик дней */}
-                        <div className={styles.siteDetailStatDaysHalf}>
-                            <div className={styles.siteDetailStatValue}>{uniqueDays}</div>
-                            <div className={styles.siteDetailStatLabel}>
-                                {getWorkingDaysWord(uniqueDays)}
-                            </div>
-                        </div>
+                        
+                        {/* Нижняя половина: счётчик дней + декоративный паттерн-«шум» */}
+<div className={styles.siteDetailStatDaysHalf}>
+   <div
+    className={styles.siteDetailStatDaysPattern}
+    style={{ '--pattern-color': siteColor }}
+    aria-hidden="true"
+>
+    {Array.from({ length: 192 }).map((_, i) => {
+        const cols = 32
+        const row = Math.floor(i / cols)             // 0..5 (сверху вниз)
+        const col = i % cols
+
+        // Плотность закраски по строкам, % (сверху пусто, книзу плотнее)
+        const densityByRow = [0, 14, 32, 54, 74, 88]
+        const threshold = densityByRow[row] ?? 0
+
+        // Детерминированный «шум» — не мигает при ререндере
+        const hash = (i * 37 + 11) % 100
+
+        // Гарантированные «дырки» в нижней строке (позиции в 32-колоночной сетке)
+        const bottomHoles = row === 5 && (col === 8 || col === 23)
+
+        const filled = !bottomHoles && hash < threshold
+
+        return (
+            <span
+                key={i}
+                className={
+                    `${styles.siteDetailStatDaysSquare}` +
+                    (filled ? ` ${styles.siteDetailStatDaysSquareFilled}` : '')
+                }
+            />
+        )
+    })}
+</div>
+
+    <div className={styles.siteDetailStatDaysContent}>
+        <div className={styles.siteDetailStatValue}>{uniqueDays}</div>
+        <div className={styles.siteDetailStatLabel}>
+            {getWorkingDaysWord(uniqueDays)}
+        </div>
+    </div>
+</div>
                     </div>
 
                     {salaryPart !== null ? (
@@ -566,7 +606,12 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                                 </span>
                             </button>
 
-                            <div className={styles.siteDetailSalaryMini}>
+                            <button
+                                type="button"
+                                className={`${styles.siteDetailSalaryMini} ${styles.siteDetailSalaryMiniRate} ${styles.siteDetailSalaryMiniClickable}`}
+                                onClick={() => setShowRateHelp(true)}
+                                aria-label="Как рассчитывается ставка за день"
+                            >
                                 <div className={styles.siteDetailSalaryMiniLabel}>
                                     Ставка за день
                                 </div>
@@ -574,7 +619,11 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                                     {formatMoney(ratePerDay).replace(/\s*BYN$/, '')}
                                     <span className={`${styles.siteDetailStatCurrency} ${styles.siteDetailStatCurrencyLarge}`}> BYN</span>
                                 </div>
-                            </div>
+
+                                <span className={styles.siteDetailSalaryMiniPencil} aria-hidden="true">
+                                    <CircleQuestion />
+                                </span>
+                            </button>
                         </div>
                     ) : (
                         <div className={styles.siteDetailStatCard}>
@@ -793,6 +842,90 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                                 disabled={salarySaving}
                             >
                                 {salarySaving ? 'Сохраняем…' : 'Сохранить'}
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
+
+            {/* === МИНИ-ШИТ: КАК СЧИТАЕТСЯ СТАВКА === */}
+            {showRateHelp && createPortal(
+                <div
+                    className={styles.siteDetailSalaryOverlay}
+                    onClick={() => setShowRateHelp(false)}
+                >
+                    <div
+                        className={styles.siteDetailSalarySheet}
+                        onClick={(e) => e.stopPropagation()}
+                        role="dialog"
+                        aria-modal="true"
+                    >
+                        <div className={styles.siteDetailSalaryHandleZone}>
+                            <span className={styles.siteDetailSalaryHandle} />
+                        </div>
+
+                        <div className={styles.siteDetailSalaryHeader}>
+                            <h2 className={styles.siteDetailSalaryTitle}>Как считается ставка</h2>
+                            <button
+                                type="button"
+                                className={styles.siteDetailSalaryCloseBtn}
+                                onClick={() => setShowRateHelp(false)}
+                                aria-label="Закрыть"
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div className={styles.siteDetailSalaryBody}>
+                            <div className={styles.rateHelpFormula}>
+                                <div className={styles.rateHelpLine}>
+                                    <span className={styles.rateHelpKey}>Зарплатная часть</span>
+                                    <span className={styles.rateHelpVal}>{formatMoney(salaryPart)}</span>
+                                </div>
+                                <div className={styles.rateHelpLine}>
+                                    <span className={styles.rateHelpKey}>Человеко-дни</span>
+                                    <span className={styles.rateHelpVal}>{totalWorkerDays}</span>
+                                </div>
+                                <div className={styles.rateHelpDivider} />
+                                <div className={styles.rateHelpLine}>
+                                    <span className={styles.rateHelpKey}>Ставка за день</span>
+                                    <span className={styles.rateHelpValGreen}>{formatMoney(ratePerDay)}</span>
+                                </div>
+
+                                <div className={styles.rateHelpFormulaLine}>
+                                    {formatMoney(salaryPart)} ÷ {totalWorkerDays} = {formatMoney(ratePerDay)}
+                                </div>
+                            </div>
+
+                            {workersStats.length > 0 && (
+                                <div className={styles.rateHelpList}>
+                                    <div className={styles.rateHelpListTitle}>Расшифровка человеко-дней</div>
+                                    {workersStats.map((stat) => {
+                                        const workerName = workers.find(w => w.id === stat.workerId)?.name || 'Неизвестный'
+                                        return (
+                                            <div key={stat.workerId} className={styles.rateHelpListRow}>
+                                                <span className={styles.rateHelpListName}>{workerName}</span>
+                                                <span className={styles.rateHelpListVal}>
+                                                    {stat.days} {getDaysWord(stat.days)}
+                                                </span>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className={styles.siteDetailSalaryFooter}>
+                            <button
+                                type="button"
+                                className={styles.siteDetailSalaryCancelBtn}
+                                onClick={() => setShowRateHelp(false)}
+                            >
+                                Закрыть
                             </button>
                         </div>
                     </div>
