@@ -1,4 +1,4 @@
-import { Settings, Archive, Bell, Send } from 'lucide-react'
+import { Settings, Archive, Bell, Send, Calendar } from 'lucide-react'
 import styles from '../styles/menu.module.css'
 
 export function MenuPage({ onNavigate }) {
@@ -16,6 +16,13 @@ export function MenuPage({ onNavigate }) {
             title: 'Архив',
             desc: 'Архивированные объекты и работники',
             onClick: () => onNavigate('archive')
+        },
+                {
+            id: 'calendar-test',
+            icon: <Calendar size={24} />,
+            title: 'Календарь',
+            desc: 'Площадка для разработки календаря',
+            onClick: () => onNavigate('calendar-test')
         },
         {
             id: 'notifications',

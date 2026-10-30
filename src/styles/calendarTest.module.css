@@ -1,0 +1,630 @@
+/* ============================================================
+   ТЕСТОВАЯ СТРАНИЦА КАЛЕНДАРЯ
+   ============================================================ */
+
+.calendarTestPage {
+    min-height: 100vh;
+    background: var(--bg-body);
+    padding: 16px;
+    max-width: 500px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.calendarTestHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-top: env(safe-area-inset-top, 0);
+}
+
+.calendarTestBackBtn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 20px;
+    cursor: pointer;
+    font-family: inherit;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.calendarTestBackBtn:active { transform: scale(0.96); }
+
+.calendarTestTitle {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.calendarTestBody {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* ============================================================
+   СЕЛЕКТОР ОБЪЕКТА (выпадающий)
+   ============================================================ */
+
+.siteSelector {
+    position: relative;
+    width: 100%;
+    z-index: 20;
+}
+
+.siteSelectorBtn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+}
+
+.siteSelectorBtn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.siteSelectorBtn:focus-visible {
+    border-color: rgba(134, 214, 23, 0.55);
+}
+
+.siteSelectorValue {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    flex: 1;
+}
+
+.siteSelectorPlaceholder {
+    color: var(--text-muted);
+    font-weight: 400;
+    flex: 1;
+}
+
+.siteSelectorDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.siteSelectorName {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.siteSelectorChevron {
+    flex-shrink: 0;
+    font-size: 12px;
+    line-height: 1;
+    color: var(--text-muted);
+    transition: transform 0.15s ease;
+    display: inline-block;
+}
+
+.siteSelectorChevronOpen {
+    transform: rotate(180deg);
+}
+
+.siteSelectorDropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: #2a2a2a;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    padding: 6px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 320px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    animation: siteSelectorFade 0.14s ease-out;
+}
+
+@keyframes siteSelectorFade {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.siteSelectorItem {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    line-height: 1.3;
+}
+
+.siteSelectorItem:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+
+.siteSelectorItem:active {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.siteSelectorItemActive {
+    background: rgba(134, 214, 23, 0.12);
+    color: #ffffff;
+}
+
+.siteSelectorItemActive:hover {
+    background: rgba(134, 214, 23, 0.18);
+}
+
+.siteSelectorItemName {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.siteSelectorItemTag {
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+    padding: 2px 6px;
+    line-height: 1.2;
+}
+
+.siteSelectorEmpty {
+    padding: 16px 14px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+/* ============================================================
+   КАЛЕНДАРЬ: МЕСЯЦЫ ВЕРТИКАЛЬНО (один под одним)
+   ============================================================ */
+
+.monthsList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.monthBlock {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    padding: 14px 12px;
+    box-sizing: border-box;
+}
+
+.monthTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 12px;
+    line-height: 1.2;
+}
+
+/* Шапка дней недели (Пн..Вс) — вне строк */
+.monthWeekHeader {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 4px;
+}
+
+/* Одна строка-неделя: 7 ячеек в ряд */
+.monthWeek {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 4px;
+}
+/* Полупрозрачная строка: сверху растворяется в прозрачность.
+   У нижнего края — 100% видимость (ближе к сменам),
+   у верхнего — 0% (дальше от смен). */
+/* Верхняя fade-строка: верхняя половина невидима, нижняя 0→1 */
+.monthWeekFadeTop {
+    -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        transparent 50%,
+        #000 100%
+    );
+    mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        transparent 50%,
+        #000 100%
+    );
+}
+/* Полупрозрачная строка: снизу растворяется в прозрачность.
+   У верхнего края — 100% (ближе к сменам),
+   у нижнего — 0% (дальше от смен). */
+/* Нижняя fade-строка: верхняя половина 1→0, нижняя невидима */
+.monthWeekFadeBottom {
+    -webkit-mask-image: linear-gradient(
+        to bottom,
+        #000 0%,
+        transparent 50%,
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        to bottom,
+        #000 0%,
+        transparent 50%,
+        transparent 100%
+    );
+}
+
+.monthWeek:last-child {
+    margin-bottom: 0;
+}
+
+.monthWeekday {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+    padding-bottom: 2px;
+}
+
+.monthDayEmpty {
+    aspect-ratio: 1 / 2;
+}
+
+.monthDay {
+    aspect-ratio: 1 / 2;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 2px;
+    padding: 4px 5px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.02);
+    transition: background 0.15s ease, color 0.15s ease;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.monthDayMarked {
+    color: #121212;
+    font-weight: 700;
+}
+
+.monthDayToday {
+    outline: 2px solid rgba(134, 214, 23, 0.9);
+    outline-offset: -2px;
+}
+
+/* Цифра дня внутри ячейки */
+.monthDayNumber {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.1;
+}
+
+.monthDayMarked .monthDayNumber {
+    font-weight: 700;
+}
+
+
+
+
+
+
+/* Контейнер аватарок: 2 колонки с перекрытием, до 3 рядов */
+.monthDayAvatars {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 0;
+    row-gap: 2px;
+    align-content: flex-start;
+    margin-top: 2px;      /* небольшой отступ от числа */
+    width: 100%;
+    min-width: 0;
+}
+
+/* Слот 22×22, чтобы поток не схлопывался при перекрытии */
+.monthDayAvatarSlot {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    display: block;
+    position: relative;
+}
+
+/* Чётные слоты (2, 4, 6) — сдвигаем влево на ~29% (6px от 22) */
+.monthDayAvatarSlot:nth-child(2n) {
+    margin-left: -6px;
+}
+
+/* Сама аватарка — внутри слота */
+.monthDayAvatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    color: #ffffff;
+    font-size: 8px;
+    font-weight: 700;
+    line-height: 1;
+    overflow: hidden;
+    box-sizing: border-box;
+    border: 1.5px solid rgba(18, 18, 18, 0.55);
+    text-transform: uppercase;
+}
+
+.monthDayAvatarImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+/* ============================================================
+   ПУСТЫЕ СОСТОЯНИЯ
+   ============================================================ */
+
+.calendarEmptyState {
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+    line-height: 1.45;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+}
+
+/* ============================================================
+   БРИГАДА
+   ============================================================ */
+
+.brigadeSection {
+    background: #1b1b1b;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 15px;
+    padding: 12px 3px;
+    margin-bottom: 8px;
+}
+
+.brigadeTitle {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.2;
+    padding: 0 12px 10px;
+    letter-spacing: 0.1px;
+}
+
+.brigadeList {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.brigadeItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: #1b1b1b;
+    border-radius: 14px;
+}
+
+.brigadeAvatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.brigadeAvatarImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+.brigadeName {
+    flex: 1;
+    min-width: 0;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.brigadeDays {
+    flex-shrink: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+/* ============================================================
+   АДАПТИВ ≤480
+   ============================================================ */
+
+@media (max-width: 480px) {
+    .siteSelectorBtn {
+        padding: 11px 12px;
+        font-size: 14px;
+    }
+
+    .siteSelectorItem {
+        font-size: 13px;
+        padding: 9px 10px;
+    }
+
+    .monthBlock {
+        padding: 12px 10px;
+    }
+
+    .monthTitle {
+        font-size: 15px;
+        margin-bottom: 10px;
+    }
+
+       .monthWeekHeader {
+        gap: 3px;
+        margin-bottom: 3px;
+    }
+
+    .monthWeek {
+        gap: 3px;
+        margin-bottom: 3px;
+    }
+
+    .monthWeekday {
+        font-size: 9px;
+    }
+
+    .monthDay {
+        font-size: 11px;
+        border-radius: 7px;
+    }
+
+    .brigadeItem {
+        padding: 8px 10px;
+        gap: 10px;
+    }
+
+    .brigadeAvatar {
+        width: 36px;
+        height: 36px;
+        font-size: 13px;
+    }
+
+    .brigadeName {
+        font-size: 14px;
+    }
+
+    .brigadeDays {
+        font-size: 12px;
+    }
+           .monthDayAvatarSlot {
+        width: 20px;
+        height: 20px;
+    }
+
+    .monthDayAvatarSlot:nth-child(2n) {
+        margin-left: -5px;
+    }
+
+    .monthDayAvatar {
+        width: 23px;
+        height: 23px;
+        font-size: 7px;
+        border-width: 1px;
+    }
+}
+
+/* ============================================================
+   АДАПТИВ ≤400
+   ============================================================ */
+
+@media (max-width: 400px) {
+    .monthDay {
+        font-size: 10px;
+    }
+
+    .monthWeekday {
+        font-size: 8.5px;
+    }
+
+    .monthTitle {
+        font-size: 14px;
+    }
+            .monthDayAvatarSlot {
+        width: 18px;
+        height: 18px;
+    }
+
+    .monthDayAvatarSlot:nth-child(2n) {
+        margin-left: -5px;
+    }
+
+    .monthDayAvatar {
+        width: 18px;
+        height: 18px;
+        font-size: 6px;
+    }
+}
+/* ============================================================
+   V5: ПОЛУПРОЗРАЧНЫЕ СТРОКИ — В 2 РАЗА НИЖЕ
+   Ячейки в fade-строках становятся квадратом (было 1 / 2,
+   стало 1 / 1). Обычные строки и строки со сменами — не меняются.
+   ============================================================ */
+
+.monthWeekFadeTop .monthDay,
+.monthWeekFadeBottom .monthDay,
+.monthWeekFadeTop .monthDayEmpty,
+.monthWeekFadeBottom .monthDayEmpty {
+    aspect-ratio: 1 / 0.8;
+}

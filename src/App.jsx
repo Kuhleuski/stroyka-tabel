@@ -14,6 +14,7 @@ import { StatisticsPage } from './pages/StatisticsPage'
 import { CostsPage } from './pages/CostsPage'
 import { ArchivePage } from './pages/ArchivePage'
 import { MenuPage } from './pages/MenuPage'
+import { CalendarTestPage } from './pages/CalendarTestPage'
 import { NotificationsPage } from './pages/NotificationsPage'
 import { TelegramPage } from './pages/TelegramPage'
 import { ProfilePage } from './pages/ProfilePage'
@@ -91,9 +92,9 @@ function AppContent() {
         setHideBottomNav(false)
     }
 
-const menuPages = ['archive', 'notifications', 'telegram', 'profile']
+const menuPages = ['archive', 'notifications', 'telegram', 'profile', 'calendar-test']
 
-const pagesWithoutBottomNav = ['workers-stats', 'notifications', 'telegram', 'archive', 'profile']
+const pagesWithoutBottomNav = ['workers-stats', 'notifications', 'telegram', 'archive', 'profile', 'calendar-test']
     const renderPageContent = () => {
         switch (currentPage) {
             case 'tabel':
@@ -147,6 +148,13 @@ const pagesWithoutBottomNav = ['workers-stats', 'notifications', 'telegram', 'ar
                         key={`profile-${pageKey}`}
                         onBack={() => handleNavigate('menu')}
                         onLogout={logout}
+                    />
+                )
+                            case 'calendar-test':
+                return (
+                    <CalendarTestPage
+                        key={`calendar-test-${pageKey}`}
+                        onBack={() => handleNavigate('menu')}
                     />
                 )
             
