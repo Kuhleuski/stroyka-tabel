@@ -5,7 +5,7 @@
 .calendarTestPage {
     min-height: 100vh;
     background: var(--bg-body);
-    padding: 16px;
+    padding: 0px;
     max-width: 500px;
     margin: 0 auto;
     box-sizing: border-box;
@@ -367,7 +367,7 @@
     display: flex;
     flex-wrap: wrap;
     column-gap: 0;
-    row-gap: 2px;
+    row-gap: 6px;
     align-content: flex-start;
     margin-top: 2px;      /* небольшой отступ от числа */
     width: 100%;
@@ -385,7 +385,7 @@
 
 /* Чётные слоты (2, 4, 6) — сдвигаем влево на ~29% (6px от 22) */
 .monthDayAvatarSlot:nth-child(2n) {
-    margin-left: -6px;
+    margin-left: -2px;
 }
 
 /* Сама аватарка — внутри слота */
@@ -402,7 +402,7 @@
     line-height: 1;
     overflow: hidden;
     box-sizing: border-box;
-    border: 1.5px solid rgba(18, 18, 18, 0.55);
+    
     text-transform: uppercase;
 }
 
@@ -574,14 +574,14 @@
     }
 
     .monthDayAvatarSlot:nth-child(2n) {
-        margin-left: -5px;
+        margin-left: -2px;
     }
 
     .monthDayAvatar {
-        width: 23px;
-        height: 23px;
+        width: 25px;
+        height: 25px;
         font-size: 7px;
-        border-width: 1px;
+        
     }
 }
 
@@ -607,12 +607,12 @@
     }
 
     .monthDayAvatarSlot:nth-child(2n) {
-        margin-left: -5px;
+        margin-left: -2px;
     }
 
     .monthDayAvatar {
-        width: 18px;
-        height: 18px;
+        width: 25px;
+        height: 25px;
         font-size: 6px;
     }
 }
