@@ -91,10 +91,9 @@ function AppContent() {
         setHideBottomNav(false)
     }
 
-    const menuPages = ['archive', 'notifications', 'telegram', 'profile']
+const menuPages = ['archive', 'notifications', 'telegram', 'profile']
 
-    const pagesWithoutBottomNav = ['workers-stats', 'notifications', 'telegram', 'archive', 'profile']
-
+const pagesWithoutBottomNav = ['workers-stats', 'notifications', 'telegram', 'archive', 'profile']
     const renderPageContent = () => {
         switch (currentPage) {
             case 'tabel':
@@ -150,6 +149,7 @@ function AppContent() {
                         onLogout={logout}
                     />
                 )
+            
             case 'workers-stats':
                 return <WorkersStatsPage key={`workers-stats-${pageKey}`} />
             case 'salary':

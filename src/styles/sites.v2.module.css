@@ -2400,7 +2400,7 @@
     .siteDetailStatLabel { font-size: 12px; }
 
     .siteDetailSummaryTwo { gap: 10px; }
-    .siteDetailSummaryTwo .siteDetailStatCard { padding: 16px 8px; }
+    .siteDetailSummaryTwo .siteDetailStatCard { padding: 0px; }
     .siteDetailSummaryTwo .siteDetailStatValue { font-size: 30px; }
     .siteDetailSummaryTwo .siteDetailStatLabel { font-size: 14px; }
 
@@ -3115,38 +3115,8 @@
 /* ============================================================
    V2: Карточка «дней» — визуально делится на две половины:
    верх — Начало / Конец (две колонки), низ — счётчик дней.
-   Внешний вид (фон/рамка/радиус/размер) — как у обычной
-   .siteDetailStatCard, «квадрат» остаётся единым блоком.
+   Паттерн удалён, карточка простая, без фона-сетки.
    ============================================================ */
-
-/* Модификатор: та же карточка, но с делением по вертикали */
-.siteDetailStatDaysPattern {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    display: grid;
-    grid-template-columns: repeat(32, 1fr);
-    grid-auto-rows: auto;    /* высота строки = высота квадрата (по ширине ячейки) */
-    align-content: end;      /* полоса паттерна прижата к низу */
-    gap: 2px;
-    padding: 0;
-    pointer-events: none;
-    opacity: 0.8;
-    -webkit-mask-image: linear-gradient(
-        to bottom,
-        transparent 0%,
-        rgba(0, 0, 0, 0.35) 22%,
-        rgba(0, 0, 0, 0.75) 55%,
-        #000 100%
-    );
-    mask-image: linear-gradient(
-        to bottom,
-        transparent 0%,
-        rgba(0, 0, 0, 0.35) 22%,
-        rgba(0, 0, 0, 0.75) 55%,
-        #000 100%
-    );
-}
 
 .siteDetailStatDatesHalf {
     flex: 1 1 0;
@@ -3206,9 +3176,8 @@
     flex-shrink: 0;
 }
 
-/* Нижняя половина: счётчик дней + декоративный паттерн */
+/* Нижняя половина: счётчик дней */
 .siteDetailStatDaysHalf {
-    position: relative;
     flex: 2 1 0;
     display: flex;
     flex-direction: column;
@@ -3218,52 +3187,10 @@
     padding: 10px 8px;
     width: 100%;
     min-width: 0;
-    overflow: hidden;
 }
 
-.siteDetailStatDaysPattern {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    display: grid;
-    grid-template-columns: repeat(32, 1fr);
-    grid-auto-rows: 1fr;
-    gap: 2px;
-    padding: 0;
-    pointer-events: none;
-    opacity: 0.8;
-    -webkit-mask-image: linear-gradient(
-        to bottom,
-        transparent 0%,
-        rgba(0, 0, 0, 0.35) 22%,
-        rgba(0, 0, 0, 0.75) 55%,
-        #000 100%
-    );
-    mask-image: linear-gradient(
-        to bottom,
-        transparent 0%,
-        rgba(0, 0, 0, 0.35) 22%,
-        rgba(0, 0, 0, 0.75) 55%,
-        #000 100%
-    );
-}
-
-.siteDetailStatDaysSquare {
-    display: block;
-    width: 100%;
-    aspect-ratio: 1;
-    border-radius: 1.5px;
-    background: rgba(255, 255, 255, 0.06);
-}
-
-.siteDetailStatDaysSquareFilled {
-    background: var(--pattern-color, #86d617);
-}
-
-/* Контент поверх паттерна */
+/* Контент нижней половины */
 .siteDetailStatDaysContent {
-    position: relative;
-    z-index: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -3295,166 +3222,5 @@
     }
     .siteDetailStatDatesVal {
         font-size: 11px;
-    }
-}
-/* Нижняя мини-плашка «Ставка за день» — свой padding */
-.siteDetailSalaryMiniRate {
-    padding: 24px 12px 24px 20px;
-}
-/* ============================================================
-   МОДАЛКА-ПОДСКАЗКА «КАК СЧИТАЕТСЯ СТАВКА»
-   ============================================================ */
-
-.rateHelpFormula {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 14px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 14px;
-    margin-bottom: 12px;
-}
-
-.rateHelpLine {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 10px;
-    min-width: 0;
-}
-
-.rateHelpKey {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-muted);
-    white-space: nowrap;
-}
-
-.rateHelpVal {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.rateHelpValGreen {
-    font-size: 15px;
-    font-weight: 700;
-    color: #86d617;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.rateHelpDivider {
-    height: 1px;
-    background: rgba(255, 255, 255, 0.08);
-    margin: 2px 0;
-}
-
-.rateHelpFormulaLine {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    line-height: 1.4;
-    word-break: break-word;
-    margin-top: 4px;
-}
-
-.rateHelpList {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 14px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 14px;
-}
-
-.rateHelpListTitle {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    margin-bottom: 6px;
-}
-
-.rateHelpListRow {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 6px 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.04);
-    min-width: 0;
-}
-
-.rateHelpListRow:first-of-type {
-    border-top: none;
-}
-
-.rateHelpListName {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-primary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    min-width: 0;
-}
-
-.rateHelpListVal {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-
-@media (max-width: 480px) {
-    .rateHelpFormula { padding: 12px; }
-    .rateHelpKey { font-size: 12px; }
-    .rateHelpVal,
-    .rateHelpValGreen { font-size: 14px; }
-    .rateHelpFormulaLine { font-size: 11.5px; }
-    .rateHelpList { padding: 12px; }
-    .rateHelpListName,
-    .rateHelpListVal { font-size: 12px; }
-}
-/* V3: фикс высоты левой карточки (не зависит от правой колонки) */
-.siteDetailSummaryTwo {
-    align-items: stretch;
-    min-height: 170px;
-}
-
-.siteDetailStatCardSplit {
-    height: 170px;
-    min-height: 170px;
-    max-height: 170px;
-}
-
-@media (max-width: 480px) {
-    .siteDetailSummaryTwo {
-        min-height: 150px;
-    }
-    .siteDetailStatCardSplit {
-        height: 150px;
-        min-height: 150px;
-        max-height: 150px;
-    }
-}
-
-@media (max-width: 400px) {
-    .siteDetailSummaryTwo {
-        min-height: 140px;
-    }
-    .siteDetailStatCardSplit {
-        height: 140px;
-        min-height: 140px;
-        max-height: 140px;
     }
 }

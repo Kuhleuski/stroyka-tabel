@@ -91,6 +91,7 @@ const formatMoney = (value) => {
     return rounded.toLocaleString('ru-RU').replace(/\u00A0/g, ' ').replace(/,/g, ' ') + ' BYN'
 }
 
+
 // ============================================================
 // МИНИ-КАЛЕНДАРЬ ОДНОГО МЕСЯЦА
 // ============================================================
@@ -539,43 +540,8 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                             </div>
                         </div>
 
-                        
-                        {/* Нижняя половина: счётчик дней + декоративный паттерн-«шум» */}
-<div className={styles.siteDetailStatDaysHalf}>
-   <div
-    className={styles.siteDetailStatDaysPattern}
-    style={{ '--pattern-color': siteColor }}
-    aria-hidden="true"
->
-    {Array.from({ length: 192 }).map((_, i) => {
-        const cols = 32
-        const row = Math.floor(i / cols)             // 0..5 (сверху вниз)
-        const col = i % cols
-
-        // Плотность закраски по строкам, % (сверху пусто, книзу плотнее)
-        const densityByRow = [0, 14, 32, 54, 74, 88]
-        const threshold = densityByRow[row] ?? 0
-
-        // Детерминированный «шум» — не мигает при ререндере
-        const hash = (i * 37 + 11) % 100
-
-        // Гарантированные «дырки» в нижней строке (позиции в 32-колоночной сетке)
-        const bottomHoles = row === 5 && (col === 8 || col === 23)
-
-        const filled = !bottomHoles && hash < threshold
-
-        return (
-            <span
-                key={i}
-                className={
-                    `${styles.siteDetailStatDaysSquare}` +
-                    (filled ? ` ${styles.siteDetailStatDaysSquareFilled}` : '')
-                }
-            />
-        )
-    })}
-</div>
-
+                        {/* Нижняя половина: счётчик дней + декоративный паттерн-«волна» (v2) */}
+                       <div className={styles.siteDetailStatDaysHalf}>
     <div className={styles.siteDetailStatDaysContent}>
         <div className={styles.siteDetailStatValue}>{uniqueDays}</div>
         <div className={styles.siteDetailStatLabel}>
@@ -584,7 +550,6 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
     </div>
 </div>
                     </div>
-
                     {salaryPart !== null ? (
                         <div className={styles.siteDetailSalaryStack}>
                             <button
@@ -642,7 +607,6 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                         </div>
                     )}
                 </div>
-
                 {/* === БРИГАДА (без шапки) === */}
                 <div className={styles.siteDetailWorkersSection} ref={brigadeRef}>
                     {workersStats.length > 0 ? (
@@ -765,7 +729,6 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                     Назад
                 </button>
             </div>
-
             {/* === МИНИ-ШИТ ЗАРПЛАТНОЙ ЧАСТИ === */}
             {showSalaryModal && createPortal(
                 <div

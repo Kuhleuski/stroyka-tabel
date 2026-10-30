@@ -31,6 +31,7 @@ export function MenuPage({ onNavigate }) {
             desc: 'Подключение к Telegram боту',
             onClick: () => onNavigate('telegram')
         },
+        
     ]
 
     return (
