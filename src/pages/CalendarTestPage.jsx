@@ -44,24 +44,29 @@ const getDaysWord = (count) => {
     return 'дней'
 }
 
+// Текст в кнопке «Показать: …» при множественном выборе
+const getFilterLabel = (selectedIds, workersForFilter) => {
+    if (selectedIds.length === 0) return 'Все'
+    const names = selectedIds
+        .map(id => workersForFilter.find(w => w.id === id)?.name)
+        .filter(Boolean)
+    if (names.length === 0) return 'Все'
+    if (names.length === 1) return names[0]
+    if (names.length === 2) return `${names[0]}, ${names[1]}`
+    return `${names[0]}, ${names[1]} +${names.length - 2}`
+}
+
 // ============================================================
 // РАСЧЁТ ВИДИМОСТИ СТРОК МЕСЯЦА
-// Строки:
-//   - 'hidden'  — display: none (не занимает место)
-//   - 'fadeTop' — полупрозрачная сверху (градиент: снизу 1, сверху 0)
-//   - 'fadeBottom' — полупрозрачная снизу (градиент: сверху 1, снизу 0)
-//   - 'normal'  — как есть
 // ============================================================
 
 const computeRowVisibility = (rows, firstMarkedRow, lastMarkedRow) => {
     const result = new Array(rows).fill('normal')
 
-    // Исключение: смены в первой и последней строках → весь месяц как есть
     if (firstMarkedRow === 0 && lastMarkedRow === rows - 1) {
         return result
     }
 
-    // Сверху: пустые строки 0 … firstMarkedRow-1
     for (let r = 0; r < firstMarkedRow; r++) {
         if (r === firstMarkedRow - 1) {
             result[r] = 'fadeTop'
@@ -70,7 +75,6 @@ const computeRowVisibility = (rows, firstMarkedRow, lastMarkedRow) => {
         }
     }
 
-    // Снизу: пустые строки lastMarkedRow+1 … rows-1
     for (let r = lastMarkedRow + 1; r < rows; r++) {
         if (r === lastMarkedRow + 1) {
             result[r] = 'fadeBottom'
@@ -82,14 +86,68 @@ const computeRowVisibility = (rows, firstMarkedRow, lastMarkedRow) => {
     return result
 }
 
-function MonthCalendar({ year, month, dayWorkersMap, color, workers }) {
+// ============================================================
+// АВАТАРКИ РАБОТНИКОВ В ЯЧЕЙКЕ ДНЯ (максимум 6)
+// ============================================================
+
+const MAX_DAY_AVATARS = 6
+
+function WorkerAvatars({ workerIds, workers, highlightSet, parentDimmed }) {
+    if (!workerIds || workerIds.length === 0) return null
+
+    const visible = workerIds.slice(0, MAX_DAY_AVATARS)
+
+    return (
+        <div className={styles.monthDayAvatars}>
+            {visible.map(workerId => {
+                const worker = workers.find(w => w.id === workerId)
+                const workerName = worker?.name || '?'
+                const avatar = worker?.avatar || null
+                const initials = getInitials(workerName)
+                const bgColor = getColorFromName(workerName)
+
+                // «Чужая» аватарка блекнет только если родитель НЕ выцвел
+                // и активен фильтр, и этот workerId не входит в выбранные.
+                const shouldDimAvatar =
+                    !parentDimmed &&
+                    highlightSet !== null &&
+                    !highlightSet.has(workerId)
+
+                return (
+                    <span key={workerId} className={styles.monthDayAvatarSlot}>
+                        <span
+                            className={
+                                `${styles.monthDayAvatar}` +
+                                (shouldDimAvatar ? ` ${styles.monthDayAvatarDimmed}` : '')
+                            }
+                            style={{ backgroundColor: bgColor }}
+                            title={workerName}
+                        >
+                            {isBase64Image(avatar) ? (
+                                <img
+                                    src={avatar}
+                                    alt={workerName}
+                                    className={styles.monthDayAvatarImg}
+                                />
+                            ) : (
+                                initials
+                            )}
+                        </span>
+                    </span>
+                )
+            })}
+        </div>
+    )
+}
+
+// ============================================================
+// КАЛЕНДАРЬ ОДНОГО МЕСЯЦА
+// ============================================================
+
+function MonthCalendar({ year, month, dayWorkersMap, color, workers, highlightSet }) {
     const days = getMonthDays(year, month)
     const weekLabels = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
 
-    // Группируем дни по 7 (строки-недели).
-    // ВАЖНО: первая строка может быть неполной (пустые ячейки перед 1-м числом)
-    // — они уже приходят как { empty: true } из getMonthDays.
-    // Добиваем последнюю строку пустыми ячейками до 7.
     const rows = useMemo(() => {
         const result = []
         let current = []
@@ -109,7 +167,6 @@ function MonthCalendar({ year, month, dayWorkersMap, color, workers }) {
         return result
     }, [days])
 
-    // В каких строках есть хотя бы одна смена
     const rowHasShift = rows.map((row) =>
         row.some((d) => {
             if (d.empty) return false
@@ -123,7 +180,6 @@ function MonthCalendar({ year, month, dayWorkersMap, color, workers }) {
     const lastMarkedRow = rowHasShift.lastIndexOf(true)
     const hasAnyShift = firstMarkedRow !== -1
 
-    // Если смен в месяце нет — показываем всё как есть (родитель такое не рендерит, но на всякий)
     const visibility = hasAnyShift
         ? computeRowVisibility(rows.length, firstMarkedRow, lastMarkedRow)
         : new Array(rows.length).fill('normal')
@@ -132,14 +188,12 @@ function MonthCalendar({ year, month, dayWorkersMap, color, workers }) {
         <div className={styles.monthBlock}>
             <div className={styles.monthTitle}>{MONTHS[month]} {year}</div>
 
-            {/* Шапка Пн..Вс — вне строк, всегда видна */}
             <div className={styles.monthWeekHeader}>
                 {weekLabels.map((w) => (
                     <div key={w} className={styles.monthWeekday}>{w}</div>
                 ))}
             </div>
 
-            {/* Строки-недели */}
             {rows.map((row, rowIdx) => {
                 const vis = visibility[rowIdx]
                 if (vis === 'hidden') return null
@@ -160,19 +214,31 @@ function MonthCalendar({ year, month, dayWorkersMap, color, workers }) {
                             const marked = !!workerIds && workerIds.length > 0
                             const today = isTodayUtil(d.date)
 
+                            // День яркий, если хотя бы один выбранный работник
+                            // есть в этой смене. Иначе — весь день в 15%.
+                            const isDimmed =
+                                highlightSet !== null &&
+                                !(workerIds && workerIds.some(id => highlightSet.has(id)))
+
                             return (
                                 <div
                                     key={dateStr}
                                     className={
                                         `${styles.monthDay} ` +
                                         `${marked ? styles.monthDayMarked : ''} ` +
-                                        `${today ? styles.monthDayToday : ''}`
+                                        `${today ? styles.monthDayToday : ''} ` +
+                                        `${isDimmed ? styles.monthDayDimmed : ''}`
                                     }
                                     style={marked ? { backgroundColor: color, color: '#121212' } : undefined}
                                 >
                                     <span className={styles.monthDayNumber}>{d.day}</span>
                                     {marked && (
-                                        <WorkerAvatars workerIds={workerIds} workers={workers} />
+                                        <WorkerAvatars
+                                            workerIds={workerIds}
+                                            workers={workers}
+                                            highlightSet={highlightSet}
+                                            parentDimmed={isDimmed}
+                                        />
                                     )}
                                 </div>
                             )
@@ -183,49 +249,7 @@ function MonthCalendar({ year, month, dayWorkersMap, color, workers }) {
         </div>
     )
 }
-// ============================================================
-// АВАТАРКИ РАБОТНИКОВ В ЯЧЕЙКЕ ДНЯ (максимум 6)
-// ============================================================
 
-const MAX_DAY_AVATARS = 6
-
-function WorkerAvatars({ workerIds, workers }) {
-    if (!workerIds || workerIds.length === 0) return null
-
-    const visible = workerIds.slice(0, MAX_DAY_AVATARS)
-
-    return (
-        <div className={styles.monthDayAvatars}>
-            {visible.map(workerId => {
-                const worker = workers.find(w => w.id === workerId)
-                const workerName = worker?.name || '?'
-                const avatar = worker?.avatar || null
-                const initials = getInitials(workerName)
-                const bgColor = getColorFromName(workerName)
-
-                return (
-                    <span key={workerId} className={styles.monthDayAvatarSlot}>
-                        <span
-                            className={styles.monthDayAvatar}
-                            style={{ backgroundColor: bgColor }}
-                            title={workerName}
-                        >
-                            {isBase64Image(avatar) ? (
-                                <img
-                                    src={avatar}
-                                    alt={workerName}
-                                    className={styles.monthDayAvatarImg}
-                                />
-                            ) : (
-                                initials
-                            )}
-                        </span>
-                    </span>
-                )
-            })}
-        </div>
-    )
-}
 // ============================================================
 // СТРАНИЦА
 // ============================================================
@@ -239,7 +263,12 @@ export function CalendarTestPage({ onBack }) {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const dropdownRef = useRef(null)
 
-    // Закрытие дропдауна по клику снаружи
+    // Множественный выбор работников. [] = «Все»
+    const [selectedWorkerIds, setSelectedWorkerIds] = useState([])
+    const [isWorkerDropdownOpen, setIsWorkerDropdownOpen] = useState(false)
+    const workerDropdownRef = useRef(null)
+
+    // Закрытие дропдауна объекта по клику снаружи
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -250,7 +279,17 @@ export function CalendarTestPage({ onBack }) {
         return () => document.removeEventListener('mousedown', handleClickOutside)
     }, [])
 
-    // Все объекты (активные + архивные) — для селектора
+    // Закрытие дропдауна работников по клику снаружи
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (workerDropdownRef.current && !workerDropdownRef.current.contains(event.target)) {
+                setIsWorkerDropdownOpen(false)
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [])
+
     const allSites = useMemo(() => {
         const active = (sites || []).filter(s => s.deleted !== true)
         const archived = (archivedSites || []).filter(s => s.deleted !== true)
@@ -265,14 +304,11 @@ export function CalendarTestPage({ onBack }) {
         [allSites, selectedSiteId]
     )
 
-    // Смены выбранного объекта
     const siteShifts = useMemo(() => {
         if (!shifts || !selectedSite) return []
         return shifts.filter(s => s.site_id === selectedSite.id)
     }, [shifts, selectedSite])
 
-      // Месяцы (все, где были смены) — вертикально, один под другим.
-    // Для каждого дня — массив worker_id, кто работал (для аватарок).
     const monthsList = useMemo(() => {
         if (siteShifts.length === 0) return []
         const map = new Map()
@@ -297,7 +333,6 @@ export function CalendarTestPage({ onBack }) {
         })
     }, [siteShifts])
 
-    // Бригада: [{ workerId, days }]
     const workersStats = useMemo(() => {
         if (siteShifts.length === 0) return []
         const statsMap = new Map()
@@ -322,12 +357,48 @@ export function CalendarTestPage({ onBack }) {
         })
     }, [siteShifts, workers])
 
+    const workersForFilter = useMemo(
+        () => workersStats.map(stat => {
+            const w = workers.find(x => x.id === stat.workerId)
+            return { id: stat.workerId, name: w?.name || 'Неизвестный' }
+        }),
+        [workersStats, workers]
+    )
+
+    // При смене объекта — сбрасываем фильтр работников
+    useEffect(() => {
+        setSelectedWorkerIds([])
+        setIsWorkerDropdownOpen(false)
+    }, [selectedSiteId])
+
+    // Множество для быстрой проверки «входит ли в выбранные».
+    // null = фильтр не активен (всё яркое)
+    const highlightSet = useMemo(
+        () => selectedWorkerIds.length > 0 ? new Set(selectedWorkerIds) : null,
+        [selectedWorkerIds]
+    )
+
     const siteColor = selectedSite?.color || '#86d617'
 
     const handleSelectSite = (siteId) => {
         setSelectedSiteId(siteId)
         setIsDropdownOpen(false)
     }
+
+    const toggleWorker = (workerId) => {
+        setSelectedWorkerIds(prev =>
+            prev.includes(workerId)
+                ? prev.filter(id => id !== workerId)
+                : [...prev, workerId]
+        )
+    }
+
+    const clearWorkers = () => {
+        setSelectedWorkerIds([])
+        setIsWorkerDropdownOpen(false)
+    }
+
+    const filterLabel = getFilterLabel(selectedWorkerIds, workersForFilter)
 
     return (
         <div className={styles.calendarTestPage}>
@@ -412,6 +483,77 @@ export function CalendarTestPage({ onBack }) {
                     )}
                 </div>
 
+                {/* === СЕЛЕКТОР «ПОКАЗАТЬ» (мультивыбор работников) === */}
+                {selectedSite && workersForFilter.length > 0 && (
+                    <div className={styles.siteSelector} ref={workerDropdownRef}>
+                        <button
+                            type="button"
+                            className={styles.siteSelectorBtn}
+                            onClick={() => setIsWorkerDropdownOpen(prev => !prev)}
+                            aria-haspopup="listbox"
+                            aria-expanded={isWorkerDropdownOpen}
+                        >
+                            <span className={styles.siteSelectorValue}>
+                                <span className={styles.siteSelectorPlaceholderInline}>
+                                    Показать:
+                                </span>
+                                <span className={styles.siteSelectorName}>
+                                    {filterLabel}
+                                </span>
+                            </span>
+                            <span className={`${styles.siteSelectorChevron} ${isWorkerDropdownOpen ? styles.siteSelectorChevronOpen : ''}`}>
+                                ▾
+                            </span>
+                        </button>
+
+                        {isWorkerDropdownOpen && (
+                            <div className={styles.siteSelectorDropdown} role="listbox">
+                                {workersForFilter.map(w => {
+                                    const checked = selectedWorkerIds.includes(w.id)
+                                    return (
+                                        <button
+                                            key={w.id}
+                                            type="button"
+                                            className={
+                                                `${styles.siteSelectorItem} ` +
+                                                `${checked ? styles.siteSelectorItemActive : ''}`
+                                            }
+                                            onClick={() => toggleWorker(w.id)}
+                                            role="option"
+                                            aria-selected={checked}
+                                        >
+                                            <span
+                                                className={
+                                                    `${styles.siteSelectorCheckbox} ` +
+                                                    `${checked ? styles.siteSelectorCheckboxChecked : ''}`
+                                                }
+                                                aria-hidden="true"
+                                            >
+                                                {checked ? '✓' : ''}
+                                            </span>
+                                            <span className={styles.siteSelectorItemName}>{w.name}</span>
+                                        </button>
+                                    )
+                                })}
+
+                                {selectedWorkerIds.length > 0 && (
+                                    <>
+                                        <div className={styles.siteSelectorDivider} />
+                                        <button
+                                            type="button"
+                                            className={styles.siteSelectorItem}
+                                            onClick={clearWorkers}
+                                            role="option"
+                                        >
+                                            <span className={styles.siteSelectorItemName}>Все</span>
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {/* === КАЛЕНДАРЬ === */}
                 {!selectedSite ? (
                     <div className={styles.calendarEmptyState}>
@@ -423,7 +565,7 @@ export function CalendarTestPage({ onBack }) {
                     </div>
                 ) : (
                     <div className={styles.monthsList}>
-                                               {monthsList.map(m => (
+                        {monthsList.map(m => (
                             <MonthCalendar
                                 key={`${m.year}-${m.month}`}
                                 year={m.year}
@@ -431,6 +573,7 @@ export function CalendarTestPage({ onBack }) {
                                 dayWorkersMap={m.dayWorkersMap}
                                 workers={workers}
                                 color={siteColor}
+                                highlightSet={highlightSet}
                             />
                         ))}
                     </div>

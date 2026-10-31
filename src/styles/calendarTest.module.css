@@ -103,6 +103,11 @@
     font-weight: 400;
     flex: 1;
 }
+.siteSelectorPlaceholderInline {
+    color: var(--text-muted);
+    font-weight: 400;
+    flex-shrink: 0;
+}
 
 .siteSelectorDot {
     width: 10px;
@@ -330,7 +335,7 @@
     font-weight: 500;
     color: var(--text-secondary);
     background: rgba(255, 255, 255, 0.02);
-    transition: background 0.15s ease, color 0.15s ease;
+    transition: background 0.15s ease, color 0.15s ease, opacity 0.2s ease;
     box-sizing: border-box;
     overflow: hidden;
 }
@@ -343,6 +348,9 @@
 .monthDayToday {
     outline: 2px solid rgba(134, 214, 23, 0.9);
     outline-offset: -2px;
+}
+.monthDayDimmed {
+    opacity: 0.15;
 }
 
 /* Цифра дня внутри ячейки */
@@ -376,8 +384,8 @@
 
 /* Слот 22×22, чтобы поток не схлопывался при перекрытии */
 .monthDayAvatarSlot {
-    width: 22px;
-    height: 22px;
+    width: 23px;
+    height: 23px;
     flex-shrink: 0;
     display: block;
     position: relative;
@@ -402,8 +410,8 @@
     line-height: 1;
     overflow: hidden;
     box-sizing: border-box;
-    
     text-transform: uppercase;
+    transition: opacity 0.2s ease;
 }
 
 .monthDayAvatarImg {
@@ -569,8 +577,8 @@
         font-size: 12px;
     }
            .monthDayAvatarSlot {
-        width: 20px;
-        height: 20px;
+        width: 22px;
+        height: 22px;
     }
 
     .monthDayAvatarSlot:nth-child(2n) {
@@ -611,8 +619,8 @@
     }
 
     .monthDayAvatar {
-        width: 25px;
-        height: 25px;
+        width: 22px;
+        height: 22px;
         font-size: 6px;
     }
 }
@@ -628,3 +636,47 @@
 .monthWeekFadeBottom .monthDayEmpty {
     aspect-ratio: 1 / 0.8;
 }
+/* ============================================================
+   V6: «ЧУЖИЕ» АВАТАРКИ ПРИ ФИЛЬТРЕ ПО РАБОТНИКУ — 15%
+   ============================================================ */
+
+.monthDayAvatarDimmed {
+    opacity: 0.15;
+}
+/* ============================================================
+   V7: МУЛЬТИВЫБОР РАБОТНИКОВ — ЧЕКБОКСЫ, РАЗДЕЛИТЕЛЬ, ПЛАВНОСТЬ
+   ============================================================ */
+
+/* Квадрат-чекбокс слева от имени в выпадающем списке */
+.siteSelectorCheckbox {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    background: transparent;
+    color: #121212;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    box-sizing: border-box;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.siteSelectorCheckboxChecked {
+    background: #86d617;
+    border-color: #86d617;
+    color: #121212;
+}
+
+/* Разделитель перед пунктом «Все» внизу списка */
+.siteSelectorDivider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 4px 0;
+    flex-shrink: 0;
+}
+
