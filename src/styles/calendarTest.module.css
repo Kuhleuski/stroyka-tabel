@@ -79,6 +79,7 @@
     transition: border-color 0.15s ease, background 0.15s ease;
     -webkit-tap-highlight-color: transparent;
     box-sizing: border-box;
+    margin-bottom: 20px;
 }
 
 .siteSelectorBtn:hover {
@@ -229,10 +230,13 @@
    КАЛЕНДАРЬ: МЕСЯЦЫ ВЕРТИКАЛЬНО (один под одним)
    ============================================================ */
 
+/* calendarTest.module.css */
 .monthsList {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    margin-left: -8px;
+    margin-right: -8px;
 }
 
 .monthBlock {
