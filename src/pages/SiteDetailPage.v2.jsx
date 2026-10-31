@@ -16,6 +16,7 @@ import SquareCheckIcon from '@gravity-ui/icons/SquareCheck'
 import { updateSiteStatus, updateSite } from '../services/supabase'
 import { MONTHS, getMonthDays, formatDateLocal, isToday as isTodayUtil } from '../utils/dateHelpers'
 import styles from '../styles/sites.v2.module.css'
+import calendarStyles from '../styles/calendarTest.module.css'
 import archiveStyles from '../styles/archive.module.css'
 
 // ============================================================
@@ -65,16 +66,6 @@ const getWorkingDaysWord = (count) => {
     return 'рабочих дней'
 }
 
-const getPeopleWord = (count) => {
-    if (count === 0) return 'человек'
-    const lastDigit = count % 10
-    const lastTwoDigits = count % 100
-    if (lastTwoDigits >= 11 && lastTwoDigits <= 19) return 'человек'
-    if (lastDigit === 1) return 'человек'
-    if (lastDigit >= 2 && lastDigit <= 4) return 'человека'
-    return 'человек'
-}
-
 const formatDateDots = (dateString) => {
     if (!dateString) return '—'
     const date = new Date(dateString + 'T00:00:00')
@@ -91,53 +82,204 @@ const formatMoney = (value) => {
     return rounded.toLocaleString('ru-RU').replace(/\u00A0/g, ' ').replace(/,/g, ' ') + ' BYN'
 }
 
+const getFilterLabel = (selectedIds, workersForFilter) => {
+    if (selectedIds.length === 0) return 'Все'
+    const names = selectedIds
+        .map(id => workersForFilter.find(w => w.id === id)?.name)
+        .filter(Boolean)
+    if (names.length === 0) return 'Все'
+    if (names.length === 1) return names[0]
+    if (names.length === 2) return `${names[0]}, ${names[1]}`
+    return `${names[0]}, ${names[1]} +${names.length - 2}`
+}
+// ============================================================
+// РАСЧЁТ ВИДИМОСТИ СТРОК МЕСЯЦА
+// ============================================================
+
+const computeRowVisibility = (rows, firstMarkedRow, lastMarkedRow) => {
+    const result = new Array(rows).fill('normal')
+
+    if (firstMarkedRow === 0 && lastMarkedRow === rows - 1) {
+        return result
+    }
+
+    for (let r = 0; r < firstMarkedRow; r++) {
+        if (r === firstMarkedRow - 1) {
+            result[r] = 'fadeTop'
+        } else {
+            result[r] = 'hidden'
+        }
+    }
+
+    for (let r = lastMarkedRow + 1; r < rows; r++) {
+        if (r === lastMarkedRow + 1) {
+            result[r] = 'fadeBottom'
+        } else {
+            result[r] = 'hidden'
+        }
+    }
+
+    return result
+}
 
 // ============================================================
-// МИНИ-КАЛЕНДАРЬ ОДНОГО МЕСЯЦА
+// АВАТАРКИ РАБОТНИКОВ В ЯЧЕЙКЕ ДНЯ (максимум 6)
 // ============================================================
 
-function MonthCalendar({ year, month, markedDates, color }) {
-    const days = getMonthDays(year, month)
-    const weekLabels = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+const MAX_DAY_AVATARS = 6
+
+function WorkerAvatars({ workerIds, workers, highlightSet, parentDimmed }) {
+    if (!workerIds || workerIds.length === 0) return null
+
+    const visible = workerIds.slice(0, MAX_DAY_AVATARS)
 
     return (
-        <div className={styles.siteDetailMonthBlock}>
-            <div className={styles.siteDetailMonthTitle}>
-                {MONTHS[month]} {year}
-            </div>
+        <div className={calendarStyles.monthDayAvatars}>
+            {visible.map(workerId => {
+                const worker = workers.find(w => w.id === workerId)
+                const workerName = worker?.name || '?'
+                const avatar = worker?.avatar || null
+                const initials = getInitials(workerName)
+                const bgColor = getColorFromName(workerName)
 
-            <div className={styles.siteDetailMonthGrid}>
-                {weekLabels.map((w) => (
-                    <div key={w} className={styles.siteDetailMonthWeekday}>{w}</div>
-                ))}
+                const shouldDimAvatar =
+                    !parentDimmed &&
+                    highlightSet !== null &&
+                    !highlightSet.has(workerId)
 
-                {days.map((d, idx) => {
-                    if (d.empty) {
-                        return <div key={`e-${idx}`} className={styles.siteDetailMonthDayEmpty} />
-                    }
-                    const dateStr = formatDateLocal(d.date)
-                    const marked = markedDates.has(dateStr)
-                    const today = isTodayUtil(d.date)
-
-                    return (
-                        <div
-                            key={dateStr}
+                return (
+                    <span key={workerId} className={calendarStyles.monthDayAvatarSlot}>
+                        <span
                             className={
-                                `${styles.siteDetailMonthDay} ` +
-                                `${marked ? styles.siteDetailMonthDayMarked : ''} ` +
-                                `${today ? styles.siteDetailMonthDayToday : ''}`
+                                `${calendarStyles.monthDayAvatar}` +
+                                (shouldDimAvatar ? ` ${calendarStyles.monthDayAvatarDimmed}` : '')
                             }
-                            style={marked ? { backgroundColor: color, color: '#121212' } : undefined}
+                            style={{ backgroundColor: bgColor }}
+                            title={workerName}
                         >
-                            {d.day}
-                        </div>
-                    )
-                })}
-            </div>
+                            {isBase64Image(avatar) ? (
+                                <img
+                                    src={avatar}
+                                    alt={workerName}
+                                    className={calendarStyles.monthDayAvatarImg}
+                                />
+                            ) : (
+                                initials
+                            )}
+                        </span>
+                    </span>
+                )
+            })}
         </div>
     )
 }
+// ============================================================
+// КАЛЕНДАРЬ ОДНОГО МЕСЯЦА (вертикальный, с fade-строками)
+// ============================================================
 
+function MonthCalendar({ year, month, dayWorkersMap, color, workers, highlightSet }) {
+    const days = getMonthDays(year, month)
+    const weekLabels = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+
+    const rows = useMemo(() => {
+        const result = []
+        let current = []
+        days.forEach((d) => {
+            current.push(d)
+            if (current.length === 7) {
+                result.push(current)
+                current = []
+            }
+        })
+        if (current.length > 0) {
+            while (current.length < 7) {
+                current.push({ empty: true })
+            }
+            result.push(current)
+        }
+        return result
+    }, [days])
+
+    const rowHasShift = rows.map((row) =>
+        row.some((d) => {
+            if (d.empty) return false
+            const dateStr = formatDateLocal(d.date)
+            const ids = dayWorkersMap.get(dateStr)
+            return ids && ids.length > 0
+        })
+    )
+
+    const firstMarkedRow = rowHasShift.indexOf(true)
+    const lastMarkedRow = rowHasShift.lastIndexOf(true)
+    const hasAnyShift = firstMarkedRow !== -1
+
+    const visibility = hasAnyShift
+        ? computeRowVisibility(rows.length, firstMarkedRow, lastMarkedRow)
+        : new Array(rows.length).fill('normal')
+
+    return (
+        <div className={calendarStyles.monthBlock}>
+            <div className={calendarStyles.monthTitle}>{MONTHS[month]} {year}</div>
+
+            <div className={calendarStyles.monthWeekHeader}>
+                {weekLabels.map((w) => (
+                    <div key={w} className={calendarStyles.monthWeekday}>{w}</div>
+                ))}
+            </div>
+
+            {rows.map((row, rowIdx) => {
+                const vis = visibility[rowIdx]
+                if (vis === 'hidden') return null
+
+                const rowClass =
+                    `${calendarStyles.monthWeek} ` +
+                    (vis === 'fadeTop' ? `${calendarStyles.monthWeekFadeTop} ` : '') +
+                    (vis === 'fadeBottom' ? `${calendarStyles.monthWeekFadeBottom} ` : '')
+
+                return (
+                    <div key={rowIdx} className={rowClass}>
+                        {row.map((d, cellIdx) => {
+                            if (d.empty) {
+                                return <div key={`e-${rowIdx}-${cellIdx}`} className={calendarStyles.monthDayEmpty} />
+                            }
+                            const dateStr = formatDateLocal(d.date)
+                            const workerIds = dayWorkersMap.get(dateStr) || null
+                            const marked = !!workerIds && workerIds.length > 0
+                            const today = isTodayUtil(d.date)
+
+                            const isDimmed =
+                                highlightSet !== null &&
+                                !(workerIds && workerIds.some(id => highlightSet.has(id)))
+
+                            return (
+                                <div
+                                    key={dateStr}
+                                    className={
+                                        `${calendarStyles.monthDay} ` +
+                                        `${marked ? calendarStyles.monthDayMarked : ''} ` +
+                                        `${today ? calendarStyles.monthDayToday : ''} ` +
+                                        `${isDimmed ? calendarStyles.monthDayDimmed : ''}`
+                                    }
+                                    style={marked ? { backgroundColor: color, color: '#121212' } : undefined}
+                                >
+                                    <span className={calendarStyles.monthDayNumber}>{d.day}</span>
+                                    {marked && (
+                                        <WorkerAvatars
+                                            workerIds={workerIds}
+                                            workers={workers}
+                                            highlightSet={highlightSet}
+                                            parentDimmed={isDimmed}
+                                        />
+                                    )}
+                                </div>
+                            )
+                        })}
+                    </div>
+                )
+            })}
+        </div>
+    )
+}
 // ============================================================
 // СТРАНИЦА
 // ============================================================
@@ -161,8 +303,10 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const menuRef = useRef(null)
 
-    const monthsScrollRef = useRef(null)
-    const [activeMonthIdx, setActiveMonthIdx] = useState(0)
+    // Фильтр «Показать:» по работникам
+    const [selectedWorkerIds, setSelectedWorkerIds] = useState([])
+    const [isWorkerDropdownOpen, setIsWorkerDropdownOpen] = useState(false)
+    const workerDropdownRef = useRef(null)
 
     const brigadeRef = useRef(null)
 
@@ -177,8 +321,24 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
     }, [])
 
     useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (workerDropdownRef.current && !workerDropdownRef.current.contains(event.target)) {
+                setIsWorkerDropdownOpen(false)
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [])
+
+    useEffect(() => {
         setLocalStatus(site?.status || 'в работе')
     }, [site?.id, site?.status])
+
+    // Сброс фильтра при смене объекта
+    useEffect(() => {
+        setSelectedWorkerIds([])
+        setIsWorkerDropdownOpen(false)
+    }, [site?.id])
 
     const siteShifts = useMemo(() => {
         if (!shifts || !site) return []
@@ -234,11 +394,24 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
         })
     }, [siteShifts, workers])
 
-    const uniqueWorkers = workersStats.length
-
     const totalWorkerDays = useMemo(
         () => workersStats.reduce((sum, w) => sum + w.days, 0),
         [workersStats]
+    )
+
+    // Список работников для фильтра (бригада объекта)
+    const workersForFilter = useMemo(
+        () => workersStats.map(stat => {
+            const w = workers.find(x => x.id === stat.workerId)
+            return { id: stat.workerId, name: w?.name || 'Неизвестный' }
+        }),
+        [workersStats, workers]
+    )
+
+    // Множество выбранных работников (null = «Все»)
+    const highlightSet = useMemo(
+        () => selectedWorkerIds.length > 0 ? new Set(selectedWorkerIds) : null,
+        [selectedWorkerIds]
     )
 
     const salaryPart = (site && site.salary_part != null && Number(site.salary_part) > 0)
@@ -254,6 +427,7 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
         return Math.round(days * ratePerDay)
     }
 
+    // Месяцы (все, где были смены) — вертикально, с dayWorkersMap
     const monthsList = useMemo(() => {
         if (siteShifts.length === 0) return []
         const map = new Map()
@@ -262,48 +436,21 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
             const [y, m] = s.work_date.split('-').map(Number)
             const key = `${y}-${m}`
             if (!map.has(key)) {
-                map.set(key, { year: y, month: m - 1, dates: new Set() })
+                map.set(key, { year: y, month: m - 1, dayWorkersMap: new Map() })
             }
-            map.get(key).dates.add(s.work_date)
+            const monthData = map.get(key)
+            if (!monthData.dayWorkersMap.has(s.work_date)) {
+                monthData.dayWorkersMap.set(s.work_date, [])
+            }
+            if (s.worker_id) {
+                monthData.dayWorkersMap.get(s.work_date).push(s.worker_id)
+            }
         })
         return Array.from(map.values()).sort((a, b) => {
             if (a.year !== b.year) return a.year - b.year
             return a.month - b.month
         })
     }, [siteShifts])
-
-    useEffect(() => {
-        setActiveMonthIdx(0)
-        if (monthsScrollRef.current) {
-            monthsScrollRef.current.scrollTo({ left: 0, behavior: 'auto' })
-        }
-    }, [site?.id])
-
-    const scrollToMonth = (idx) => {
-        setActiveMonthIdx(idx)
-        const el = monthsScrollRef.current
-        if (!el) return
-        const child = el.children[idx]
-        if (child) {
-            el.scrollTo({ left: child.offsetLeft, behavior: 'smooth' })
-        }
-    }
-
-    const handleMonthsScroll = () => {
-        const el = monthsScrollRef.current
-        if (!el) return
-        const scrollLeft = el.scrollLeft
-        let bestIdx = 0
-        let bestDelta = Infinity
-        Array.from(el.children).forEach((child, idx) => {
-            const delta = Math.abs(child.offsetLeft - scrollLeft)
-            if (delta < bestDelta) {
-                bestDelta = delta
-                bestIdx = idx
-            }
-        })
-        if (bestIdx !== activeMonthIdx) setActiveMonthIdx(bestIdx)
-    }
 
     const isWorking = localStatus === 'в работе'
 
@@ -394,6 +541,21 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
         setIsMenuOpen(false)
         setShowConfirm(true)
     }
+
+    const toggleWorker = (workerId) => {
+        setSelectedWorkerIds(prev =>
+            prev.includes(workerId)
+                ? prev.filter(id => id !== workerId)
+                : [...prev, workerId]
+        )
+    }
+
+    const clearWorkers = () => {
+        setSelectedWorkerIds([])
+        setIsWorkerDropdownOpen(false)
+    }
+
+    const filterLabel = getFilterLabel(selectedWorkerIds, workersForFilter)
 
     if (!site) return null
 
@@ -521,7 +683,6 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
 
                 <div className={styles.siteDetailSummaryTwo}>
                     <div className={`${styles.siteDetailStatCard} ${styles.siteDetailStatCardSplit}`}>
-                        {/* Верхняя половина: Начало / Конец */}
                         <div className={styles.siteDetailStatDatesHalf}>
                             <div className={styles.siteDetailStatDatesCol}>
                                 <div className={styles.siteDetailStatDatesKey}>Начало</div>
@@ -540,16 +701,16 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                             </div>
                         </div>
 
-                        {/* Нижняя половина: счётчик дней + декоративный паттерн-«волна» (v2) */}
-                       <div className={styles.siteDetailStatDaysHalf}>
-    <div className={styles.siteDetailStatDaysContent}>
-        <div className={styles.siteDetailStatValue}>{uniqueDays}</div>
-        <div className={styles.siteDetailStatLabel}>
-            {getWorkingDaysWord(uniqueDays)}
-        </div>
-    </div>
-</div>
+                        <div className={styles.siteDetailStatDaysHalf}>
+                            <div className={styles.siteDetailStatDaysContent}>
+                                <div className={styles.siteDetailStatValue}>{uniqueDays}</div>
+                                <div className={styles.siteDetailStatLabel}>
+                                    {getWorkingDaysWord(uniqueDays)}
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
                     {salaryPart !== null ? (
                         <div className={styles.siteDetailSalaryStack}>
                             <button
@@ -607,7 +768,8 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                         </div>
                     )}
                 </div>
-                {/* === БРИГАДА (без шапки) === */}
+
+                {/* === БРИГАДА === */}
                 <div className={styles.siteDetailWorkersSection} ref={brigadeRef}>
                     {workersStats.length > 0 ? (
                         <div className={styles.siteDetailWorkersList}>
@@ -669,6 +831,7 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                     )}
                 </div>
 
+                {/* === КАЛЕНДАРЬ === */}
                 <div className={styles.siteDetailCalendarSection}>
                     <div className={styles.siteDetailSectionHeader}>
                         <span className={styles.siteDetailSectionTitle}>Календарь</span>
@@ -682,36 +845,87 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                         </div>
                     ) : (
                         <>
-                            {monthsList.length > 1 && (
-                                <div className={styles.siteDetailMonthsNav}>
-                                    {monthsList.map((m, idx) => (
-                                        <button
-                                            key={`${m.year}-${m.month}`}
-                                            type="button"
-                                            className={
-                                                `${styles.siteDetailMonthChip} ` +
-                                                `${idx === activeMonthIdx ? styles.siteDetailMonthChipActive : ''}`
-                                            }
-                                            onClick={() => scrollToMonth(idx)}
-                                        >
-                                            {MONTHS[m.month].slice(0, 3)} {m.year}
-                                        </button>
-                                    ))}
+
+                            {workersForFilter.length > 0 && (
+                                <div className={calendarStyles.siteSelector} ref={workerDropdownRef}>
+                                    <button
+                                        type="button"
+                                        className={calendarStyles.siteSelectorBtn}
+                                        onClick={() => setIsWorkerDropdownOpen(prev => !prev)}
+                                        aria-haspopup="listbox"
+                                        aria-expanded={isWorkerDropdownOpen}
+                                    >
+                                        <span className={calendarStyles.siteSelectorValue}>
+                                            <span className={calendarStyles.siteSelectorPlaceholderInline}>
+                                                Показать:
+                                            </span>
+                                            <span className={calendarStyles.siteSelectorName}>
+                                                {filterLabel}
+                                            </span>
+                                        </span>
+                                        <span className={`${calendarStyles.siteSelectorChevron} ${isWorkerDropdownOpen ? calendarStyles.siteSelectorChevronOpen : ''}`}>
+                                            ▾
+                                        </span>
+                                    </button>
+
+                                    {isWorkerDropdownOpen && (
+                                        <div className={calendarStyles.siteSelectorDropdown} role="listbox">
+                                            {workersForFilter.map(w => {
+                                                const checked = selectedWorkerIds.includes(w.id)
+                                                return (
+                                                    <button
+                                                        key={w.id}
+                                                        type="button"
+                                                        className={
+                                                            `${calendarStyles.siteSelectorItem} ` +
+                                                            `${checked ? calendarStyles.siteSelectorItemActive : ''}`
+                                                        }
+                                                        onClick={() => toggleWorker(w.id)}
+                                                        role="option"
+                                                        aria-selected={checked}
+                                                    >
+                                                        <span
+                                                            className={
+                                                                `${calendarStyles.siteSelectorCheckbox} ` +
+                                                                `${checked ? calendarStyles.siteSelectorCheckboxChecked : ''}`
+                                                            }
+                                                            aria-hidden="true"
+                                                        >
+                                                            {checked ? '✓' : ''}
+                                                        </span>
+                                                        <span className={calendarStyles.siteSelectorItemName}>{w.name}</span>
+                                                    </button>
+                                                )
+                                            })}
+
+                                            {selectedWorkerIds.length > 0 && (
+                                                <>
+                                                    <div className={calendarStyles.siteSelectorDivider} />
+                                                    <button
+                                                        type="button"
+                                                        className={calendarStyles.siteSelectorItem}
+                                                        onClick={clearWorkers}
+                                                        role="option"
+                                                    >
+                                                        <span className={calendarStyles.siteSelectorItemName}>Все</span>
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
-                            <div
-                                ref={monthsScrollRef}
-                                className={styles.siteDetailMonthsScroll}
-                                onScroll={handleMonthsScroll}
-                            >
-                                {monthsList.map((m) => (
+                            <div className={calendarStyles.monthsList}>
+                                {monthsList.map(m => (
                                     <MonthCalendar
                                         key={`${m.year}-${m.month}`}
                                         year={m.year}
                                         month={m.month}
-                                        markedDates={m.dates}
+                                        dayWorkersMap={m.dayWorkersMap}
+                                        workers={workers}
                                         color={siteColor}
+                                        highlightSet={highlightSet}
                                     />
                                 ))}
                             </div>
@@ -729,6 +943,7 @@ export function SiteDetailPage({ site, onClose, onArchive, onEdit, onUpdate }) {
                     Назад
                 </button>
             </div>
+
             {/* === МИНИ-ШИТ ЗАРПЛАТНОЙ ЧАСТИ === */}
             {showSalaryModal && createPortal(
                 <div
