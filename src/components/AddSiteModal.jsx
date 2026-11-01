@@ -140,8 +140,10 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
     const [address, setAddress] = useState('')
     const [selectedColor, setSelectedColor] = useState(COLORS[0])
     const [salaryPart, setSalaryPart] = useState('')
-    // Base64 dataURL с префиксом — он же превью (квадрат 250×250)
+    // Base64 dataURL с префиксом — превью (квадрат 250×250) для списка
     const [photoBase64, setPhotoBase64] = useState(null)
+    // Base64 dataURL — hero (квадрат 800×800) для деталки
+    const [photoLargeBase64, setPhotoLargeBase64] = useState(null)
     const [photoProcessing, setPhotoProcessing] = useState(false)
     const [photoError, setPhotoError] = useState('')
     const [loading, setLoading] = useState(false)
@@ -211,6 +213,7 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
         setAddress('')
         setSalaryPart('')
         setPhotoBase64(null)
+        setPhotoLargeBase64(null)
         setPhotoError('')
         setPhotoProcessing(false)
         setError('')
@@ -224,8 +227,13 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
         setPhotoError('')
         setPhotoProcessing(true)
         try {
-            const dataUrl = await compressSquare(file, 250, 0.82)
-            setPhotoBase64(dataUrl)
+            // thumb 250×250 для списка + large 800×800 для hero — параллельно
+            const [thumb, large] = await Promise.all([
+                compressSquare(file, 250, 0.82),
+                compressSquare(file, 800, 0.80),
+            ])
+            setPhotoBase64(thumb)
+            setPhotoLargeBase64(large)
         } catch (err) {
             setPhotoError(err.message || 'Не удалось обработать фото')
         } finally {
@@ -235,6 +243,7 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
 
     const handleRemovePhoto = () => {
         setPhotoBase64(null)
+        setPhotoLargeBase64(null)
         setPhotoError('')
     }
 
@@ -342,6 +351,7 @@ export function AddSiteModal({ isOpen, onClose, onSave, usedColors = [] }) {
                 color: selectedColor,
                 salaryPart: parseSalary(salaryPart),
                 photo: photoBase64 || null,
+                photoLarge: photoLargeBase64 || null,
             })
             onClose()
         } catch (err) {

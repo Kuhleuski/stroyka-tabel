@@ -131,7 +131,9 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
     const [status, setStatus] = useState('в работе')
     const [salaryPart, setSalaryPart] = useState('')
 
+    // thumb 250×250 — для списка; large 800×800 — для hero
     const [photoBase64, setPhotoBase64] = useState(null)
+    const [photoLargeBase64, setPhotoLargeBase64] = useState(null)
     const [photoChanged, setPhotoChanged] = useState(false)
     const [photoProcessing, setPhotoProcessing] = useState(false)
     const [photoError, setPhotoError] = useState('')
@@ -167,6 +169,8 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
             )
             setSalaryChanged(false)
             setPhotoBase64(site.photo || null)
+            // Фолбэк на photo для старых объектов без photo_large
+            setPhotoLargeBase64(site.photo_large || site.photo || null)
             setPhotoChanged(false)
             setPhotoError('')
             setError('')
@@ -217,8 +221,12 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
         setPhotoError('')
         setPhotoProcessing(true)
         try {
-            const dataUrl = await compressSquare(file, 250, 0.82)
-            setPhotoBase64(dataUrl)
+            const [thumb, large] = await Promise.all([
+                compressSquare(file, 250, 0.82),
+                compressSquare(file, 800, 0.80),
+            ])
+            setPhotoBase64(thumb)
+            setPhotoLargeBase64(large)
             setPhotoChanged(true)
         } catch (err) {
             setPhotoError(err.message || 'Не удалось обработать фото')
@@ -229,6 +237,7 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
 
     const handleRemovePhoto = () => {
         setPhotoBase64(null)
+        setPhotoLargeBase64(null)
         setPhotoChanged(true)
         setPhotoError('')
     }
@@ -350,6 +359,7 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
 
             if (photoChanged) {
                 payload.photo = photoBase64 || null
+                payload.photoLarge = photoLargeBase64 || null
             }
 
             await onSave(payload)
@@ -434,7 +444,7 @@ export function EditSiteModal({ isOpen, onClose, onSave, site }) {
                                     className={`${styles.yandexField} ${styles.yandexFieldRequired}`}
                                     ref={(el) => { fieldRefs.current.name = el }}
                                 >
-                                    <label className={styles.yandexLabel}>
+                                                                        <label className={styles.yandexLabel}>
                                         Название объекта
                                         <span className={styles.yandexRequiredStar} aria-hidden="true">*</span>
                                     </label>

@@ -550,7 +550,7 @@ export async function fetchSites() {
 
 // onSave-совместимая сигнатура: принимает объект.
 // photo — dataURL с префиксом или null.
-export async function addSite({ name, address, color, salaryPart = null, photo = null }) {
+export async function addSite({ name, address, color, salaryPart = null, photo = null, photoLarge = null }) {
    const url = `${SUPABASE_URL}/rest/v1/sites`
    const payload = [{
       name,
@@ -559,7 +559,8 @@ export async function addSite({ name, address, color, salaryPart = null, photo =
       salary_part: (salaryPart === null || salaryPart === undefined || salaryPart === '')
          ? null
          : Number(salaryPart),
-      photo: photo || null
+      photo: photo || null,
+      photo_large: photoLarge || null,
    }]
    const response = await fetch(url, {
       method: 'POST',
@@ -764,7 +765,7 @@ export async function updateWorker(workerId, name, avatarFile = null, status = n
 // photo / salaryPart: если ключа нет в payload — поле в БД не трогаем (оптимизация).
 export async function updateSite(payload) {
    try {
-      const { siteId, name, address, color, status, salaryPart, photo } = payload
+      const { siteId, name, address, color, status, salaryPart, photo, photoLarge } = payload
 
       if (!siteId) {
          throw new Error('ID объекта не указан')
@@ -785,6 +786,10 @@ export async function updateSite(payload) {
 
       if (Object.prototype.hasOwnProperty.call(payload, 'photo')) {
          updateData.photo = photo || null
+      }
+
+      if (Object.prototype.hasOwnProperty.call(payload, 'photoLarge')) {
+         updateData.photo_large = photoLarge || null
       }
 
       console.log('📤 Обновляем объект:', siteId, updateData)
